@@ -1,0 +1,6 @@
+Testsuite: edu.calpoly.its.mas.big.tags.IncrementNumberOfCosLoggedInTagTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.058 sec
+
+Testcase: testDoEndTagDoesNothingWhenNoNewLoginFlag took 0.051 sec
+Testcase: testDoEndTagIncrementsWhenNewLoginFlagPresent took 0 sec
+Testcase: testDoStartTagReturnsSkipBody took 0.001 sec

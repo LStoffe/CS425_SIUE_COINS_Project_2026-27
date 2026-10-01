@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.DefaultRatiosDBHandlerTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.05 sec
+
+Testcase: testRemoveRatiosWrapsSQLExceptionAndClosesConnection took 0.016 sec
+Testcase: testAddRatiosSucceeds took 0.012 sec
+Testcase: testRemoveRatiosSucceeds took 0 sec
+Testcase: testGetRatiosReturnsArray took 0.014 sec
+Testcase: testAddRatiosWrapsSQLExceptionAndClosesConnection took 0 sec
+Testcase: testGetRatiosWrapsSQLExceptionAndClosesConnection took 0 sec
+Testcase: testAddRatiosHandlesNullValues took 0 sec
+Testcase: testGetRatiosHandlesNullValues took 0 sec

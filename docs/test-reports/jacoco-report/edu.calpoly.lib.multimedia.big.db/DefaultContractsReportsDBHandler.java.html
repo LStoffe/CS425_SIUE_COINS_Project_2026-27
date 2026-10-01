@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultContractsReportsDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultContractsReportsDBHandler.java</span></div><h1>DefaultContractsReportsDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportForm;
+import edu.calpoly.lib.multimedia.big.reports.CompletedContractsReportForm;
+import edu.calpoly.lib.multimedia.big.reports.Contract;
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;ContractsInProgressReportDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultContractsReportsDBHandler extends DefaultDBHandler implements ContractsReportsDBHandler
+{
+
+    public DefaultContractsReportsDBHandler(Connection connection)
+    {
+<span class="fc" id="L40">		super(connection);</span>
+<span class="fc" id="L41">	}</span>
+
+    public ContractsInProgressReportForm getContractsInProgressReport(Game game, int periodNum, Company company) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L45">		ContractsInProgressReportForm contractsInProgressReport = null;</span>
+<span class="fc" id="L46">		Vector contracts = new Vector();</span>
+		try
+		{
+<span class="fc" id="L49">			String query = &quot;SELECT cr.jobid, j.job_type_id, j.type_modifier, previous_cost, current_cost, cr.billed_to_date, est_cost_to_complete, big_computes_est_cost, &quot; +</span>
+					       &quot; revenue_recorded, bid_amount, change_order_pay, bl.amount_billed, bl.rejected &quot; +
+						   &quot; FROM contract_reports cr, job j, bid b, billings bl WHERE cr.gameid = ? AND cr.periodid = ? AND cr.companyid = ? &quot; +
+						   &quot; AND cr.jobid = j.jobid AND b.jobid = cr.jobid AND cr.companyid = b.companyid AND cr.gameid = j.gameid AND cr.gameid = b.gameid AND &quot; +
+						   &quot; ( ( j.is_active = TRUE) OR (cr.periodid &lt; j.period_completed)) AND j.jobid = bl.jobid AND cr.periodid = bl.periodid AND cr.gameid = bl.gameid &quot; +
+						   &quot; ORDER BY cr.jobid&quot;;
+
+						   /*
+						      The contracts table is joined to the job table to get the change order amounts and to determine if the job has finished.
+						      It is joined to the bid table to get the original contract price.
+						      The last part of the WHERE clause determines if a job has completed, and if so should not appear in the contracts
+						      in progress report.  Until a job completes its is_active field will be true.
+						      As long as the job is active is hasn't completed so it should be displayed.  The left-hand side of the OR statement handles this case.
+						      Once a job is complete its period_completed field is set to the period it
+						      completed.  If the period requested for the report is before the job completed then the job should appear on the report.
+						      The right-hand side of the OR handles this case.
+						   */
+
+<span class="fc" id="L67">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L69">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L70">			pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L71">			pstmt.setInt(3, company.getCompanyID());</span>
+
+<span class="fc" id="L73">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L77">				int currentBillingAmount = 0;</span>
+				//if(!rset.getBoolean(&quot;rejected&quot;))
+				//{
+<span class="fc" id="L80">					currentBillingAmount = rset.getInt(&quot;amount_billed&quot;);</span>
+				//}
+<span class="fc" id="L82">				Contract c = new Contract(rset.getInt(&quot;jobid&quot;),</span>
+<span class="fc" id="L83">										   rset.getInt(&quot;job_type_id&quot;),</span>
+<span class="fc" id="L84">										   rset.getInt(&quot;type_modifier&quot;),</span>
+<span class="fc" id="L85">										   rset.getInt(&quot;bid_amount&quot;),</span>
+<span class="fc" id="L86">										   rset.getInt(&quot;change_order_pay&quot;),</span>
+<span class="fc" id="L87">										   rset.getInt(&quot;est_cost_to_complete&quot;),</span>
+<span class="fc" id="L88">										   rset.getBoolean(&quot;big_computes_est_cost&quot;),</span>
+<span class="fc" id="L89">										   rset.getInt(&quot;billed_to_date&quot;) + currentBillingAmount,</span>
+<span class="fc" id="L90">										   rset.getInt(&quot;current_cost&quot;),</span>
+<span class="fc" id="L91">										   rset.getInt(&quot;previous_cost&quot;),</span>
+<span class="fc" id="L92">										   rset.getInt(&quot;revenue_recorded&quot;)</span>
+				                          );
+
+<span class="fc" id="L95">			    c.setPeriodID(periodNum);</span>
+
+			    //Check if this job is negotiated
+<span class="fc" id="L98">				String negotiatedCheck = &quot;SELECT jobid FROM negotiated_job WHERE jobid = ? AND gameid = ?&quot;;</span>
+<span class="fc" id="L99">				PreparedStatement pstmt2 = connection.prepareStatement(negotiatedCheck, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L100">				pstmt2.setInt(1, rset.getInt(&quot;jobid&quot;));</span>
+<span class="fc" id="L101">				pstmt2.setInt(2, game.getGameID());</span>
+
+<span class="fc" id="L103">				ResultSet rset2 = pstmt2.executeQuery();</span>
+
+				// Check if no rows are returned
+				// (rset.last() returns false if there are no rows in the result set)
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">				if(!rset2.last())</span>
+				{
+				}
+				else
+				{
+					//System.out.println(&quot;DefaultContractsReportDBHandler.getContractsInProgressReport: Job &quot; + rset.getInt(&quot;jobid&quot;) + &quot; is negotiated&quot;);
+<span class="nc" id="L113">					c.setNegotiated(true);</span>
+<span class="nc" id="L114">					c.setNegotiatedJob((NegotiatedJob) (new edu.calpoly.its.mas.big.db.DefaultJobDBHandler(connection, null)).getJob(game, rset.getInt(&quot;jobid&quot;)));</span>
+				}
+<span class="fc" id="L116">				rset2.close();</span>
+<span class="fc" id="L117">				pstmt2.close();</span>
+
+<span class="fc" id="L119">            	contracts.add(c);</span>
+<span class="fc" id="L120">			}</span>
+
+			//done with the result set
+<span class="fc" id="L123">			rset.close();</span>
+<span class="fc" id="L124">			pstmt.close();</span>
+		}
+<span class="fc" id="L126">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="fc" id="L129">			close();</span>
+<span class="fc" id="L130">			sqle.printStackTrace();</span>
+<span class="fc" id="L131">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L132">		}</span>
+
+<span class="fc" id="L134">		contractsInProgressReport = new ContractsInProgressReportForm(company.getTitle(), contracts);</span>
+
+<span class="fc" id="L136">		return contractsInProgressReport;</span>
+    }
+
+    public Contract getContract(Game game, int periodNum, Job job, Company company) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L141">		Contract contract = null;</span>
+		try
+		{
+<span class="fc" id="L144">			String query = &quot;SELECT cr.jobid, j.job_type_id, j.type_modifier, previous_cost, current_cost, cr.billed_to_date, est_cost_to_complete, big_computes_est_cost, &quot; +</span>
+						   &quot; revenue_recorded, bid_amount, change_order_pay, bl.amount_billed, bl.rejected &quot; +
+						   &quot; FROM contract_reports cr, job j, bid b, billings bl WHERE cr.gameid = ? AND cr.periodid = ? AND cr.companyid = ? AND j.jobid = ? &quot; +
+						   &quot; AND cr.jobid = j.jobid AND b.jobid = cr.jobid AND cr.companyid = b.companyid AND cr.gameid = j.gameid AND cr.gameid = b.gameid &quot; +
+						   &quot; AND j.jobid = bl.jobid AND cr.periodid = bl.periodid AND cr.gameid = bl.gameid  &quot; +
+						   &quot; ORDER BY cr.jobid&quot;;
+
+
+<span class="fc" id="L152">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L154">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L155">			pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L156">			pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L157">			pstmt.setInt(4, job.getJobID());</span>
+
+<span class="fc" id="L159">			ResultSet rset = pstmt.executeQuery();</span>
+
+			// Check if no rows are returned
+			// (rset.last() returns false if there are no rows in the result set)
+<span class="fc bfc" id="L163" title="All 2 branches covered.">			if(!rset.last())</span>
+			{
+<span class="fc" id="L165">				return null;</span>
+			}
+			else
+			{
+<span class="fc" id="L169">				int currentBillingAmount = 0;</span>
+				//if(!rset.getBoolean(&quot;rejected&quot;) )
+				//{
+<span class="fc" id="L172">					currentBillingAmount = rset.getInt(&quot;amount_billed&quot;);</span>
+				//}
+<span class="fc" id="L174">				contract =    new Contract(rset.getInt(&quot;jobid&quot;),</span>
+<span class="fc" id="L175">										   rset.getInt(&quot;job_type_id&quot;),</span>
+<span class="fc" id="L176">										   rset.getInt(&quot;type_modifier&quot;),</span>
+<span class="fc" id="L177">										   rset.getInt(&quot;bid_amount&quot;),</span>
+<span class="fc" id="L178">										   rset.getInt(&quot;change_order_pay&quot;),</span>
+<span class="fc" id="L179">										   rset.getInt(&quot;est_cost_to_complete&quot;),</span>
+<span class="fc" id="L180">										   rset.getBoolean(&quot;big_computes_est_cost&quot;),</span>
+<span class="fc" id="L181">										   rset.getInt(&quot;billed_to_date&quot;) + currentBillingAmount,</span>
+<span class="fc" id="L182">										   rset.getInt(&quot;current_cost&quot;),</span>
+<span class="fc" id="L183">										   rset.getInt(&quot;previous_cost&quot;),</span>
+<span class="fc" id="L184">										   rset.getInt(&quot;revenue_recorded&quot;)</span>
+				                          );
+
+<span class="fc" id="L187">			    contract.setPeriodID(periodNum);</span>
+			}
+
+			//done with the result set
+<span class="fc" id="L191">			rset.close();</span>
+<span class="fc" id="L192">			pstmt.close();</span>
+
+			//Check if this job is negotiated
+<span class="fc" id="L195">			String negotiatedCheck = &quot;SELECT jobid FROM negotiated_job WHERE jobid = ? AND gameid = ?&quot;;</span>
+<span class="fc" id="L196">			PreparedStatement pstmt2 = connection.prepareStatement(negotiatedCheck, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L197">			pstmt2.setInt(1, contract.getJobID());</span>
+<span class="fc" id="L198">			pstmt2.setInt(2, game.getGameID());</span>
+
+<span class="fc" id="L200">			ResultSet rset2 = pstmt2.executeQuery();</span>
+
+			// Check if no rows are returned
+			// (rset.last() returns false if there are no rows in the result set)
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">			if(!rset2.last())</span>
+			{
+			}
+			else
+			{
+				//System.out.println(&quot;DefaultContractsReportDBHandler.getContract: Job &quot; + contract.getJobID() + &quot; is negotiated&quot;);
+<span class="nc" id="L210">				contract.setNegotiated(true);</span>
+<span class="nc" id="L211">				contract.setNegotiatedJob((NegotiatedJob) job);</span>
+			}
+<span class="fc" id="L213">			rset2.close();</span>
+<span class="fc" id="L214">			pstmt2.close();</span>
+
+		}
+<span class="nc" id="L217">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L220">			close();</span>
+<span class="nc" id="L221">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L222">		}</span>
+
+<span class="fc" id="L224">		return contract;</span>
+    }
+
+
+
+    public CompletedContractsReportForm getCompletedContractsReport(Game game, int periodNum, Company company) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="nc" id="L231">		CompletedContractsReportForm completedContractsReport = null;</span>
+<span class="nc" id="L232">		Vector contracts = new Vector();</span>
+		try
+		{
+<span class="nc" id="L235">			String query = &quot;SELECT j.period_completed, cr.jobid, j.job_type_id, j.type_modifier, previous_cost, current_cost, cr.billed_to_date, est_cost_to_complete, revenue_recorded, bid_amount, change_order_pay, bl.amount_billed, bl.rejected &quot; +</span>
+						   &quot; FROM contract_reports cr, job j, bid b, billings bl WHERE cr.gameid = ? AND cr.periodid = j.period_completed AND cr.companyid = ? &quot; +
+						   &quot; AND cr.jobid = j.jobid AND b.jobid = cr.jobid AND cr.companyid = b.companyid AND cr.gameid = j.gameid AND cr.gameid = b.gameid AND &quot; +
+						   &quot;  j.is_active = FALSE AND cr.periodid &lt;= ? AND j.jobid = bl.jobid AND cr.periodid = bl.periodid AND cr.gameid = bl.gameid ORDER BY cr.jobid&quot;;
+
+
+            //The last entry in the contract_reports table will be for the period the job completed
+            //however there may be more billings for the job in the billings table.
+            //This next query will gather all these billings and sum them to get the total
+            //amount billed on the job after the final contract entry
+<span class="nc" id="L245">			String pastCompletionBillingsQuery = &quot;SELECT amount_paid, amount_billed, rejected FROM billings WHERE gameid = ? AND companyid = ? &quot; +</span>
+			          							 &quot; AND jobid = ? AND periodid &gt; ? AND periodid &lt;= ? ORDER BY periodid&quot;;
+
+<span class="nc" id="L248">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="nc" id="L249">			pstmt.setInt(1, game.getGameID());</span>
+<span class="nc" id="L250">	        pstmt.setInt(2, company.getCompanyID());</span>
+<span class="nc" id="L251">			pstmt.setInt(3, periodNum);</span>
+
+<span class="nc" id="L253">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="nc bnc" id="L255" title="All 2 branches missed.">			while(rset.next())</span>
+			{
+<span class="nc" id="L257">				PreparedStatement innerStatement = connection.prepareStatement(pastCompletionBillingsQuery, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="nc" id="L258">				innerStatement.setInt(1, game.getGameID());</span>
+<span class="nc" id="L259">				innerStatement.setInt(2, company.getCompanyID());</span>
+<span class="nc" id="L260">				innerStatement.setInt(3, rset.getInt(&quot;jobid&quot;));</span>
+<span class="nc" id="L261">				innerStatement.setInt(4, rset.getInt(&quot;period_completed&quot;));</span>
+<span class="nc" id="L262">				innerStatement.setInt(5, periodNum);</span>
+
+<span class="nc" id="L264">				ResultSet billingSet = innerStatement.executeQuery();</span>
+<span class="nc" id="L265">				int billedSinceCompleted = 0;</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">				while(billingSet.next())</span>
+				{
+					//On the last billing we need to record submitted bills
+					//rather than paid bills
+<span class="nc bnc" id="L270" title="All 2 branches missed.">					if(billingSet.isLast())</span>
+					{
+<span class="nc" id="L272">						billedSinceCompleted += billingSet.getInt(&quot;amount_billed&quot;);</span>
+					}
+					else
+					{
+<span class="nc" id="L276">						billedSinceCompleted += billingSet.getInt(&quot;amount_paid&quot;);</span>
+					}
+				}
+<span class="nc" id="L279">				billingSet.close();</span>
+
+<span class="nc" id="L281">				int currentBillingAmount = 0;</span>
+<span class="nc bnc" id="L282" title="All 4 branches missed.">				if(!rset.getBoolean(&quot;rejected&quot;) || periodNum == rset.getInt(&quot;period_completed&quot;) )</span>
+				{
+<span class="nc" id="L284">					currentBillingAmount = rset.getInt(&quot;amount_billed&quot;);</span>
+				}
+
+				//If the job completed the period of this report
+				//current info is separate from previous info
+<span class="nc bnc" id="L289" title="All 2 branches missed.">				if(rset.getInt(&quot;period_completed&quot;) == periodNum)</span>
+				{
+<span class="nc" id="L291">					Contract c = new Contract(rset.getInt(&quot;jobid&quot;),</span>
+<span class="nc" id="L292">											   rset.getInt(&quot;job_type_id&quot;),</span>
+<span class="nc" id="L293">											   rset.getInt(&quot;type_modifier&quot;),</span>
+<span class="nc" id="L294">											   rset.getInt(&quot;bid_amount&quot;),</span>
+<span class="nc" id="L295">											   rset.getInt(&quot;change_order_pay&quot;),</span>
+<span class="nc" id="L296">											   rset.getInt(&quot;est_cost_to_complete&quot;),</span>
+											   true, //Auto complete doesn't matter anymore
+<span class="nc" id="L298">											   rset.getInt(&quot;billed_to_date&quot;) + currentBillingAmount + billedSinceCompleted,</span>
+<span class="nc" id="L299">											   rset.getInt(&quot;current_cost&quot;),</span>
+<span class="nc" id="L300">											   rset.getInt(&quot;previous_cost&quot;),</span>
+<span class="nc" id="L301">											   rset.getInt(&quot;revenue_recorded&quot;)</span>
+					                          );
+
+<span class="nc" id="L304">			   		c.setPeriodID(periodNum);</span>
+
+			        //Check if this job is negotiated
+<span class="nc" id="L307">					String negotiatedCheck = &quot;SELECT jobid FROM negotiated_job WHERE jobid = ? AND gameid = ?&quot;;</span>
+<span class="nc" id="L308">					PreparedStatement pstmt2 = connection.prepareStatement(negotiatedCheck, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="nc" id="L309">					pstmt2.setInt(1, rset.getInt(&quot;jobid&quot;));</span>
+<span class="nc" id="L310">					pstmt2.setInt(2, game.getGameID());</span>
+
+<span class="nc" id="L312">					ResultSet rset2 = pstmt2.executeQuery();</span>
+
+					// Check if no rows are returned
+					// (rset.last() returns false if there are no rows in the result set)
+<span class="nc bnc" id="L316" title="All 2 branches missed.">					if(!rset2.last())</span>
+					{
+					}
+					else
+					{
+					    //System.out.println(&quot;DefaultContractsReportDBHandler.getCompletedContractsReport: Job &quot; + rset.getInt(&quot;jobid&quot;) + &quot; is negotiated&quot;);
+<span class="nc" id="L322">						c.setNegotiated(true);</span>
+<span class="nc" id="L323">					    c.setNegotiatedJob((NegotiatedJob) (new edu.calpoly.its.mas.big.db.DefaultJobDBHandler(connection, null)).getJob(game, rset.getInt(&quot;jobid&quot;)));</span>
+					}
+<span class="nc" id="L325">					rset2.close();</span>
+<span class="nc" id="L326">					pstmt2.close();</span>
+
+<span class="nc" id="L328">            		contracts.add(c);</span>
+
+<span class="nc" id="L330">				}</span>
+				//If the current period is greater than the period the job completed
+				//all job info is previous.  Current cost info is 0 and the revenue
+				//recorded it equal to the bid amount
+				else
+				{
+<span class="nc" id="L336">					Contract c = new Contract(rset.getInt(&quot;jobid&quot;),</span>
+<span class="nc" id="L337">											   rset.getInt(&quot;job_type_id&quot;),</span>
+<span class="nc" id="L338">											   rset.getInt(&quot;type_modifier&quot;),</span>
+<span class="nc" id="L339">											   rset.getInt(&quot;bid_amount&quot;),</span>
+<span class="nc" id="L340">											   rset.getInt(&quot;change_order_pay&quot;),</span>
+<span class="nc" id="L341">											   rset.getInt(&quot;est_cost_to_complete&quot;),</span>
+											   true, //Auto complete doesn't matter anymore
+<span class="nc" id="L343">											   rset.getInt(&quot;billed_to_date&quot;) + currentBillingAmount + billedSinceCompleted,</span>
+											   0,
+<span class="nc" id="L345">											   rset.getInt(&quot;current_cost&quot;) +</span>
+<span class="nc" id="L346">											   rset.getInt(&quot;previous_cost&quot;),</span>
+<span class="nc" id="L347">											   rset.getInt(&quot;bid_amount&quot;) + rset.getInt(&quot;change_order_pay&quot;)</span>
+					                          );
+<span class="nc" id="L349">			   		c.setPeriodID(periodNum);</span>
+
+			        //Check if this job is negotiated
+<span class="nc" id="L352">					String negotiatedCheck = &quot;SELECT jobid FROM negotiated_job WHERE jobid = ? AND gameid = ?&quot;;</span>
+
+<span class="nc" id="L354">					PreparedStatement pstmt2 = connection.prepareStatement(negotiatedCheck, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="nc" id="L355">					pstmt2.setInt(1, rset.getInt(&quot;jobid&quot;));</span>
+<span class="nc" id="L356">					pstmt2.setInt(2, game.getGameID());</span>
+
+<span class="nc" id="L358">					ResultSet rset2 = pstmt2.executeQuery();</span>
+
+					// Check if no rows are returned
+					// (rset.last() returns false if there are no rows in the result set)
+<span class="nc bnc" id="L362" title="All 2 branches missed.">					if(!rset2.last())</span>
+					{
+					}
+					else
+					{
+						//System.out.println(&quot;DefaultContractsReportDBHandler.getCompletedContractsReport: Job &quot; + rset.getInt(&quot;jobid&quot;) + &quot; is negotiated&quot;);
+<span class="nc" id="L368">						c.setNegotiated(true);</span>
+<span class="nc" id="L369">					    c.setNegotiatedJob((NegotiatedJob) (new edu.calpoly.its.mas.big.db.DefaultJobDBHandler(connection, null)).getJob(game, rset.getInt(&quot;jobid&quot;)));</span>
+					}
+<span class="nc" id="L371">					rset2.close();</span>
+<span class="nc" id="L372">					pstmt2.close();</span>
+
+<span class="nc" id="L374">            		contracts.add(c);</span>
+				}
+<span class="nc" id="L376">			}</span>
+
+			//done with the result set
+<span class="nc" id="L379">			rset.close();</span>
+<span class="nc" id="L380">			pstmt.close();</span>
+		}
+<span class="nc" id="L382">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L385">			close();</span>
+<span class="nc" id="L386">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L387">		}</span>
+
+<span class="nc" id="L389">		completedContractsReport = new CompletedContractsReportForm(company.getTitle(), contracts);</span>
+
+<span class="nc" id="L391">		return completedContractsReport;</span>
+    }
+
+
+
+    public void addCurrentJobInfo(Game game, int periodNum, Company company, Job job, int estimatedCostToComplete, int revenueRecorded) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L398">		String insert = &quot;INSERT INTO contract_reports (gameid, companyid, periodid, jobid, previous_cost, current_cost, &quot; +</span>
+		                                             &quot; billed_to_date, est_cost_to_complete, big_computes_est_cost, revenue_recorded) &quot; +
+		                                             &quot;VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
+
+<span class="fc" id="L402">		String previousCostQuery = &quot;SELECT previous_cost, current_cost, big_computes_est_cost FROM contract_reports WHERE gameid = ? &quot; +</span>
+		                           &quot; AND companyid = ? AND jobid = ? AND periodid = ?&quot;;
+
+<span class="fc" id="L405">		String previousBilledQuery = &quot;SELECT billed_to_date, revenue_recorded FROM contract_reports WHERE gameid = ? &quot; +</span>
+		                           &quot; AND companyid = ? AND jobid = ? AND periodid = ?&quot;;
+
+<span class="fc" id="L408">		String currentBilling = &quot;SELECT amount_billed, rejected FROM billings WHERE gameid = ? AND jobid = ? AND periodid = ? &quot;;</span>
+
+		try
+		{
+
+<span class="fc" id="L413">			int lastPeriodPreviousCost = 0;</span>
+<span class="fc" id="L414">			int lastPeriodCurrentCost = 0;</span>
+<span class="fc" id="L415">			int previousBilled = 0;</span>
+<span class="fc" id="L416">			int currentBill = 0;</span>
+<span class="fc" id="L417">			boolean autoCompute = true;</span>
+
+
+			//GET NEEDED COST INFO
+<span class="fc" id="L421">			PreparedStatement pstmt = connection.prepareStatement(previousCostQuery, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L423">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L424">			pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L425">			pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L426">			pstmt.setInt(4, periodNum - 1);</span>
+
+<span class="fc" id="L428">			ResultSet rset = pstmt.executeQuery();</span>
+
+			// Check if no rows are returned
+			// (rset.last() returns false if there are no rows in the result set)
+<span class="pc bpc" id="L432" title="1 of 2 branches missed.">			if(!rset.last())</span>
+			{
+			}
+			else
+			{
+<span class="nc" id="L437">				rset.first();</span>
+<span class="nc" id="L438">				lastPeriodPreviousCost = rset.getInt(&quot;previous_cost&quot;);</span>
+<span class="nc" id="L439">				lastPeriodCurrentCost = rset.getInt(&quot;current_cost&quot;);</span>
+<span class="nc" id="L440">				autoCompute = rset.getBoolean(&quot;big_computes_est_cost&quot;);</span>
+
+			}
+			//done with the result set
+<span class="fc" id="L444">			rset.close();</span>
+
+			//GET NEEDED BILLING INFO
+			//First getting total of billing previous to the current period
+<span class="fc" id="L448">			pstmt = connection.prepareStatement(previousBilledQuery, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L450">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L451">			pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L452">			pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L453">			pstmt.setInt(4, periodNum - 1);</span>
+
+<span class="fc" id="L455">			rset = pstmt.executeQuery();</span>
+
+			// Check if no rows are returned
+			// (rset.last() returns false if there are no rows in the result set)
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">			if(!rset.last())</span>
+			{
+			}
+			else
+			{
+<span class="nc" id="L464">				rset.first();</span>
+<span class="nc" id="L465">				previousBilled = rset.getInt(&quot;billed_to_date&quot;);</span>
+
+			}
+			//done with the result set
+<span class="fc" id="L469">			rset.close();</span>
+
+			//Next get the billing for this period
+<span class="fc" id="L472">			pstmt = connection.prepareStatement(currentBilling, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L473">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L474">			pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L475">			pstmt.setInt(3, periodNum - 1);</span>
+
+<span class="fc" id="L477">			rset = pstmt.executeQuery();</span>
+
+			// Check if no rows are returned
+			// (rset.last() returns false if there are no rows in the result set)
+<span class="pc bpc" id="L481" title="1 of 2 branches missed.">			if(!rset.last())</span>
+			{
+			}
+			else
+			{
+<span class="nc" id="L486">				rset.first();</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">				if(!rset.getBoolean(&quot;rejected&quot;))</span>
+				{
+<span class="nc" id="L489">					currentBill = rset.getInt(&quot;amount_billed&quot;);</span>
+				}
+
+			}
+			//done with the result set
+<span class="fc" id="L494">			rset.close();</span>
+
+			//INSERT THE NEW INFO
+
+			//The previous cost for this period is the previous period's previous cost
+			//and the cost incurred in the pervious period
+<span class="fc" id="L500">			int previousCost = lastPeriodPreviousCost + lastPeriodCurrentCost;</span>
+
+<span class="fc" id="L502">			pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L503">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L504">			pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L505">			pstmt.setInt(3, periodNum);</span>
+<span class="fc" id="L506">			pstmt.setInt(4, job.getJobID());</span>
+<span class="fc" id="L507">			pstmt.setInt(5, previousCost);</span>
+<span class="fc" id="L508">			pstmt.setInt(6, job.getCurrentCost());</span>
+<span class="fc" id="L509">			pstmt.setInt(7, previousBilled + currentBill);</span>
+<span class="fc" id="L510">			pstmt.setInt(8, estimatedCostToComplete);</span>
+<span class="fc" id="L511">			pstmt.setBoolean(9, autoCompute);</span>
+<span class="fc" id="L512">			pstmt.setInt(10, revenueRecorded);</span>
+
+
+<span class="fc" id="L515">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L517">			pstmt.close();</span>
+		}
+<span class="nc" id="L519">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L521">			close();</span>
+<span class="nc" id="L522">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L523">		}</span>
+
+<span class="fc" id="L525">    }</span>
+
+    public void updateEstimatedCostToComplete(Game game, Company company, Job job, int estimatedCostToComplete) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L529">		String update = &quot;UPDATE contract_reports SET est_cost_to_complete = ? WHERE gameid = ? &quot; +</span>
+		                           &quot; AND companyid = ? AND jobid = ? AND periodid = ?&quot;;
+
+		try
+		{
+
+<span class="fc" id="L535">    		PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L536">			pstmt.setInt(1, estimatedCostToComplete);</span>
+<span class="fc" id="L537">			pstmt.setInt(2, game.getGameID());</span>
+<span class="fc" id="L538">			pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L539">			pstmt.setInt(4, job.getJobID());</span>
+<span class="fc" id="L540">			pstmt.setInt(5, game.getCurrentPeriodNumber() - 1);</span>
+
+<span class="fc" id="L542">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L544">			pstmt.close();</span>
+		}
+<span class="nc" id="L546">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L548">			close();</span>
+<span class="nc" id="L549">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L550">		}</span>
+
+<span class="fc" id="L552">    }</span>
+
+
+    public void updateEstimatedCostToComplete(Game game, Company company, Job job, boolean autoCalculate, int estimatedCostToComplete) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L557">		String update = &quot;UPDATE contract_reports SET est_cost_to_complete = ?, big_computes_est_cost = ? WHERE gameid = ? &quot; +</span>
+		                           &quot; AND companyid = ? AND jobid = ? AND periodid = ?&quot;;
+
+		try
+		{
+
+<span class="fc" id="L563">    		PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L564">			pstmt.setInt(1, estimatedCostToComplete);</span>
+<span class="fc" id="L565">			pstmt.setBoolean(2, autoCalculate);</span>
+<span class="fc" id="L566">			pstmt.setInt(3, game.getGameID());</span>
+<span class="fc" id="L567">			pstmt.setInt(4, company.getCompanyID());</span>
+<span class="fc" id="L568">			pstmt.setInt(5, job.getJobID());</span>
+<span class="fc" id="L569">			pstmt.setInt(6, game.getCurrentPeriodNumber() - 1);</span>
+
+<span class="fc" id="L571">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L573">			pstmt.close();</span>
+		}
+<span class="nc" id="L575">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L577">			close();</span>
+<span class="nc" id="L578">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L579">		}</span>
+
+
+<span class="fc" id="L582">    }</span>
+
+    public boolean autoCalculateEstCostToComplete(Game game, Company company, Job job)
+    	throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L587">		String query = &quot;SELECT big_computes_est_cost FROM contract_reports WHERE gameid = ? AND companyid = ? AND jobid = ? AND periodid = ?&quot;;</span>
+<span class="fc" id="L588">		boolean autoCompute = false;</span>
+		try
+		{
+<span class="fc" id="L591">    		PreparedStatement pstmt = connection.prepareStatement(query);</span>
+<span class="fc" id="L592">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L593">			pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L594">			pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L595">			pstmt.setInt(4, game.getCurrentPeriodNumber() - 1);</span>
+
+<span class="fc" id="L597">			ResultSet rset = pstmt.executeQuery();</span>
+<span class="pc bpc" id="L598" title="1 of 2 branches missed.">			if(rset.next())</span>
+			{
+<span class="fc" id="L600">				autoCompute = rset.getBoolean(&quot;big_computes_est_cost&quot;);</span>
+			}
+			else
+			{
+<span class="nc" id="L604">				throw new BIGDatabaseFacadeException(&quot;DefaultContractsReportsDBHandler.autoCalculateEstCostToComplete: cannot find value for big_computes_est_cost&quot;);</span>
+			}
+<span class="fc" id="L606">			rset.close();</span>
+<span class="fc" id="L607">			pstmt.close();</span>
+
+		}
+<span class="nc" id="L610">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L612">			close();</span>
+<span class="nc" id="L613">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L614">		}</span>
+
+<span class="fc" id="L616">		return autoCompute;</span>
+	}
+
+
+    public void removeContractsInfo(int gameID) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L622">		String remove = &quot;DELETE FROM contract_reports WHERE gameid = ? &quot;;</span>
+
+		try
+		{
+<span class="fc" id="L626">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L627">			pstmt.setInt(1, gameID);</span>
+
+<span class="fc" id="L629">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L631">			pstmt.close();</span>
+		}
+<span class="nc" id="L633">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L635">			close();</span>
+<span class="nc" id="L636">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L637">		}</span>
+
+
+<span class="fc" id="L640">    }</span>
+
+    public void removeContractsInfo(int gameID, int companyID) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L644">		String remove = &quot;DELETE FROM contract_reports WHERE gameid = ? AND companyid = ? &quot;;</span>
+
+		try
+		{
+<span class="fc" id="L648">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L649">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L650">			pstmt.setInt(2, companyID);</span>
+
+<span class="fc" id="L652">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L654">			pstmt.close();</span>
+		}
+<span class="nc" id="L656">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L658">			close();</span>
+<span class="nc" id="L659">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L660">		}</span>
+
+
+<span class="fc" id="L663">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

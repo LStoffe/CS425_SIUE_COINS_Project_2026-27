@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TaxLedger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">TaxLedger.java</span></div><h1>TaxLedger.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.game;
+
+import edu.calpoly.lib.multimedia.big.reports.IncomeStatementForm;
+
+/**
+ * Computes the amount of income tax a company must pay on all income in the current year to date.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class TaxLedger
+{
+
+  private float taxRate;
+  private IncomeStatementForm[] yearsStatements;
+
+
+  /**
+   * Constructor
+   * @param taxRate The percentage of earnings that will be taken as income tax
+   * @param yearsStatements A array of IncomeStatementForms where the earnings
+   * on each form will be considered by this TaxLedger when computing income tax.
+   */
+  public TaxLedger(float taxRate, IncomeStatementForm[] yearsStatements)
+<span class="fc" id="L26">  {</span>
+<span class="fc" id="L27">      this.taxRate = taxRate;</span>
+<span class="fc" id="L28">      this.yearsStatements = yearsStatements;</span>
+<span class="fc" id="L29">  }</span>
+
+  public int getTaxes()
+  {
+<span class="fc" id="L33">	  int yearsPreTaxEarningsToDate = 0;</span>
+
+<span class="fc bfc" id="L35" title="All 2 branches covered.">	  for(int i = 0; i &lt; yearsStatements.length; i++)</span>
+	  {
+<span class="fc" id="L37">		  yearsPreTaxEarningsToDate += yearsStatements[i].getPreTaxEarnings();</span>
+		  //System.out.println(&quot;Revenue: &quot; + yearsStatements[i].getConstructionRevenue());
+		  //System.out.println(&quot;Current earnings: &quot; + yearsStatements[i].getPreTaxEarnings() + &quot; total earnings: &quot; + yearsPreTaxEarningsToDate);
+
+	  }
+
+	  //Companies have to earn at least $10 to pay taxes.  This is just to avoid
+	  //weird rounding
+<span class="fc bfc" id="L45" title="All 2 branches covered.">	  if( yearsPreTaxEarningsToDate &lt; 10)</span>
+	  {
+<span class="fc" id="L47">		  return 0;</span>
+	  }
+	  else
+	  {
+<span class="fc" id="L51">		  return Math.round(taxRate * yearsPreTaxEarningsToDate);</span>
+	  }
+
+
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

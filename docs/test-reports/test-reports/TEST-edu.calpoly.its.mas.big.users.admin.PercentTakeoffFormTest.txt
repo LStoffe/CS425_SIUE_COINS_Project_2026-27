@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.PercentTakeoffFormTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.453 sec
+
+Testcase: testReset took 0.002 sec
+Testcase: testSetAndGetTakeoffPercentsWithArrayAndHashtable took 0.005 sec
+Testcase: testValidateDetectsInvalidNumberFormat took 0.434 sec
+Testcase: testValidateRejectsInvalidSumAndNegative took 0.004 sec
+Testcase: testValidatePassesForValidDataSummingTo100 took 0.001 sec
+Testcase: testValidateRestoreDefaultsReturnsNull took 0.001 sec
+Testcase: testGetSetJobTypeNameAndIdAndMakeDefaults took 0 sec
+Testcase: testValidateDetectsSumNot100 took 0.001 sec

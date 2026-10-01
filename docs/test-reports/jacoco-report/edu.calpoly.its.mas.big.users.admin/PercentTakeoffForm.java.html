@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PercentTakeoffForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">PercentTakeoffForm.java</span></div><h1>PercentTakeoffForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+import java.util.Hashtable;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+
+/**
+ * Stores the percent take-off values of all 9 activities for one
+ * job type.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.6 $ $Date: 2001/10/24 17:40:58 $
+ */
+<span class="fc" id="L20">public class PercentTakeoffForm extends ActionForm</span>
+{
+<span class="fc" id="L22">	private String [] takeoffPercentStrings = new String[9];</span>
+<span class="fc" id="L23">	private int [] takeoffPercents = new int[9];</span>
+
+<span class="fc" id="L25">	private boolean makeDefaults = false;</span>
+	private String jobTypeName;
+	private int jobTypeID;
+
+	/**
+	 * Validate the submitted values.  Percent Take-off values must be between
+	 * 0 and 100.  Also, the 9 Percent Take-off values for each Job Type
+	 * must sum to 100.  If these requirements are not met, the appropriate
+	 * &lt;code&gt;ActionError&lt;/code&gt; objects are created and returned to the user
+	 * through the normal Struts mechanism.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L38">		ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L40">        boolean nullParams = false;</span>
+<span class="fc" id="L41">		boolean integerParseError = false;</span>
+<span class="fc" id="L42">		boolean negativeFound = false;</span>
+
+		// Percent Takeoffs should sum to 100
+<span class="fc" id="L45">		int takeoffSum = 0;</span>
+
+		// If the Restore Defaults button was pressed, validation should not take place
+		// This makes the assumption that the defaults are valid
+<span class="fc" id="L49">		String testRestoreDefaults = (String) request.getParameter(&quot;restoreDefaults&quot;);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">		if (testRestoreDefaults != null)</span>
+		{
+<span class="fc" id="L52">			return(null);</span>
+		}
+
+        // Sorry, this is ugly
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for(int i = 0; i &lt; 9; i++)</span>
+        {
+			// Check for null or empty Strings
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">			if((takeoffPercentStrings[i].trim() == null) ||</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">			   (takeoffPercentStrings[i].trim().length() &lt; 1)) {</span>
+<span class="nc" id="L61">				nullParams = true;</span>
+			} else {
+				try {
+					// Attempt String-&gt;int conversion and populate int array
+<span class="fc" id="L65">                    takeoffPercents[i] = Integer.parseInt(takeoffPercentStrings[i]);</span>
+
+					// Verify that this Percent isn't negative
+<span class="fc bfc" id="L68" title="All 2 branches covered.">					if (takeoffPercents[i] &lt; 0) {</span>
+<span class="fc" id="L69">						negativeFound = true;</span>
+					} else {
+						// Add it to the running sum if it passes all tests above
+<span class="fc" id="L72">						takeoffSum += takeoffPercents[i];</span>
+					}
+<span class="fc" id="L74">                } catch(NumberFormatException nfe) {</span>
+<span class="fc" id="L75">                    integerParseError = true;</span>
+<span class="fc" id="L76">                }</span>
+			}
+		}
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		if (takeoffSum != 100)</span>
+		{
+<span class="fc" id="L82">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.sumTo100&quot;));</span>
+		}
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if (nullParams == true)</span>
+		{
+<span class="nc" id="L87">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		if (integerParseError == true)</span>
+		{
+<span class="fc" id="L92">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		if (negativeFound == true)</span>
+		{
+<span class="fc" id="L97">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+<span class="fc" id="L100">		return errors;</span>
+	}
+
+    /**
+     * Reset fields to their initial values
+     */
+    public void reset()
+    {
+<span class="fc" id="L108">		makeDefaults = false;</span>
+<span class="fc" id="L109">	}</span>
+
+	/**
+	 * Populate this &lt;code&gt;ActionForm&lt;/code&gt;'s fields using the provided
+	 * int array.  The array index plus 1 is equal to the BIG activity to
+	 * which the PercentTake-off corresponds.
+	 */
+	public void setTakeoffPercents(int[] takeoffs)
+	{
+<span class="fc" id="L118">		takeoffPercents = takeoffs;</span>
+<span class="fc" id="L119">		intsToStrings(takeoffPercents, takeoffPercentStrings);</span>
+<span class="fc" id="L120">	}</span>
+
+	/**
+	 * Populate this &lt;code&gt;ActionForm&lt;/code&gt;'s fields using the provided
+     * &lt;code&gt;Hashtable&lt;/code&gt;.  The &lt;code&gt;Hashtable&lt;/code&gt;'s keys are
+	 * ActivityX, where X is an Activity number from 1-9.
+	 */
+	public void setTakeoffPercents(Hashtable params)
+	{
+
+<span class="fc bfc" id="L130" title="All 2 branches covered.">		for (int i = 0; i &lt; 9; i++) {</span>
+<span class="fc" id="L131">			takeoffPercents[i] = ((Integer) params.get(&quot;Activity&quot; + (i+1))).intValue();</span>
+		}
+<span class="fc" id="L133">		intsToStrings(takeoffPercents, takeoffPercentStrings);</span>
+
+<span class="fc" id="L135">	}</span>
+
+	/**
+	 * Return the Takeoff Percents for the Job Type represented by this
+	 * &lt;code&gt;ActionForm&lt;/code&gt;.  The &lt;code&gt;Hashtable&lt;/code&gt;'s keys are
+	 * ActivityX, where X is an Activity number from 1-9.
+	 */
+	public Hashtable getTakeoffPercents() {
+<span class="fc" id="L143">		Hashtable tempTakeoffs = new Hashtable();</span>
+
+<span class="fc bfc" id="L145" title="All 2 branches covered.">		for (int i = 0; i &lt; 9; i++) {</span>
+<span class="fc" id="L146">			tempTakeoffs.put(&quot;Activity&quot; + (i+1), new Integer(takeoffPercents[i]));</span>
+		}
+
+<span class="fc" id="L149">		return tempTakeoffs;</span>
+
+	}
+
+	// I'm sure more get/set methods will be needed...
+
+	//**************************** Private Methods *********************************
+
+	/* Converts a set of strings into ints, stored in an array
+	 * Param: stringValues - Array of strings to be converted into ints
+	 * Param: intValues - Array of ints where the int values of the Strings will be stored
+	 * Precondition: intValues and stringValues must have equal length
+	 */
+	private void stringsToInts(String[] stringValues, int[] intValues)
+	{
+<span class="nc bnc" id="L164" title="All 2 branches missed.">		for (int i = 0; i &lt; stringValues.length; i++) {</span>
+<span class="nc" id="L165">			intValues[i] = Integer.parseInt(stringValues[i]);</span>
+		}
+
+<span class="nc" id="L168">	}</span>
+
+	 /* Converts a set of ints into into strings, stored in the appropriate variable
+	  * Param: intValues - Array of ints to be converted into Strings
+	  * Param: stringValues - Array of Strings where the String value of the ints will be stored
+	  * Precondition: intValues and stringValues must have equal length
+	  */
+     private void intsToStrings(int[] intValues, String[] stringValues)
+	 {
+<span class="fc bfc" id="L177" title="All 2 branches covered.">		 for (int i = 0; i &lt; stringValues.length; i++) {</span>
+
+<span class="fc" id="L179">			 stringValues[i] = Integer.toString(intValues[i]);</span>
+
+		 }
+
+<span class="fc" id="L183">	 }</span>
+
+
+	//***************************  Simple Set and Get Methods  ************************
+
+	public String getJobTypeName()
+	{
+<span class="fc" id="L190">		return jobTypeName;</span>
+	}
+
+	public void setJobTypeName(String jobType)
+	{
+<span class="fc" id="L195">		jobTypeName = jobType;</span>
+<span class="fc" id="L196">	}</span>
+
+	public int getJobTypeID()
+	{
+<span class="fc" id="L200">		return jobTypeID;</span>
+	}
+
+	public void setJobTypeID(int typeID)
+	{
+<span class="fc" id="L205">		jobTypeID = typeID;</span>
+<span class="fc" id="L206">	}</span>
+
+    public boolean getMakeDefaults()
+    {
+<span class="fc" id="L210">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L215">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L216">	}</span>
+
+	public String getActivity1()
+	{
+<span class="nc" id="L220">		return takeoffPercentStrings[0];</span>
+	}
+
+	public void setActivity1(String ptoActivity1)
+	{
+<span class="fc" id="L225">		takeoffPercentStrings[0] = ptoActivity1;</span>
+<span class="fc" id="L226">	}</span>
+
+	public String getActivity2()
+	{
+<span class="nc" id="L230">		return takeoffPercentStrings[1];</span>
+	}
+
+	public void setActivity2(String ptoActivity2)
+	{
+<span class="fc" id="L235">		takeoffPercentStrings[1] = ptoActivity2;</span>
+<span class="fc" id="L236">	}</span>
+
+	public String getActivity3()
+	{
+<span class="nc" id="L240">		return takeoffPercentStrings[2];</span>
+	}
+
+	public void setActivity3(String ptoActivity3)
+	{
+<span class="fc" id="L245">		takeoffPercentStrings[2] = ptoActivity3;</span>
+<span class="fc" id="L246">	}</span>
+
+	public String getActivity4()
+	{
+<span class="nc" id="L250">		return takeoffPercentStrings[3];</span>
+	}
+
+	public void setActivity4(String ptoActivity4)
+	{
+<span class="fc" id="L255">		takeoffPercentStrings[3] = ptoActivity4;</span>
+<span class="fc" id="L256">	}</span>
+
+	public String getActivity5()
+	{
+<span class="nc" id="L260">		return takeoffPercentStrings[4];</span>
+	}
+
+	public void setActivity5(String ptoActivity5)
+	{
+<span class="fc" id="L265">		takeoffPercentStrings[4] = ptoActivity5;</span>
+<span class="fc" id="L266">	}</span>
+
+	public String getActivity6()
+	{
+<span class="nc" id="L270">		return takeoffPercentStrings[5];</span>
+	}
+
+	public void setActivity6(String ptoActivity6)
+	{
+<span class="fc" id="L275">		takeoffPercentStrings[5] = ptoActivity6;</span>
+<span class="fc" id="L276">	}</span>
+
+	public String getActivity7()
+	{
+<span class="nc" id="L280">		return takeoffPercentStrings[6];</span>
+	}
+
+	public void setActivity7(String ptoActivity7)
+	{
+<span class="fc" id="L285">		takeoffPercentStrings[6] = ptoActivity7;</span>
+<span class="fc" id="L286">	}</span>
+
+	public String getActivity8()
+	{
+<span class="nc" id="L290">		return takeoffPercentStrings[7];</span>
+	}
+
+	public void setActivity8(String ptoActivity8)
+	{
+<span class="fc" id="L295">		takeoffPercentStrings[7] = ptoActivity8;</span>
+<span class="fc" id="L296">	}</span>
+
+	public String getActivity9()
+	{
+<span class="nc" id="L300">		return takeoffPercentStrings[8];</span>
+	}
+
+	public void setActivity9(String ptoActivity9)
+	{
+<span class="fc" id="L305">		takeoffPercentStrings[8] = ptoActivity9;</span>
+<span class="fc" id="L306">	}</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

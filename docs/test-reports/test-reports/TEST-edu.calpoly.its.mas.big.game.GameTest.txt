@@ -1,0 +1,45 @@
+Testsuite: edu.calpoly.its.mas.big.game.GameTest
+Tests run: 42, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 sec
+
+Testcase: testGetEstimatedPercentageOfLastPeriodWorkedFirstMonth took 0.022 sec
+Testcase: testGetEstimatedPercentageOfLastPeriodWorkedSecondMonth took 0 sec
+Testcase: testGetEstimatedPercentageOfLastPeriodWorkedCapsAtOne took 0 sec
+Testcase: testGetEstimatedPercentageOfLastPeriodWorkedOddMonth took 0.001 sec
+Testcase: testEstimatedPercentageOfLastPeriodWorkedWithinExpectedRanges took 0.007 sec
+Testcase: testGetStartYear took 0 sec
+Testcase: testSetCurrentPeriodNumber took 0.001 sec
+Testcase: testGetCurrentDateString took 0.006 sec
+Testcase: testSetGameIDAndGametype took 0 sec
+Testcase: testGetNameAndStartYear took 0 sec
+Testcase: testMockGameNameIsNull took 0 sec
+Testcase: testGetStartYearString took 0 sec
+Testcase: testGetFirstOfMonthAndCurrentFirstOfMonths took 0.001 sec
+Testcase: testSetEstimatingAndAutoBillingComponentOn took 0 sec
+Testcase: testConvertDateToPeriodForMultipleYears took 0.001 sec
+Testcase: testConvertDateToPeriodDecember2005 took 0.001 sec
+Testcase: testMockGameCreatesWrapperWithIdOnly took 0 sec
+Testcase: testDatabaseConstructorStoresValues took 0 sec
+Testcase: testConvertDateToPeriodJuly2004 took 0 sec
+Testcase: testConvertDateToPeriodJanuary2004 took 0.001 sec
+Testcase: testGetFirstOfMonthForPeriod3 took 0 sec
+Testcase: testGetFirstOfMonthReturnsTwoDates took 0 sec
+Testcase: testGetFirstOfMonthForPeriod6 took 0 sec
+Testcase: testGetDateStringForPeriod1 took 0.001 sec
+Testcase: testGetFirstOfMonthForPeriod12 took 0 sec
+Testcase: testGetDateStringMultiplePeriods took 0.001 sec
+Testcase: testGetFirstOfMonthForPeriod7 took 0 sec
+Testcase: testIncrementCurrentJobNumber took 0 sec
+Testcase: testGetDateStringForPeriod2 took 0.001 sec
+Testcase: testNewGameConstructorDefaults took 0 sec
+Testcase: testGetDateStringForPeriod5 took 0 sec
+Testcase: testGetDateStringForPeriod4 took 0.001 sec
+Testcase: testGetDateString took 0.001 sec
+Testcase: testGetAdminID took 0 sec
+Testcase: testGetGameID took 0.001 sec
+Testcase: testSetIsActive took 0 sec
+Testcase: testGetIsActive took 0 sec
+Testcase: testGetEstimatedPercentageOfLastPeriodWorkedMarch took 0 sec
+Testcase: testGetEstimatedPercentageOfLastPeriodWorkedJune30 took 0 sec
+Testcase: testConvertDateToPeriodMatchesEmbeddedUnitTest took 0.002 sec
+Testcase: testConvertDateToPeriodBeforeStartReturnsNegative took 0 sec
+Testcase: testGetCurrentJobNumberAndSetCurrentPeriodNumber took 0 sec

@@ -1,0 +1,30 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.DefaultInboxDBHandlerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.121 sec
+------------- Standard Output ---------------
+23:51:25,091 ERROR db.DefaultInboxDBHandler - 
+java.sql.SQLException: boom
+	at edu.calpoly.lib.multimedia.big.db.DefaultInboxDBHandlerTest$6.invoke(DefaultInboxDBHandlerTest.java:133)
+	at jdk.proxy1/jdk.proxy1.$Proxy2.prepareStatement(Unknown Source)
+	at edu.calpoly.lib.multimedia.big.db.DefaultInboxDBHandler.storeMessage(DefaultInboxDBHandler.java:58)
+	at edu.calpoly.lib.multimedia.big.db.DefaultInboxDBHandlerTest.testStoreMessageWrapsSQLExceptionAndClosesConnection(DefaultInboxDBHandlerTest.java:223)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+------------- ---------------- ---------------
+
+Testcase: testRetrieveAllMessagesReturnsVector took 0.111 sec
+Testcase: testStoreMessageSucceeds took 0.001 sec
+Testcase: testDeleteMessagesSucceeds took 0 sec
+Testcase: testStoreMessageWrapsSQLExceptionAndClosesConnection took 0.003 sec
+Testcase: testRetrieveMessagesWrapsSQLExceptionAndClosesConnection took 0 sec
+Testcase: testRetrieveMessagesReturnsVector took 0 sec

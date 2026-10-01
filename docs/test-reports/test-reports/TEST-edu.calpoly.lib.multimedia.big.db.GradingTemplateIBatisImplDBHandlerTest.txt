@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.GradingTemplateIBatisImplDBHandlerTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.103 sec
+
+Testcase: testCreateGradingTemplateInsertsDefaultTemplates took 0.095 sec
+Testcase: testGetGradingTemplateReturnsTemplateMap took 0.001 sec
+Testcase: testCreateGradingTemplateWrapsSQLException took 0.001 sec
+Testcase: testUpdateGradingTemplateUsesSqlMapUpdate took 0.001 sec

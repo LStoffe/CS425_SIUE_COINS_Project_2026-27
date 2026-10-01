@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultActivityDBHandlerIntegrationTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.876 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testRemoveActivities took 0.853 sec
+Testcase: testAddActivityAndGetActivity took 0.003 sec
+Testcase: testGetActivities took 0.005 sec
+Testcase: testUpdateActivity took 0.008 sec

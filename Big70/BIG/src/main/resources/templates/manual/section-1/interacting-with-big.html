@@ -1,0 +1,72 @@
+<!--
+  interacting-with-big.html
+  Section 1.5 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.5 Interacting with BIG</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.5 Interacting with BIG
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            When playing BIG, you and your teammates will assume the roles of managers of a construction firm. 
+            BIG will simulate the rest of the environment, including the market, your job customers, competitors, and the employees of your firm. 
+            When you interact with BIG it is helpful to think of it as reading reports prepared by your employees, making decisions based on those reports, then instructing your employees to carry out those decisions.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            As a player, you and your teammates will interact with BIG through forms and reports. Forms are used to enter information into BIG. 
+            These are the standard forms you see on the web where you enter information into various fields, then click on a submit button to send the data to the web server. 
+            You will use forms to input all your decisions into BIG.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Reports are the means by which BIG communicates information back to you. You can think of reports as being prepared by your job supervisors, your accountants, or in some cases a third party consultant. 
+            Each report found in BIG will be described in detail later in this manual.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/big-basics}" class="font-semibold hover:underline">
+        ← 1.4 Big Basics
+    </a>
+    <a th:href="@{/manual/company-inbox}" class="font-semibold hover:underline">
+        Next → 1.6 Company Inbox
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

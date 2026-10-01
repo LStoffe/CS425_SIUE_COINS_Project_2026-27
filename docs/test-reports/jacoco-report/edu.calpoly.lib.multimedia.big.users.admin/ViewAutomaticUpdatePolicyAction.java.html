@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewAutomaticUpdatePolicyAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin</a> &gt; <span class="el_source">ViewAutomaticUpdatePolicyAction.java</span></div><h1>ViewAutomaticUpdatePolicyAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//BIG v4 imports
+import edu.calpoly.lib.multimedia.big.game.AutomaticPeriodUpdatePolicies;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * @author Kevin Craig
+ */
+<span class="nc" id="L45">public class ViewAutomaticUpdatePolicyAction extends Action</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="nc" id="L53">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L56">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="nc" id="L59">		ActionMessages errors = new ActionMessages();</span>
+
+<span class="nc" id="L61">		HttpSession session = request.getSession();</span>
+<span class="nc" id="L62">		Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc" id="L63">		Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+		//Create a new BIGDatabaseFacadeInterface which will hold connections
+<span class="nc" id="L66">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+<span class="nc" id="L68">		int policy = -1;</span>
+
+		try
+		{
+<span class="nc" id="L72">			policy = dbFacade.getAutomaticUpdatePolicyDBHandler().getAutomaticUpdatePolicy(game);</span>
+<span class="nc" id="L73">			dbFacade.close();</span>
+		}
+<span class="nc" id="L75">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L77">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L78">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L79">		}</span>
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L83">			log.debug(&quot;Update policy retrieved for game &quot; + game.getGameID() + &quot;.  Policy code is &quot; + policy);</span>
+		}
+
+		//If the policy returned from the database is not recognized
+		//use the manual policy (essentially turning off automatic updates)
+<span class="nc bnc" id="L88" title="All 6 branches missed.">		if(   policy != AutomaticPeriodUpdatePolicies.INTERVAL</span>
+		   &amp;&amp; policy != AutomaticPeriodUpdatePolicies.DAYS_OF_WEEK
+		   &amp;&amp; policy != AutomaticPeriodUpdatePolicies.DATES
+		  )
+		{
+<span class="nc" id="L93">			policy = AutomaticPeriodUpdatePolicies.MANUAL;</span>
+		}
+
+<span class="nc" id="L96">		session.setAttribute(&quot;policy&quot;, new Integer(policy));</span>
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+<span class="nc bnc" id="L100" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L102">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+			// Report any errors we have discovered back to the original form
+<span class="nc" id="L105">			saveErrors(request, errors);</span>
+<span class="nc" id="L106">	 	   	saveToken(request);</span>
+<span class="nc" id="L107">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L111" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L113">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="nc" id="L115">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

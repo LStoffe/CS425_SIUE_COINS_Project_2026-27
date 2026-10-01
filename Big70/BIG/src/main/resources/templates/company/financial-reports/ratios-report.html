@@ -1,0 +1,137 @@
+<!--
+  ratios-report.html
+  This page shows company financial ratios for a specific period
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COINS - Ratios Report</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Ratios Report</h2>
+    <p class="text-lg text-gray-600" th:text="${periodDate}">Period</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-6xl overflow-x-auto">
+
+      <!-- Company Name -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold" th:text="${username}">Company Name</h3>
+      </div>
+
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b">
+            <th class="text-left py-3">Ratio</th>
+            <th class="text-right py-3">Current</th>
+            <th class="text-left py-3 pl-6">Formula</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y">
+
+          <!-- Liquidity -->
+          <tr class="bg-gray-100">
+            <td colspan="3" class="py-2 font-semibold">Liquidity Ratios</td>
+          </tr>
+          <tr>
+            <td class="py-2">Working Capital Turns</td>
+            <td class="text-right" th:text="${ratios.workingCapitalTurns}">N/A</td>
+            <td class="pl-6 text-gray-500">Revenue / Cash-on-hand</td>
+          </tr>
+          <tr>
+            <td class="py-2">Working Capital to WIP</td>
+            <td class="text-right" th:text="${ratios.workingCapitalToWIP}">N/A</td>
+            <td class="pl-6 text-gray-500">Cash-on-hand / Work-in-Progress</td>
+          </tr>
+
+          <!-- Debt -->
+          <tr class="bg-gray-100">
+            <td colspan="3" class="py-2 font-semibold">Debt Ratios</td>
+          </tr>
+          <tr>
+            <td class="py-2">Earnings Coverage Over Interest</td>
+            <td class="text-right" th:text="${ratios.earningsCoverageOverInterest}">N/A</td>
+            <td class="pl-6 text-gray-500">Earnings from Operations / Interest Expense</td>
+          </tr>
+          <tr>
+            <td class="py-2">Debt to Net Worth</td>
+            <td class="text-right" th:text="${ratios.debtToNetWorth}">N/A</td>
+            <td class="pl-6 text-gray-500">Total Liabilities / Equity</td>
+          </tr>
+
+          <!-- Operating -->
+          <tr class="bg-gray-100">
+            <td colspan="3" class="py-2 font-semibold">Operating Ratios</td>
+          </tr>
+          <tr>
+            <td class="py-2">Gross Profit</td>
+            <td class="text-right" th:text="${ratios.grossProfitPct}">N/A</td>
+            <td class="pl-6 text-gray-500">Gross Profit / Revenue</td>
+          </tr>
+          <tr>
+            <td class="py-2">Net Profit</td>
+            <td class="text-right" th:text="${ratios.netProfitPct}">N/A</td>
+            <td class="pl-6 text-gray-500">Net Earnings / Revenue</td>
+          </tr>
+          <tr>
+            <td class="py-2">Return on Net Worth</td>
+            <td class="text-right" th:text="${ratios.returnOnNetWorth}">N/A</td>
+            <td class="pl-6 text-gray-500">Profit before Tax / Equity</td>
+          </tr>
+          <tr>
+            <td class="py-2">Return on Assets</td>
+            <td class="text-right" th:text="${ratios.returnOnAssets}">N/A</td>
+            <td class="pl-6 text-gray-500">Profit before Tax / Total Assets</td>
+          </tr>
+
+          <!-- Cost -->
+          <tr class="bg-gray-100">
+            <td colspan="3" class="py-2 font-semibold">Cost Ratios</td>
+          </tr>
+          <tr>
+            <td class="py-2">G&A Expense to Sales</td>
+            <td class="text-right" th:text="${ratios.gaToSales}">N/A</td>
+            <td class="pl-6 text-gray-500">G&A Expense / Revenue</td>
+          </tr>
+
+        </tbody>
+      </table>
+
+      <!-- Note -->
+      <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <p class="text-sm text-gray-500">
+          Note: Ratios showing N/A require active jobs with revenue or active loans to calculate.
+          Some ratios from the original BIG60 system require full financial simulation data not available in this version.
+        </p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/financial-reports-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Financial Reports
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultCurrentMethodDBHandlerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.112 sec
+
+Testcase: testGetCurrentMethodsThrowsObjectNotFoundWhenNoRow took 0.063 sec
+Testcase: testAddCurrentMethodsSucceeds took 0.014 sec
+Testcase: testGetCurrentMethodsReturnsArray took 0.02 sec
+Testcase: testRemoveCurrentMethodsSucceeds took 0.001 sec
+Testcase: testUpdateCurrentMethodsSucceeds took 0 sec
+Testcase: testGetCurrentMethodsWrapsSQLExceptionAndClosesConnection took 0.008 sec

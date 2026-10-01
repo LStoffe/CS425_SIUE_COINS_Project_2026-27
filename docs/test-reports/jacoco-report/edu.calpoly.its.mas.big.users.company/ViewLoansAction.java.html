@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewLoansAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">ViewLoansAction.java</span></div><h1>ViewLoansAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+//JDK imports
+import javax.sql.DataSource;
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.Iterator;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Loan;
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Action class that gathers necessary info for the jsp page that accepts users requests for loans.
+ * The jsp page that displays the loan request html form will also need to display the maximum number of
+ * loans per team, the interest rate on loans, the maximum money amount of a single loan, and the number of periods in loan repayment.
+ * The number of loans currently held by the company is also needed so the ActionForm can know whether not
+ * the company is requesting more loans than is allowed.
+ * As a convenience to the companies this page can also display information about existing loans.
+ * This information would be the initial loan amount, the current balance, and the number of payments left in the loan.
+ * &lt;br&gt;&lt;br&gt;
+ * &lt;code&gt;ViewLoansAction&lt;/code&gt; puts all this information in the session for the jsp page to use as needed.
+ */
+<span class="fc" id="L55">public class ViewLoansAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				     			 ActionForm form,
+				     			 HttpServletRequest request,
+			         			 HttpServletResponse response)
+	{
+<span class="fc" id="L62">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L65">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="fc" id="L68">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L70">        ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L71">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L72">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L74">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L79">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+
+<span class="nc" id="L82">		Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+		Integer numberOfLoans;
+		String maxLoanAmount;
+		String maxLoans;
+		String interestRate;
+		String repaymentPeriods;
+
+<span class="nc" id="L90">		Hashtable loanParams = null;</span>
+<span class="nc" id="L91">		Vector loans = null;</span>
+
+<span class="nc" id="L93">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+		try
+		{
+<span class="nc" id="L97">			loanParams = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+<span class="nc" id="L98">			loans = dbFacade.getLoanDBHandler().getLoans(company, game.getCurrentPeriodNumber());</span>
+<span class="nc" id="L99">            dbFacade.close();</span>
+		}
+<span class="nc" id="L101">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L103">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L104">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+<span class="nc" id="L106">		catch(ParametersNotFoundException pnfe)</span>
+		{
+<span class="nc" id="L108">			log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L109">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L110">		}</span>
+
+<span class="nc" id="L112">        numberOfLoans = new Integer(loans.size());</span>
+
+<span class="nc" id="L114">        maxLoanAmount = NumberConverter.stringValue( ( (Integer) loanParams.get(&quot;maxLoanAmount&quot;) ).intValue());</span>
+<span class="nc" id="L115">        maxLoans =  ((Integer) loanParams.get(&quot;maxLoansPerTeam&quot;)).toString();</span>
+<span class="nc" id="L116">        interestRate = ((Integer) loanParams.get(&quot;loanInterestPerYear&quot;)).toString();</span>
+<span class="nc" id="L117">        repaymentPeriods = ((Integer) loanParams.get(&quot;loanRepaymentPeriods&quot;)).toString();</span>
+
+<span class="nc" id="L119">		session.setAttribute(&quot;numberOfLoans&quot;, numberOfLoans);</span>
+<span class="nc" id="L120">		session.setAttribute(&quot;loans&quot;, loans);</span>
+<span class="nc" id="L121">		session.setAttribute(&quot;maxLoanAmount&quot;, maxLoanAmount);</span>
+<span class="nc" id="L122">		session.setAttribute(&quot;maxLoans&quot;, maxLoans);</span>
+<span class="nc" id="L123">		session.setAttribute(&quot;interestRate&quot;, interestRate);</span>
+<span class="nc" id="L124">		session.setAttribute(&quot;repaymentPeriods&quot;, repaymentPeriods);</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+<span class="nc bnc" id="L128" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L130">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+			// Report any errors we have discovered back to the original form
+<span class="nc" id="L133">			saveErrors(request, errors);</span>
+<span class="nc" id="L134">	 	   	saveToken(request);</span>
+<span class="nc" id="L135">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L139" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L141">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="nc" id="L143">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

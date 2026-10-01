@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.EquipmentParametersIBatisImplDBHandlerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.095 sec
+------------- Standard Output ---------------
+EquipmentParametersIBatisImplDBHandlerTest delete called with statementId=deleteEquipmentParameters
+EquipmentParametersIBatisImplDBHandlerTest delete called with statementId=deleteEquipNetworkDep
+------------- ---------------- ---------------
+
+Testcase: testCopyEquipmentParametersCopiesValuesForNewAdminAndGame took 0.084 sec
+Testcase: testGetEquipNetworkDepAndDefaultUseCorrectAdminAndGameIds took 0.001 sec
+Testcase: testRemoveEquipmentParametersDeletesBothParameterAndNetworkDepRows took 0.001 sec
+Testcase: testGetDefaultEquipmentParametersUsesAdminId took 0 sec
+Testcase: testGetEquipmentParametersUsesSqlMapAndReturnsList took 0 sec
+Testcase: testGetEquipmentParametersWrapsSQLException took 0.002 sec

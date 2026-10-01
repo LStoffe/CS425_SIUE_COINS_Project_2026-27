@@ -1,0 +1,16 @@
+Testsuite: edu.calpoly.its.mas.big.game.GameFormTest
+Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+
+Testcase: testValidateRequiresGameName took 0.005 sec
+Testcase: testValidateRejectsEmptyGameName took 0 sec
+Testcase: testValidateRequiresStartYear took 0 sec
+Testcase: testValidatePassesWithValidInput took 0 sec
+Testcase: testValidateRejectsBothGameTypes took 0.002 sec
+Testcase: testValidateRejectsYearOutOfRange took 0 sec
+Testcase: testValidateRequiresGameType took 0 sec
+Testcase: testValidateRejectsGameNameTooLong took 0.001 sec
+Testcase: testValidateRejectsInvalidYearFormat took 0 sec
+Testcase: testValidateAcceptsYearAtLowerBoundary took 0 sec
+Testcase: testValidateAcceptsGameNameAtUpperLimit took 0.001 sec
+Testcase: testValidateAcceptsYearAtUpperBoundary took 0 sec
+Testcase: testGettersAndSetters took 0 sec

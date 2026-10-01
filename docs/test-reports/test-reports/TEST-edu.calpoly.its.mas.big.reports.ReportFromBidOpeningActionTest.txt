@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.reports.ReportFromBidOpeningActionTest
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.559 sec
+
+Testcase: testExecuteReturnsInputWhenRequestCancelled took 0.554 sec
+	Caused an ERROR
+Cannot invoke "org.apache.struts.action.ActionServlet.getServletContext()" because "this.servlet" is null
+java.lang.NullPointerException: Cannot invoke "org.apache.struts.action.ActionServlet.getServletContext()" because "this.servlet" is null
+	at edu.calpoly.its.mas.big.reports.ReportFromBidOpeningAction.execute(ReportFromBidOpeningAction.java:73)
+	at edu.calpoly.its.mas.big.reports.ReportFromBidOpeningActionTest.testExecuteReturnsInputWhenRequestCancelled(ReportFromBidOpeningActionTest.java:24)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+

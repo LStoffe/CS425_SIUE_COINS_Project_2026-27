@@ -1,0 +1,71 @@
+<!--
+  subcontracting.html
+  Section 5.4 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.4 Subcontracting</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.4 Subcontracting
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Some methods in BIG are self-performed and some are subcontracted. 
+            Subcontracted methods have a few differences from normal self-performed methods. The first is that they are usually not affected by weather, uncertainty, labor availability or the Materials Cost Index. 
+            This is because in reality subcontractors would make a contract with your company for a set amount and things like weather and labor are their problem, not yours. In BIG, to use a subcontractor you simply select a subcontracted method.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Subcontractors bill you each period for work completed during that period. These bills are not due untill the next period, so they stay in your accounts payable for a period after which they will be automatically paid. 
+            This is in contrast to laborers hired by your company who must be paid in the same period that they completed their work.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            If you use a subcontractor on a job with a retention policy, the retention policy applies to your payments to the subcontractor as well as the customer's payments to you. 
+            This means you retain a percentage of every payment until the job completes, at which time all retained amounts are paid.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/retention}" class="font-semibold hover:underline">
+        ← 5.3 Retention
+    </a>
+    <a th:href="@{/manual/method-rescheduling}" class="font-semibold hover:underline">
+        Next → 5.5 Rescheduling Methods
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

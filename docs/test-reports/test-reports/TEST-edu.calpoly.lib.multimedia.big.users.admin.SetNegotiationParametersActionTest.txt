@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.SetNegotiationParametersActionTest
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.56 sec
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.554 sec
+	Caused an ERROR
+Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+	at edu.calpoly.lib.multimedia.big.users.admin.SetNegotiationParametersAction.execute(SetNegotiationParametersAction.java:76)
+	at edu.calpoly.lib.multimedia.big.users.admin.SetNegotiationParametersActionTest.testExecuteReturnsCancelledWhenRequestCancelled(SetNegotiationParametersActionTest.java:28)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+

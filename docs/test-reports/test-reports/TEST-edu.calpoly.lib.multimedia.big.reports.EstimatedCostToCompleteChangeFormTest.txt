@@ -1,0 +1,16 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.EstimatedCostToCompleteChangeFormTest
+Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.102 sec
+
+Testcase: testValidateSelfZeroAmountAddsError took 0.09 sec
+Testcase: testValidateSelfNegativeAmountAddsError took 0.001 sec
+Testcase: testValidateSelfAmountDollarOnlyAddsError took 0 sec
+Testcase: testValidateSelfValidAmountNoErrors took 0 sec
+Testcase: testValidateSelfAmountNullAddsError took 0 sec
+Testcase: testValidateSelfAmountEmptyAddsError took 0 sec
+Testcase: testValidateBIGorSelfBIGNoErrors took 0 sec
+Testcase: testSetAmountIfSelf took 0 sec
+Testcase: testDefaultBIGorSelf took 0 sec
+Testcase: testValidateSelfInvalidMoneyStringAddsError took 0.001 sec
+Testcase: testValidateSelfAmountWhitespaceOnlyAddsError took 0 sec
+Testcase: testValidateSelfValidAmountWithCommasNoErrors took 0.001 sec
+Testcase: testSetBIGorSelf took 0 sec

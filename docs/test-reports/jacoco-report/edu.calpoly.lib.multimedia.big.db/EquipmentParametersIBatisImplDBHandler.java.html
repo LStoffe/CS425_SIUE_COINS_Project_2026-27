@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EquipmentParametersIBatisImplDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">EquipmentParametersIBatisImplDBHandler.java</span></div><h1>EquipmentParametersIBatisImplDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//JDK imports
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.TreeMap;
+
+//JDBC imports
+import java.sql.SQLException;
+
+//BIG Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Implementation of &lt;code&gt;EquipmentParametersDBHandler&lt;/code&gt; using iBATIS to access the database.
+ *
+ * @authors Kevin Craig &amp; Jim Borland
+ *
+ */
+public class EquipmentParametersIBatisImplDBHandler implements EquipmentParametersDBHandler
+{
+	private Log log;
+	private SqlMapClient sqlMap;
+
+    public EquipmentParametersIBatisImplDBHandler(SqlMapClient sqlMap)
+<span class="fc" id="L41">    {</span>
+<span class="fc" id="L42">		this.sqlMap = sqlMap;</span>
+<span class="fc" id="L43">		this.log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L44">	}</span>
+
+    public List getEquipmentParameters(Game game)
+    	throws ParametersNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L51">			log.debug(this.getClass() + &quot;: Starting method getEquipmentParameters&quot;);</span>
+		}
+
+<span class="fc" id="L54">		List list = null;</span>
+
+	    try
+	    {
+<span class="fc" id="L58">			Map m = new HashMap();</span>
+<span class="fc" id="L59">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L60">			m.put(&quot;adminid&quot; , game.getAdminID());</span>
+
+<span class="fc" id="L62">			list = (List) sqlMap.queryForList(&quot;getEquipmentParameters&quot;, m);</span>
+		}
+<span class="fc" id="L64">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L66">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L67">		}</span>
+
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L71">			log.debug(this.getClass() + &quot;: Returning from method getEquipmentParameters&quot;);</span>
+		}
+<span class="fc" id="L73">	    return list;</span>
+    }
+
+    public List getDefaultEquipmentParameters(Admin admin)
+        throws ParametersNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L81">			log.debug(this.getClass() + &quot;: Starting method getDefaultEquipmentParameters&quot;);</span>
+		}
+<span class="fc" id="L83">	  	Game dummyGame = new Game(0, admin.getAdminID(), null, null, 0, false, 0, 0);</span>
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L87">			log.debug(this.getClass() + &quot;: Returning from method getDefaultEquipmentParameters&quot;);</span>
+		}
+<span class="fc" id="L89">	  	return getEquipmentParameters(dummyGame);</span>
+	}
+
+    public List getListOfAllEquipment(Game game)
+    	throws ParametersNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L97">			log.debug(this.getClass() + &quot;: Starting method getListOfAllEquipment&quot;);</span>
+		}
+
+<span class="nc" id="L100">		List list = null;</span>
+
+	    try
+	    {
+<span class="nc" id="L104">			Map m = new HashMap();</span>
+<span class="nc" id="L105">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="nc" id="L106">			m.put(&quot;adminid&quot; , game.getAdminID());</span>
+
+<span class="nc" id="L108">			list = (List) sqlMap.queryForList(&quot;getListOfEquipment&quot;, m);</span>
+		}
+<span class="nc" id="L110">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L112">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L113">		}</span>
+
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L117">			log.debug(this.getClass() + &quot;: Returning from method getListOfAllEquipment&quot;);</span>
+		}
+<span class="nc" id="L119">	    return list;</span>
+    }
+
+ 	public void updateEquipmentParameters(Game game, Map parameters)
+	    throws ParametersNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L127">			log.debug(this.getClass() + &quot;: Starting method updateEquipmentParameters&quot;);</span>
+		}
+
+	    try
+	    {
+<span class="nc" id="L132">			Map m = new HashMap();</span>
+<span class="nc" id="L133">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="nc" id="L134">			m.put(&quot;adminid&quot; , game.getAdminID());</span>
+<span class="nc" id="L135">			m.put(&quot;equipmentTitle&quot;, parameters.get(&quot;equipmentTitle&quot;));</span>
+<span class="nc" id="L136">			m.put(&quot;equipmentCost&quot;, parameters.get(&quot;equipmentCost&quot;));</span>
+<span class="nc" id="L137">			m.put(&quot;equipmentDeployCost&quot;, parameters.get(&quot;equipmentDeployCost&quot;));</span>
+<span class="nc" id="L138">			m.put(&quot;equipmentDecommissionCost&quot;, parameters.get(&quot;equipmentDecommissionCost&quot;));</span>
+<span class="nc" id="L139">			m.put(&quot;equipmentPercentRaise&quot;, parameters.get(&quot;equipmentPercentRaise&quot;));</span>
+<span class="nc" id="L140">			m.put(&quot;equipmentBasePoints&quot;, parameters.get(&quot;equipmentBasePoints&quot;));</span>
+
+<span class="nc" id="L142">			sqlMap.update(&quot;updateEquipmentParameters&quot;, m);</span>
+		}
+<span class="nc" id="L144">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L146">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L147">		}</span>
+
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L151">			log.debug(this.getClass() + &quot;: Returning from method updateEquipmentParameters&quot;);</span>
+		}
+<span class="nc" id="L153">	}</span>
+
+	public void updateDefaultEquipmentParameters(Admin admin, Map parameters)
+	    throws ParametersNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L160">			log.debug(this.getClass() + &quot;: Starting method updateDefaultEquipmentParameters&quot;);</span>
+		}
+
+<span class="nc" id="L163">		Game dummyGame = new Game(0, admin.getAdminID(), null, null, 0, false, 0, 0);</span>
+
+<span class="nc" id="L165">		updateEquipmentParameters(dummyGame, parameters);</span>
+
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L169">			log.debug(this.getClass() + &quot;: Returning from method updateDefaultEquipmentParameters&quot;);</span>
+		}
+<span class="nc" id="L171">	}</span>
+
+    public void removeEquipmentParameters(int adminID, int gameID) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L177">			log.debug(this.getClass() + &quot;: Starting method removeEquipmentParameters&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L182">			Map m = new HashMap();</span>
+<span class="fc" id="L183">			m.put(&quot;gameid&quot; , gameID);</span>
+<span class="fc" id="L184">			m.put(&quot;adminid&quot; , adminID);</span>
+
+<span class="fc" id="L186">			sqlMap.delete(&quot;deleteEquipmentParameters&quot;,  m);</span>
+
+<span class="fc" id="L188">			Map m1 = new HashMap();</span>
+<span class="fc" id="L189">			m1.put(&quot;gameId&quot; , gameID);</span>
+<span class="fc" id="L190">			m1.put(&quot;adminId&quot; , adminID);</span>
+
+<span class="fc" id="L192">			sqlMap.delete(&quot;deleteEquipNetworkDep&quot;, m1);</span>
+		}
+<span class="nc" id="L194">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L196">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L197">		}</span>
+
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L201">			log.debug(this.getClass() + &quot;: Returning from method removeEquipmentParameters&quot;);</span>
+		}
+<span class="fc" id="L203">    }</span>
+
+
+    public void copyEquipmentParameters(int oldAdminID, int oldGameID, int newAdminID, int newGameID) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L210">			log.debug(this.getClass() + &quot;: Starting method copyEquipmentParameters from adminid=&quot; + oldAdminID + &quot;, gameid=&quot; + oldGameID + &quot; to adminid=&quot; + newAdminID + &quot; , gameid=&quot; + newGameID);</span>
+		}
+	    try
+	    {
+<span class="fc" id="L214">			Map m = new HashMap();</span>
+<span class="fc" id="L215">			m.put(&quot;gameid&quot; , oldGameID);</span>
+<span class="fc" id="L216">			m.put(&quot;adminid&quot; , oldAdminID);</span>
+
+<span class="fc" id="L218">			List list = (List) sqlMap.queryForList(&quot;getEquipmentParameters&quot;, m);</span>
+
+			//list is a List of &quot;resultMaps&quot; (one Map for each record) - each Map contains six key/value pairs (one for each field)
+
+<span class="fc bfc" id="L222" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L224">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L226">				Map toAdd = new HashMap();</span>
+<span class="fc" id="L227">				toAdd.put(&quot;gameid&quot;, newGameID);</span>
+<span class="fc" id="L228">				toAdd.put(&quot;adminid&quot;, newAdminID);</span>
+<span class="fc" id="L229">				toAdd.put(&quot;equipmentTitle&quot;, mm.get(&quot;equipmentTitle&quot;));</span>
+<span class="fc" id="L230">				toAdd.put(&quot;equipmentCost&quot;, mm.get(&quot;equipmentCost&quot;));</span>
+<span class="fc" id="L231">				toAdd.put(&quot;equipmentDeployCost&quot;, mm.get(&quot;equipmentDeployCost&quot;));</span>
+<span class="fc" id="L232">				toAdd.put(&quot;equipmentDecommissionCost&quot;, mm.get(&quot;equipmentDecommissionCost&quot;));</span>
+<span class="fc" id="L233">				toAdd.put(&quot;equipmentPercentRaise&quot;, mm.get(&quot;equipmentPercentRaise&quot;));</span>
+<span class="fc" id="L234">				toAdd.put(&quot;equipmentBasePoints&quot;, mm.get(&quot;equipmentBasePoints&quot;));</span>
+<span class="fc" id="L235">				toAdd.put(&quot;equipmentId&quot;, mm.get(&quot;equipmentId&quot;));</span>
+
+<span class="fc" id="L237">				sqlMap.insert(&quot;addEquipmentParameters&quot;, toAdd);</span>
+<span class="fc" id="L238">			}</span>
+
+<span class="fc" id="L240">			Map m1 = new HashMap();</span>
+<span class="fc" id="L241">			m1.put(&quot;gameId&quot; , oldGameID);</span>
+<span class="fc" id="L242">			m1.put(&quot;adminId&quot; , oldAdminID);</span>
+
+<span class="fc" id="L244">			list = (List) sqlMap.queryForList(&quot;getEquipNetworkDep&quot;, m1);</span>
+
+<span class="fc bfc" id="L246" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L248">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L250">				Map toAdd = new HashMap();</span>
+<span class="fc" id="L251">				toAdd.put(&quot;gameId&quot;, newGameID);</span>
+<span class="fc" id="L252">				toAdd.put(&quot;adminId&quot;, newAdminID);</span>
+<span class="fc" id="L253">				toAdd.put(&quot;activityTypeId&quot;, mm.get(&quot;activityTypeId&quot;));</span>
+<span class="fc" id="L254">				toAdd.put(&quot;jobTypeId&quot;, mm.get(&quot;jobTypeId&quot;));</span>
+<span class="fc" id="L255">				toAdd.put(&quot;equipType&quot;, mm.get(&quot;equipType&quot;));</span>
+<span class="fc" id="L256">				toAdd.put(&quot;quantityOfEquip&quot;, mm.get(&quot;quantityOfEquip&quot;));</span>
+<span class="fc" id="L257">				toAdd.put(&quot;percentTime&quot;, mm.get(&quot;percentTime&quot;));</span>
+
+<span class="fc" id="L259">				sqlMap.insert(&quot;addEquipNetworkDep&quot;, toAdd);</span>
+<span class="fc" id="L260">			}</span>
+		}
+<span class="nc" id="L262">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L264">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L265">		}</span>
+
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L269">			log.debug(this.getClass() + &quot;: Returning from method copyEquipmentParameters&quot;);</span>
+		}
+<span class="fc" id="L271">	}</span>
+
+    public List getEquipNetworkDep(Game game)
+    	throws ParametersNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L278">			log.debug(this.getClass() + &quot;: Starting method getEquipNetworkDep&quot;);</span>
+		}
+
+<span class="fc" id="L281">		List list = null;</span>
+
+	    try
+	    {
+<span class="fc" id="L285">			Map m = new HashMap();</span>
+<span class="fc" id="L286">			m.put(&quot;gameId&quot; , game.getGameID());</span>
+<span class="fc" id="L287">			m.put(&quot;adminId&quot; , game.getAdminID());</span>
+
+<span class="fc" id="L289">			list = (List) sqlMap.queryForList(&quot;getEquipNetworkDep&quot;, m);</span>
+		}
+<span class="nc" id="L291">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L293">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L294">		}</span>
+
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L298">			log.debug(this.getClass() + &quot;: Returning from method getEquipNetworkDep&quot;);</span>
+		}
+<span class="fc" id="L300">	    return list;</span>
+    }
+
+    public List getDefaultEquipNetworkDep(Admin admin)
+        throws ParametersNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L308">			log.debug(this.getClass() + &quot;: Starting method getDefaultEquipNetworkDep&quot;);</span>
+		}
+<span class="fc" id="L310">	  	Game dummyGame = new Game(0, admin.getAdminID(), null, null, 0, false, 0, 0);</span>
+
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L314">			log.debug(this.getClass() + &quot;: Returning from method getDefaultEquipNetworkDep&quot;);</span>
+		}
+<span class="fc" id="L316">	  	return getEquipNetworkDep(dummyGame);</span>
+	}
+
+ 	public void updateEquipNetworkDep(Game game, Map parameters)
+	    throws ParametersNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="nc bnc" id="L322" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L324">			log.debug(this.getClass() + &quot;: Starting method updateEquipNetworkDep&quot;);</span>
+		}
+
+	    try
+	    {
+<span class="nc" id="L329">			Map m = new HashMap();</span>
+<span class="nc" id="L330">			m.put(&quot;gameId&quot; , game.getGameID());</span>
+<span class="nc" id="L331">			m.put(&quot;adminId&quot; , game.getAdminID());</span>
+<span class="nc" id="L332">			m.put(&quot;activityTypeId&quot;, parameters.get(&quot;activityTypeId&quot;));</span>
+<span class="nc" id="L333">			m.put(&quot;jobTypeId&quot;, parameters.get(&quot;jobTypeId&quot;));</span>
+<span class="nc" id="L334">			m.put(&quot;equipType&quot;, parameters.get(&quot;equipType&quot;));</span>
+<span class="nc" id="L335">			m.put(&quot;quantityOfEquip&quot;, parameters.get(&quot;quantityOfEquip&quot;));</span>
+<span class="nc" id="L336">			m.put(&quot;percentTime&quot;, parameters.get(&quot;percentTime&quot;));</span>
+
+<span class="nc" id="L338">			sqlMap.update(&quot;updateEquipNetworkDep&quot;, m);</span>
+		}
+<span class="nc" id="L340">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L342">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L343">		}</span>
+
+<span class="nc bnc" id="L345" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L347">			log.debug(this.getClass() + &quot;: Returning from method updateEquipNetworkDep&quot;);</span>
+		}
+<span class="nc" id="L349">	}</span>
+
+	public void updateDefaultEquipNetworkDep(Admin admin, Map parameters)
+	    throws ParametersNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="nc bnc" id="L354" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L356">			log.debug(this.getClass() + &quot;: Starting method updateDefaultEquipNetworkDep&quot;);</span>
+		}
+
+<span class="nc" id="L359">		Game dummyGame = new Game(0, admin.getAdminID(), null, null, 0, false, 0, 0);</span>
+
+<span class="nc" id="L361">		updateEquipNetworkDep(dummyGame, parameters);</span>
+
+<span class="nc bnc" id="L363" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L365">			log.debug(this.getClass() + &quot;: Returning from method updateDefaultEquipNetworkDep&quot;);</span>
+		}
+<span class="nc" id="L367">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

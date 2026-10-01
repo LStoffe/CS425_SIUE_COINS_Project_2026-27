@@ -1,0 +1,91 @@
+<!--
+    payments-received.html
+    This page displays payments the company has received as part of project management functions.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Payments Received</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Payments Received</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <!-- Report Header -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2" th:text="${username}">Company Name</h3>
+        <h4 class="text-xl font-semibold mb-2">Payments Received</h4>
+        <p class="text-sm text-gray-600" th:text="'Period: ' + ${currentPeriod} + ', ' + ${periodDate}">Period</p>
+      </div>
+
+      <!-- Payments Table -->
+      <div th:if="${!#lists.isEmpty(payments)}"
+           class="overflow-x-auto border border-gray-300 rounded-lg mb-6">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b border-gray-300">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Job</th>
+              <th class="px-4 py-3 text-left font-semibold">Type</th>
+              <th class="px-4 py-3 text-left font-semibold">Method</th>
+              <th class="px-4 py-3 text-right font-semibold">Payment Per Period</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="payment : ${payments}" class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold"
+                  th:text="'Job #' + ${payment.jobid}">Job</td>
+              <td class="px-4 py-3" th:text="${payment.job_type_name}">Type</td>
+              <td class="px-4 py-3" th:text="${payment.method_name}">Method</td>
+              <td class="px-4 py-3 text-right"
+                  th:text="'$' + ${#numbers.formatDecimal(payment['income_per_period'], 1, 'COMMA', 2, 'POINT')}">$0</td>
+            </tr>
+          </tbody>
+          <tfoot class="bg-gray-100 border-t-2 border-gray-300">
+            <tr>
+              <td colspan="3" class="px-4 py-3 font-bold">Total Per Period</td>
+              <td class="px-4 py-3 text-right font-bold"
+                  th:text="'$' + ${#numbers.formatDecimal(totalReceived, 1, 'COMMA', 2, 'POINT')}">$0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div th:if="${#lists.isEmpty(payments)}"
+           class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg text-center">
+        <p class="text-lg text-gray-800 font-medium">
+          No payments received yet.
+        </p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/company/project-management-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Project Management
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

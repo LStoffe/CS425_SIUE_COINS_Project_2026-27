@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BondLimitConstraints.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.company</a> &gt; <span class="el_source">BondLimitConstraints.java</span></div><h1>BondLimitConstraints.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.company;
+
+/**
+ * Bond limits must have a minimum value in order to prevent
+ * a company being shut out from bidding because
+ * they're bond limits are too low for any possible job.
+ * This class define the values PER_JOB_LIMIT_MIN and WIP_LIMIT_MIN
+ * that are the minimum possible values for the per job bond limit and the
+ * wip bond limit respectively.  Additionally two methods are defined
+ * that will apply these minimums to a calculated bond limit and return
+ * the appropriate value.  As of 4/15/04, PER_JOB_LIMIT_MIN is $3,000,000
+ * and WIP_LIMIT_MIN is $5,000,000.
+ */
+<span class="nc" id="L14">public class BondLimitConstraints</span>
+{
+	public static final long PER_JOB_LIMIT_MIN = 3000000;
+    public static final long WIP_LIMIT_MIN = 5000000;
+
+    public static long applyPerJobLimitMinimum(long perJobLimit)
+    {
+<span class="fc" id="L21">		return Math.max(PER_JOB_LIMIT_MIN, perJobLimit);</span>
+	}
+
+	public static long applyWIPLimitMinimum(long wipLimit)
+	{
+<span class="fc" id="L26">		return Math.max(WIP_LIMIT_MIN, wipLimit);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

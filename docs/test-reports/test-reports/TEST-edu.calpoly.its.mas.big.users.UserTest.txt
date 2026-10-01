@@ -1,0 +1,14 @@
+Testsuite: edu.calpoly.its.mas.big.users.UserTest
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+
+Testcase: testConstructorWithNullPassword took 0.002 sec
+Testcase: testSetIsLoggedInFalse took 0 sec
+Testcase: testConstructorWithArgs took 0 sec
+Testcase: testGetAdminIDDefault took 0.001 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testGetIsHeadAdmin took 0 sec
+Testcase: testSetIsHeadAdmin took 0 sec
+Testcase: testSetPassword took 0 sec
+Testcase: testSetUsername took 0 sec
+Testcase: testSetIsLoggedIn took 0 sec
+Testcase: testSetAdminId took 0.001 sec

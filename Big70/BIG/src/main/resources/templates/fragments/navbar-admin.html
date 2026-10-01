@@ -1,0 +1,31 @@
+<!--
+    Admin Navbar Fragment
+    Use this in pages accessed only by Admins with:
+    <div th:replace="fragments/navbar-admin :: navbar"></div>
+-->
+
+
+<nav th:fragment="navbar" 
+class="main-navbar flex items-center justify-between p-4 shadow fixed top-0 left-0 w-full z-50 bg-white">
+
+    <div class="flex items-center space-x-4">
+      <span class="text-2xl font-bold text-black">COINS</span>
+      <a th:href="@{/admin/admin-menu}" class="text-black hover:text-amber-600 transition-colors font-bold">
+        Admin Menu
+      </a>
+      <a th:href="@{/admin/create-new-game}" class="text-black hover:text-amber-600 transition-colors font-bold">
+        Create a Game
+      </a>
+      <a th:href="@{/admin/view-games}" class="text-black hover:text-amber-600 transition-colors font-bold">
+        Manage Games
+      </a>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <a th:href="@{/logout}" class="text-black hover:text-amber-600 transition-colors font-bold">
+        Logout
+      </a>
+    </div>
+  </nav>
+  
+  

@@ -1,0 +1,8 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.CompanyTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 sec
+
+Testcase: testGradeAndRankDefaultsWhenNull took 0.003 sec
+Testcase: testConstructorsInitializeFields took 0 sec
+Testcase: testIncreaseAndDecreaseCashOnHand took 0 sec
+Testcase: testDefaultConstructorAndSettersGetters took 0 sec
+Testcase: testCompareToUsesTitleIgnoringSpacesAndCase took 0 sec

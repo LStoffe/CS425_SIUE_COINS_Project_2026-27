@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JobCostEstimator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">JobCostEstimator.java</span></div><h1>JobCostEstimator.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.reports;
+
+import edu.calpoly.its.mas.big.game.Activity;
+import edu.calpoly.its.mas.big.game.Method;
+
+/**
+ * Estimates the cost to complete a job based on the required completion date of the job,
+ * contruction units remaining on the job, methods chosen, and overtime assigned.
+ *
+ * @author Kevin Craig
+ */
+<span class="fc" id="L13">public class JobCostEstimator</span>
+{
+
+	/**
+	 * Makes an estimate for the total cost left to complete a job
+	 * in the following manner:
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;Do the following for each activity:&lt;/li&gt;
+	 *      &lt;ul&gt;
+	 *        &lt;li&gt;Determine how many CU's are to be completed during overtime
+	 *            by multipling CU's/hour for the method chosen by the number
+	 *            of hours overtime for the activity.&lt;/li&gt;
+	 *        &lt;li&gt;Take the min of this number of CU's and the CU's left in the activity.  Call this OCUs&lt;/li&gt;
+	 *        &lt;li&gt;Computer a cost per CU by applying the overtime modifyer to labor and summing
+	 *            the materials, subcontractor and modifyed labor costs per CU.  Call this OUC COST.&lt;/li&gt;
+	 *        &lt;li&gt;Subtract OCU's from the CU's left in the activity
+	 *             (not in the actual activity just in our calculation).&lt;/li&gt;
+	 *        &lt;li&gt;Multiply OCU's by OCU COST and add this number to the estimate.&lt;/li&gt;
+	 *        &lt;li&gt;Compute a normal cost per CU by summing labor, materials and subcontractor costs
+	 *            per CU&lt;/li&gt;
+	 *        &lt;li&gt;Multiply this cost by any CUs left in the activity after OUC's have been subtracted.&lt;/li&gt;
+	 *        &lt;li&gt;Add this amount to the estimate.&lt;/li&gt;
+	 *      &lt;/ul&gt;
+	 *    &lt;li&gt;The number of periods left to be worked is calculated by subtracting the
+	 *        current period number from the period that the job's required completion dates falls.
+	 *        If this number is negative, meaning the job has missed its required completion
+	 *		  date, the number of periods left to be worked will be set to 1.  Additionally, the
+	 *		  lastPeriodDaysWorkedPercent will be ignored.  The result of this is that
+	 *		  jobs that have missed their deadlines will be assumed to complete on the last day
+	 *		  of the next period (the period after whatever the current period is).
+	 *    &lt;/li&gt;
+	 *
+	 *    &lt;li&gt;Calculate fixed field overhead:  Multiply the number of workdays per period by
+	 *        the number of periods left to be worked -1.  Add to this the number of workdays
+	 *		  per period times the percentage of the last period worked.  This gives
+	 *		  an estimate for the number of workdays remaining.  Multiply this figure
+	 *		  by the fixed cost per day and add the result to the estimate.&lt;/li&gt;
+	 *    &lt;li&gt;Calculate variable field overhead : multiply the variableFieldOverheadCostPerPeriod
+	 *        by the number of periods left to be worked.
+	 *		  Add these amounts to the estimate.
+	 *    &lt;/li&gt;
+	 *    &lt;li&gt;
+	 *        If the job has missed it required completion date, add liquidated damages
+	 *        for each day it will take the job to complete.  Since late jobs are assumed to
+	 *		  finish on the last day of the next period, this means 2 full months of liquidated damamges
+	 *		  must be added to the cost of the job.  In this case a month will be defined to have 30 days.
+	 *    &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param currentPeriod The period number of the current period.
+	 * @param completionPeriod The period number of the period in which the required
+	 *	completion date for this job falls (This can be calculated using the Game.convertDateToPeriod method).
+	 *  This refers to the original required completion date of the job, regardless of whether or not
+	 *  the current period is before or after it,
+	 *  so this parameter will never change between subsequent calls to this method for the same job.
+	 * @param lastPeriodDaysWorkedPercent An estimate of how much of the job's final period is worked.
+	 *  For example if the job finished on the first day of its final period this number would be
+	 *  fairly low, around 1 or 2%.  If the job finished on the last day of the period it completed
+	 *  this number would be 100%.
+	 * @param activities Array of 9 &lt;code&gt;Activity&lt;/code&gt; objects that make up the job.
+	 *  No changes will be made to these objects.
+	 * @param workdaysPerPeriod Game parameter that is the number of work days per period
+	 * @param fixedFieldOverhead Game parameter that is the fixed field overhead cost per day
+	 * @param variableFieldOverheadCostPerPeriod Game parameter that is the variable field overhead cost
+	 *  per period for this job.  This number should be in dollars.
+	 * @return An estimate in dollars for how much the job will cost to complete
+	 *
+	 */
+	public static synchronized int getEstimatedCost(int currentPeriod,
+								        			int completionPeriod,
+								      				float lastPeriodDaysWorkedPercent,
+									   				Activity[] activities,
+   								       				int workdaysPerPeriod,
+									   				int fixedFieldOverhead,
+									   				int variableFieldOverheadCostPerPeriod,
+									   				int liquidatedDamagesPerDay)
+	{
+		//Current estimate amount
+<span class="fc" id="L91">		int estimate = 0;</span>
+
+		//make sure the job is not already complete
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		if (!checkJobStillCurrent(activities))</span>
+		{
+<span class="fc" id="L96">			return 0;</span>
+		}
+
+		//Add the estimated direct cost to complete each activity
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        for(int i = 0; i &lt; 9; i++)</span>
+        {
+
+<span class="fc bfc" id="L103" title="All 2 branches covered.">			if(!activities[i].isComplete())</span>
+			{
+            	//Calculate number of CU's to complete during overtime
+<span class="fc" id="L106">            	int overtimeCUs = activities[i].getOvertimeDays() * activities[i].getOvertimeHours() * activities[i].getCurrentMethod().getProductivity();</span>
+
+            	//Calculate cost per overtime CU using this method
+<span class="fc" id="L109">            	int costPerOvertimeCU = ((int)(activities[i].getCurrentMethod().getBaseLaborCost() * activities[i].getOvertimeModifier())) +</span>
+<span class="fc" id="L110">                                    activities[i].getCurrentMethod().getBaseMaterialsCost() +</span>
+<span class="fc" id="L111">                                    activities[i].getCurrentMethod().getSubcontractorCost() +</span>
+<span class="fc" id="L112">                                    activities[i].getCurrentMethod().getBaseEquipmentCost();</span>
+
+			    //If the number of CUs assigned to be worked during overtime
+			    //is greater than the number of CU's left in the activity
+			    //set it back to the CU's left in the activity
+<span class="fc bfc" id="L117" title="All 2 branches covered.">				if (overtimeCUs &gt; activities[i].getLusRemaining())</span>
+				{
+<span class="fc" id="L119">					overtimeCUs = activities[i].getLusRemaining();</span>
+				}
+
+				//Add the overtime cost to the estimate
+<span class="fc" id="L123">				estimate += overtimeCUs * costPerOvertimeCU;</span>
+
+				//Number of CUs in activity that will not be worked during overtime
+				//Note that this this number is &gt;= 0 because overtimeCUs &lt;= lus remaining
+<span class="fc" id="L127">				int nonOvertimeCUs = activities[i].getLusRemaining() - overtimeCUs;</span>
+
+				//Calculate cost per non-overtime CU
+<span class="fc" id="L130">				int costPerNormalCU = activities[i].getCurrentMethod().getBaseLaborCost() +</span>
+<span class="fc" id="L131">                                      activities[i].getCurrentMethod().getBaseMaterialsCost() +</span>
+<span class="fc" id="L132">                                      activities[i].getCurrentMethod().getSubcontractorCost() +</span>
+<span class="fc" id="L133">                                      activities[i].getCurrentMethod().getBaseEquipmentCost();</span>
+
+                //Add the cost to complete the non overtime work to the estimate
+<span class="fc" id="L136">                estimate += nonOvertimeCUs * costPerNormalCU;</span>
+			}
+		}
+
+        //Overhead
+<span class="fc" id="L141">        int periodsLeft = (completionPeriod - currentPeriod);</span>
+
+		//System.out.println(&quot;Periods left: &quot; + periodsLeft);
+
+<span class="fc bfc" id="L145" title="All 2 branches covered.">		if (periodsLeft &lt; 0)  //Job has missed deadline</span>
+		{
+<span class="fc" id="L147">			estimate += workdaysPerPeriod * fixedFieldOverhead;</span>
+<span class="fc" id="L148">			estimate += variableFieldOverheadCostPerPeriod;</span>
+
+			//Liquidated damages  (Assume 30 days in a month.  This will never change)
+<span class="fc" id="L151">			estimate += 30 * 2 * liquidatedDamagesPerDay;</span>
+		}
+		else
+		{
+			//Fixed field over head is cost per day times number of days
+			//There are two parts, the number days in full periods
+			//and the days left in the period the job completes
+<span class="fc" id="L158">			int daysLeft = periodsLeft * workdaysPerPeriod + (int)(workdaysPerPeriod * lastPeriodDaysWorkedPercent);</span>
+
+			//System.out.println(&quot;Days left: &quot; + daysLeft);
+
+<span class="fc" id="L162">			estimate += daysLeft * fixedFieldOverhead;</span>
+
+            //Plus one to account for the current period
+<span class="fc" id="L165">			estimate += (periodsLeft + 1) * variableFieldOverheadCostPerPeriod;</span>
+
+		}
+
+<span class="fc" id="L169">		return estimate;</span>
+	}
+
+	private static boolean checkJobStillCurrent(Activity[] activities)
+	{
+<span class="fc" id="L174">		boolean current = false;</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">		for(int i = 0; i &lt; activities.length; i++)</span>
+		{
+<span class="fc bfc" id="L177" title="All 2 branches covered.">			if (activities[i].isComplete() == false)</span>
+<span class="fc" id="L178">			   current = true;</span>
+		}
+
+<span class="fc" id="L181">		return current;</span>
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

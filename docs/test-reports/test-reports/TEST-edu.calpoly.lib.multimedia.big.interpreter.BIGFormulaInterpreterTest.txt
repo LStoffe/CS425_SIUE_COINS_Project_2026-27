@@ -1,0 +1,66 @@
+Testsuite: edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaInterpreterTest
+Tests run: 34, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.113 sec
+------------- Standard Output ---------------
+23:51:30,804 FATAL interpreter.BIGFormulaInterpreter - Invalid term INVALID_VAR
+edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaException
+	at edu.calpoly.lib.multimedia.big.interpreter.CUP$BIGFormulaParser$actions.CUP$BIGFormulaParser$do_action(BIGFormulaParser.java:172)
+	at edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaParser.do_action(BIGFormulaParser.java:96)
+	at java_cup.runtime.lr_parser.parse(lr_parser.java:569)
+	at edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaParser.compute(BIGFormulaParser.java:118)
+	at edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaInterpreter.interpretFormula(BIGFormulaInterpreter.java:39)
+	at edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaInterpreterTest.testInterpretFormulaWithInvalidVariableReturnsEmpty(BIGFormulaInterpreterTest.java:128)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+------------- ---------------- ---------------
+
+Testcase: testInterpretFormulaNestedParentheses took 0.084 sec
+Testcase: testInterpretFormulaMultipleOperations took 0 sec
+Testcase: testInterpretFormulaWithCompanyVariable took 0 sec
+Testcase: testInterpretFormulaWithNegativeResult took 0.001 sec
+Testcase: testInterpretFormulaAdditionWithLong took 0.001 sec
+	FAILED
+null
+junit.framework.AssertionFailedError
+	at edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaInterpreterTest.testInterpretFormulaAdditionWithLong(BIGFormulaInterpreterTest.java:251)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testInterpretFormulaCompoundExpression took 0 sec
+Testcase: testInterpretFormulaComplexArithmetic took 0.002 sec
+Testcase: testInterpretFormulaWithTotalJobsVariable took 0 sec
+Testcase: testInterpretFormulaLongMultiplication took 0 sec
+Testcase: testInterpretFormulaFloatMultiplication took 0.001 sec
+Testcase: testInterpretFormulaDecimalPrecision took 0.001 sec
+Testcase: testInterpretFormulaDivisionByTwo took 0 sec
+Testcase: testInterpretFormulaUnaryMinus took 0.001 sec
+Testcase: testInterpretFormulaUnaryMinusOnly took 0 sec
+Testcase: testInterpretFormulaWithVariable took 0 sec
+Testcase: testInterpretFormulaWithTestFacade took 0.002 sec
+Testcase: testInterpretFormulaAddition took 0 sec
+Testcase: testInterpretFormulaWithFloat took 0.001 sec
+Testcase: testInterpretFormulaLongExpression took 0 sec
+Testcase: testInterpretFormulaMultiplication took 0 sec
+Testcase: testInterpretFormulaSubtraction took 0 sec
+Testcase: testInterpretFormulaDivision took 0.001 sec
+Testcase: testInterpretFormulaWithInvalidVariableReturnsEmpty took 0.002 sec
+Testcase: testInterpretFormulaWithCompanyJobsCompletedVariable took 0 sec
+Testcase: testInterpretFormulaWithCompanyJobsInProgressVariable took 0 sec
+Testcase: testInterpretFormulaWithCompanyEquityVariable took 0.001 sec
+Testcase: testInterpretFormulaSubtractionWithNegative took 0 sec
+Testcase: testInterpretFormulaWithCompanyBidsVariable took 0 sec
+Testcase: testInterpretFormulaDivisionWithFloatResult took 0.001 sec
+Testcase: testInterpretFormulaWithSumSixCamValuesVariable took 0 sec
+Testcase: testInterpretFormulaIntegerDivisionTruncation took 0.001 sec
+Testcase: testInterpretFormulaWithCompanyHeavyJobsVariable took 0.001 sec
+Testcase: testInterpretFormulaWithCompanyPublicJobsVariable took 0 sec
+Testcase: testInterpretFormulaWithCompanyPrivateJobsVariable took 0 sec

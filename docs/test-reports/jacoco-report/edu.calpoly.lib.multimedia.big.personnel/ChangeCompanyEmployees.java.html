@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangeCompanyEmployees.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.personnel</a> &gt; <span class="el_source">ChangeCompanyEmployees.java</span></div><h1>ChangeCompanyEmployees.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.personnel;
+
+//JDK imports
+import java.util.List;
+import java.util.ArrayList;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.JobDBHandler;
+import edu.calpoly.its.mas.big.db.BidDBHandler;
+
+//Logging imports
+import edu.calpoly.lib.multimedia.big.log.BIGLog;
+import edu.calpoly.lib.multimedia.big.log.BIGLogFactory;
+
+/**
+ *
+ */
+<span class="fc" id="L46">public class ChangeCompanyEmployees extends BIGAction</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				     			 ActionForm form,
+				     			 HttpServletRequest request,
+			         			 HttpServletResponse response)
+	{
+<span class="fc" id="L53">		BIGLog log = BIGLogFactory.getLog();</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if(log.isTraceEnabled())</span>
+		{
+<span class="fc" id="L56">			log.trace(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+
+<span class="fc" id="L60">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L62">        ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L63">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L64">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L66">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="fc bfc" id="L70" title="All 2 branches covered.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L71">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="fc" id="L73">		Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+<span class="fc" id="L75">		String action = request.getParameter(&quot;action&quot;);</span>
+<span class="fc" id="L76">		String employeeType = request.getParameter(&quot;employeeType&quot;);</span>
+
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">		if(BIGLogFactory.isDebugEnabled())</span>
+		{
+<span class="fc" id="L80">			BIGLog companyLog = BIGLogFactory.getCompanyLog(company.getCompanyID());</span>
+<span class="fc" id="L81">			companyLog.debug(&quot;Requested personnel change: Action = &quot; + action + &quot;, Employee Type =&quot; + employeeType);</span>
+		}
+
+<span class="fc" id="L84">		BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+		try
+		{
+<span class="fc" id="L88">			EmployeeTypeRecord etr = dbFacade.getCompanyPersonnelDBHandler().getEmployeeTypeRecord(game, company, game.getCurrentPeriodNumber(), employeeType);</span>
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">			if(etr == null)</span>
+			{
+				//There is no mapping at all for this employee type.  Check the employeeType against
+				//the list of available of employee types
+<span class="nc bnc" id="L94" title="All 2 branches missed.">				if(dbFacade.getCompanyPersonnelDBHandler().isValidEmployeeType(game, employeeType))</span>
+				{
+<span class="nc" id="L96">					etr = new EmployeeTypeRecord();</span>
+<span class="nc" id="L97">					etr.setEmployeeType(employeeType);</span>
+				}
+			}
+
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">			if(etr == null) //still null means this isn't a registered employee type</span>
+			{
+				//If no EmployeeTypeRecord was found it's likely a bad parameter name was entered
+				//Add an error message and log the error
+<span class="nc" id="L105">				log.error(this.getClass() + &quot; no employee type record found for employee type: &quot; + employeeType + &quot;, companyid: &quot; + company.getCompanyID() + &quot;, period: &quot; + game.getCurrentPeriodNumber());</span>
+<span class="nc" id="L106">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.invalid&quot;));</span>
+			}
+			else
+			{
+<span class="fc bfc" id="L110" title="All 2 branches covered.">				if(action.equalsIgnoreCase(&quot;hire&quot;))</span>
+				{
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="fc" id="L114">						log.debug(&quot;Hire new &quot; + employeeType);</span>
+					}
+<span class="fc" id="L116">					doHire(etr);</span>
+				}
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">				else if(action.equalsIgnoreCase(&quot;fire&quot;))</span>
+				{
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="fc" id="L122">						log.debug(&quot;Fire &quot; + employeeType);</span>
+					}
+<span class="fc" id="L124">					doFire(etr);</span>
+				}
+
+<span class="fc" id="L127">				dbFacade.getCompanyPersonnelDBHandler().deleteEmployeeTypeRecord(game, company, game.getCurrentPeriodNumber(), employeeType);</span>
+<span class="fc" id="L128">				dbFacade.getCompanyPersonnelDBHandler().addEmployeeTypeRecord(game, company, game.getCurrentPeriodNumber(), employeeType, etr.getEmployeeTypeCount(), etr.getEmployeeTypeHires(), etr.getEmployeeTypeFires());</span>
+			}
+
+<span class="fc" id="L131">			dbFacade.close();</span>
+
+		}
+<span class="fc" id="L134">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="fc" id="L136">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="fc" id="L137">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="fc" id="L138">		}</span>
+
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+		}
+
+
+<span class="fc bfc" id="L145" title="All 2 branches covered.">		if (!errors.isEmpty())</span>
+		{
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">			if(log.isTraceEnabled())</span>
+			{
+<span class="fc" id="L149">				log.trace(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+			// Report any errors we have discovered back to the original form
+<span class="fc" id="L152">			saveErrors(request, errors);</span>
+<span class="fc" id="L153">	 	   	saveToken(request);</span>
+<span class="fc" id="L154">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">			if(log.isTraceEnabled())</span>
+			{
+<span class="fc" id="L160">				log.trace(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="fc" id="L162">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+    }
+
+    //If the amount to fire is zero, the amount to hire is increased by one.
+    //Otherwise the amount to fire is decreased by one.
+    private void doHire(EmployeeTypeRecord etr)
+    {
+<span class="fc bfc" id="L170" title="All 2 branches covered.">		if(etr.getEmployeeTypeFires() &gt; 0)</span>
+		{
+<span class="fc" id="L172">			etr.setEmployeeTypeFires(etr.getEmployeeTypeFires() - 1);</span>
+		}
+		else
+		{
+<span class="fc" id="L176">			etr.setEmployeeTypeHires(etr.getEmployeeTypeHires() + 1);</span>
+		}
+<span class="fc" id="L178">	}</span>
+
+    //If the amount to hire is zero, the amount to fire is increased by one.
+    //Otherwise the amount to hire is decreased by one.
+	private void doFire(EmployeeTypeRecord etr)
+	{
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">		if(etr.getEmployeeTypeHires() &gt; 0)</span>
+		{
+<span class="nc" id="L186">			etr.setEmployeeTypeHires(etr.getEmployeeTypeHires() - 1);</span>
+		}
+		else
+		{
+<span class="fc" id="L190">			etr.setEmployeeTypeFires(etr.getEmployeeTypeFires() + 1);</span>
+		}
+<span class="fc" id="L192">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

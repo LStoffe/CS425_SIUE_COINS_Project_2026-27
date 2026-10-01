@@ -1,0 +1,12 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.RatiosReportFormTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+
+Testcase: testGetReturnOnEquityAssetsCostsToSalesAndAverages took 0.003 sec
+Testcase: testConstructorComputesKeyRatiosAndAverages took 0.001 sec
+Testcase: testGetNetProfitAndDebtToEquityAverages took 0.001 sec
+Testcase: testConstructorDivideByZeroPathsYieldNulls took 0 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testGetSetCompanyName took 0 sec
+Testcase: testConstant took 0 sec
+Testcase: testGetCompanyNameFromConstructor took 0 sec
+Testcase: testGetCurrentRatioAverageWithData took 0 sec

@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BIGFormulaScanner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.interpreter</a> &gt; <span class="el_source">BIGFormulaScanner.java</span></div><h1>BIGFormulaScanner.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.interpreter;
+import java_cup.runtime.Symbol;
+import java.io.Reader;
+public class BIGFormulaScanner extends Yylex implements java_cup.runtime.Scanner
+{
+    public BIGFormulaScanner(Reader reader)
+    {
+<span class="fc" id="L8">    	super(reader);</span>
+<span class="fc" id="L9">    }</span>
+}
+
+
+class Yylex implements java_cup.runtime.Scanner {
+<span class="fc" id="L14">	private final int YY_BUFFER_SIZE = 512;</span>
+<span class="fc" id="L15">	private final int YY_F = -1;</span>
+<span class="fc" id="L16">	private final int YY_NO_STATE = -1;</span>
+<span class="fc" id="L17">	private final int YY_NOT_ACCEPT = 0;</span>
+<span class="fc" id="L18">	private final int YY_START = 1;</span>
+<span class="fc" id="L19">	private final int YY_END = 2;</span>
+<span class="fc" id="L20">	private final int YY_NO_ANCHOR = 4;</span>
+<span class="fc" id="L21">	private final int YY_BOL = 128;</span>
+<span class="fc" id="L22">	private final int YY_EOF = 129;</span>
+	private java.io.BufferedReader yy_reader;
+	private int yy_buffer_index;
+	private int yy_buffer_read;
+	private int yy_buffer_start;
+	private int yy_buffer_end;
+	private char yy_buffer[];
+	private int yychar;
+	private int yyline;
+	private boolean yy_at_bol;
+	private int yy_lexical_state;
+
+	Yylex (java.io.Reader reader) {
+<span class="fc" id="L35">		this ();</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">		if (null == reader) {</span>
+<span class="nc" id="L37">			throw (new Error(&quot;Error: Bad input stream initializer.&quot;));</span>
+		}
+<span class="fc" id="L39">		yy_reader = new java.io.BufferedReader(reader);</span>
+<span class="fc" id="L40">	}</span>
+
+	Yylex (java.io.InputStream instream) {
+<span class="nc" id="L43">		this ();</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		if (null == instream) {</span>
+<span class="nc" id="L45">			throw (new Error(&quot;Error: Bad input stream initializer.&quot;));</span>
+		}
+<span class="nc" id="L47">		yy_reader = new java.io.BufferedReader(new java.io.InputStreamReader(instream));</span>
+<span class="nc" id="L48">	}</span>
+
+<span class="fc" id="L50">	private Yylex () {</span>
+<span class="fc" id="L51">		yy_buffer = new char[YY_BUFFER_SIZE];</span>
+<span class="fc" id="L52">		yy_buffer_read = 0;</span>
+<span class="fc" id="L53">		yy_buffer_index = 0;</span>
+<span class="fc" id="L54">		yy_buffer_start = 0;</span>
+<span class="fc" id="L55">		yy_buffer_end = 0;</span>
+<span class="fc" id="L56">		yychar = 0;</span>
+<span class="fc" id="L57">		yyline = 0;</span>
+<span class="fc" id="L58">		yy_at_bol = true;</span>
+<span class="fc" id="L59">		yy_lexical_state = YYINITIAL;</span>
+<span class="fc" id="L60">	}</span>
+
+<span class="fc" id="L62">	private boolean yy_eof_done = false;</span>
+<span class="fc" id="L63">	private final int YYINITIAL = 0;</span>
+<span class="fc" id="L64">	private final int yy_state_dtrans[] = {</span>
+		0
+	};
+	private void yybegin (int state) {
+<span class="nc" id="L68">		yy_lexical_state = state;</span>
+<span class="nc" id="L69">	}</span>
+	private int yy_advance ()
+		throws java.io.IOException {
+		int next_read;
+		int i;
+		int j;
+
+<span class="fc bfc" id="L76" title="All 2 branches covered.">		if (yy_buffer_index &lt; yy_buffer_read) {</span>
+<span class="fc" id="L77">			return yy_buffer[yy_buffer_index++];</span>
+		}
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		if (0 != yy_buffer_start) {</span>
+<span class="fc" id="L81">			i = yy_buffer_start;</span>
+<span class="fc" id="L82">			j = 0;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">			while (i &lt; yy_buffer_read) {</span>
+<span class="fc" id="L84">				yy_buffer[j] = yy_buffer[i];</span>
+<span class="fc" id="L85">				++i;</span>
+<span class="fc" id="L86">				++j;</span>
+			}
+<span class="fc" id="L88">			yy_buffer_end = yy_buffer_end - yy_buffer_start;</span>
+<span class="fc" id="L89">			yy_buffer_start = 0;</span>
+<span class="fc" id="L90">			yy_buffer_read = j;</span>
+<span class="fc" id="L91">			yy_buffer_index = j;</span>
+<span class="fc" id="L92">			next_read = yy_reader.read(yy_buffer,</span>
+					yy_buffer_read,
+					yy_buffer.length - yy_buffer_read);
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">			if (-1 == next_read) {</span>
+<span class="fc" id="L96">				return YY_EOF;</span>
+			}
+<span class="nc" id="L98">			yy_buffer_read = yy_buffer_read + next_read;</span>
+		}
+
+<span class="fc bfc" id="L101" title="All 2 branches covered.">		while (yy_buffer_index &gt;= yy_buffer_read) {</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">			if (yy_buffer_index &gt;= yy_buffer.length) {</span>
+<span class="nc" id="L103">				yy_buffer = yy_double(yy_buffer);</span>
+			}
+<span class="fc" id="L105">			next_read = yy_reader.read(yy_buffer,</span>
+					yy_buffer_read,
+					yy_buffer.length - yy_buffer_read);
+<span class="fc bfc" id="L108" title="All 2 branches covered.">			if (-1 == next_read) {</span>
+<span class="fc" id="L109">				return YY_EOF;</span>
+			}
+<span class="fc" id="L111">			yy_buffer_read = yy_buffer_read + next_read;</span>
+		}
+<span class="fc" id="L113">		return yy_buffer[yy_buffer_index++];</span>
+	}
+	private void yy_move_end () {
+<span class="nc bnc" id="L116" title="All 4 branches missed.">		if (yy_buffer_end &gt; yy_buffer_start &amp;&amp;</span>
+		    '\n' == yy_buffer[yy_buffer_end-1])
+<span class="nc" id="L118">			yy_buffer_end--;</span>
+<span class="nc bnc" id="L119" title="All 4 branches missed.">		if (yy_buffer_end &gt; yy_buffer_start &amp;&amp;</span>
+		    '\r' == yy_buffer[yy_buffer_end-1])
+<span class="nc" id="L121">			yy_buffer_end--;</span>
+<span class="nc" id="L122">	}</span>
+<span class="fc" id="L123">	private boolean yy_last_was_cr=false;</span>
+	private void yy_mark_start () {
+		int i;
+<span class="fc bfc" id="L126" title="All 2 branches covered.">		for (i = yy_buffer_start; i &lt; yy_buffer_index; ++i) {</span>
+<span class="pc bpc" id="L127" title="3 of 4 branches missed.">			if ('\n' == yy_buffer[i] &amp;&amp; !yy_last_was_cr) {</span>
+<span class="nc" id="L128">				++yyline;</span>
+			}
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">			if ('\r' == yy_buffer[i]) {</span>
+<span class="nc" id="L131">				++yyline;</span>
+<span class="nc" id="L132">				yy_last_was_cr=true;</span>
+<span class="fc" id="L133">			} else yy_last_was_cr=false;</span>
+		}
+<span class="fc" id="L135">		yychar = yychar</span>
+			+ yy_buffer_index - yy_buffer_start;
+<span class="fc" id="L137">		yy_buffer_start = yy_buffer_index;</span>
+<span class="fc" id="L138">	}</span>
+	private void yy_mark_end () {
+<span class="fc" id="L140">		yy_buffer_end = yy_buffer_index;</span>
+<span class="fc" id="L141">	}</span>
+	private void yy_to_mark () {
+<span class="fc" id="L143">		yy_buffer_index = yy_buffer_end;</span>
+<span class="pc bpc" id="L144" title="4 of 10 branches missed.">		yy_at_bol = (yy_buffer_end &gt; yy_buffer_start) &amp;&amp;</span>
+		            ('\r' == yy_buffer[yy_buffer_end-1] ||
+		             '\n' == yy_buffer[yy_buffer_end-1] ||
+		             2028/*LS*/ == yy_buffer[yy_buffer_end-1] ||
+		             2029/*PS*/ == yy_buffer[yy_buffer_end-1]);
+<span class="fc" id="L149">	}</span>
+	private java.lang.String yytext () {
+<span class="fc" id="L151">		return (new java.lang.String(yy_buffer,</span>
+			yy_buffer_start,
+			yy_buffer_end - yy_buffer_start));
+	}
+	private int yylength () {
+<span class="nc" id="L156">		return yy_buffer_end - yy_buffer_start;</span>
+	}
+	private char[] yy_double (char buf[]) {
+		int i;
+		char newbuf[];
+<span class="nc" id="L161">		newbuf = new char[2*buf.length];</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		for (i = 0; i &lt; buf.length; ++i) {</span>
+<span class="nc" id="L163">			newbuf[i] = buf[i];</span>
+		}
+<span class="nc" id="L165">		return newbuf;</span>
+	}
+<span class="fc" id="L167">	private final int YY_E_INTERNAL = 0;</span>
+<span class="fc" id="L168">	private final int YY_E_MATCH = 1;</span>
+<span class="fc" id="L169">	private java.lang.String yy_error_string[] = {</span>
+		&quot;Error: Internal error.\n&quot;,
+		&quot;Error: Unmatched input.\n&quot;
+	};
+	private void yy_error (int code,boolean fatal) {
+<span class="nc" id="L174">		java.lang.System.out.print(yy_error_string[code]);</span>
+<span class="nc" id="L175">		java.lang.System.out.flush();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		if (fatal) {</span>
+<span class="nc" id="L177">			throw new Error(&quot;Fatal Error.\n&quot;);</span>
+		}
+<span class="nc" id="L179">	}</span>
+	private int[][] unpackFromString(int size1, int size2, String st) {
+<span class="fc" id="L181">		int colonIndex = -1;</span>
+		String lengthString;
+<span class="fc" id="L183">		int sequenceLength = 0;</span>
+<span class="fc" id="L184">		int sequenceInteger = 0;</span>
+
+		int commaIndex;
+		String workString;
+
+<span class="fc" id="L189">		int res[][] = new int[size1][size2];</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">		for (int i= 0; i &lt; size1; i++) {</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">			for (int j= 0; j &lt; size2; j++) {</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">				if (sequenceLength != 0) {</span>
+<span class="fc" id="L193">					res[i][j] = sequenceInteger;</span>
+<span class="fc" id="L194">					sequenceLength--;</span>
+<span class="fc" id="L195">					continue;</span>
+				}
+<span class="fc" id="L197">				commaIndex = st.indexOf(',');</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">				workString = (commaIndex==-1) ? st :</span>
+<span class="fc" id="L199">					st.substring(0, commaIndex);</span>
+<span class="fc" id="L200">				st = st.substring(commaIndex+1);</span>
+<span class="fc" id="L201">				colonIndex = workString.indexOf(':');</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">				if (colonIndex == -1) {</span>
+<span class="fc" id="L203">					res[i][j]=Integer.parseInt(workString);</span>
+<span class="fc" id="L204">					continue;</span>
+				}
+<span class="fc" id="L206">				lengthString =</span>
+<span class="fc" id="L207">					workString.substring(colonIndex+1);</span>
+<span class="fc" id="L208">				sequenceLength=Integer.parseInt(lengthString);</span>
+<span class="fc" id="L209">				workString=workString.substring(0,colonIndex);</span>
+<span class="fc" id="L210">				sequenceInteger=Integer.parseInt(workString);</span>
+<span class="fc" id="L211">				res[i][j] = sequenceInteger;</span>
+<span class="fc" id="L212">				sequenceLength--;</span>
+			}
+		}
+<span class="fc" id="L215">		return res;</span>
+	}
+<span class="fc" id="L217">	private int yy_acpt[] = {</span>
+		/* 0 */ YY_NOT_ACCEPT,
+		/* 1 */ YY_NO_ANCHOR,
+		/* 2 */ YY_NO_ANCHOR,
+		/* 3 */ YY_NO_ANCHOR,
+		/* 4 */ YY_NO_ANCHOR,
+		/* 5 */ YY_NO_ANCHOR,
+		/* 6 */ YY_NO_ANCHOR,
+		/* 7 */ YY_NO_ANCHOR,
+		/* 8 */ YY_NO_ANCHOR,
+		/* 9 */ YY_NO_ANCHOR,
+		/* 10 */ YY_NO_ANCHOR,
+		/* 11 */ YY_NO_ANCHOR,
+		/* 12 */ YY_NO_ANCHOR,
+		/* 13 */ YY_NOT_ACCEPT,
+		/* 14 */ YY_NOT_ACCEPT
+	};
+<span class="fc" id="L234">	private int yy_cmap[] = unpackFromString(1,130,</span>
+&quot;0:8,11:2,13,0:2,12,0:18,11,0:7,1,2,5,3,0,4,10,6,7:10,0:7,8:26,0:4,9,0,8:26,&quot; +
+&quot;0:5,14:2&quot;)[0];
+
+<span class="fc" id="L238">	private int yy_rmap[] = unpackFromString(1,15,</span>
+&quot;0,1:6,2,3,4,1,5,1,5,6&quot;)[0];
+
+<span class="fc" id="L241">	private int yy_nxt[][] = unpackFromString(7,15,</span>
+&quot;-1,1,2,3,4,5,6,7,8,-1,13,9,14,9,10,-1:22,7,-1:2,13,-1:11,8:3,-1:16,9,-1,9,-&quot; +
+&quot;1:8,11,-1:20,12,-1&quot;);
+
+	public java_cup.runtime.Symbol next_token ()
+		throws java.io.IOException {
+		int yy_lookahead;
+<span class="fc" id="L248">		int yy_anchor = YY_NO_ANCHOR;</span>
+<span class="fc" id="L249">		int yy_state = yy_state_dtrans[yy_lexical_state];</span>
+<span class="fc" id="L250">		int yy_next_state = YY_NO_STATE;</span>
+<span class="fc" id="L251">		int yy_last_accept_state = YY_NO_STATE;</span>
+<span class="fc" id="L252">		boolean yy_initial = true;</span>
+		int yy_this_accept;
+
+<span class="fc" id="L255">		yy_mark_start();</span>
+<span class="fc" id="L256">		yy_this_accept = yy_acpt[yy_state];</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">		if (YY_NOT_ACCEPT != yy_this_accept) {</span>
+<span class="nc" id="L258">			yy_last_accept_state = yy_state;</span>
+<span class="nc" id="L259">			yy_mark_end();</span>
+		}
+		while (true) {
+<span class="fc bfc" id="L262" title="All 4 branches covered.">			if (yy_initial &amp;&amp; yy_at_bol) yy_lookahead = YY_BOL;</span>
+<span class="fc" id="L263">			else yy_lookahead = yy_advance();</span>
+<span class="fc" id="L264">			yy_next_state = YY_F;</span>
+<span class="fc" id="L265">			yy_next_state = yy_nxt[yy_rmap[yy_state]][yy_cmap[yy_lookahead]];</span>
+<span class="fc bfc" id="L266" title="All 4 branches covered.">			if (YY_EOF == yy_lookahead &amp;&amp; true == yy_initial) {</span>
+
+<span class="fc" id="L268">  return new Symbol(sym.EOF);</span>
+			}
+<span class="fc bfc" id="L270" title="All 2 branches covered.">			if (YY_F != yy_next_state) {</span>
+<span class="fc" id="L271">				yy_state = yy_next_state;</span>
+<span class="fc" id="L272">				yy_initial = false;</span>
+<span class="fc" id="L273">				yy_this_accept = yy_acpt[yy_state];</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">				if (YY_NOT_ACCEPT != yy_this_accept) {</span>
+<span class="fc" id="L275">					yy_last_accept_state = yy_state;</span>
+<span class="fc" id="L276">					yy_mark_end();</span>
+				}
+			}
+			else {
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">				if (YY_NO_STATE == yy_last_accept_state) {</span>
+<span class="nc" id="L281">					throw (new Error(&quot;Lexical Error: Unmatched Input.&quot;));</span>
+				}
+				else {
+<span class="fc" id="L284">					yy_anchor = yy_acpt[yy_last_accept_state];</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">					if (0 != (YY_END &amp; yy_anchor)) {</span>
+<span class="nc" id="L286">						yy_move_end();</span>
+					}
+<span class="fc" id="L288">					yy_to_mark();</span>
+<span class="pc bpc" id="L289" title="12 of 23 branches missed.">					switch (yy_last_accept_state) {</span>
+					case 1:
+<span class="fc" id="L291">						{ return (new Symbol(sym.LPAREN) ); }</span>
+					case -2:
+<span class="nc" id="L293">						break;</span>
+					case 2:
+<span class="fc" id="L295">						{ return (new Symbol(sym.RPAREN) ); }</span>
+					case -3:
+<span class="nc" id="L297">						break;</span>
+					case 3:
+<span class="fc" id="L299">						{ return (new Symbol(sym.PLUS) ); }</span>
+					case -4:
+<span class="nc" id="L301">						break;</span>
+					case 4:
+<span class="fc" id="L303">						{ return (new Symbol(sym.MINUS) ); }</span>
+					case -5:
+<span class="nc" id="L305">						break;</span>
+					case 5:
+<span class="fc" id="L307">						{ return (new Symbol(sym.TIMES) ); }</span>
+					case -6:
+<span class="nc" id="L309">						break;</span>
+					case 6:
+<span class="fc" id="L311">						{ return (new Symbol(sym.DIVIDE) ); }</span>
+					case -7:
+<span class="nc" id="L313">						break;</span>
+					case 7:
+						{ 
+<span class="fc" id="L316">    return (new Symbol(sym.INT, new Integer(yytext())) );</span>
+}
+					case -8:
+<span class="nc" id="L319">						break;</span>
+					case 8:
+						{ 
+<span class="fc" id="L322">    return (new Symbol(sym.VAR, yytext()) );</span>
+}
+					case -9:
+<span class="nc" id="L325">						break;</span>
+					case 9:
+						{  }
+					case -10:
+<span class="fc" id="L329">						break;</span>
+					case 10:
+						
+					case -11:
+<span class="fc" id="L333">						break;</span>
+					case 11:
+						{ 
+<span class="fc" id="L336">    return (new Symbol(sym.FLOAT, new Float(yytext())) );</span>
+}
+					case -12:
+<span class="nc" id="L339">						break;</span>
+					case 12:
+						{  }
+					case -13:
+<span class="nc" id="L343">						break;</span>
+					default:
+<span class="nc" id="L345">						yy_error(YY_E_INTERNAL,false);</span>
+					case -1:
+					}
+<span class="fc" id="L348">					yy_initial = true;</span>
+<span class="fc" id="L349">					yy_state = yy_state_dtrans[yy_lexical_state];</span>
+<span class="fc" id="L350">					yy_next_state = YY_NO_STATE;</span>
+<span class="fc" id="L351">					yy_last_accept_state = YY_NO_STATE;</span>
+<span class="fc" id="L352">					yy_mark_start();</span>
+<span class="fc" id="L353">					yy_this_accept = yy_acpt[yy_state];</span>
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">					if (YY_NOT_ACCEPT != yy_this_accept) {</span>
+<span class="nc" id="L355">						yy_last_accept_state = yy_state;</span>
+<span class="nc" id="L356">						yy_mark_end();</span>
+					}
+				}
+			}
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

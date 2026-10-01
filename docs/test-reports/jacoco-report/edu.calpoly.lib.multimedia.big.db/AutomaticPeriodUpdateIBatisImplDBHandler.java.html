@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AutomaticPeriodUpdateIBatisImplDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">AutomaticPeriodUpdateIBatisImplDBHandler.java</span></div><h1>AutomaticPeriodUpdateIBatisImplDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//JDK imports
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
+
+//JDBC imports
+import java.sql.SQLException;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+import com.ibatis.sqlmap.client.SqlMapSession;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+//BIG 4 imports
+import edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval.IntervalUpdatePolicySettings;
+import edu.calpoly.lib.multimedia.big.users.admin.update.policies.days.DaysUpdatePolicySettings;
+
+
+
+/**
+ * Default implementation of &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class AutomaticPeriodUpdateIBatisImplDBHandler implements AutomaticPeriodUpdateDBHandler
+{
+	private SqlMapClient sqlMap;
+	private SqlMapSession session;
+	private Log log;
+
+    public AutomaticPeriodUpdateIBatisImplDBHandler(SqlMapClient sqlMap)
+<span class="fc" id="L47">    {</span>
+<span class="fc" id="L48">		this.sqlMap = sqlMap;</span>
+<span class="fc" id="L49">		this.log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L50">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public int getAutomaticUpdatePolicy(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L57">		int policy = -1;</span>
+		try
+		{
+<span class="fc" id="L60">			session = sqlMap.openSession();</span>
+<span class="fc" id="L61">			session.startTransaction();</span>
+<span class="fc" id="L62">			Integer policyInt = (Integer) session.queryForObject(&quot;getAutomaticUpdatePolicy&quot;, game.getGameID());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">			if(policyInt != null)</span>
+			{
+<span class="fc" id="L65">				policy = policyInt.intValue();</span>
+			}
+<span class="fc" id="L67">			session.commitTransaction();</span>
+		}
+<span class="fc" id="L69">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L71">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L77">				session.endTransaction();</span>
+			}
+<span class="nc" id="L79">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L81">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L85">				session.close();</span>
+			}
+		}
+
+<span class="fc" id="L89">		return policy;</span>
+	}
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void addAutomaticUpdatePolicy(Game game, int policy) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L97">		Map map = new HashMap(2);</span>
+<span class="fc" id="L98">		map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="fc" id="L99">		map.put(&quot;policy&quot;, policy);</span>
+
+		try
+		{
+<span class="fc" id="L103">			session = sqlMap.openSession();</span>
+<span class="fc" id="L104">			session.startTransaction();</span>
+<span class="fc" id="L105">			session.insert(&quot;addAutomaticUpdatePolicy&quot;, map);</span>
+<span class="fc" id="L106">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L108">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L110">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L116">				session.endTransaction();</span>
+			}
+<span class="nc" id="L118">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L120">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L124">				session.close();</span>
+			}
+		}
+
+<span class="fc" id="L128">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void deleteAutomaticUpdatePolicy(Game game) throws BIGDatabaseFacadeException
+	{
+		try
+		{
+<span class="fc" id="L137">			session = sqlMap.openSession();</span>
+<span class="fc" id="L138">			session.startTransaction();</span>
+<span class="fc" id="L139">			session.delete(&quot;deleteAutomaticUpdatePolicy&quot;, game.getGameID());</span>
+<span class="fc" id="L140">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L142">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L144">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L150">				session.endTransaction();</span>
+			}
+<span class="nc" id="L152">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L154">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L158">				session.close();</span>
+			}
+		}
+
+<span class="fc" id="L162">	}</span>
+
+	public List getGamesWithAutomaticUpdatePolicy() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L166">		List list = new ArrayList();</span>
+
+		try
+		{
+<span class="fc" id="L170">			session = sqlMap.openSession();</span>
+<span class="fc" id="L171">			session.startTransaction();</span>
+<span class="fc" id="L172">			list = session.queryForList(&quot;getGamesWithAutoPolicy&quot;, null);</span>
+<span class="fc" id="L173">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L175">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L177">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L183">				session.endTransaction();</span>
+			}
+<span class="nc" id="L185">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L187">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L191">				session.close();</span>
+			}
+		}
+
+<span class="fc" id="L195">		return list;</span>
+	}
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void addIntervalPolicySettings(Game game, int interval, Date time, Date nextUpdate) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L203">		Map map = new HashMap(4);</span>
+<span class="fc" id="L204">		map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="fc" id="L205">		map.put(&quot;interval&quot;, interval);</span>
+<span class="fc" id="L206">		map.put(&quot;time&quot;, time);</span>
+<span class="fc" id="L207">		map.put(&quot;nextUpdate&quot;, nextUpdate);</span>
+
+		try
+		{
+<span class="fc" id="L211">			session = sqlMap.openSession();</span>
+<span class="fc" id="L212">			session.startTransaction();</span>
+<span class="fc" id="L213">			session.insert(&quot;addIntervalUpdatePolicySettings&quot;, map);</span>
+<span class="fc" id="L214">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L216">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L218">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L224">				session.endTransaction();</span>
+			}
+<span class="nc" id="L226">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L228">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L232">				session.close();</span>
+			}
+		}
+<span class="fc" id="L235">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void deleteIntervalPolicySettings(Game game) throws BIGDatabaseFacadeException
+	{
+		try
+		{
+<span class="nc" id="L244">			session = sqlMap.openSession();</span>
+<span class="nc" id="L245">			session.startTransaction();</span>
+<span class="nc" id="L246">			session.delete(&quot;deleteIntervalUpdatePolicySettings&quot;, game.getGameID());</span>
+<span class="nc" id="L247">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L249">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L251">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L257">				session.endTransaction();</span>
+			}
+<span class="nc" id="L259">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L261">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="nc" id="L265">				session.close();</span>
+			}
+		}
+<span class="nc" id="L268">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public IntervalUpdatePolicySettings getIntervalPolicySettings(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L275">		IntervalUpdatePolicySettings intervalUpdatePolicySettings = null;</span>
+
+		try
+		{
+<span class="fc" id="L279">			session = sqlMap.openSession();</span>
+<span class="fc" id="L280">			session.startTransaction();</span>
+<span class="fc" id="L281">			intervalUpdatePolicySettings = (IntervalUpdatePolicySettings) session.queryForObject(&quot;getIntervalUpdatePolicySettings&quot;, game.getGameID());</span>
+<span class="fc" id="L282">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L284">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L286">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L292">				session.endTransaction();</span>
+			}
+<span class="nc" id="L294">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L296">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L300">				session.close();</span>
+			}
+		}
+
+<span class="fc" id="L304">		return intervalUpdatePolicySettings;</span>
+	}
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void addDaysPolicySettings(Game game, DaysUpdatePolicySettings settings) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L312">		Map map = null;</span>
+
+		try
+		{
+<span class="fc" id="L316">			deleteDaysPolicySettings(game);</span>
+
+<span class="fc" id="L318">			session = sqlMap.openSession();</span>
+<span class="fc" id="L319">			session.startTransaction();</span>
+
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">			if(settings.getSunday())</span>
+			{
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L325">					log.debug(&quot;Adding Sunday to days update policy for game &quot; + game.getGameID());</span>
+				}
+
+<span class="fc" id="L328">				map = new HashMap(3);</span>
+<span class="fc" id="L329">				map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="fc" id="L330">				map.put(&quot;day&quot;, 0);</span>
+<span class="fc" id="L331">				map.put(&quot;time&quot;, settings.getUpdateTime());</span>
+<span class="fc" id="L332">				session.insert(&quot;addDaysUpdatePolicySettings&quot;, map);</span>
+			}
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">			if(settings.getMonday())</span>
+			{
+<span class="nc bnc" id="L336" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L338">					log.debug(&quot;Adding Monday to days update policy for game &quot; + game.getGameID());</span>
+				}
+
+<span class="nc" id="L341">				map = new HashMap(3);</span>
+<span class="nc" id="L342">				map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L343">				map.put(&quot;day&quot;, 1);</span>
+<span class="nc" id="L344">				map.put(&quot;time&quot;, settings.getUpdateTime());</span>
+<span class="nc" id="L345">				session.insert(&quot;addDaysUpdatePolicySettings&quot;, map);</span>
+			}
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">			if(settings.getTuesday())</span>
+			{
+<span class="nc bnc" id="L349" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L351">					log.debug(&quot;Adding Tuesday to days update policy for game &quot; + game.getGameID());</span>
+				}
+
+<span class="nc" id="L354">				map = new HashMap(3);</span>
+<span class="nc" id="L355">				map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L356">				map.put(&quot;day&quot;, 2);</span>
+<span class="nc" id="L357">				map.put(&quot;time&quot;, settings.getUpdateTime());</span>
+<span class="nc" id="L358">				session.insert(&quot;addDaysUpdatePolicySettings&quot;, map);</span>
+			}
+<span class="pc bpc" id="L360" title="1 of 2 branches missed.">			if(settings.getWednesday())</span>
+			{
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L364">					log.debug(&quot;Adding Wednesday to days update policy for game &quot; + game.getGameID());</span>
+				}
+
+<span class="fc" id="L367">				map = new HashMap(3);</span>
+<span class="fc" id="L368">				map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="fc" id="L369">				map.put(&quot;day&quot;, 3);</span>
+<span class="fc" id="L370">				map.put(&quot;time&quot;, settings.getUpdateTime());</span>
+<span class="fc" id="L371">				session.insert(&quot;addDaysUpdatePolicySettings&quot;, map);</span>
+			}
+<span class="pc bpc" id="L373" title="1 of 2 branches missed.">			if(settings.getThursday())</span>
+			{
+<span class="nc bnc" id="L375" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L377">					log.debug(&quot;Adding Thursday to days update policy for game &quot; + game.getGameID());</span>
+				}
+
+<span class="nc" id="L380">				map = new HashMap(3);</span>
+<span class="nc" id="L381">				map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L382">				map.put(&quot;day&quot;, 4);</span>
+<span class="nc" id="L383">				map.put(&quot;time&quot;, settings.getUpdateTime());</span>
+<span class="nc" id="L384">				session.insert(&quot;addDaysUpdatePolicySettings&quot;, map);</span>
+			}
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">			if(settings.getFriday())</span>
+			{
+<span class="nc bnc" id="L388" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L390">					log.debug(&quot;Adding Friday to days update policy for game &quot; + game.getGameID());</span>
+				}
+
+<span class="nc" id="L393">				map = new HashMap(3);</span>
+<span class="nc" id="L394">				map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L395">				map.put(&quot;day&quot;, 5);</span>
+<span class="nc" id="L396">				map.put(&quot;time&quot;, settings.getUpdateTime());</span>
+<span class="nc" id="L397">				session.insert(&quot;addDaysUpdatePolicySettings&quot;, map);</span>
+			}
+<span class="pc bpc" id="L399" title="1 of 2 branches missed.">			if(settings.getSaturday())</span>
+			{
+<span class="nc bnc" id="L401" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L403">					log.debug(&quot;Adding Saturday to days update policy for game &quot; + game.getGameID());</span>
+				}
+
+<span class="nc" id="L406">				map = new HashMap(3);</span>
+<span class="nc" id="L407">				map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L408">				map.put(&quot;day&quot;, 6);</span>
+<span class="nc" id="L409">				map.put(&quot;time&quot;, settings.getUpdateTime());</span>
+<span class="nc" id="L410">				session.insert(&quot;addDaysUpdatePolicySettings&quot;, map);</span>
+			}
+
+<span class="fc" id="L413">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L415">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L417">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L423">				session.endTransaction();</span>
+			}
+<span class="nc" id="L425">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L427">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L431">				session.close();</span>
+			}
+		}
+<span class="fc" id="L434">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void deleteDaysPolicySettings(Game game) throws BIGDatabaseFacadeException
+	{
+		try
+		{
+<span class="fc" id="L443">			session = sqlMap.openSession();</span>
+<span class="fc" id="L444">			session.startTransaction();</span>
+<span class="fc" id="L445">			session.delete(&quot;deleteDaysUpdatePolicySettings&quot;, game.getGameID());</span>
+<span class="fc" id="L446">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L448">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L450">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L456">				session.endTransaction();</span>
+			}
+<span class="nc" id="L458">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L460">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L464">				session.close();</span>
+			}
+		}
+
+<span class="pc bpc" id="L468" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L470">			log.debug(&quot;Days Update policy settings deleted for game &quot; + game.getGameID());</span>
+		}
+<span class="fc" id="L472">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public DaysUpdatePolicySettings getDaysPolicySettings(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L479">		DaysUpdatePolicySettings daysUpdatePolicySettings = new DaysUpdatePolicySettings();</span>
+
+		try
+		{
+<span class="fc" id="L483">			session = sqlMap.openSession();</span>
+<span class="fc" id="L484">			session.startTransaction();</span>
+<span class="fc" id="L485">			List maps = (List) session.queryForList(&quot;getDaysUpdatePolicySettings&quot;, game.getGameID());</span>
+
+<span class="fc bfc" id="L487" title="All 2 branches covered.">			for(Object o : maps)</span>
+			{
+<span class="fc" id="L489">				Map m = (Map) o;</span>
+<span class="fc" id="L490">				int day = ((Integer) m.get(&quot;day&quot;)).shortValue();</span>
+<span class="pc bpc" id="L491" title="1 of 2 branches missed.">				if(day == 0)</span>
+				{
+<span class="nc" id="L493">					daysUpdatePolicySettings.setSunday(true);</span>
+<span class="nc" id="L494">					daysUpdatePolicySettings.setUpdateTime((Date) m.get(&quot;time&quot;));</span>
+				}
+<span class="fc bfc" id="L496" title="All 2 branches covered.">				else if(day == 1)</span>
+				{
+<span class="fc" id="L498">					daysUpdatePolicySettings.setMonday(true);</span>
+<span class="fc" id="L499">					daysUpdatePolicySettings.setUpdateTime((Date) m.get(&quot;time&quot;));</span>
+				}
+<span class="pc bpc" id="L501" title="1 of 2 branches missed.">				else if(day == 2)</span>
+				{
+<span class="nc" id="L503">					daysUpdatePolicySettings.setTuesday(true);</span>
+<span class="nc" id="L504">					daysUpdatePolicySettings.setUpdateTime((Date) m.get(&quot;time&quot;));</span>
+				}
+<span class="pc bpc" id="L506" title="1 of 2 branches missed.">				else if(day == 3)</span>
+				{
+<span class="nc" id="L508">					daysUpdatePolicySettings.setWednesday(true);</span>
+<span class="nc" id="L509">					daysUpdatePolicySettings.setUpdateTime((Date) m.get(&quot;time&quot;));</span>
+				}
+<span class="pc bpc" id="L511" title="1 of 2 branches missed.">				else if(day == 4)</span>
+				{
+<span class="nc" id="L513">					daysUpdatePolicySettings.setThursday(true);</span>
+<span class="nc" id="L514">					daysUpdatePolicySettings.setUpdateTime((Date) m.get(&quot;time&quot;));</span>
+				}
+<span class="pc bpc" id="L516" title="1 of 2 branches missed.">				else if(day == 5)</span>
+				{
+<span class="fc" id="L518">					daysUpdatePolicySettings.setFriday(true);</span>
+<span class="fc" id="L519">					daysUpdatePolicySettings.setUpdateTime((Date) m.get(&quot;time&quot;));</span>
+				}
+<span class="nc bnc" id="L521" title="All 2 branches missed.">				else if(day == 6)</span>
+				{
+<span class="nc" id="L523">					daysUpdatePolicySettings.setSaturday(true);</span>
+<span class="nc" id="L524">					daysUpdatePolicySettings.setUpdateTime((Date) m.get(&quot;time&quot;));</span>
+				}
+<span class="fc" id="L526">			}</span>
+<span class="fc" id="L527">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L529">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L531">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L537">				session.endTransaction();</span>
+			}
+<span class="nc" id="L539">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L541">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="fc" id="L545">				session.close();</span>
+			}
+		}
+
+<span class="fc" id="L549">		return daysUpdatePolicySettings;</span>
+	}
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public boolean checkExistDatePolicyScheduledUpdate(Game game, long dateHashCode) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L557">		Map map = new HashMap(3);</span>
+<span class="nc" id="L558">		map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L559">		map.put(&quot;dateHashCode&quot;, dateHashCode);</span>
+
+<span class="nc" id="L561">		boolean exist = false;</span>
+
+		try
+		{
+<span class="nc" id="L565">			session = sqlMap.openSession();</span>
+<span class="nc" id="L566">			session.startTransaction();</span>
+<span class="nc bnc" id="L567" title="All 2 branches missed.">			if( session.queryForObject(&quot;getDatePolicyScheduledUpdate&quot;, map) != null)</span>
+			{
+<span class="nc" id="L569">				exist = true;</span>
+			}
+<span class="nc" id="L571">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L573">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L575">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L581">				session.endTransaction();</span>
+			}
+<span class="nc" id="L583">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L585">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="nc" id="L589">				session.close();</span>
+			}
+		}
+
+<span class="nc" id="L593">		return exist;</span>
+	}
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void addDatePolicyScheduledUpdate(Game game, Date date, Date time, long dateHashCode) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L601">		Map map = new HashMap(3);</span>
+<span class="nc" id="L602">		map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L603">		map.put(&quot;date&quot;, date);</span>
+<span class="nc" id="L604">		map.put(&quot;time&quot;, time);</span>
+<span class="nc" id="L605">		map.put(&quot;dateHashCode&quot;, dateHashCode);</span>
+<span class="nc" id="L606">		map.put(&quot;complete&quot;, false);</span>
+
+		try
+		{
+<span class="nc" id="L610">			session = sqlMap.openSession();</span>
+<span class="nc" id="L611">			session.startTransaction();</span>
+<span class="nc" id="L612">			session.insert(&quot;addDatePolicyScheduledUpdate&quot;, map);</span>
+<span class="nc" id="L613">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L615">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L617">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L623">				session.endTransaction();</span>
+			}
+<span class="nc" id="L625">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L627">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="nc" id="L631">				session.close();</span>
+			}
+		}
+<span class="nc" id="L634">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public void deleteDatePolicyScheduledUpdate(Game game, long dateHashCode) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L641">		Map map = new HashMap(2);</span>
+<span class="nc" id="L642">		map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L643">		map.put(&quot;dateHashCode&quot;, dateHashCode);</span>
+
+		try
+		{
+<span class="nc" id="L647">			session = sqlMap.openSession();</span>
+<span class="nc" id="L648">			session.startTransaction();</span>
+<span class="nc" id="L649">			session.delete(&quot;deleteDatePolicyScheduledUpdate&quot;, map);</span>
+<span class="nc" id="L650">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L652">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L654">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L660">				session.endTransaction();</span>
+			}
+<span class="nc" id="L662">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L664">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="nc" id="L668">				session.close();</span>
+			}
+		}
+<span class="nc" id="L671">	}</span>
+
+	/**
+	 * Defined by &lt;code&gt;AutomaticPeriodUpdateDBHandler&lt;/code&gt;.
+	 */
+	public List getDatePolicyScheduledUpdates(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L678">		List list = null;</span>
+
+		try
+		{
+<span class="nc" id="L682">			session = sqlMap.openSession();</span>
+<span class="nc" id="L683">			session.startTransaction();</span>
+<span class="nc" id="L684">			list = (List) session.queryForList(&quot;getDatePolicyScheduledUpdates&quot;, game.getGameID());</span>
+<span class="nc" id="L685">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L687">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L689">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L695">				session.endTransaction();</span>
+			}
+<span class="nc" id="L697">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L699">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="nc" id="L703">				session.close();</span>
+			}
+		}
+
+<span class="nc" id="L707">		return list;</span>
+	}
+
+	public void markDatePolicyUpdateComplete(Game game, long dateHashCode) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L712">		Map map = new HashMap(2);</span>
+<span class="nc" id="L713">		map.put(&quot;gameid&quot;, game.getGameID());</span>
+<span class="nc" id="L714">		map.put(&quot;dateHashCode&quot;, dateHashCode);</span>
+
+		try
+		{
+<span class="nc" id="L718">			session = sqlMap.openSession();</span>
+<span class="nc" id="L719">			session.startTransaction();</span>
+<span class="nc" id="L720">			session.update(&quot;markScheduledUpdateComplete&quot;, map);</span>
+<span class="nc" id="L721">			session.commitTransaction();</span>
+		}
+<span class="nc" id="L723">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L725">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L731">				session.endTransaction();</span>
+			}
+<span class="nc" id="L733">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L735">				throw new BIGDatabaseFacadeException(sqle);</span>
+			}
+			finally
+			{
+<span class="nc" id="L739">				session.close();</span>
+			}
+		}
+<span class="nc" id="L742">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

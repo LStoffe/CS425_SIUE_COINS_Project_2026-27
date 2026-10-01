@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MissionStatementAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">MissionStatementAction.java</span></div><h1>MissionStatementAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//Logging imports
+import edu.calpoly.lib.multimedia.big.log.BIGLog;
+import edu.calpoly.lib.multimedia.big.log.BIGLogFactory;
+
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.users.LoginForm;
+import edu.calpoly.its.mas.big.game.Game;
+
+
+<span class="fc" id="L33">public class MissionStatementAction extends Action {</span>
+
+	public ActionForward execute(ActionMapping mapping,
+		           				 ActionForm form,
+		           				 HttpServletRequest request,
+		           				 HttpServletResponse response)
+	{
+<span class="fc" id="L40">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L42">        ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L43">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L44">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L46">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L51">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L53">        int isFirst = (Integer) session.getAttribute(&quot;isFirst&quot;);</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if(isFirst == 1)</span>
+        {
+<span class="nc" id="L57">            isFirst = 0;</span>
+<span class="nc" id="L58">            session.setAttribute(&quot;isFirst&quot;, isFirst);</span>
+
+            //Tried this, it compiled but didn't solve the problem
+            //ActionForm loginform = (ActionForm) session.getAttribute(&quot;loginform&quot;);
+            //form = loginform;
+
+<span class="nc" id="L64">            LoginForm loginform = (LoginForm) session.getAttribute(&quot;loginform&quot;);</span>
+<span class="nc" id="L65">            String mission = loginform.getMissionStatement();</span>
+<span class="nc" id="L66">            String corevalues = loginform.getCoreValues();</span>
+<span class="nc" id="L67">            String companyurl = loginform.getCompanyUrl();</span>
+<span class="nc" id="L68">            session.setAttribute(&quot;oldMission&quot;, mission);</span>
+
+            //Note - A major headache here - This class does not find the existing LoginForm object and
+            //creates it's own instance.  This is how I fixed that problem.
+<span class="nc" id="L72">            ((LoginForm) form).setMissionStatement(mission);</span>
+<span class="nc" id="L73">            ((LoginForm) form).setCoreValues(corevalues);</span>
+<span class="nc" id="L74">            ((LoginForm) form).setCompanyUrl(companyurl);</span>
+<span class="nc" id="L75">		    session.setAttribute(&quot;loginform&quot;, form );</span>
+
+            //Tried to call JSP file directly, but it didn't work (compilation error)
+            //Followed the example in file: LoginVerificationTag.java
+            //PageContext pageContext = JspFactory.getPageContext();
+            //pageContext.forward(&quot;/missionStatement.jsp&quot;);
+
+<span class="nc" id="L82">            return (mapping.findForward(&quot;tojsp&quot;));</span>
+        }
+
+        else
+        {
+<span class="nc" id="L87">		   LoginForm theForm = (LoginForm) form;</span>
+
+	       //Process request if it was not cancelled
+<span class="nc bnc" id="L90" title="All 2 branches missed.">           if(!isCancelled(request))</span>
+           {
+               //save the updated Mission Statement to the database
+<span class="nc" id="L93">		       BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+<span class="nc" id="L94">               game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc" id="L95">               Company theCompany = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc" id="L96">               String missionStatement = theForm.getMissionStatement();</span>
+<span class="nc" id="L97">               String coreValues = theForm.getCoreValues();</span>
+<span class="nc" id="L98">               theCompany.setMissionStatement(missionStatement);</span>
+<span class="nc" id="L99">               theCompany.setCoreValues(coreValues);</span>
+<span class="nc" id="L100">               BIGLog log =  BIGLogFactory.getLog();</span>
+<span class="nc" id="L101">               errors = new ActionMessages();</span>
+               try
+		       {
+<span class="nc" id="L104">                   dbFacade.getCompanyDBHandler().updateCompany(game, theCompany);</span>
+			   }
+<span class="nc" id="L106">			   catch(BIGDatabaseFacadeException BIGDbe)</span>
+			   {
+<span class="nc" id="L108">			   	   log.fatal(&quot;&quot;, BIGDbe);</span>
+<span class="nc" id="L109">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+			   }
+<span class="nc" id="L111">			   catch(ObjectNotFoundException onfe)</span>
+			   {
+<span class="nc" id="L113">			 	   log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L114">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+			   }
+			   finally
+			   {
+					try
+					{
+<span class="nc" id="L120"> 	       		 		dbFacade.close();</span>
+					}
+<span class="nc" id="L122">					catch (BIGDatabaseFacadeException e)</span>
+					{
+<span class="nc" id="L124">						log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L125"> 						errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L126">					}</span>
+			   }
+
+<span class="nc" id="L129">               session.setAttribute(&quot;loginform&quot;, form);</span>
+<span class="nc" id="L130">		       return (mapping.findForward(&quot;success&quot;));</span>
+	       }
+	       else  //Request was cancelled
+		   {
+<span class="nc" id="L134">			   String oldMission = (String) session.getAttribute(&quot;oldMission&quot;);</span>
+<span class="nc" id="L135">			   theForm.setMissionStatement(oldMission);</span>
+<span class="nc" id="L136">			   session.setAttribute(&quot;loginform&quot;, theForm);</span>
+
+<span class="nc" id="L138">			   return (mapping.findForward(&quot;cancelled&quot;));</span>
+     	   }
+        }
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

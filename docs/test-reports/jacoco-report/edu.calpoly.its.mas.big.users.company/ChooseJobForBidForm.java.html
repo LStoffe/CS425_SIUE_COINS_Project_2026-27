@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChooseJobForBidForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">ChooseJobForBidForm.java</span></div><h1>ChooseJobForBidForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+import java.util.Vector;
+import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.Iterator;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.Bid;
+
+<span class="fc" id="L18">public class ChooseJobForBidForm extends ActionForm</span>
+{
+	private int jobID;
+
+	/* Both of these TreeMaps are indexed by jobID */
+	private TreeMap jobs;
+<span class="fc" id="L24">	private TreeMap bids = new TreeMap();</span>
+
+    public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+    {
+<span class="fc" id="L28">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (jobs.get(new Integer(jobID)) == null) {</span>
+<span class="fc" id="L31">            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+        }
+
+<span class="fc" id="L34">		return errors;</span>
+	}
+
+
+	public int getJobID()
+	{
+<span class="fc" id="L40">		return jobID;</span>
+	}
+
+	public void setJobID(int jobID)
+	{
+<span class="fc" id="L45">		this.jobID = jobID;</span>
+<span class="fc" id="L46">	}</span>
+
+	public int getJobType()
+	{
+<span class="fc" id="L50">		return ((Job) jobs.get(new Integer(jobID))).getJobType();</span>
+	}
+
+	public TreeMap getJobs()
+	{
+<span class="fc" id="L55">		return jobs;</span>
+	}
+
+	public void setJobs(Vector jobs)
+	{
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">		if (this.jobs == null)</span>
+<span class="fc" id="L61">			this.jobs = new TreeMap();</span>
+
+		// Walk through the Vector, and build the TreeMap
+<span class="fc" id="L64">	    Iterator jobIter = jobs.iterator();</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		while (jobIter.hasNext()) {</span>
+<span class="fc" id="L66">			Job job = (Job) jobIter.next();</span>
+<span class="fc" id="L67">			this.jobs.put(new Integer(job.getJobID()), job);</span>
+<span class="fc" id="L68">		}</span>
+
+<span class="fc" id="L70">	}</span>
+
+	public int getNumberOfJobs()
+	{
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		if (jobs == null)</span>
+<span class="fc" id="L75">			return 0;</span>
+		else
+<span class="fc" id="L77">			return jobs.size();</span>
+	}
+
+	public void setBid(int jobID, Bid bid)
+	{
+<span class="fc" id="L82">		bids.put(new Integer(jobID), bid);</span>
+<span class="fc" id="L83">	}</span>
+
+	public Bid getBid(int jobID)
+	{
+<span class="fc" id="L87">		return (Bid) bids.get(new Integer(jobID));</span>
+	}
+
+
+	public long getBidAmount(int jobID)
+	{
+
+<span class="fc" id="L94">		Bid bid = (Bid) bids.get(new Integer(jobID));</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		if (bid == null)</span>
+<span class="fc" id="L96">			return -1;</span>
+		else
+<span class="fc" id="L98">			return bid.getBidAmount();</span>
+	}
+
+	public double getBidAmountUP(int jobID)
+	{
+
+<span class="fc" id="L104">		Bid bid = (Bid) bids.get(new Integer(jobID));</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">		if (bid == null)</span>
+<span class="fc" id="L106">			return -1;</span>
+		else
+<span class="fc" id="L108">			return bid.getBidAmountUP();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

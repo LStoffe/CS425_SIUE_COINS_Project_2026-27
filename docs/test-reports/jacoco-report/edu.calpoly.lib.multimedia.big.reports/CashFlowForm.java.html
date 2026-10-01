@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CashFlowForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">CashFlowForm.java</span></div><h1>CashFlowForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.reports;
+
+
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Hashtable;
+import edu.calpoly.its.mas.big.reports.ReportForm;
+
+/**
+ * Class representing a cash flow report.
+ * Calls to ExpandedCompany.decreaseCashOnHand() or ExpandedCompany.increaseCashOnHand()
+ * result in an entry being made in this report.  This report stores the
+ * cash on hand amount added or subtracted, whether or not it was a cash inflow or
+ * outflow, and the source.  This class is robust enough to handle negative cash inflows and
+ * positive cash outflows if the need arises.  The source is passed to this report
+ * as some code word.  It is the responisibility of this class to maintain a list
+ * of all possible code words and translate them into human readable sources.
+ * This translate will not occur until the report is actually viewed by a human
+ * because .properties file info is needed, which is available from the CashFlowAction class.
+ *
+ * &lt;br&gt;&lt;br&gt;
+ * This class acts like an interator for inflows and outflows.  The nextInflow and nextOutflow
+ * can be used to set the current inflow or outflow and then the getCurrentXXXX methods can
+ * be used to retrieve info about that inflow or outflow.  Note that if an add method is called
+ * the form is reset and the next inflow and outflow will be the first ones in the form.
+ *
+ * If the source field of an add method is the same as the source in a previous
+ * add, both amounts will be summed an count as the same inflow or outflow.
+ * (eg. addOutflow(1000, &quot;LABOR_EXPENSE&quot;) addOutflow(2000, &quot;LABOR_EXPENSE&quot;) will result in the
+ * inflow: LABOR_EXPENSE: 3000).
+ *
+ * @author Kevin Craig
+ */
+public final class CashFlowForm extends ReportForm
+{
+
+	private class CashFlowFormEntry
+	{
+		public CashFlowFormEntry(int amount, String source)
+<span class="fc" id="L41">		{</span>
+<span class="fc" id="L42">			this.source = source;</span>
+<span class="fc" id="L43">			this.amount = amount;</span>
+<span class="fc" id="L44">		}</span>
+
+		public String source;
+		public int amount;
+	}
+
+
+	private String companyName;
+
+	private Vector inflows;
+	private Vector outflows;
+	private Iterator inflowIterator;
+	private Iterator outflowIterator;
+	private CashFlowFormEntry currentInflow;
+	private CashFlowFormEntry currentOutflow;
+
+	private int startingCashOnHand;
+	private int endingCashOnHand;
+
+	private Hashtable sourceTitleMapping;
+
+	public CashFlowForm()
+<span class="fc" id="L66">	{</span>
+<span class="fc" id="L67">		startingCashOnHand = 0;</span>
+<span class="fc" id="L68">		inflows = new Vector();</span>
+<span class="fc" id="L69">		outflows = new Vector();</span>
+<span class="fc" id="L70">		sourceTitleMapping = new Hashtable();</span>
+<span class="fc" id="L71">	}</span>
+
+
+	public CashFlowForm(int cashOnHand)
+<span class="fc" id="L75">	{</span>
+<span class="fc" id="L76">		startingCashOnHand = cashOnHand;</span>
+<span class="fc" id="L77">		inflows = new Vector();</span>
+<span class="fc" id="L78">		outflows = new Vector();</span>
+<span class="fc" id="L79">		sourceTitleMapping = new Hashtable();</span>
+<span class="fc" id="L80">	}</span>
+
+  //************************  Public Methods  ***********************************
+
+    public String getCompanyName()
+    {
+<span class="fc" id="L86">	    return companyName;</span>
+    }
+
+    public void setCompanyName(String name)
+    {
+<span class="fc" id="L91">	    this.companyName = name;</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Adds a cash inflow (an entry on the report) for some amount
+     * from some source.  If there is already an entry on the form
+     * from the given source, the amount will be added to the current
+     * entry for that source rather than creating a new entry.
+     * Reset() is called implicitly by this methods, so the current
+     * cash inflow and outflow be set to the first ones in the report.
+     * @param amount Cash amount.  If amount is less than 1 this method returns
+     * without doing anything.
+     * @param source Source code for the source
+     *
+     */
+    public void addInflow(int amount, String source)
+    {
+<span class="fc bfc" id="L108" title="All 2 branches covered.">		if(amount &lt; 1)</span>
+		{
+<span class="fc" id="L110">			return;</span>
+		}
+
+<span class="fc" id="L113">		CashFlowFormEntry cashFlowFormEntry = null;</span>
+<span class="fc" id="L114">		reset();</span>
+<span class="pc bpc" id="L115" title="1 of 4 branches missed.">		while(inflowIterator.hasNext() &amp;&amp; (cashFlowFormEntry == null))</span>
+		{
+<span class="fc" id="L117">			CashFlowFormEntry cfef = (CashFlowFormEntry) inflowIterator.next();</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">			if (cfef.source.equals(source))</span>
+			{
+<span class="fc" id="L120">				cashFlowFormEntry = cfef;</span>
+			}
+<span class="fc" id="L122">		}</span>
+
+<span class="fc bfc" id="L124" title="All 2 branches covered.">		if(cashFlowFormEntry != null)  //already have an entry from this source</span>
+		{
+<span class="fc" id="L126">			cashFlowFormEntry.amount += amount;</span>
+		}
+		else
+		{
+<span class="fc" id="L130">			inflowIterator = null;</span>
+<span class="fc" id="L131">			inflows.add(new CashFlowFormEntry(amount, source));</span>
+		}
+<span class="fc" id="L133">		reset();</span>
+<span class="fc" id="L134">	}</span>
+
+    /**
+     * Adds a cash outflow (an entry on the report) for some amount
+     * from some source.  If there is already an entry on the form
+     * from the given source, the amount will be added to the current
+     * entry for that source rather than creating a new entry.
+     * Reset() is called implicitly by this methods, so the current
+     * cash inflow and outflow be set to the first ones in the report.
+     * @param amount Cash amount.  If this amount is less than 1 this method returns
+     * without doing anything.
+     * @param source Source code for the source
+     *
+     */
+    public void addOutflow(int amount, String source)
+    {
+<span class="fc bfc" id="L150" title="All 2 branches covered.">		if(amount &lt; 1)</span>
+		{
+<span class="fc" id="L152">			return;</span>
+		}
+
+<span class="fc" id="L155">		CashFlowFormEntry cashFlowFormEntry = null;</span>
+<span class="fc" id="L156">		reset();</span>
+<span class="pc bpc" id="L157" title="1 of 4 branches missed.">		while(outflowIterator.hasNext() &amp;&amp; (cashFlowFormEntry == null))</span>
+		{
+<span class="fc" id="L159">			CashFlowFormEntry cfef = (CashFlowFormEntry) outflowIterator.next();</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">			if (cfef.source.equals(source))</span>
+			{
+<span class="fc" id="L162">				cashFlowFormEntry = cfef;</span>
+			}
+<span class="fc" id="L164">		}</span>
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">		if(cashFlowFormEntry != null)  //already have an entry from this source</span>
+		{
+<span class="fc" id="L168">			cashFlowFormEntry.amount += amount;</span>
+		}
+		else
+		{
+<span class="fc" id="L172">			outflowIterator = null;</span>
+<span class="fc" id="L173">			outflows.add(new CashFlowFormEntry(amount, source));</span>
+		}
+<span class="fc" id="L175">		reset();</span>
+<span class="fc" id="L176">	}</span>
+
+    public void addInflow(long amount, String source)
+    {
+<span class="fc" id="L180">		addInflow((int) amount, source);</span>
+<span class="fc" id="L181">	}</span>
+
+    public void addOutflow(long amount, String source)
+    {
+<span class="fc" id="L185">		addOutflow((int) amount, source);</span>
+<span class="fc" id="L186">	}</span>
+
+	public void setStartingCashOnHand(int amount)
+	{
+<span class="fc" id="L190">		startingCashOnHand = amount;</span>
+<span class="fc" id="L191">	}</span>
+
+	public int getStartingCashOnHand()
+	{
+<span class="fc" id="L195">		return startingCashOnHand;</span>
+	}
+
+	public void setEndingCashOnHand(int amount)
+	{
+<span class="fc" id="L200">		endingCashOnHand = amount;</span>
+<span class="fc" id="L201">	}</span>
+
+	public int getEndingCashOnHand()
+	{
+<span class="fc" id="L205">		return endingCashOnHand;</span>
+	}
+
+    /**
+     * Resets the iterators for current inflow and outflow
+     */
+	public void reset()
+	{
+<span class="fc" id="L213">		inflowIterator = inflows.iterator();</span>
+<span class="fc" id="L214">		outflowIterator = outflows.iterator();</span>
+<span class="fc" id="L215">	}</span>
+
+	public boolean moreInflows()
+	{
+<span class="fc bfc" id="L219" title="All 2 branches covered.">		if(inflowIterator != null)</span>
+		{
+<span class="fc" id="L221">			return inflowIterator.hasNext();</span>
+		}
+<span class="fc" id="L223">		return false;</span>
+	}
+
+	public boolean moreOutflows()
+	{
+<span class="fc bfc" id="L228" title="All 2 branches covered.">		if(outflowIterator != null)</span>
+		{
+<span class="fc" id="L230">			return outflowIterator.hasNext();</span>
+		}
+<span class="fc" id="L232">		return false;</span>
+	}
+
+	public void nextInflow()
+	{
+<span class="fc" id="L237">		currentInflow = (CashFlowFormEntry) inflowIterator.next();</span>
+<span class="fc" id="L238">	}</span>
+
+	public void nextOutflow()
+	{
+<span class="fc" id="L242">		currentOutflow = (CashFlowFormEntry) outflowIterator.next();</span>
+<span class="fc" id="L243">	}</span>
+
+	public int getCurrentInflowAmount()
+	{
+<span class="fc" id="L247">		return currentInflow.amount;</span>
+	}
+
+	public int getCurrentOutflowAmount()
+	{
+<span class="fc" id="L252">		return currentOutflow.amount;</span>
+	}
+
+    /**
+     * Returns the source code for the current inflow
+     */
+	public String getCurrentInflowSource()
+	{
+<span class="fc" id="L260">		return currentInflow.source;</span>
+	}
+
+    /**
+     * Returns the source code for the current outflow
+     */
+	public String getCurrentOutflowSource()
+	{
+<span class="fc" id="L268">		return currentOutflow.source;</span>
+	}
+
+    /**
+     * Returns a title for the source specified by the current inflow source code.
+     * This title is determined by the mapping set in the &lt;code&gt;setSourceTitleMapping()&lt;/code&gt;
+     * method.  If no mapping has been set via this method or the current source code
+     * is not present in the mapping, the source code is returned.
+     */
+	public String getCurrentInflowSourceTitle()
+	{
+<span class="fc" id="L279">		String title = (String) sourceTitleMapping.get(currentInflow.source);</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">		if(title == null)</span>
+		{
+<span class="nc" id="L282">			return currentInflow.source;</span>
+		}
+		else
+		{
+<span class="fc" id="L286">			return title;</span>
+		}
+	}
+
+    /**
+     * Returns a title for the source specified by the current outflow source code.
+     * This title is determined by the mapping set in the &lt;code&gt;setSourceTitleMapping()&lt;/code&gt;
+     * method.  If no mapping has been set via this method or the current source code
+     * is not present in the mapping, the source code is returned.
+     */
+	public String getCurrentOutflowSourceTitle()
+	{
+<span class="fc" id="L298">		String title = (String) sourceTitleMapping.get(currentOutflow.source);</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">		if(title == null)</span>
+		{
+<span class="fc" id="L301">			return currentOutflow.source;</span>
+		}
+		else
+		{
+<span class="fc" id="L305">			return title;</span>
+		}
+	}
+
+	/**
+	 * Returns the current mapping of inflow/outflow source codes to titles.
+	 */
+	public Hashtable getSourceTitleMapping()
+	{
+<span class="fc" id="L314">		return sourceTitleMapping;</span>
+	}
+
+	/**
+	 * Sets the current mapping of inflow/outflow source codes to titles.
+	 * This mapping should be in the form of a &lt;code&gt;Hashtable&lt;/code&gt;
+	 * where the keys are &lt;code&gt;String&lt;/code&gt;s representing the
+	 * inflow/outflow source codes and the values are &lt;code&gt;String&lt;/code&gt;s
+	 * representing the associated titles.
+	 */
+	public void setSourceTitleMapping(Hashtable sourceTitleMapping)
+	{
+<span class="fc" id="L326">		this.sourceTitleMapping = sourceTitleMapping;</span>
+<span class="fc" id="L327">	}</span>
+}
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

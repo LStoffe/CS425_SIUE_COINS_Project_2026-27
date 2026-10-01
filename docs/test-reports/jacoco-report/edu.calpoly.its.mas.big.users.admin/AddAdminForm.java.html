@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddAdminForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">AddAdminForm.java</span></div><h1>AddAdminForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+import edu.calpoly.its.mas.big.users.StringConstraints;
+
+/**
+ * ActionForm containing information for a request to add an administrator.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.9 $ $Date: 2001/08/14 20:20:43 $
+ */
+<span class="fc" id="L20">public class AddAdminForm extends ActionForm</span>
+{
+  private String adminName;
+  private String password;
+  private String passwordConfirm;
+
+  public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+  {
+<span class="fc" id="L28">    ActionErrors errors = new ActionErrors();</span>
+
+    //Check that username is not null and is acceptable length
+<span class="pc bpc" id="L31" title="1 of 4 branches missed.">    if ((adminName == null) || (adminName.length() &lt; 1))</span>
+    {
+<span class="fc" id="L33">    	errors.add(&quot;adminName&quot;, new ActionMessage(&quot;error.addAdmin.adminName.required&quot;));</span>
+	}
+<span class="fc bfc" id="L35" title="All 4 branches covered.">	else if ((adminName.length() &lt; StringConstraints.USERNAME_LOWER_LIMIT) || (adminName.length() &gt; StringConstraints.USERNAME_UPPER_LIMIT))</span>
+	{
+<span class="fc" id="L37">		errors.add(&quot;username_length&quot;, new ActionMessage(&quot;error.username.length&quot;));</span>
+	}
+
+    //Check that password is not null and is acceptable length
+<span class="pc bpc" id="L41" title="1 of 4 branches missed.">    if ((password == null) || (password.length() &lt; 1))</span>
+    {
+<span class="fc" id="L43">        errors.add(&quot;password&quot;, new ActionMessage(&quot;error.addAdmin.password.required&quot;));</span>
+	}
+<span class="fc bfc" id="L45" title="All 4 branches covered.">	else if ((password.length() &lt; StringConstraints.PASSWORD_LOWER_LIMIT) || (password.length() &gt; StringConstraints.PASSWORD_UPPER_LIMIT))</span>
+	{
+<span class="fc" id="L47">		errors.add(&quot;password_length&quot;, new ActionMessage(&quot;error.password.length&quot;));</span>
+	}
+<span class="fc bfc" id="L49" title="All 2 branches covered.">	else if (!(password.equals(passwordConfirm)))</span>
+	{
+<span class="fc" id="L51">        errors.add(&quot;passwordConfirm&quot;, new ActionMessage(&quot;error.password.mismatch&quot;));</span>
+	}
+
+<span class="fc" id="L54">    return errors;</span>
+  }
+
+
+  //*********************************  Simple Set and Get Methods  **************************
+  public String getAdminName()
+  {
+<span class="fc" id="L61">    return adminName;</span>
+  }
+
+  public void setAdminName(String adminName)
+  {
+<span class="fc" id="L66">    this.adminName = adminName;</span>
+<span class="fc" id="L67">  }</span>
+
+  public String getPassword()
+  {
+<span class="fc" id="L71">    return password;</span>
+  }
+
+  public void setPassword(String password)
+  {
+<span class="fc" id="L76">    this.password = password;</span>
+<span class="fc" id="L77">  }</span>
+
+  public String getPasswordConfirm()
+  {
+<span class="fc" id="L81">	return passwordConfirm;</span>
+  }
+
+  public void setPasswordConfirm(String passwordConfirm)
+  {
+<span class="fc" id="L86">	this.passwordConfirm = passwordConfirm;</span>
+<span class="fc" id="L87">  }</span>
+
+
+
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

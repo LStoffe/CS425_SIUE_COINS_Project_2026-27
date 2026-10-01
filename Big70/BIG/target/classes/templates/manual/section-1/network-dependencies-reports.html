@@ -1,0 +1,73 @@
+<!--
+  network-dependencies-reports.html
+  section 1.11 of the COINS manual.
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.11 Network Dependencies Reports</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.11 Network Dependencies Reports
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Each job type in BIG has a set of network dependencies, also called Critical Path Method (CPM) dependencies, which limit the amount of concurrent work that may be performed on activities. 
+            The limitations arise from the fact that work cannot be done on some activities until work has proceeded past a certain point on other activities. 
+            For example, it would be impossible to paint the walls of a building until work on the walls had completed past a certain point. 
+            In this case, painting would have a dependency on walls. Walls would also likely depend on activities such as foundation. Dependencies may also cause work on an activity currently in process to cease until another activity completes.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Network dependencies are important because they allow you to know when work on each activity in a job may start and when it must pause. 
+            This information is critical to finding methods that will get the job done on time. 
+            More information on using network dependencies to develop a schedule is presented in the section on Scheduling Methods (Covered in Section 2.1).
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            The dependencies between activities differ between job types, so it is important to have a listing for each type of job. 
+            Fortunately for the job types in BIG, this information has been empirically established and published. 
+            Your employees have researched the dependencies between activities based on job type by reading through published materials and summarized this information in a set of Network Dependency Reports. 
+            You may view these reports by clicking on the "Network Dependencies Reports" link on the main menu in BIG.
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/estimated-time-and-cost-report}" class="font-semibold hover:underline">
+        ← 1.10 Estimated Time and Cost Report
+    </a>
+    <a th:href="@{/manual/bidding}" class="font-semibold hover:underline">
+        Next → Section 2 Summary
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

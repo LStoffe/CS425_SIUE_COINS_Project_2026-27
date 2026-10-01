@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.DeleteAdminActionTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.628 sec
+------------- Standard Output ---------------
+23:50:24,878 WARN  admin.DeleteAdminAction - class edu.calpoly.its.mas.big.users.admin.DeleteAdminActionUser making request is not head admin
+23:50:24,882 WARN  admin.DeleteAdminAction - class edu.calpoly.its.mas.big.users.admin.DeleteAdminAction Tried to delete head admin
+------------- ---------------- ---------------
+
+Testcase: testExecuteSuccessDeletesAdmin took 0.616 sec
+Testcase: testExecuteReturnsInputWhenNotHeadAdmin took 0.003 sec
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.001 sec
+Testcase: testExecuteReturnsInputWhenTryingToDeleteHeadAdmin took 0.002 sec

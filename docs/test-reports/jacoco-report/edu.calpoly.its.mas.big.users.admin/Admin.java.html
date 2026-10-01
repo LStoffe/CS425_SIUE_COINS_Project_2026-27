@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Admin.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">Admin.java</span></div><h1>Admin.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.admin;
+
+import java.util.Vector;
+import edu.calpoly.its.mas.big.game.Game;
+
+/**
+ * Represents an administrator or head administrator of BIG games.
+ *
+ * @version $Revision: 1.5 $ $Date: 2001/07/06 22:15:04 $
+ */
+
+public class Admin extends edu.calpoly.its.mas.big.users.User
+{
+  private int adminID;
+  private boolean isHeadAdmin;
+  private String email;
+
+  public Admin(int adminID, String username, String password, String email, boolean isHeadAdmin)
+  {
+<span class="fc" id="L21">	  super(username, password);</span>
+<span class="fc" id="L22">      this.adminID = adminID;</span>
+<span class="fc" id="L23">	  this.isHeadAdmin = isHeadAdmin;</span>
+<span class="fc" id="L24">	  this.email = email;</span>
+<span class="fc" id="L25">  }</span>
+
+  //*****************************  Simple Get and Set Methods  *********************************
+
+  public int getAdminID()
+  {
+<span class="fc" id="L31">	  return adminID;</span>
+  }
+
+  public void setAdminID(int adminID)
+  {
+<span class="fc" id="L36">	  this.adminID = adminID;</span>
+<span class="fc" id="L37">  }</span>
+
+  public boolean getIsHeadAdmin()
+  {
+<span class="fc" id="L41">     return isHeadAdmin;</span>
+  }
+
+  public void setIsHeadAdmin(boolean answer)
+  {
+<span class="fc" id="L46">     this.isHeadAdmin = answer;</span>
+<span class="fc" id="L47">  }</span>
+
+  public String getEmail()
+  {
+<span class="fc" id="L51">	  return email;</span>
+  }
+
+  public void setEmail(String email)
+  {
+<span class="fc" id="L56">	  this.email = email;</span>
+<span class="fc" id="L57">  }</span>
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

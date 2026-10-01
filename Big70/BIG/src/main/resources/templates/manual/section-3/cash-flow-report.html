@@ -1,0 +1,64 @@
+<!--
+  cash-flow-report.html
+  Section 3.2 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>3.2 Cash Flow Report</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            3.2 Cash Flow Report
+        </h1>
+    </header>
+    
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            All accounting reports in BIG, except for the Cash Flow Report, work on an accrual basis. However, it is also useful to be able to see your inflows and outflows of cash. 
+            Remember, you will need a certain percentage of the bid price as cash-on-hand for each job you bid on. Also, keep in mind that it does no good to have large amounts of cash-on-hand sitting around because that money is not earning any return. 
+            To maximize your return on equity you want to keep all your money invested in jobs except what you need to keep as liquid cash to meet the bid price percentage requirements. 
+            There is no penalty for letting your cash-on-hand go negative in BIG except that it may hinder your ability to bid on jobs.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+           To help you keep track of cash, the Cash Flow Report shows all inflows and outflows of cash that occurred during a period.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/job-cost-report}" class="font-semibold hover:underline">
+        ← 3.1 Job Cost Report
+    </a>
+    <a th:href="@{/manual/contracts-in-progress}" class="font-semibold hover:underline">
+        Next → 3.3 Contracts In Progress Report
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.RecallGameActionTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.589 sec
+
+Testcase: testExecuteSuccessWithSecondGame took 0.58 sec
+Testcase: testExecuteNoGameFoundWhenGamesNull took 0.003 sec
+Testcase: testExecuteSuccess took 0.002 sec

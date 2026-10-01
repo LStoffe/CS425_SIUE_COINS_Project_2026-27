@@ -1,0 +1,25 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.ViewPersonnelParametersActionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.626 sec
+------------- Standard Output ---------------
+23:52:00,116 ERROR admin.ViewPersonnelParametersAction - 
+java.lang.NullPointerException: Cannot invoke "org.apache.struts.config.ModuleConfig.findFormBeanConfig(String)" because the return value of "org.apache.struts.action.ActionMapping.getModuleConfig()" is null
+	at edu.calpoly.lib.multimedia.big.users.admin.ViewPersonnelParametersAction.prepopulateActionForm(ViewPersonnelParametersAction.java:167)
+	at edu.calpoly.lib.multimedia.big.users.admin.ViewPersonnelParametersAction.execute(ViewPersonnelParametersAction.java:128)
+	at edu.calpoly.lib.multimedia.big.users.admin.ViewPersonnelParametersActionTest.testExecuteSuccessPutsParametersInSession(ViewPersonnelParametersActionTest.java:83)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+------------- ---------------- ---------------
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.59 sec
+Testcase: testExecuteSuccessPutsParametersInSession took 0.031 sec

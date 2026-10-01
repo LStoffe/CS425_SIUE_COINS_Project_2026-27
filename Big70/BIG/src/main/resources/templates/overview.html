@@ -1,0 +1,429 @@
+<!--
+  overview.html
+  Overview Summary for the COINS simulation
+  This page serves as a general summary for users to read to get a basic understanding of the game and it's rules.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="COINS - Main Menu">
+  <title>COINS - Overview</title>
+  
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Include navigation bar fragment -->
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Main -->
+<main class="max-w-6xl mx-auto px-6 space-y-8 pb-16">
+
+    <!-- Header Section -->
+    <header class="text-center py-8">
+        <div class="max-w-4xl mx-auto px-6">
+        <h1 class="text-6xl font-bold text-black mb-4">COINS</h1>
+        <h2 class="text-3xl text-black mb-6">Construction Industry Simulation</h2>
+        <p class="text-xl text-black max-w-2xl mx-auto leading-relaxed">
+            A comprehensive computer simulation of realistic construction business environment where participants compete as contractors in a dynamic market.
+        </p>
+        </div>
+    </header>
+
+<!-- Overview Section -->
+    <section id="overview" class="bg-white backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+        <div class="flex items-center mb-6">
+            <h3 class="text-3xl font-bold text-black">Game Summary</h3>
+        </div>
+        <p class="text-lg text-black-700 mb-6 leading-relaxed">COINS is a computer simulation of a realistic business environment where participants play as contractors, competing in a market with variable demand for construction work. Players must set up a complete business strategy, including:</p>
+        <div class="grid md:grid-cols-2 gap-4">
+            <ul class="space-y-3">
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Examine available information</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Determine the best portfolio of jobs to bid on</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Create strategies to improve bonding limits</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Set strategies to create negotiated work</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Develop bid prices for desired jobs</span>
+                </li>
+            </ul>
+            <ul class="space-y-3">
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Monitor financial position as work progresses</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Improve company appraisal metrics</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Choose and modify construction methods</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Interpret competitors' strategies</span>
+                </li>
+                <li class="flex items-start">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span class="text-black-700">Respond to changing conditions</span>
+                </li>
+        </ul>
+        </div>
+    </section>
+
+ <!-- Job Types Section -->
+<section id="jobs" class="bg-white backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+    <div class="flex items-center mb-6">
+      <h3 class="text-3xl font-bold text-black">Available Job Types</h3>
+    </div>
+
+    <p class="text-lg text-black-700 mb-6 leading-relaxed">
+      Each period, the simulation generates a list of available jobs and an Estimated Time and Cost Report for each. Companies must decide which jobs to bid on, the bid price, and which construction methods to use for each activity.
+    </p>
+    <div class="grid md:grid-cols-2 gap-4">
+      <ul class="space-y-3">
+       
+        <li class="flex items-start">
+            <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+              <span class="text-black-800 font-semibold block">Apartment Buildings</span>
+              <span class="text-black-600 text-sm">Residential projects with multiple units</span>
+            </div>
+          </li>
+          <li class="flex items-start">
+            <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+              <span class="text-black-800 font-semibold block">School Buildings</span>
+              <span class="text-black-600 text-sm">Educational facilities and campus construction</span>
+            </div>
+          </li>  
+          <li class="flex items-start">
+            <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+              <span class="text-black-800 font-semibold block">Office Buildings</span>
+              <span class="text-black-600 text-sm">Commercial office spaces and corporate facilities</span>
+            </div>
+          </li>
+        </ul> <ul class="space-y-3">
+          <li class="flex items-start">
+            <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+              <span class="text-black-800 font-semibold block">Hospital Buildings</span>
+              <span class="text-black-600 text-sm">Healthcare facilities and medical centers</span>
+            </div>
+          </li>
+          <li class="flex items-start">
+            <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+              <span class="text-black-800 font-semibold block">Industrial Plants</span>
+              <span class="text-black-600 text-sm">Manufacturing facilities and industrial complexes</span>
+            </div>
+          </li>
+      </ul>
+    </div>
+  </section>
+  
+<!-- Activities Section -->
+<section id="activities" class="bg-white backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+    <div class="flex items-center mb-6">
+      <h3 class="text-3xl font-bold text-black">Construction Activities & Methods</h3>
+    </div>
+    <p class="text-lg text-black-700 mb-6 leading-relaxed">
+        Each period the simulation generates a list of jobs available for bidding and creates an Estimated Time and Cost Report for each job. Using the this information, each company must decide which jobs to bid on, the bid price, and which of the five methods to use for each of the activities.
+        <p class ="text-lg text-black-700 mb-6 leading-relaxed font-bold"> Each job will have up to nine activities such as:
+    </p> 
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Excavation</span>
+            <span class="text-black-600 text-sm">Site preparation and earthwork</span>
+          </div>
+        </li>  
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Foundation</span>
+            <span class="text-black-600 text-sm">Structural base construction</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Basement</span>
+            <span class="text-black-600 text-sm">Below-grade construction</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Framing</span>
+            <span class="text-black-600 text-sm">Structural framework assembly</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Closure</span>
+            <span class="text-black-600 text-sm">Building envelope completion</span>
+          </div>
+        </li>
+      </ul>
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Roof</span>
+            <span class="text-black-600 text-sm">Roofing system installation</span>
+          </div>
+        </li>  
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Siding</span>
+            <span class="text-black-600 text-sm">Exterior wall covering</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Finishing</span>
+            <span class="text-black-600 text-sm">Interior completion work</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Mechanical & Electrical</span>
+            <span class="text-black-600 text-sm">MEP systems installation</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <p class="text-lg text-black-700 mb-6 leading-relaxed">
+        Every activity has five different construction methods that vary in time and cost. The fifth method is generally the use of a subcontractor. All five methods of activity #9 (Mechanical and Electrical) are generally subcontracted. The Estimated Time and Cost Report gives labor and material costs and the amount of time required for every activity using each of the five methods.
+        <br>Work scheduling is very important in the selection of the methods so projects can be completed by the contractual deadlines, and the costs reduced as much as possible. Each bid price submitted should cover all the firm's direct and indirect job expenses, its main office overhead costs, and the desired profit.
+      </p>
+  </section>
+
+<!-- Bidding Rules Section -->
+<section id="rules" class="bg-white backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+  <div class="flex items-center mb-6">
+    <h3 class="text-3xl font-bold text-black">Bidding Rules & Evaluation</h3>
+  </div>
+  <p class="text-lg text-black-700 mb-6 leading-relaxed">
+    The lowest bid will not necessarily win since the computer takes into account several other factors. Companies must monitor financial situations, progress billings, and may request consulting services at a cost.
+  </p>
+  <div class="grid md:grid-cols-2 gap-4 mb-8">
+    <ul class="space-y-3">
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Cash Liquidity</span>
+            <span class="text-black-600 text-sm">Firm's cash-on-hand must be adequate to provide enough liquidity with regard to the bid price.</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+            <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+              <span class="text-black-800 font-semibold block">Minimum Bid</span>
+              <span class="text-black-600 text-sm">Bids below the minimum amount are disregarded as irresponsible and rejected.</span>
+            </div>
+          </li>
+    </ul>
+    <ul class="space-y-3">
+      <li class="flex items-start">
+        <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+        <div>
+          <span class="text-black-800 font-semibold block">Competition Bid</span>
+          <span class="text-black-600 text-sm">Unknown contractors add competition and ensure realistic bid prices.</span>
+        </div>
+      </li>
+      <li class="flex items-start">
+        <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+        <div>
+          <span class="text-black-800 font-semibold block">Bond Limits</span>
+          <span class="text-black-600 text-sm">Firm must be within its bonding limits to be considered.</span>
+        </div>
+      </li>  
+    </ul>
+  </div>
+  <div>
+    <h4 class="text-lg font-semibold text-black-800 mb-3">Consulting Services</h4>
+    <p class="text-black-700">
+      Participants can request information on weather forecasts, material prices, labor and material availability, and market projections. These consulting services have a cost and are charged against the firm's financial account.
+    </p>
+  </div>
+</section>
+
+<!-- Reports Section -->
+<section id="reports" class="bg-white backdrop-blur-sm p-8 rounded-2xl shadow-lg mb-8">
+    <div class="flex items-center mb-6">
+      <h3 class="text-3xl font-bold text-black">Progress Reports</h3>
+    </div> 
+    <p class="text-lg text-black-700 mb-6 leading-relaxed">
+      Reports provide participants insight into work progress, expenses, financial status, and the impact of uncertainties each period. Players use these reports to manage their business effectively.
+    </p>
+    <div class="grid md:grid-cols-2 gap-4 mb-8">
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Work Progress</span>
+            <span class="text-black-600 text-sm">Track progress on each job during the period.</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Expenses</span>
+            <span class="text-black-600 text-sm">Review expenses incurred for each activity.</span>
+          </div>
+        </li>
+      </ul>
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Uncertainties</span>
+            <span class="text-black-600 text-sm">Monitor the impact of weather, labor, and material changes.</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Financial Report</span>
+            <span class="text-black-600 text-sm">End-of-period report including cash-on-hand and metrics.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div>
+        <h4 class="text-lg font-semibold text-black-800 mb-3">Strategic Adjustments</h4>
+        <p class="text-black-700">
+            Firms evaluate methods chosen, adjust strategies for next periods, select faster or cheaper methods, and may use overtime. Liquidated damages must be monitored per project. Loans are available and amortized over one year.
+        </p>
+      </div>
+  </section>
+
+  <!-- Company Metrics Section -->
+  <section id="metrics" class="bg-white backdrop-blur-sm p-8 rounded-2xl shadow-lg mb-8">
+    <div class="flex items-center mb-6">
+      <h3 class="text-3xl font-bold text-black">Company Appraisal Metrics</h3>
+    </div>
+  
+    <p class="text-lg text-black-700 mb-6 leading-relaxed">
+      Company metrics provide a snapshot of your firm's overall performance, financial health, and reputation in the market.
+    </p>
+  
+    <div class="grid md:grid-cols-2 gap-4">
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Financial Liquidity</span>
+            <span class="text-black-600 text-sm">Firm has adequate cash-on-hand for operations and bids.</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Financial Success</span>
+            <span class="text-black-600 text-sm">Measure of profit and overall financial performance.</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Responsibility</span>
+            <span class="text-black-600 text-sm">Compliance with project obligations and quality standards.</span>
+          </div>
+        </li>
+      </ul>
+  
+      <ul class="space-y-3">
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Pace</span>
+            <span class="text-black-600 text-sm">Speed of completing projects efficiently.</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Ethics</span>
+            <span class="text-black-600 text-sm">Adherence to ethical business practices.</span>
+          </div>
+        </li>
+        <li class="flex items-start">
+          <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <div>
+            <span class="text-black-800 font-semibold block">Name Recognition</span>
+            <span class="text-black-600 text-sm">Reputation and brand awareness in the market.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+  
+<!-- End-of-Simulation Section -->
+<section id="end" class="bg-white backdrop-blur-sm p-8 rounded-2xl shadow-lg mb-8">
+    <div class="flex items-center mb-6">
+        <h3 class="text-3xl font-bold text-black">Closing Results & Insights</h3>
+    </div>
+
+    <p class="text-lg text-black-700 mb-6 leading-relaxed">
+        The simulation provides a closing financial report, expected results of ongoing projects, final equity, and team performance metrics. Maximizing profit and net worth are key evaluation criteria.
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-4 mb-8">
+        <div class="flex items-start">
+            <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+                <span class="text-black-800 font-semibold block">Final Equity</span>
+                <span class="text-black-600 text-sm">Total company value at simulation end</span>
+            </div>
+        </div>
+        <div class="flex items-start">
+            <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+                <span class="text-black-800 font-semibold block">Performance Metrics</span>
+                <span class="text-black-600 text-sm">Financial ratios and appraisal metrics</span>
+            </div>
+        </div>
+        <div class="flex items-start">
+            <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+            <div>
+                <span class="text-black-800 font-semibold block">Success Criteria</span>
+                <span class="text-black-600 text-sm">Profit maximization and net worth</span>
+            </div>
+        </div>
+    </div>
+</section>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

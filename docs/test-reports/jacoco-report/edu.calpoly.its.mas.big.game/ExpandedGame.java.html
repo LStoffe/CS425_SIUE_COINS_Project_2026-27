@@ -1,0 +1,1546 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExpandedGame.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">ExpandedGame.java</span></div><h1>ExpandedGame.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import java.util.Iterator;
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.TreeMap;
+import java.util.Map;
+import java.util.List;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.text.SimpleDateFormat;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Bid;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.company.ExpandedCompany;
+import edu.calpoly.its.mas.big.users.admin.MemberNameForm;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.Customer;
+import edu.calpoly.lib.multimedia.big.game.Emailer;
+import edu.calpoly.lib.multimedia.big.game.CCCCommandCenter;
+import edu.calpoly.lib.multimedia.big.game.Message;
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJobFactory;
+
+//BIG v4 imports
+import edu.calpoly.lib.multimedia.big.personnel.MosToCUsRatio;
+import edu.calpoly.lib.multimedia.big.personnel.EmployeeSkillConversionRatioLookup;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * ExpandedGame is the main controller of the components that perform period update process of BIG.
+ * ExpandedGame differs from the Game class in that ExpandedGame will contain references to other complex components of
+ * BIG, such as Jobs and Companies.  ExpandedGame controls the period update process by calling methods in other classes in the correct
+ * sequence to carry out the process.  ExpandedGame also controls the starting of the game and the finishing of the game, which are both
+ * special cases of the period update process.
+ * &lt;br&gt;&lt;br&gt;
+ * The sequence of events in a period update occurs as follows:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Create &lt;code&gt;Period&lt;/code&gt; objects for future periods&lt;/li&gt;
+ *   &lt;li&gt;Process all company loans&lt;/li&gt;
+ *   &lt;li&gt;Generate new jobs for the next period&lt;/li&gt;
+ *   &lt;li&gt;Do work on jobs&lt;/li&gt;
+ *   &lt;li&gt;Increment the period number&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;br&gt;&lt;br&gt;
+ *
+ *
+ * @version $Revision: 1.57 $ $Date: 2002/05/17 00:03:09 $
+ *
+ */
+public class ExpandedGame
+{
+
+  //The Game this ExpandedGame class expands
+  private Game game;
+
+  private int gameType;
+
+  //The BIGDatabaseFacade to retrieve data from
+  private BIGDatabaseFacadeInterface dbFacade;
+
+  //All current jobs not owned by a company.  Job that are owned by companies will be found in the corresponding Company class.
+  //The jobs Vector does not include jobs that aren't current (assigned to CompanyX)
+  private Vector jobs;
+
+  //All companies in this game.
+  private Vector companies;
+
+  //Expanded versions of the companies in this game, keyed by company ID
+  private TreeMap expandedCompanies;
+
+  //The current period
+  private Period currentPeriod;
+
+  //The next period (tells how many jobs to create)
+  private Period nextPeriod;
+
+  //A factory class to create jobs for each period.
+  private JobFactory factory;
+
+  //Represent the two months of the current period
+  private ScheduledMonth month1, month2;
+
+  private Method[][] methods;
+  private Method[][] methodsHC;
+
+  private Hashtable[][] networkDependencies;
+  private Hashtable[][] networkDependenciesHC;
+
+  private Hashtable liquidatedDamagesParameters;
+
+  private Hashtable negotiationParameters;
+
+  private Map&lt;String, Map&lt;String, MosToCUsRatio&gt;&gt; jobMospReqParameters;
+  private Map&lt;String, Integer&gt; mospCostPenalties;
+  private EmployeeSkillConversionRatioLookup employeeSkillConversionRatioLookup;
+
+  private int workdaysPerMonth;
+  private int stdHours;
+  private int overtimeHours;
+  private int bidExpensePercent;
+  private int lowerPercentJobMarkup;
+  private int upperPercentJobMarkup;
+  private int fixedOfficeOverhead;
+  private float overtimeModifier;
+  private int maxOverbillingPercent;
+  private int overbillingPercentAffectingEthics;
+  private int periodsBetweenBondLimitReeval;
+
+  //Generic unnamed custuomer for public jobs
+  private Customer customer;
+
+  //List of possible customers for private jobs
+  private Vector customers;
+
+  //Values needed to send e-mail
+  private String SMTPServer;
+  private String SMTPPort;
+  private String fromAddr;
+  private String subject;
+  private String message;
+
+  //List of computer controlled contractors
+  private Vector cccs;
+  private CCCCommandCenter ccccommandCenter;
+
+  private Log log;
+
+  public ExpandedGame(Game g, BIGDatabaseFacadeInterface dbFacade)
+<span class="fc" id="L145">  {</span>
+<span class="fc" id="L146">	  log = LogFactory.getLog(this.getClass());</span>
+
+<span class="fc" id="L148">	  game = g;</span>
+<span class="fc" id="L149">	  gameType = g.getGametype();</span>
+
+<span class="fc" id="L151">	  this.dbFacade = dbFacade;</span>
+
+
+	  //Retrieve all the companies in this game and create CompanyX instance
+	  try
+	  {
+<span class="fc" id="L157">	      companies = dbFacade.getCompanyDBHandler().getCompanies(game);</span>
+<span class="fc" id="L158">	      customers = dbFacade.getCustomerDBHandler().getCustomers();</span>
+	  }
+<span class="fc" id="L160">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L162">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="fc" id="L163">	  }</span>
+
+      //Created an ExpandedCompany for each company
+<span class="fc" id="L166">      expandedCompanies = new TreeMap();</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">	  if(companies != null)</span>
+	  {
+<span class="fc" id="L169">	  	  Iterator i = companies.iterator();</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">	  	  while(i.hasNext())</span>
+	  	  {
+<span class="fc" id="L172">			  Company company = (Company) i.next();</span>
+<span class="fc" id="L173">			  ExpandedCompany ec = new ExpandedCompany(company, this, dbFacade);</span>
+
+<span class="fc" id="L175">			  expandedCompanies.put(new Integer(company.getCompanyID()), ec);</span>
+<span class="fc" id="L176">		  }</span>
+	  }
+<span class="fc" id="L178">	  loadMethods();</span>
+<span class="fc" id="L179">	  loadNetworkDependencies();</span>
+<span class="fc" id="L180">	  loadMiscParameters();</span>
+<span class="fc" id="L181">	  loadLiquidatedDamagesParameters();</span>
+<span class="fc" id="L182">	  loadNegotiationParameters();</span>
+<span class="fc" id="L183">	  loadPersonnelParameters();</span>
+
+<span class="fc" id="L185">	  customer = new Customer(maxOverbillingPercent, overbillingPercentAffectingEthics);</span>
+<span class="fc" id="L186">  }</span>
+
+
+  /**
+   * Starts the process of updating the period.
+   */
+  public void updatePeriod()
+  {
+	 //Perform Auto Billing on all jobs if that game component is turned on.
+<span class="nc" id="L195">	 boolean autoBillingOn = false;</span>
+
+	 try
+	 {
+<span class="nc" id="L199">	   	autoBillingOn = dbFacade.getComponentsDBHandler().isAutoBillingComponentOn(game);</span>
+	 }
+<span class="nc" id="L201">	 catch(BIGDatabaseFacadeException bigdbe)</span>
+	 {
+<span class="nc" id="L203">		log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L204">	 }</span>
+
+<span class="nc bnc" id="L206" title="All 2 branches missed.">	 if(autoBillingOn)</span>
+	 {
+<span class="nc" id="L208">	    doAutoBillingOnJobs();</span>
+	 }
+
+   	 //Retrieve the Period object for this period from the database
+   	 try
+   	 {
+<span class="nc" id="L214">   	 	currentPeriod = dbFacade.getPeriodDBHandler().getPeriod(game, game.getCurrentPeriodNumber());</span>
+<span class="nc" id="L215">   	 	nextPeriod = dbFacade.getPeriodDBHandler().getPeriod(game, game.getCurrentPeriodNumber() + 1);</span>
+	 }
+<span class="nc" id="L217">	 catch(BIGDatabaseFacadeException bigdbe)</span>
+	 {
+<span class="nc" id="L219">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	 }
+<span class="nc" id="L221">	 catch(ObjectNotFoundException onfe)</span>
+	 {
+<span class="nc" id="L223">		 log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L224">	 }</span>
+
+   	 //Create a new Period for period n+2.  n+2 needs to be created now so that in the next period, n+1,
+   	 //companies will be able to view the consulting report values for the period after that
+   	 //There will already be a Period in the database for n+1 but it is not used during this period's update
+<span class="nc" id="L229">   	 createNewPeriod(game.getCurrentPeriodNumber() + 2);</span>
+
+
+<span class="nc" id="L232">	 makeCompaniesProcessLoans();</span>
+<span class="nc" id="L233">	 makeCompaniesAssignResponsibilityPenaltyForUnderbilling();</span>
+<span class="nc" id="L234"> 	 makeCompaniesIncomingPayments();</span>
+
+	 // Determine which consulting reports each company purchased (if any)
+	 // and subtract their costs from the company's cash on hand
+<span class="nc" id="L238">	 processConsultingCosts();</span>
+
+
+	 //Companies must pay their current bills before bids are processed
+<span class="nc" id="L242">	 makeCompaniesPayBills();</span>
+
+	 //Update the CCCs
+<span class="nc" id="L245">	 updateCCCs();</span>
+
+	 // For each current job, generate CCC bids,
+	 // determine the winning bid, and save the outcome codes of all bids
+	 // to the DB.
+<span class="nc" id="L250">	 processAllBids();</span>
+
+<span class="nc" id="L252">	 makeCompaniesApplyPersonnelToMosp();</span>
+
+<span class="nc bnc" id="L254" title="All 4 branches missed.">	 if(gameType == 1 || gameType == 3)</span>
+	 {
+<span class="nc" id="L256">        generateJobs(Job.PUBLIC);</span>
+ 	 }
+
+<span class="nc bnc" id="L259" title="All 4 branches missed.">	 if(gameType == 2 || gameType == 3)</span>
+	 {
+<span class="nc" id="L261">        generateJobs(Job.HEAVY);</span>
+ 	 }
+
+<span class="nc" id="L264">     makeCompaniesWorkOnePeriod();</span>
+
+<span class="nc" id="L266">	 makeCompaniesUpdatePersonnel();</span>
+<span class="nc" id="L267">	 makeCompaniesProcessCAMs();</span>
+
+	 //Increment the period number
+<span class="nc" id="L270">   	 game.setCurrentPeriodNumber(game.getCurrentPeriodNumber() + 1);</span>
+
+	 //The period number has been incremented, check if this new period
+	 //requires bond limit reevaluation
+<span class="nc bnc" id="L274" title="All 2 branches missed.">	 if((game.getCurrentPeriodNumber() % periodsBetweenBondLimitReeval) == 0)</span>
+	 {
+<span class="nc" id="L276">		 makeCompaniesReevaluateBondLimits();</span>
+	 }
+
+<span class="nc bnc" id="L279" title="All 4 branches missed.">	 if(gameType == 1 || gameType == 3)</span>
+	 {
+<span class="nc" id="L281">	    generateJobs(Job.PRIVATE);</span>
+	 }
+
+	 //Save game changes
+   	 try
+   	 {
+		 // Reset all overtime requests so they don't carry over to the next period
+<span class="nc" id="L288">		 dbFacade.getOvertimeDBHandler().zeroOvertimeRequests(game.getGameID());</span>
+
+<span class="nc" id="L290">		 dbFacade.getGameDBHandler().updateGame(game);</span>
+	 }
+<span class="nc" id="L292">	 catch (BIGDatabaseFacadeException bigdbe)</span>
+	 {
+<span class="nc" id="L294">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	 }
+<span class="nc" id="L296">	 catch (ObjectNotFoundException onfe)</span>
+	 {
+<span class="nc" id="L298">		 log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L299">	 }</span>
+
+     //Finally e-mail everybody and let them know about the update
+<span class="nc" id="L302">	 emailUpdateNotifications();</span>
+<span class="nc" id="L303">  }</span>
+
+
+  /**
+   * Ends the game without doing any sort of estimations.
+   */
+  public void endGame()
+  {
+<span class="nc" id="L311">	 game.setIsActive(false);</span>
+
+   	 try
+   	 {
+<span class="nc" id="L315">		 dbFacade.getGameDBHandler().updateGame(game);</span>
+	 }
+<span class="nc" id="L317">	 catch (BIGDatabaseFacadeException bigdbe)</span>
+	 {
+<span class="nc" id="L319">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	 }
+<span class="nc" id="L321">	 catch (ObjectNotFoundException onfe)</span>
+	 {
+<span class="nc" id="L323">		 log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L324">	 }</span>
+<span class="nc" id="L325">  }</span>
+
+  //Runs though the list of ExpandedCompany calling the processLoans method for each company.
+  private void makeCompaniesProcessLoans()
+  {
+     //Process all loans for all companies
+<span class="nc" id="L331">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L334">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Make the company process its loans
+<span class="nc" id="L336">		 ec.processLoans();</span>
+<span class="nc" id="L337">	 }</span>
+<span class="nc" id="L338">  }</span>
+
+  //Runs though the list of ExpandedCompany calling the updatePersonnel method for each company.
+  private void makeCompaniesUpdatePersonnel()
+  {
+     //Process all loans for all companies
+<span class="nc" id="L344">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L347">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Make the company process its loans
+<span class="nc" id="L349">		 ec.updatePersonnel();</span>
+<span class="nc" id="L350">	 }</span>
+<span class="nc" id="L351">  }</span>
+
+  //Runs though the list of ExpandedCompany calling the applyPersonnelToMosp method for each company.
+  private void makeCompaniesApplyPersonnelToMosp()
+  {
+     //Process all loans for all companies
+<span class="nc" id="L357">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L360">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Make the company apply personnel
+<span class="nc" id="L362">		 ec.applyPersonnelToMosp();</span>
+<span class="nc" id="L363">	 }</span>
+<span class="nc" id="L364">  }</span>
+
+  //Runs though the list of ExpandedCompany calling the processIncomingPayments() method for each company.
+  private void makeCompaniesIncomingPayments()
+  {
+     //Process all loans for all companies
+<span class="nc" id="L370">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L371" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L373">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Make the company process its loans
+<span class="nc" id="L375">		 ec.processIncomingPayments(customer);</span>
+<span class="nc" id="L376">	 }</span>
+<span class="nc" id="L377">  }</span>
+
+  //Runs though the list of ExpandedCompany calling the payBills method for each company.
+  private void makeCompaniesPayBills()
+  {
+     //Process all bills for all companies
+<span class="nc" id="L383">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L386">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Make the company process its bills
+<span class="nc" id="L388">		 ec.payBills();</span>
+<span class="nc" id="L389">	 }</span>
+<span class="nc" id="L390">  }</span>
+
+  //Runs though the list of ExpandedCompany calling the updateCAMs method for each company.
+  private void makeCompaniesProcessCAMs()
+  {
+     //Process all CAMs for all companies
+<span class="nc" id="L396">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L399">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Make the company process its cams
+<span class="nc" id="L401">		 ec.updateCAMs();</span>
+<span class="nc" id="L402">	 }</span>
+<span class="nc" id="L403">  }</span>
+
+  //Runs though the list of ExpandedCompany calling the reevaluateBondLimits method for each company.
+  private void makeCompaniesReevaluateBondLimits()
+  {
+     //Process all CAMs for all companies
+<span class="nc" id="L409">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L412">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Make the company process its cams
+<span class="nc" id="L414">		 ec.reevaluateBondLimits();</span>
+<span class="nc" id="L415">	 }</span>
+<span class="nc" id="L416">  }</span>
+
+  //Runs through the list of ExpandedCompany calling the doWorkOnJobs method for each company.
+  private void makeCompaniesWorkOnePeriod()
+  {
+<span class="nc" id="L421">	 Date[] monthStartDates = game.getCurrentFirstOfMonths();</span>
+
+<span class="nc" id="L423">	 month1 = new ScheduledMonth(monthStartDates[0], currentPeriod.getWorkdaysFirstMonth(), currentPeriod.getRaindaysFirstMonth());</span>
+<span class="nc" id="L424">	 month2 = new ScheduledMonth(monthStartDates[1], currentPeriod.getWorkdaysSecondMonth(), currentPeriod.getRaindaysSecondMonth());</span>
+
+     //Modify method values based on the current period values for temperature, labor availability and materials cost index
+     //This is not done until now, because these things don't factor into generating jobs
+<span class="nc" id="L428">     applyPeriodValuesToMethods();</span>
+
+     //Have each company do work on each job it owns
+     //Reset the iterator of ExpandedCompany
+<span class="nc" id="L432">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc" id="L433">     i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L434" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L436">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+<span class="nc" id="L437">		 ec.chargeOfficeOverhead(fixedOfficeOverhead);</span>
+<span class="nc" id="L438">		 ec.doWorkOnJobs(month1, month2);</span>
+<span class="nc" id="L439">		 ec.saveChanges();</span>
+<span class="nc" id="L440">	 }</span>
+
+<span class="nc" id="L442">  }</span>
+
+  /**
+   * Starts the game.  Creates initial set of jobs.
+   */
+  public void startGame()
+  {
+
+  	 //Create Period objects for periods 1 and 2
+<span class="nc" id="L451">  	 currentPeriod = createNewPeriod(1);</span>
+
+  	 //Generate jobs uses nextPeriod so it much be set to 1 seeing as this is period 0
+<span class="nc" id="L454">  	 nextPeriod = currentPeriod;</span>
+
+<span class="nc bnc" id="L456" title="All 4 branches missed.">	 if(gameType == 1 || gameType == 3)</span>
+	 {
+<span class="nc" id="L458">        generateJobs(Job.PUBLIC);</span>
+ 	 }
+
+<span class="nc bnc" id="L461" title="All 4 branches missed.">	 if(gameType == 2 || gameType == 3)</span>
+	 {
+<span class="nc" id="L463">        generateJobs(Job.HEAVY);</span>
+ 	 }
+
+     //The nextPeriod variable will not be used again so it can hold the new period returned from the call to createNewPeriod
+<span class="nc" id="L467">     nextPeriod = createNewPeriod(2);</span>
+
+ 	 //Increment the period number to 1
+<span class="nc" id="L470">  	 game.setCurrentPeriodNumber(game.getCurrentPeriodNumber() + 1);</span>
+
+  	 //Create some intial CCCs
+<span class="nc" id="L473">  	 createCCCs();</span>
+
+   	 try
+   	 {
+<span class="nc" id="L477">		 dbFacade.getGameDBHandler().updateGame(game);</span>
+	 }
+<span class="nc" id="L479">	 catch (BIGDatabaseFacadeException bigdbe)</span>
+	 {
+<span class="nc" id="L481">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	 }
+<span class="nc" id="L483">	 catch (ObjectNotFoundException onfe)</span>
+	 {
+<span class="nc" id="L485">		 log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L486">	 }</span>
+
+<span class="nc" id="L488">  }</span>
+
+  //Returns true if there are no companies who have current jobs remaining
+  private boolean allCompaniesDone()
+  {
+<span class="nc" id="L493">	 boolean allCompaniesDone = true;</span>
+<span class="nc" id="L494">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L497">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">		 if (ec.getNumberOfJobs() &gt; 0)</span>
+<span class="nc" id="L499">		    allCompaniesDone =  false;</span>
+<span class="nc" id="L500">	 }</span>
+
+<span class="nc" id="L502">	 return allCompaniesDone;</span>
+  }
+
+
+  //Creates some new jobs and stores them to the database.  The number of new jobs
+  //to be created is currently stored in the Period object for this period.
+  //Type is either Job.PUBLIC, Job.PRIVATE or Job.HEAVY
+  private void generateJobs(int type)
+  {
+	 //First get all the necessary parameters out of the database
+<span class="nc" id="L512">	 Hashtable[] jobSizes = new Hashtable[5];</span>
+<span class="nc" id="L513">     int[][] percentTakeoffs = new int[5][9];</span>
+     int newJobs;
+
+	 try
+	 {
+		 //Get the job size parameters -- Note: method getJobSizeParameters(Game game, int jobType)
+		 //obtains values from table: game_params_job_size.  One of its fields is: job_type_id
+         //there are ten possible values for job type (including the five for Heavy jobs)
+         //jobType will be i+1 for Building jobs, i+6 for Heavy jobs
+<span class="nc bnc" id="L522" title="All 4 branches missed.">         if(type == Job.PUBLIC || type == Job.PRIVATE )</span>
+         {
+<span class="nc bnc" id="L524" title="All 2 branches missed.">		    for(int i = 0; i &lt; 5; i++)</span>
+		    {
+<span class="nc" id="L526">		 	   jobSizes[i] = dbFacade.getGameParametersDBHandler().getJobSizeParameters(game, i+1);</span>
+		    }
+		 }
+<span class="nc bnc" id="L529" title="All 2 branches missed.">         if(type == Job.HEAVY )</span>
+         {
+<span class="nc bnc" id="L531" title="All 2 branches missed.">		    for(int i = 0; i &lt; 5; i++)</span>
+		    {
+<span class="nc" id="L533">		 	   jobSizes[i] = dbFacade.getGameParametersDBHandler().getJobSizeParameters(game, i+6);</span>
+		    }
+		 }
+
+		 //Get the percent takeoff parameters and convert them into ints
+		 //same as above -- getPercentTakeoffParameters(Game game, int jobType)
+         //jobType will be i+1 for Building jobs, i+6 for Heavy jobs
+<span class="nc bnc" id="L540" title="All 4 branches missed.">         if(type == Job.PUBLIC || type == Job.PRIVATE )</span>
+         {
+<span class="nc bnc" id="L542" title="All 2 branches missed.">		    for(int i = 0; i &lt; 5; i++)</span>
+		    {
+<span class="nc" id="L544">		        Hashtable jobTypePT = dbFacade.getGameParametersDBHandler().getPercentTakeoffParameters(game, i+1);</span>
+
+<span class="nc bnc" id="L546" title="All 2 branches missed.">		        for(int j = 0; j &lt; 9; j++)</span>
+		        {
+<span class="nc" id="L548">				    percentTakeoffs[i][j] = ((Integer) jobTypePT.get(&quot;Activity&quot; + (j+1))).intValue();</span>
+			    }
+		    }
+		 }
+<span class="nc bnc" id="L552" title="All 2 branches missed.">         if(type == Job.HEAVY )</span>
+         {
+<span class="nc bnc" id="L554" title="All 2 branches missed.">		    for(int i = 0; i &lt; 5; i++)</span>
+		    {
+<span class="nc" id="L556">		        Hashtable jobTypePT = dbFacade.getGameParametersDBHandler().getPercentTakeoffParameters(game, i+6);</span>
+
+<span class="nc bnc" id="L558" title="All 2 branches missed.">		        for(int j = 0; j &lt; 9; j++)</span>
+		        {
+<span class="nc" id="L560">				    percentTakeoffs[i][j] = ((Integer) jobTypePT.get(&quot;Activity&quot; + (j+1))).intValue();</span>
+			    }
+		    }
+		 }
+	 }
+<span class="nc" id="L565">	 catch (BIGDatabaseFacadeException bigdbe)</span>
+	 {
+<span class="nc" id="L567">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	 }
+<span class="nc" id="L569">	 catch(ParametersNotFoundException pnfe)</span>
+	 {
+<span class="nc" id="L571">		 log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L572">	 }</span>
+
+<span class="nc" id="L574">     Date[] monthStartDates = game.getFirstOfMonth(game.getCurrentPeriodNumber() + 1);</span>
+
+<span class="nc" id="L576">	 JobFactory jf = null;</span>
+
+<span class="nc bnc" id="L578" title="All 2 branches missed.">	 if(type == Job.PRIVATE)</span>
+	 {
+<span class="nc" id="L580">		Vector v = new Vector();</span>
+<span class="nc" id="L581">		Vector v1 = new Vector();</span>
+<span class="nc" id="L582">		v1.addAll(expandedCompanies.values());</span>
+
+		// limited to companies that have a &quot;B&quot; license -- otherwise, companies with only an &quot;A&quot; license
+		// will receive invitations to bid on private jobs.
+
+		// original code --&gt; v.addAll(expandedCompanies.values());
+
+	    //iterator.hasNext() returns true if the iteration has more elements
+<span class="nc bnc" id="L590" title="All 2 branches missed.">	    for (Iterator iterator = v1.iterator(); iterator.hasNext(); )</span>
+	    {
+	        //iterator.next() returns the next element in the iteration
+<span class="nc" id="L593">	        ExpandedCompany exco = (ExpandedCompany) iterator.next();</span>
+<span class="nc" id="L594">			int license = exco.getCompany().getLicense();</span>
+<span class="nc bnc" id="L595" title="All 8 branches missed.">			if (license == 1 || (license == 0 &amp;&amp; gameType == 1) || license == 3)</span>
+			{
+<span class="nc" id="L597">				v.add(exco);</span>
+<span class="nc" id="L598">				log.debug(&quot;Company named &quot; + exco.getCompany().getUsername() + &quot; added to the vector.&quot; );</span>
+			}
+<span class="nc" id="L600">	    }</span>
+
+<span class="nc" id="L602">	 	jf = new NegotiatedJobFactory(this,</span>
+			                          jobSizes,
+			  		   			 	  percentTakeoffs,
+							 		  methods,
+							 		  networkDependencies,
+							 		  liquidatedDamagesParameters,
+<span class="nc" id="L608">							 		  game.getCurrentPeriodNumber(),</span>
+							 		  monthStartDates[0],
+							 		  workdaysPerMonth,
+							 		  stdHours,
+							 		  overtimeHours,
+							 		  customers,
+							 		  negotiationParameters,
+							 		  v);
+	 }
+
+<span class="nc bnc" id="L618" title="All 2 branches missed.">	 if(type == Job.PUBLIC)</span>
+	 {
+<span class="nc" id="L620">	 	jf = new JobFactory(this,</span>
+							jobSizes,
+			  				 percentTakeoffs,
+							 methods,
+							 networkDependencies,
+							 liquidatedDamagesParameters,
+<span class="nc" id="L626">							 game.getCurrentPeriodNumber() + 1,</span>
+							 monthStartDates[0],
+							 workdaysPerMonth,
+							 stdHours,
+							 overtimeHours,
+							 0,
+							 0,
+							 1);
+	 }
+
+<span class="nc bnc" id="L636" title="All 2 branches missed.">	 if(type == Job.HEAVY)</span>
+	 {
+<span class="nc" id="L638">	 	jf = new JobFactory(this,</span>
+							jobSizes,
+			  				 percentTakeoffs,
+							 methodsHC,
+							 networkDependenciesHC,
+							 liquidatedDamagesParameters,
+<span class="nc" id="L644">							 game.getCurrentPeriodNumber() + 1,</span>
+							 monthStartDates[0],
+							 workdaysPerMonth,
+							 stdHours,
+							 overtimeHours,
+							 0,
+							 0,
+							 2);
+	 }
+
+<span class="nc bnc" id="L654" title="All 2 branches missed.">     if(type == Job.HEAVY)</span>
+     {
+<span class="nc" id="L656">		 newJobs = nextPeriod.getNumberOfNewHeavyJobs();</span>
+	 }
+	 else
+	 {
+<span class="nc" id="L660">		 newJobs = nextPeriod.getNumberOfNewBuildingJobs();</span>
+	 }
+
+     //Have the job factory create each job.  Save each one to the database
+<span class="nc bnc" id="L664" title="All 2 branches missed.">     while(newJobs &gt; 0)</span>
+     {
+<span class="nc" id="L666">		 game.incrementCurrentJobNumber();</span>
+<span class="nc" id="L667">		 int nextJobID = game.getCurrentJobNumber();</span>
+
+<span class="nc" id="L669">		 Job job = jf.createJob(nextJobID);</span>
+
+<span class="nc" id="L671">		 storeNewJob(job);</span>
+<span class="nc" id="L672">         newJobs--;</span>
+
+<span class="nc" id="L674">	 }</span>
+
+<span class="nc" id="L676">  }</span>
+
+  //Creates a new Period object.  Pulls values from database as needed.
+  private Period createNewPeriod(int periodNumber)
+  {
+	  //Mod the period number so that if it is greater than 12 it will wrap around to
+	  //use game parameters from previous period
+<span class="nc" id="L683">	  int paramsPeriodNumber = periodNumber % 12;</span>
+<span class="nc bnc" id="L684" title="All 2 branches missed.">	  if (paramsPeriodNumber == 0) paramsPeriodNumber = 12;</span>
+
+<span class="nc" id="L686">      Hashtable materialsCostIndexParams = null;</span>
+<span class="nc" id="L687">      Hashtable laborAvailabilityParams = null;</span>
+<span class="nc" id="L688">      Hashtable numberOfNewJobsParams = null;</span>
+<span class="nc" id="L689">      Hashtable temperatureParams = null;</span>
+<span class="nc" id="L690">      Hashtable rainfallParams = null;</span>
+<span class="nc" id="L691">      Hashtable miscParams = null;</span>
+
+	  try
+	  {
+<span class="nc" id="L695">	  	  materialsCostIndexParams = dbFacade.getGameParametersDBHandler().getMaterialCostIndexParameters(game, paramsPeriodNumber);</span>
+<span class="nc" id="L696">	  	  laborAvailabilityParams = dbFacade.getGameParametersDBHandler().getLaborAvailabilityParameters(game, paramsPeriodNumber);</span>
+<span class="nc" id="L697">	  	  numberOfNewJobsParams = dbFacade.getGameParametersDBHandler().getNumberOfJobsParameters(game, paramsPeriodNumber);</span>
+<span class="nc" id="L698">	  	  temperatureParams = dbFacade.getGameParametersDBHandler().getTemperatureParameters(game, paramsPeriodNumber);</span>
+<span class="nc" id="L699">	  	  rainfallParams = dbFacade.getGameParametersDBHandler().getRainfallParameters(game, paramsPeriodNumber);</span>
+<span class="nc" id="L700">	  	  miscParams = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+	  }
+<span class="nc" id="L702">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L704">		  bigdbe.printStackTrace();</span>
+	  }
+<span class="nc" id="L706">	  catch(ParametersNotFoundException pnfe)</span>
+	  {
+<span class="nc" id="L708">		  pnfe.printStackTrace();</span>
+<span class="nc" id="L709">	  }</span>
+
+<span class="nc" id="L711">	  Period period = new Period( /*Number of new jobs parameters */</span>
+<span class="nc" id="L712">	  						      ((Integer) numberOfNewJobsParams.get(&quot;Median&quot;)).intValue(),</span>
+<span class="nc" id="L713">	  						      ((Integer) numberOfNewJobsParams.get(&quot;StdDev&quot;)).intValue(),</span>
+<span class="nc" id="L714">	  						      ((Integer) numberOfNewJobsParams.get(&quot;Min&quot;)).intValue(),</span>
+<span class="nc" id="L715">	  							  ((Integer) numberOfNewJobsParams.get(&quot;Max&quot;)).intValue(),</span>
+<span class="nc" id="L716">	  							  ((Integer) numberOfNewJobsParams.get(&quot;MinHC&quot;)).intValue(),</span>
+<span class="nc" id="L717">								  ((Integer) numberOfNewJobsParams.get(&quot;MaxHC&quot;)).intValue(),</span>
+	  							  /* Temperature parameters */
+<span class="nc" id="L719">	  							  ((Integer) temperatureParams.get(&quot;Median&quot;)).intValue(),</span>
+<span class="nc" id="L720">	  							  ((Integer) temperatureParams.get(&quot;StdDev&quot;)).intValue(),</span>
+<span class="nc" id="L721">	  							  ((Integer) temperatureParams.get(&quot;Min&quot;)).intValue(),</span>
+<span class="nc" id="L722">	  							  ((Integer) temperatureParams.get(&quot;Max&quot;)).intValue(),</span>
+	  							  /* Rainfall parameters */
+<span class="nc" id="L724">	  							  ((Integer) rainfallParams.get(&quot;Median&quot;)).intValue(),</span>
+<span class="nc" id="L725">	  							  ((Integer) rainfallParams.get(&quot;StdDev&quot;)).intValue(),</span>
+<span class="nc" id="L726">	  							  ((Integer) rainfallParams.get(&quot;Min&quot;)).intValue(),</span>
+<span class="nc" id="L727">	  							  ((Integer) rainfallParams.get(&quot;Max&quot;)).intValue(),</span>
+	  							  /* Labor availability parameters */
+<span class="nc" id="L729">	  							  ((Integer) laborAvailabilityParams.get(&quot;Median&quot;)).intValue(),</span>
+<span class="nc" id="L730">	  							  ((Integer) laborAvailabilityParams.get(&quot;StdDev&quot;)).intValue(),</span>
+<span class="nc" id="L731">	  							  ((Integer) laborAvailabilityParams.get(&quot;Min&quot;)).intValue(),</span>
+<span class="nc" id="L732">	  							  ((Integer) laborAvailabilityParams.get(&quot;Max&quot;)).intValue(),</span>
+	  							  /* Materials Cost Index parameters */
+<span class="nc" id="L734">	  							  ((Integer) materialsCostIndexParams.get(&quot;Median&quot;)).intValue(),</span>
+<span class="nc" id="L735">	  							  ((Integer) materialsCostIndexParams.get(&quot;StdDev&quot;)).intValue(),</span>
+<span class="nc" id="L736">	  							  ((Integer) materialsCostIndexParams.get(&quot;Min&quot;)).intValue(),</span>
+<span class="nc" id="L737">	  							  ((Integer) materialsCostIndexParams.get(&quot;Max&quot;)).intValue(),</span>
+	  							  /* Number of hours per month from misc parameters */
+<span class="nc" id="L739">	  							  ((Integer) miscParams.get(&quot;workdaysPerMonth&quot;)).intValue(),</span>
+	  							  /* Period number */
+	  							  periodNumber);
+
+
+	  try
+	  {
+<span class="nc" id="L746">		 dbFacade.getPeriodDBHandler().addPeriod(game, period);</span>
+	  }
+<span class="nc" id="L748">	  catch (BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L750">		 log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L751">	  }</span>
+<span class="nc" id="L752">      return period;</span>
+  }
+
+  /**
+   * Loads the methods in from the database
+   *
+   */
+  private void loadMethods()
+  {
+  	 try
+  	 {
+<span class="fc" id="L763">		 methods = new Method[9][5];</span>
+
+<span class="fc" id="L765">	     methods[0] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 1);</span>
+<span class="fc" id="L766">	     methods[1] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 2);</span>
+<span class="fc" id="L767">	     methods[2] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 3);</span>
+<span class="fc" id="L768">	     methods[3] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 4);</span>
+<span class="fc" id="L769">	     methods[4] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 5);</span>
+<span class="fc" id="L770">	     methods[5] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 6);</span>
+<span class="fc" id="L771">	     methods[6] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 7);</span>
+<span class="fc" id="L772">	     methods[7] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 8);</span>
+<span class="fc" id="L773">	     methods[8] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 9);</span>
+
+<span class="fc" id="L775">		 methodsHC = new Method[9][5];</span>
+
+<span class="fc" id="L777">		 methodsHC[0] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 10);</span>
+<span class="fc" id="L778">		 methodsHC[1] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 11);</span>
+<span class="fc" id="L779">		 methodsHC[2] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 12);</span>
+<span class="fc" id="L780">		 methodsHC[3] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 13);</span>
+<span class="fc" id="L781">		 methodsHC[4] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 14);</span>
+<span class="fc" id="L782">		 methodsHC[5] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 15);</span>
+<span class="fc" id="L783">		 methodsHC[6] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 16);</span>
+<span class="fc" id="L784">		 methodsHC[7] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 17);</span>
+<span class="fc" id="L785">		 methodsHC[8] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 18);</span>
+	 }
+<span class="fc" id="L787">	 catch (BIGDatabaseFacadeException bigdbe)</span>
+	 {
+<span class="fc" id="L789">		 log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="fc" id="L790">		 methods = null;</span>
+<span class="fc" id="L791">		 methodsHC = null;</span>
+	 }
+<span class="fc" id="L793">	 catch (ObjectNotFoundException onfe)</span>
+	 {
+<span class="fc" id="L795">		 log.fatal(&quot;&quot;, onfe);</span>
+<span class="fc" id="L796">		 methods = null;</span>
+<span class="fc" id="L797">		 methodsHC = null;</span>
+<span class="fc" id="L798">	 }</span>
+<span class="fc" id="L799">  }</span>
+
+  /**
+   * Loads the network dependencies in from the database
+   *
+   */
+  private void loadNetworkDependencies()
+  {
+<span class="fc" id="L807">	  networkDependencies = new Hashtable[5][9];</span>
+<span class="fc bfc" id="L808" title="All 2 branches covered.">	  for(int i = 0; i &lt; 5; i++)</span>
+	  {
+	     try
+	     {
+<span class="fc bfc" id="L812" title="All 2 branches covered.">	    	 for(int j = 0; j &lt; 9; j++)</span>
+		     {
+<span class="fc" id="L814">		    	 networkDependencies[i][j] = dbFacade.getGameParametersDBHandler().getNetworkDependencyParameters(game, i+1, j+1);</span>
+		     }
+	     }
+<span class="fc" id="L817">		 catch (BIGDatabaseFacadeException bigdbe)</span>
+		 {
+<span class="fc" id="L819">			 log.fatal(&quot;&quot;, bigdbe);</span>
+		 }
+<span class="fc" id="L821">		 catch (ParametersNotFoundException pnfe)</span>
+		 {
+<span class="fc" id="L823">			 log.fatal(&quot;&quot;, pnfe);</span>
+<span class="fc" id="L824">		 }</span>
+	  }
+
+      //for Heavy jobs, jobType will be numbers 6 through 10 (activityType is still 1-9)
+<span class="fc" id="L828">	  networkDependenciesHC = new Hashtable[5][9];</span>
+<span class="fc bfc" id="L829" title="All 2 branches covered.">	  for(int i = 0; i &lt; 5; i++)</span>
+	  {
+	     try
+	     {
+<span class="fc bfc" id="L833" title="All 2 branches covered.">	    	 for(int j = 0; j &lt; 9; j++)</span>
+		     {
+<span class="fc" id="L835">		    	 networkDependenciesHC[i][j] = dbFacade.getGameParametersDBHandler().getNetworkDependencyParameters(game, i+6, j+1);</span>
+		     }
+	     }
+<span class="fc" id="L838">		 catch (BIGDatabaseFacadeException bigdbe)</span>
+		 {
+<span class="fc" id="L840">			 log.fatal(&quot;&quot;, bigdbe);</span>
+		 }
+<span class="nc" id="L842">		 catch (ParametersNotFoundException pnfe)</span>
+		 {
+<span class="nc" id="L844">			 log.fatal(&quot;&quot;, pnfe);</span>
+<span class="fc" id="L845">		 }</span>
+	  }
+<span class="fc" id="L847">  }</span>
+
+
+  /**
+   * Loads the liquidated damages in from the database
+   *
+   */
+  private void loadLiquidatedDamagesParameters()
+  {
+  	  try
+	  {
+<span class="fc" id="L858">    	 liquidatedDamagesParameters = dbFacade.getGameParametersDBHandler().getLiquidatedDamagesParameters(game);</span>
+
+      }
+<span class="fc" id="L861">	  catch (BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L863">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L865">	  catch (ParametersNotFoundException pnfe)</span>
+	  {
+<span class="nc" id="L867">		 log.fatal(&quot;&quot;, pnfe);</span>
+<span class="fc" id="L868">	  }</span>
+
+<span class="fc" id="L870">  }</span>
+
+  /**
+   * Loads the negotiation parameters in from the database
+   *
+   */
+  private void loadNegotiationParameters()
+  {
+  	  try
+	  {
+<span class="fc" id="L880">    	 negotiationParameters = dbFacade.getGameParametersDBHandler().getNegotiationParameters(game);</span>
+      }
+<span class="fc" id="L882">	  catch (BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L884">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L886">	  catch (ParametersNotFoundException pnfe)</span>
+	  {
+<span class="nc" id="L888">		 log.fatal(&quot;&quot;, pnfe);</span>
+<span class="fc" id="L889">	  }</span>
+
+<span class="fc" id="L891">  }</span>
+
+  /**
+   * Loads the personnel parameters in from the database
+   *
+   */
+  private void loadPersonnelParameters()
+  {
+  	  try
+	  {
+<span class="fc" id="L901">    	  jobMospReqParameters = dbFacade.getPersonnelParametersDBHandler().getJobRequiredMospParameters(game);</span>
+<span class="fc" id="L902">		  mospCostPenalties = dbFacade.getPersonnelParametersDBHandler().getMospCostPenalties(game);</span>
+<span class="fc" id="L903">		  employeeSkillConversionRatioLookup = dbFacade.getPersonnelParametersDBHandler().getEmployeeSkillConversionRatios(game);</span>
+      }
+<span class="fc" id="L905">	  catch (BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L907">		 log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="fc" id="L908">	  }</span>
+<span class="fc" id="L909">  }</span>
+
+
+  /**
+   * Loads miscellaneous parameters in from the database
+   */
+  private void loadMiscParameters()
+  {
+	  try
+	  {
+	 	 //Get misc parameters
+<span class="fc" id="L920">	 	 Hashtable misc = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+<span class="fc" id="L921">	 	 Hashtable ccc = dbFacade.getGameParametersDBHandler().getComputerControlledContractorParameters(game);</span>
+
+<span class="fc" id="L923">		 bidExpensePercent = ((Integer) misc.get(&quot;bidExpensePercent&quot;)).intValue();</span>
+<span class="fc" id="L924">	 	 workdaysPerMonth = ((Integer) misc.get(&quot;workdaysPerMonth&quot;)).intValue();</span>
+<span class="fc" id="L925">	 	 stdHours = ((Integer) misc.get(&quot;standardHoursPerDay&quot;)).intValue();</span>
+<span class="fc" id="L926">	 	 overtimeHours = ((Integer) misc.get(&quot;overtimeHoursPerDay&quot;)).intValue();</span>
+<span class="fc" id="L927">		 lowerPercentJobMarkup = ((Integer) ccc.get(&quot;lowerPercentJobMarkup&quot;)).intValue();</span>
+<span class="fc" id="L928">		 upperPercentJobMarkup = ((Integer) ccc.get(&quot;upperPercentJobMarkup&quot;)).intValue();</span>
+<span class="fc" id="L929">		 fixedOfficeOverhead = ((Integer) misc.get(&quot;officeOverheadFixed&quot;)).intValue();</span>
+<span class="fc" id="L930">		 overtimeModifier = ((Float) misc.get(&quot;overtimeExpenseFactor&quot;)).floatValue();</span>
+<span class="fc" id="L931">		 maxOverbillingPercent = ((Integer) misc.get(&quot;maxOverbillingPercent&quot;)).intValue();</span>
+<span class="fc" id="L932">		 overbillingPercentAffectingEthics = ((Integer) misc.get(&quot;overbillingEffectingEthics&quot;)).intValue();</span>
+<span class="fc" id="L933">		 periodsBetweenBondLimitReeval = ((Integer) misc.get(&quot;bondLimitReevaluationFrequency&quot;)).intValue();</span>
+
+
+	  }
+<span class="fc" id="L937">	  catch (BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L939">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L941">	  catch (ParametersNotFoundException pnfe)</span>
+	  {
+<span class="nc" id="L943">		 log.fatal(&quot;&quot;, pnfe);</span>
+<span class="fc" id="L944">	  }</span>
+
+<span class="fc" id="L946">  }</span>
+
+
+  /**
+   * Adds a job and all its activities to the database.
+   * &lt;b&gt;Precondition:&lt;/b&gt; This method must not yet have been called on parameters &lt;code&gt;job&lt;/code&gt;.
+   *
+   */
+  private void storeNewJob(Job job)
+  {
+	  try
+	  {
+<span class="nc" id="L958">		  dbFacade.getJobDBHandler().addJob(game, job);</span>
+<span class="nc" id="L959">		  storeActivities(job);</span>
+<span class="nc" id="L960">		  dbFacade.getOvertimeDBHandler().addOvertime(game, job);</span>
+	  }
+<span class="nc" id="L962">	  catch (BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L964">		 log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L965">	  }</span>
+<span class="nc" id="L966">  }</span>
+
+
+  /**
+   * Updates a job in the database.  All activities of the job are added to the database for the current period.
+   * &lt;b&gt;Precondition:&lt;/b&gt; The activities in the job must not already be stored in the database for the current period.
+   */
+  public void storeJob(Job job)
+  {
+	  try
+	  {
+<span class="nc" id="L977">		  dbFacade.getJobDBHandler().updateJob(game, job);</span>
+<span class="nc" id="L978">		  storeActivities(job);</span>
+	  }
+<span class="fc" id="L980">	  catch (BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L982">		 log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L984">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L986">	  	 log.fatal(&quot;&quot;, onfe);</span>
+<span class="pc" id="L987">	  }</span>
+<span class="fc" id="L988">  }</span>
+
+
+	/**
+	 * Updates the database records associated with a &lt;code&gt;Vector&lt;/code&gt; of
+	 * &lt;code&gt;Bid&lt;/code&gt; objects.  This method is used by &lt;code&gt;Job.determineBidWinners()&lt;/code&gt;
+	 * after bid outcome codes have been assigned.
+	 */
+	public void storeBids(Job job, Vector bids)
+	{
+<span class="fc" id="L998">		Iterator bidIterator = bids.iterator();</span>
+<span class="fc bfc" id="L999" title="All 2 branches covered.">		while(bidIterator.hasNext()) {</span>
+<span class="fc" id="L1000">			Bid bid = (Bid) bidIterator.next();</span>
+<span class="fc" id="L1001">			Company dummyCompany = new Company();</span>
+<span class="fc" id="L1002">			dummyCompany.setCompanyID(bid.getCompanyID());</span>
+
+			try
+			{
+<span class="nc bnc" id="L1006" title="All 2 branches missed.">				if (bid.getCompanyID() &lt; 0)</span>
+				{ // CCC
+<span class="nc" id="L1008">					dbFacade.getBidDBHandler().addBid(game, job, dummyCompany, bid);</span>
+				}
+				else
+				{
+<span class="nc" id="L1012">					dbFacade.getBidDBHandler().updateBid(game, job, dummyCompany, bid);</span>
+				}
+			}
+<span class="fc" id="L1015">			catch (BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="fc" id="L1017">			    log.fatal(&quot;&quot;, bigdbe);</span>
+			}
+<span class="nc" id="L1019">			catch(ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L1021">			    log.fatal(&quot;&quot;, onfe);</span>
+<span class="pc" id="L1022">		    }</span>
+<span class="fc" id="L1023">		}</span>
+<span class="fc" id="L1024">	}</span>
+
+	/**
+	 * Changes the amount of a companies bid on a job
+	 */
+    public void updateBid(Company company, Job job, long amount)
+    {
+		try
+		{
+<span class="nc" id="L1033">			Bid bid = dbFacade.getBidDBHandler().getBid(game, job, company);</span>
+<span class="nc" id="L1034">			bid.setBidAmount(amount);</span>
+<span class="nc" id="L1035">			Vector v = new Vector();</span>
+<span class="nc" id="L1036">			v.add(bid);</span>
+<span class="nc" id="L1037">			storeBids(job, v);</span>
+		}
+<span class="fc" id="L1039">		catch(Exception e)</span>
+		{
+<span class="fc" id="L1041">			log.fatal(&quot;&quot;, e);</span>
+<span class="nc" id="L1042">		}</span>
+<span class="fc" id="L1043">	}</span>
+
+
+
+  /**
+   * Adds all the activities of job to the database.
+   * Precondition: The activities in job must not already be stored in the database for the current period.
+
+   */
+  private void storeActivities(Job job)
+  {
+	  try
+	  {
+<span class="nc" id="L1056">		  Activity[] activities = job.getActivities();</span>
+<span class="nc bnc" id="L1057" title="All 2 branches missed.">		  for(int i = 0; i &lt; 9; i++)</span>
+		  {
+<span class="nc" id="L1059">			  dbFacade.getActivityDBHandler().addActivity(game, job, activities[i]);</span>
+		  }
+	  }
+<span class="nc" id="L1062">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1064">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1065">	  }</span>
+<span class="nc" id="L1066">  }</span>
+
+
+  /**
+   * Get the activities stored in the database for &lt;code&gt;job&lt;/code&gt; for the period prior to the current period
+   */
+  public Activity[] getActivities(Job job)
+  {
+<span class="nc" id="L1074">	  Activity[] activities = null;</span>
+
+	  try
+	  {
+<span class="nc" id="L1078">	      activities = dbFacade.getActivityDBHandler().getActivities(game, job, game.getCurrentPeriodNumber() - 1);</span>
+	  }
+<span class="nc" id="L1080">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L1082">	  	  log.fatal(&quot;Activities not found for jobid: &quot; + job.getJobID() + &quot; in gameid: &quot; + game.getGameID(), onfe);</span>
+	  }
+<span class="nc" id="L1084">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1086">	  	  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1087">	  }</span>
+
+<span class="nc" id="L1089">	  return activities;</span>
+  }
+
+
+  /**
+   * Updates a set of activities
+   */
+  public void updateActivities(Activity[] activities, Job job)
+  {
+	  try
+	  {
+<span class="pc bpc" id="L1100" title="1 of 2 branches missed.">		  for(int i=0; i&lt; 9; i++)</span>
+		  {
+<span class="nc" id="L1102">	          dbFacade.getActivityDBHandler().updateActivity(game, job, activities[i]);</span>
+		  }
+	  }
+<span class="nc" id="L1105">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L1107">	  	  log.fatal(&quot;Activities not found for jobid: &quot; + job.getJobID() + &quot; in gameid: &quot; + game.getGameID(), onfe);</span>
+	  }
+<span class="fc" id="L1109">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L1111">	  	  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1112">	  }</span>
+<span class="fc" id="L1113">  }</span>
+
+
+  /**
+   * Returns the current period number.
+   */
+  public int getCurrentPeriodNumber()
+  {
+<span class="fc" id="L1121">	  return game.getCurrentPeriodNumber();</span>
+  }
+
+  //Loads the current CCCs in the game from the database and initiates the CCC update process
+  private void updateCCCs()
+  {
+<span class="nc" id="L1127">	  setupCCCCommandCenter();</span>
+
+	  try
+	  {
+<span class="nc" id="L1131">		  cccs = dbFacade.getCCCDBHandler().getCCCs(game);</span>
+	  }
+<span class="nc" id="L1133">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1135">	  	  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1136">	  }</span>
+
+<span class="nc" id="L1138">	  cccs = ccccommandCenter.updateCCCs(cccs);</span>
+
+<span class="nc" id="L1140">	  saveCCCs();</span>
+<span class="nc" id="L1141">  }</span>
+
+  //Creates an intial list of CCCs
+  private void createCCCs()
+  {
+<span class="nc" id="L1146">	  setupCCCCommandCenter();</span>
+
+<span class="nc" id="L1148">	  cccs = ccccommandCenter.updateCCCs(new Vector());</span>
+
+<span class="nc" id="L1150">	  saveCCCs();</span>
+<span class="nc" id="L1151">  }</span>
+
+  //Initializes the ccccommandCenter variable
+  private void setupCCCCommandCenter()
+  {
+	  try
+	  {
+<span class="nc" id="L1158">		  Hashtable cccParameters = dbFacade.getGameParametersDBHandler().getComputerControlledContractorParameters(game);</span>
+<span class="nc" id="L1159">		  Hashtable misc = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+<span class="nc" id="L1160">		  int minNumberCCCs = ((Integer) cccParameters.get(&quot;minNumberOfCCCs&quot;)).intValue();</span>
+<span class="nc" id="L1161">		  int maxNumberCCCs = ((Integer) cccParameters.get(&quot;maxNumberOfCCCs&quot;)).intValue();</span>
+<span class="nc" id="L1162">		  int minCCCBidsPerJob = ((Integer) cccParameters.get(&quot;minNumberOfCCCBidsPerJob&quot;)).intValue();</span>
+<span class="nc" id="L1163">		  int maxCCCBidsPerJob = ((Integer) cccParameters.get(&quot;maxNumberOfCCCBidsPerJob&quot;)).intValue();</span>
+<span class="nc" id="L1164">		  int cccTurnover = ((Integer) cccParameters.get(&quot;CCCTurnover&quot;)).intValue();</span>
+<span class="nc" id="L1165">		  int lowerPercentProfit = ((Integer) cccParameters.get(&quot;lowerPercentJobMarkup&quot;)).intValue();</span>
+<span class="nc" id="L1166">		  int upperPercentProfit = ((Integer) cccParameters.get(&quot;upperPercentJobMarkup&quot;)).intValue();</span>
+<span class="nc" id="L1167">		  int fieldOverheadFixed = ((Integer) misc.get(&quot;fieldOverheadFixed&quot;)).intValue();</span>
+<span class="nc" id="L1168">		  int fieldOverheadVariable = ((Integer) misc.get(&quot;fieldOverheadVariable&quot;)).intValue();</span>
+<span class="nc" id="L1169">		  int officeOverheadFixed = ((Integer) misc.get(&quot;officeOverheadFixed&quot;)).intValue();</span>
+<span class="nc" id="L1170">		  int bidExpensePercent = ((Integer) misc.get(&quot;bidExpensePercent&quot;)).intValue();</span>
+<span class="nc" id="L1171">		  int workdaysPerMonth = ((Integer) misc.get(&quot;workdaysPerMonth&quot;)).intValue();</span>
+
+
+<span class="nc" id="L1174">		  ccccommandCenter = new CCCCommandCenter(minNumberCCCs,</span>
+		  										  maxNumberCCCs,
+		  										  minCCCBidsPerJob,
+		  										  maxCCCBidsPerJob,
+		  										  cccTurnover,
+		  										  lowerPercentProfit,
+		  										  upperPercentProfit,
+		  										  fieldOverheadFixed,
+		  										  fieldOverheadVariable,
+		  										  officeOverheadFixed,
+		  										  bidExpensePercent,
+		  										  workdaysPerMonth,
+		  										  10 //right now there are 10 hardcoded job types.
+			  									 );
+	  }
+<span class="nc" id="L1189">	  catch(ParametersNotFoundException pnfe)</span>
+	  {
+<span class="nc" id="L1191">		  log.fatal(&quot;&quot;, pnfe);</span>
+	  }
+<span class="nc" id="L1193">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1195">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1196">	  }</span>
+<span class="nc" id="L1197">  }</span>
+
+  //Saves changes to CCCs to the database
+  private void saveCCCs()
+  {
+	  try
+	  {
+<span class="nc" id="L1204">		  dbFacade.getCCCDBHandler().setCCCs(game, cccs);</span>
+	  }
+<span class="nc" id="L1206">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1208">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1209">	  }</span>
+<span class="nc" id="L1210">  }</span>
+
+  private void processAllBids()
+  {
+	  //Get all jobs in database not owned by companies =&gt; BIGDatabaseFacade.getNewJobs()
+	  //for each job:
+	  //  -Create CCC bids
+	  //  -Have Job determine bid winner =&gt; Job.determineBidWinner()
+	  //  -Store each job in database that was awarded to a player company
+
+<span class="nc" id="L1220">	  Vector newJobs = new Vector();</span>
+
+	  try
+	  {
+		  // Is this the correct period number? (Yes - K.C. 7/23/03)
+<span class="nc" id="L1225">		  newJobs = dbFacade.getJobDBHandler().getJobs(game, game.getCurrentPeriodNumber());</span>
+
+	  }
+<span class="nc" id="L1228">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1230">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1231">	  }</span>
+
+<span class="nc" id="L1233">	  Iterator jobIterator = newJobs.iterator();</span>
+<span class="nc bnc" id="L1234" title="All 2 branches missed.">	  while (jobIterator.hasNext())</span>
+	  {
+<span class="nc" id="L1236">		  Job theJob = (Job) jobIterator.next();</span>
+//        if (theJob.getTypeModifier() != 2)  // skip Heavy jobs -- You can't &quot;bid&quot; on a Heavy job using a set price
+//        {
+             //System.out.println(&quot;Preparing to determine bid winner for job &quot; + theJob.getJobID());
+		     try
+		     {
+<span class="nc" id="L1242">		  	     theJob.setGame(this);</span>
+<span class="nc" id="L1243">		 	     Vector bids = dbFacade.getBidDBHandler().getBids(game, theJob);</span>
+<span class="nc" id="L1244">			     Vector cccBids = ccccommandCenter.placeCCCBids(cccs, theJob);</span>
+<span class="nc" id="L1245">			     bids.addAll(cccBids);</span>
+
+<span class="nc" id="L1247">			     theJob.setBids(bids);</span>
+
+			     // The method calls below will fail if setBids() fails
+<span class="nc" id="L1250">			     theJob.determineBidWinner();</span>
+
+			     // Subtracts (bidding expense factor * bid amount) from cash on hand of each
+			     // company that placed a bid on this job and saves the chages to the DB
+<span class="nc" id="L1254">			     theJob.chargeBiddingExpenses(bidExpensePercent);</span>
+
+			     //Update the responsibility metric for each company
+<span class="nc" id="L1257">			     theJob.determineResponsibility();</span>
+
+			     //Needed to save the changes made to the job back to the database -K.C 1/9/02
+<span class="nc" id="L1260">			     dbFacade.getJobDBHandler().updateJob(game, theJob);</span>
+		     }
+<span class="nc" id="L1262">		     catch (BIGDatabaseFacadeException bigdbe)</span>
+		     {
+<span class="nc" id="L1264">		         log.fatal(&quot;&quot;, bigdbe);</span>
+		     }
+<span class="nc" id="L1266">		     catch (ObjectNotFoundException onfe)</span>
+		     {
+<span class="nc" id="L1268">		         log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L1269">		     }</span>
+//        }
+<span class="nc" id="L1271">	  }</span>
+<span class="nc" id="L1272">  }</span>
+
+  //Adjusts the values for all Method objects in the methods array based on current values for
+  //labor index, materials index, and temperature for this period.
+  //Current values are stored in the Period object for this period.
+  private void applyPeriodValuesToMethods()
+  {
+<span class="nc bnc" id="L1279" title="All 2 branches missed.">	  for(int i = 0; i &lt; 9; i++)</span>
+	  {
+<span class="nc bnc" id="L1281" title="All 2 branches missed.">		  for(int j = 0; j &lt; 5; j++)</span>
+		  {
+<span class="nc" id="L1283">			  methods[i][j].setProductivityAdjustment(currentPeriod.getProductivityAdjustmentDueToTemperature());</span>
+<span class="nc" id="L1284">			  methods[i][j].adjustLaborCost(currentPeriod.getLaborCostAdjustment());</span>
+<span class="nc" id="L1285">			  methods[i][j].adjustMaterialsCost(currentPeriod.getMaterialsCostAdjustment());</span>
+		  }
+	  }
+<span class="nc" id="L1288">  }</span>
+
+  /**
+   * Returns the total amount the bid price will be increased by due to a change order.
+   * Assumes the fastest method is used with overtime for each activity.  A markup equal
+   * to company X's bid markup is added to the cost as profit for the company.
+   * @param lusPerActivity Int array of length 9, each index represents an activity.  The value for
+   * each index is the amount of lus that will be added to that activity
+   */
+  protected long getChangeOrderPrice(int[] lusPerActivity)
+  {
+<span class="nc" id="L1299">	  int fastestMethod = 4;</span>
+
+<span class="nc" id="L1301">	  long changeOrderCost = 0;</span>
+
+<span class="nc bnc" id="L1303" title="All 2 branches missed.">	  for(int i = 0; i &lt; 9; i++)</span>
+	  {
+		  //Add labor cost assuming overtime
+<span class="nc" id="L1306">		  changeOrderCost += lusPerActivity[i] * methods[i][fastestMethod].getLaborCost() * overtimeModifier;</span>
+<span class="nc" id="L1307">		  changeOrderCost += lusPerActivity[i] * methods[i][fastestMethod].getMaterialsCost();</span>
+<span class="nc" id="L1308">		  changeOrderCost += lusPerActivity[i] * methods[i][fastestMethod].getSubcontractorCost() * overtimeModifier;</span>
+  	  }
+
+<span class="nc" id="L1311">  	  changeOrderCost = changeOrderCost + Math.round((((float) ((lowerPercentJobMarkup + upperPercentJobMarkup) / 2)) / 100f) * ((float) changeOrderCost));</span>
+
+<span class="nc" id="L1313">	  return changeOrderCost;</span>
+  }
+
+ /**
+  * Sets the values needed to send e-mail.  This method is used to transfer them
+  * from the Action class.
+  */
+ public void setEmailValues(String SMTPServer,
+ 							String SMTPPort,
+ 							String fromAddr,
+ 							String subject,
+ 							String message)
+ {
+<span class="fc" id="L1326">	 this.SMTPServer = SMTPServer;</span>
+<span class="fc" id="L1327">	 this.SMTPPort = SMTPPort;</span>
+<span class="fc" id="L1328">	 this.fromAddr = fromAddr;</span>
+<span class="fc" id="L1329">	 this.subject = subject;</span>
+<span class="fc" id="L1330">	 this.message = message;</span>
+<span class="fc" id="L1331"> }</span>
+
+ //Sends an e-mail to all players in this game who have an e-mail address in the database.
+ private void emailUpdateNotifications()
+ {
+<span class="nc" id="L1336">	 Vector members = null;</span>
+
+	 try
+	 {
+<span class="nc" id="L1340">	 	members = dbFacade.getMemberNamesDBHandler().getMemberNames(game);</span>
+ 	 }
+<span class="nc" id="L1342"> 	 catch(BIGDatabaseFacadeException bigdbe)</span>
+ 	 {
+<span class="nc" id="L1344">		 log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1345">	 }</span>
+
+<span class="nc" id="L1347">	 String[] emailAddrs = new String[members.size() + 1];</span>
+<span class="nc" id="L1348">     int i = 0;</span>
+<span class="nc bnc" id="L1349" title="All 2 branches missed.">	 while(i &lt; members.size())</span>
+	 {
+<span class="nc" id="L1351">		 MemberNameForm mnf = (MemberNameForm) members.elementAt(i);</span>
+<span class="nc" id="L1352">		 emailAddrs[i] = mnf.getEmail();</span>
+<span class="nc" id="L1353">		 i++;</span>
+<span class="nc" id="L1354">	 }</span>
+
+     // add myself to get a copy of all emails sent
+<span class="nc" id="L1357">     i = members.size();</span>
+<span class="nc" id="L1358">     emailAddrs[i] = &quot;jborland77@gmail.com&quot;;</span>
+
+	 try
+	 {
+<span class="nc" id="L1362">	 	Emailer emailer = new Emailer(SMTPServer, SMTPPort);</span>
+<span class="nc" id="L1363">	 	emailer.send(emailAddrs, fromAddr, subject, message);</span>
+<span class="nc" id="L1364">	 	emailer.finalize();</span>
+<span class="nc" id="L1365">	 	emailer = null;</span>
+	 }
+<span class="nc" id="L1367">	 catch(Exception e)</span>
+	 {
+		//E-mail errors can pretty much be ignored, since we don't want BIG
+		//to stop because of some unrealiable SMTP server.  The error will be logged
+		//however so that an admin can figure what went wrong if people complain about
+		//not getting an e-mail
+<span class="nc" id="L1373">		log.error(&quot;&quot;, e);</span>
+<span class="nc" id="L1374">	 }</span>
+<span class="nc" id="L1375"> }</span>
+
+ /**
+  * Determine which consulting reports were purchased
+  * by each company in this game and subtract the reports'
+  * costs (if any reports were in fact purchased this period)
+  * from the company's cash on hand.
+  */
+  public void processConsultingCosts()
+  {
+	  //System.out.println(&quot;processConsultingCosts()&quot;);
+
+<span class="fc" id="L1387">	  Iterator companyIterator = expandedCompanies.values().iterator();</span>
+<span class="pc bpc" id="L1388" title="1 of 2 branches missed.">	  while(companyIterator.hasNext()) {</span>
+<span class="nc" id="L1389">		  ExpandedCompany ec = (ExpandedCompany) companyIterator.next();</span>
+
+<span class="nc bnc" id="L1391" title="All 2 branches missed.">		  if(log.isDebugEnabled())</span>
+		  {
+<span class="nc" id="L1393">		      log.debug(&quot;process consulting costs for #&quot; + ec.getCompany().getCompanyID());</span>
+		  }
+
+<span class="nc" id="L1396">		  ec.processConsultingCosts();</span>
+<span class="nc" id="L1397">	  }</span>
+
+<span class="fc" id="L1399">  }</span>
+
+  /**
+   * Returns the an &lt;code&gt;ExpandedCompany&lt;/code&gt; object for a given company ID value.
+   * @param companyID The companyID of the company of interest
+   * @return ExpandedCompany The &lt;code&gt;ExpandedCompany&lt;/code&gt; matching the companyID.
+   *
+   */
+  public ExpandedCompany getExpandedCompany(int companyID)
+  {
+<span class="fc" id="L1409">	  return (ExpandedCompany) expandedCompanies.get(new Integer(companyID));</span>
+  }
+
+  public Game getGame()
+  {
+<span class="fc" id="L1414">      return game;</span>
+  }
+
+  /**
+   * Returns a 2-dimensional array of every method for every activity.
+   * First index is the activity number minus one, second index is the method number minus one.
+   */
+  public Method[][] getMethods()
+  {
+<span class="fc" id="L1423">	  return methods;</span>
+  }
+
+  public Method[][] getMethodsHC()
+  {
+<span class="fc" id="L1428">	  return methodsHC;</span>
+  }
+
+  /**
+   * Returns a 2-dimensional &lt;code&gt;Hashtable&lt;/code&gt; array of network dependencies.  See &lt;code&gt;edu.calpoly.its.mas.big.db.GameParametersDBHandler&lt;/code&gt;
+   * for format of network dependencies in &lt;code&gt;Hashtable&lt;/code&gt; objects.
+   */
+  public Hashtable[][] getNetworkDependencies()
+  {
+<span class="fc" id="L1437">	  return networkDependencies;</span>
+  }
+
+  public Hashtable[][] getNetworkDependenciesHC()
+  {
+<span class="fc" id="L1442">	  return networkDependenciesHC;</span>
+  }
+
+  public Map&lt;String, Map&lt;String, MosToCUsRatio&gt;&gt; getJobMospReqParameters()
+  {
+<span class="fc" id="L1447">	  return jobMospReqParameters;</span>
+  }
+
+  public Map&lt;String,Integer&gt; getMospCostPenalties()
+  {
+<span class="fc" id="L1452">	  return mospCostPenalties;</span>
+  }
+
+  public EmployeeSkillConversionRatioLookup getEmployeeSkillConversionRatioLookup()
+  {
+<span class="fc" id="L1457">	  return employeeSkillConversionRatioLookup;</span>
+  }
+
+
+  /**
+   * Returns the value for the game parameter &quot;number of workdays each month&quot;.
+   */
+  public int getWorkdaysPerMonth()
+  {
+<span class="fc" id="L1466">	  return workdaysPerMonth;</span>
+  }
+
+ /**
+  * Modifies the amount that will be added to a CAM at the end of the period update
+  * Calls the &lt;code&gt;modifyCAMUpdate&lt;/code&gt; method of the given &lt;code&gt;ExpandedCompany&lt;/code&gt;
+  * @param ec The &lt;code&gt;ExpandedCompany&lt;/code&gt; whose metric is to be updated
+  * @param metric The metric in question.  Values for this parameter are defined as static ints
+  *               int &lt;code&gt;edu.calpoly.lib.multimedia.big.game.CAMUpdater&lt;/code&gt;.
+  * @param amount The amount (positive or negative) to add to the metric.
+  */
+  public void modifyCAMUpdate(ExpandedCompany ec, int metric, int amount)
+  {
+<span class="fc" id="L1479">	  ec.modifyCAMUpdate(metric, amount);</span>
+<span class="fc" id="L1480">  }</span>
+
+  //Calls the assignResponsibilityPenaltyForUnderBilling method for each
+  //company.  This causes the responsibility metric to be penalized in any company
+  //which has not billed for the entire amount of money earned in the last period.
+  private void makeCompaniesAssignResponsibilityPenaltyForUnderbilling()
+  {
+<span class="nc" id="L1487">	  Iterator companyIterator = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L1488" title="All 2 branches missed.">	  while(companyIterator.hasNext())</span>
+	  {
+<span class="nc" id="L1490">		  ExpandedCompany ec = (ExpandedCompany) companyIterator.next();</span>
+<span class="nc" id="L1491">		  ec.assignResponsibilityPenaltyForUnderBilling();</span>
+<span class="nc" id="L1492">	  }</span>
+<span class="nc" id="L1493">  }</span>
+
+
+  /**
+   * Sends an in game message.
+   */
+  public void sendInGameMessageToCompany(Message message)
+  {
+	  try
+	  {
+<span class="nc" id="L1503">		  dbFacade.getInboxDBHandler().storeMessage(message);</span>
+	  }
+<span class="fc" id="L1505">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L1507">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L1508">	  }</span>
+<span class="fc" id="L1509">  }</span>
+
+  /**
+   * Records the method used for an activity when a job is created.
+   */
+  public void recordJobMethod(int jobid, int activityid, int methodid)
+  {
+	  try
+	  {
+<span class="fc" id="L1518">		  dbFacade.getEstimatingComponentDBHandler().addScheduleMethod(game, jobid, activityid, methodid);</span>
+	  }
+<span class="fc" id="L1520">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L1522">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="fc" id="L1523">	  }</span>
+<span class="fc" id="L1524">  }</span>
+
+  /**
+   * If the Auto Billing game component is turned on, just before doing the period update, go through all the active
+   * jobs and submit a billing for each, using the Architect's estimate for &quot;Total revenue earned minus billed to date.&quot;
+   */
+
+  private void doAutoBillingOnJobs()
+  {
+     //System.out.println(&quot;Auto Billing is Turned On&quot;);
+
+     //Do it on a company by company basis
+<span class="nc" id="L1536">     Iterator i = expandedCompanies.values().iterator();</span>
+<span class="nc bnc" id="L1537" title="All 2 branches missed.">     while(i.hasNext())</span>
+     {
+<span class="nc" id="L1539">		 ExpandedCompany ec = (ExpandedCompany) i.next();</span>
+		 //Do auto billing for each of this company's jobs where the amount billed on the job is less than the total contract price of the job.
+<span class="nc" id="L1541">		 ec.autoBillingOnJobs(game);</span>
+<span class="nc" id="L1542">	 }</span>
+<span class="nc" id="L1543">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

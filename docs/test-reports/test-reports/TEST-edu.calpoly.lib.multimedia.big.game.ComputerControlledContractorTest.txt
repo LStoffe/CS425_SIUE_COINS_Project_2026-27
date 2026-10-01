@@ -1,0 +1,15 @@
+Testsuite: edu.calpoly.lib.multimedia.big.game.ComputerControlledContractorTest
+Tests run: 6, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+
+Testcase: testFourArgConstructor took 0.002 sec
+Testcase: testGetTitleReturnsName took 0 sec
+Testcase: testCompareToOrdersByTitle took 0.001 sec
+	FAILED
+null
+junit.framework.AssertionFailedError
+	at edu.calpoly.lib.multimedia.big.game.ComputerControlledContractorTest.testCompareToOrdersByTitle(ComputerControlledContractorTest.java:55)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testThreeArgConstructor took 0 sec
+Testcase: testGetContractorIDReturnsNegatedCCCID took 0 sec
+Testcase: testSetters took 0 sec

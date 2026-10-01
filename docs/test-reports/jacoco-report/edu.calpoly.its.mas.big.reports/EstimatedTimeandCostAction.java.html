@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EstimatedTimeandCostAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">EstimatedTimeandCostAction.java</span></div><h1>EstimatedTimeandCostAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.reports;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Hashtable;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.game.Activity;
+import edu.calpoly.its.mas.big.users.User;
+import edu.calpoly.its.mas.big.users.company.Bid;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.JobDBHandler;
+import edu.calpoly.its.mas.big.db.CurrentMethodDBHandler;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Construct an &lt;code&gt;ActionForm&lt;/code&gt; which represents the data in
+ * an Estimated Time and Cost Report.  The query parameters expected
+ * are: &quot;jobID&quot; which identifies the job for which the report
+ * will be generated and an optional &quot;period&quot; parameter, which
+ * allows the user to view the Estimated Time and Cost Report for
+ * any past period.  If the period parameter is omitted, the game's
+ * current period is used.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.15 $
+ */
+<span class="nc" id="L63">public class EstimatedTimeandCostAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				     			 ActionForm form,
+				     			 HttpServletRequest request,
+			         			 HttpServletResponse response)
+	{
+<span class="nc" id="L70">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L73">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="nc" id="L76">		ActionMessages errors = new ActionMessages();</span>
+
+<span class="nc" id="L78">        HttpSession session = request.getSession();</span>
+
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if(session == null)</span>
+        {
+<span class="nc" id="L82">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		}
+
+<span class="nc" id="L85">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if(game == null) {</span>
+<span class="nc" id="L87">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		}
+<span class="nc" id="L89">		Company company = null;</span>
+
+<span class="nc" id="L91">		User user = (User) session.getAttribute(&quot;user&quot;);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (user instanceof Admin)</span>
+		{
+<span class="nc" id="L94">			company = (Company) session.getAttribute(&quot;company&quot;);</span>
+		}
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		else if (user instanceof Company)</span>
+		{
+<span class="nc" id="L98">			company = (Company) user;</span>
+		}
+
+		// Grab jobID parameter
+<span class="nc" id="L102">		String jobIDString = request.getParameter(&quot;jobID&quot;);</span>
+<span class="nc" id="L103">		int jobID = 0;</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">		if (jobIDString != null &amp;&amp; !jobIDString.equals(&quot;&quot;))</span>
+		{
+<span class="nc" id="L106">			jobID = Integer.parseInt(jobIDString);</span>
+		}
+		else
+		{
+<span class="nc" id="L110">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+		}
+
+<span class="nc" id="L113">		String periodString = request.getParameter(&quot;period&quot;);</span>
+		int reportPeriod;
+<span class="nc bnc" id="L115" title="All 4 branches missed.">		if (periodString == null || periodString.equals(&quot;&quot;))</span>
+		{
+<span class="nc" id="L117">			reportPeriod = game.getCurrentPeriodNumber();</span>
+		}
+		else
+		{
+<span class="nc" id="L121">			reportPeriod = Integer.parseInt(periodString);</span>
+<span class="nc" id="L122">			session.setAttribute(&quot;reportPeriod&quot;, periodString);</span>
+		}
+
+
+<span class="nc" id="L126">		String referrer = request.getParameter(&quot;referrer&quot;);</span>
+
+		// Pass 'referrer' param to JSP. This allows the JSP to
+		// build the proper navigation bar (there are two ways for
+		// a company to access the Estimated Time and Cost Report)
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		if (null != referrer) {</span>
+<span class="nc" id="L132">			session.setAttribute(&quot;referrer&quot;, referrer);</span>
+		}
+
+<span class="nc" id="L135">		EstimatedTimeandCostForm reportForm = new EstimatedTimeandCostForm();</span>
+
+<span class="nc" id="L137">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request), true);</span>
+
+		try
+		{
+			// Ensure that the jobId passed in as a request parameter
+			// corresponds to a current job. If not, throw an exception.
+<span class="nc" id="L143">			Vector jobs = dbFacade.getJobDBHandler().getJobs(game, reportPeriod);</span>
+
+			// Admin-&gt;Period Reports does not put a Company in session
+<span class="nc bnc" id="L146" title="All 2 branches missed.">			if (null != company)</span>
+			{
+<span class="nc" id="L148">				Vector allJobsForCompany = dbFacade.getJobDBHandler().getJobs(game, company);</span>
+<span class="nc" id="L149">				jobs.addAll(allJobsForCompany);</span>
+			}
+
+<span class="nc" id="L152">			Iterator jobsIter = jobs.iterator();</span>
+<span class="nc" id="L153">			boolean jobFound = false;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">			while(jobsIter.hasNext()) {</span>
+<span class="nc" id="L155">				Job job = (Job) jobsIter.next();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">				if (job.getJobID() == jobID) {</span>
+<span class="nc" id="L157">					reportForm.setJob(job);</span>
+<span class="nc" id="L158">					jobFound = true;</span>
+				}
+<span class="nc" id="L160">			}</span>
+            // must close connection in case exception is thrown
+<span class="nc" id="L162">            dbFacade.close();</span>
+
+<span class="nc bnc" id="L164" title="All 2 branches missed.">			if (!jobFound)</span>
+<span class="nc" id="L165">				throw new ObjectNotFoundException();</span>
+
+<span class="nc" id="L167">			Activity [] activities = null;</span>
+
+			// true when requesting a progress report
+<span class="nc bnc" id="L170" title="All 4 branches missed.">			if (null != referrer &amp;&amp; referrer.equals(&quot;progressReport&quot;))</span>
+			{
+<span class="nc" id="L172">				activities = dbFacade.getActivityDBHandler().getActivities(game,</span>
+<span class="nc" id="L173">																		   reportForm.getJob(),</span>
+																		   reportPeriod);
+
+				// Tell the form to use lusRemaining rather than lusTotal in all calculations
+<span class="nc" id="L177">				reportForm.setStaticReportFlag(false);</span>
+			}
+			// true when called using &quot;More Info&quot; during bid on jobs
+			else
+			{
+<span class="nc" id="L182">				activities = dbFacade.getActivityDBHandler().getActivities(game,</span>
+<span class="nc" id="L183">																		   reportForm.getJob(),</span>
+<span class="nc" id="L184">																		   reportForm.getJob().getPeriodCreated() - 1);</span>
+			}
+
+<span class="nc" id="L187">			reportForm.setActivities(activities);</span>
+
+<span class="nc" id="L189">			int[][] retentionPolicies = dbFacade.getRetentionDBHandler().getRetentionPolicies();</span>
+<span class="nc" id="L190">			reportForm.setRetentionPolicies(retentionPolicies);</span>
+
+            // changed to 18 activities -- include the ones for Heavy jobs
+            // getAllMethods() -- retrieves a list of all possible methods to use on a certain activity type
+            // returns: Method[] containing 5 methods (every activity will have one of five possible methods).
+<span class="nc bnc" id="L195" title="All 2 branches missed.">			for (int activityNum = 1; activityNum &lt;= 18; activityNum++) {</span>
+<span class="nc" id="L196">				Method[] methods = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, activityNum);</span>
+
+<span class="nc" id="L198">				reportForm.setMethods(activityNum, methods);</span>
+			}
+
+			// Retrieve number of hours per day (a misc game parameter)
+<span class="nc" id="L202">			Hashtable miscParams = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+<span class="nc" id="L203">			reportForm.setHoursPerDay(((Integer) miscParams.get(&quot;standardHoursPerDay&quot;)).intValue());</span>
+
+			//for Heavy jobs only
+<span class="nc" id="L206">			Job job = reportForm.getJob();</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">			if(job.getTypeModifier() == Job.HEAVY)</span>
+			{
+				//get quantities
+<span class="nc" id="L210">				Activity[] jobsActivities = dbFacade.getActivityDBHandler().getActivities(game, job, game.getCurrentPeriodNumber() - 1 );</span>
+<span class="nc" id="L211">                int[] quantities = new int[9];</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">                for (int i = 0; i &lt; 9; i++)</span>
+				{
+<span class="nc" id="L214">				   quantities[i] = jobsActivities[i].getLusTotal();</span>
+		        }
+<span class="nc" id="L216">                reportForm.setQuantities(quantities);</span>
+
+				//get unit prices
+<span class="nc" id="L219">				double[][] unitPrices = new double[45][4];</span>
+			    Hashtable parameters;
+<span class="nc" id="L221">			    int j = 0;</span>
+
+			    // Note: x = activityType, i = methodID
+			    // Once for each activity (second argument to getMethodParameters() is --&gt; int activityType)
+<span class="nc bnc" id="L225" title="All 2 branches missed.">			    for (int x=0; x &lt; 9; x++)</span>
+			    {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">					for (int i=0; i &lt; 5; i++)</span>
+					{
+			    		// retrieves method parameters for one activityType and one methodID.
+<span class="nc" id="L230">			    		parameters = dbFacade.getGameParametersDBHandler().getMethodParameters(game, x+10, i+1);</span>
+
+<span class="nc" id="L232">			    		unitPrices[j][0] = ( (Integer) parameters.get(&quot;LaborCost&quot;)).intValue();</span>
+<span class="nc" id="L233">			    		unitPrices[j][1] = ( (Integer) parameters.get(&quot;MaterialsCost&quot;)).intValue();</span>
+<span class="nc" id="L234">			    		unitPrices[j][2] = ( (Integer) parameters.get(&quot;EquipmentCost&quot;)).intValue();</span>
+<span class="nc" id="L235">			    		unitPrices[j][3] = ( (Integer) parameters.get(&quot;SubcontractorCost&quot;)).intValue();</span>
+
+<span class="nc" id="L237">			    		j++;</span>
+					}
+				}
+<span class="nc" id="L240">				reportForm.setUnitPrices(unitPrices);</span>
+
+			} // end of: if(job.getTypeModifier() == Job.HEAVY)
+
+<span class="nc" id="L244">			dbFacade.close();</span>
+		}
+<span class="nc" id="L246">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L248">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L249">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+		}
+<span class="nc" id="L251">		catch(ParametersNotFoundException pnfe)</span>
+		{
+<span class="nc" id="L253">			log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L254">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+		}
+<span class="nc" id="L256">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L258">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L259">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L265">         		dbFacade.close();</span>
+			}
+<span class="nc" id="L267">			catch (BIGDatabaseFacadeException e)</span>
+			{
+<span class="nc" id="L269">				log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L270"> 				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L271">			}</span>
+		}
+
+<span class="nc" id="L274">		reportForm.setReportDate(game.getCurrentDateString());</span>
+
+<span class="nc" id="L276">		session.setAttribute(&quot;estimatedTimeandCostReportForm&quot;, reportForm);</span>
+
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+			// Report any errors we have discovered back to the original form
+<span class="nc" id="L281">			saveErrors(request, errors);</span>
+<span class="nc" id="L282">	 	   	saveToken(request);</span>
+
+<span class="nc bnc" id="L284" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L286">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+<span class="nc" id="L288">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L292" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L294">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="nc" id="L296">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+
+    }
+}
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

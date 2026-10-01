@@ -1,0 +1,12 @@
+Testsuite: edu.calpoly.its.mas.big.users.LoginFormTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 sec
+
+Testcase: testValidateRequiresUsername took 0.006 sec
+Testcase: testValidateRequiresPassword took 0.001 sec
+Testcase: testValidatePassesWithValidInput took 0 sec
+Testcase: testGetSetMissionStatement took 0.001 sec
+Testcase: testGetSetCoreValues took 0 sec
+Testcase: testGetSetCompanyUrl took 0 sec
+Testcase: testValidateRequiresBothUsernameAndPassword took 0 sec
+Testcase: testGetSetUsername took 0 sec
+Testcase: testGetSetPassword took 0.001 sec

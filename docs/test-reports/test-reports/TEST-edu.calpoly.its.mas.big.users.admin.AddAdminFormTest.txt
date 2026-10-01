@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.AddAdminFormTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+
+Testcase: testValidateRequiresUsernameAndPasswordAndLengthAndMatch took 0.004 sec
+Testcase: testValidateDetectsAdminNameTooLong took 0 sec
+Testcase: testValidateDetectsPasswordMismatch took 0 sec
+Testcase: testValidateDetectsAdminNameTooShort took 0 sec
+Testcase: testSimpleAccessors took 0 sec
+Testcase: testValidateRequiresAdminName took 0.001 sec
+Testcase: testValidateRequiresPassword took 0 sec
+Testcase: testValidatePassesForValidInput took 0 sec

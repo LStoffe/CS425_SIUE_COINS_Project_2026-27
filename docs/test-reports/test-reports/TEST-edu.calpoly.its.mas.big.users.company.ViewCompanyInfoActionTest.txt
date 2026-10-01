@@ -1,0 +1,5 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.ViewCompanyInfoActionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.689 sec
+
+Testcase: testLoginFailureWhenLoginBrokerRejects took 0.663 sec
+Testcase: testSuccessPutsCompanyFormInSession took 0.022 sec

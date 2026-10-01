@@ -1,0 +1,239 @@
+<!--
+  game-parameters.html
+  Allows admins to configure game settings on this page.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Game Parameters</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Set Game Parameters</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-6xl">
+
+      <!-- Method Parameters Section -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-bold mb-6 text-center">
+          Method Parameters for Each Activity Type
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <!-- Building Construction Column -->
+          <div>
+            <h4 class="font-bold text-xl mb-4 text-center bg-gray-100 py-3 rounded">
+              Building Construction
+            </h4>
+            <div class="space-y-3">
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Excavation</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Foundation</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Basement</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Framing</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Closure</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Roof</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Siding</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Finishing</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Mechanical & Electrical</a>
+            </div>
+          </div>
+
+          <!-- Heavy Construction Column -->
+          <div>
+            <h4 class="font-bold text-xl mb-4 text-center bg-gray-100 py-3 rounded">
+              Heavy Construction
+            </h4>
+            <div class="space-y-3">
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Clear & Grub</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Rough Grading</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Excavation</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Underground Piping</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Concrete (Form & Place)</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Backfill & Compaction</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Aggregate Base</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Paving</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Finish Grading</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <hr class="my-12 border-gray-300">
+
+      <!-- Percent Take-off Section -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-bold mb-6 text-center">
+          Percent Take-off/Activity for Each Job Type
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <!-- Building Construction Column -->
+          <div>
+            <h4 class="font-bold text-xl mb-4 text-center bg-gray-100 py-3 rounded">
+              Building Construction
+            </h4>
+            <div class="space-y-3">
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Apartments</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">School</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Office</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Hospital</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Industrial</a>
+            </div>
+          </div>
+
+          <!-- Heavy Construction Column -->
+          <div>
+            <h4 class="font-bold text-xl mb-4 text-center bg-gray-100 py-3 rounded">
+              Heavy Construction
+            </h4>
+            <div class="space-y-3">
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Highways</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Bridges</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Site Development</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Mass Excavation</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Underground Utilities</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <hr class="my-12 border-gray-300">
+
+      <!-- Size Statistics Section -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-bold mb-6 text-center">
+          Size Statistics for Each Job Type
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <a href="#" class="block text-center p-5 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-bold text-xl text-black hover:text-amber-600">Building Construction</span>
+          </a>
+          <a href="#" class="block text-center p-5 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-bold text-xl text-black hover:text-amber-600">Heavy Construction</span>
+          </a>
+        </div>
+      </div>
+
+      <hr class="my-12 border-gray-300">
+
+      <!-- Network Dependencies Section -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-bold mb-6 text-center">
+          Network Dependencies for Each Job Type
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <!-- Building Construction Column -->
+          <div>
+            <h4 class="font-bold text-xl mb-4 text-center bg-gray-100 py-3 rounded">
+              Building Construction
+            </h4>
+            <div class="space-y-3">
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Apartments</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">School</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Office</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Hospital</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Industrial</a>
+            </div>
+          </div>
+
+          <!-- Heavy Construction Column -->
+          <div>
+            <h4 class="font-bold text-xl mb-4 text-center bg-gray-100 py-3 rounded">
+              Heavy Construction
+            </h4>
+            <div class="space-y-3">
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Highways</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Bridges</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Site Development</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Mass Excavation</a>
+              <a href="#" class="block text-center text-black hover:text-amber-600 hover:underline text-lg py-1">Underground Utilities</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <hr class="my-12 border-gray-300">
+
+      <!-- Additional Parameters Section -->
+      <div class="mb-8">
+        <h3 class="text-2xl font-bold mb-6 text-center">
+          Additional Game Parameters
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Number of Jobs per Period</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Material Cost Index per Period</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Temperature per Period</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Rainfall per Period</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Labor Availability per Period</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Consulting Costs</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Liquidated Damages Parameters</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Computer Controlled Contractor Parameters</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Negotiation Game Parameters</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Personnel Parameters</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Equipment Parameters</span>
+          </a>
+          <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <span class="font-semibold text-lg text-black hover:text-amber-600">Miscellaneous Game Parameters</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/admin/recall-menu}" 
+           class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block">
+          Back to Game Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompletedContractsReportForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">CompletedContractsReportForm.java</span></div><h1>CompletedContractsReportForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.reports;
+
+import edu.calpoly.its.mas.big.reports.ReportForm;
+
+import java.util.Vector;
+import java.util.Iterator;
+
+/**
+ * Holds info for a Completed Contracts Report
+ * &lt;br&gt;&lt;br&gt; A &lt;code&gt;CompeltedContractsReportForm&lt;/code&gt; contains each item appearing on the completed contracts
+ * report in the BIGv3 SRS.&lt;br&gt;&lt;br&gt;
+ * This class can be given to a jsp file to display report data to the user.
+ * Creation of new &lt;code&gt;CompletedContractsReportForm&lt;/code&gt; objects should only be done by a &lt;code&gt;ContractsReportsDBHandler&lt;/code&gt;
+ * to ensure consistency with other reports.
+ *
+ * &lt;br&gt;&lt;br&gt;
+ * A &lt;code&gt;
+ * ContractsReportDBHandler&lt;/code&gt; can create a &lt;code&gt;CompletedContractsReportForm&lt;/code&gt;
+ * using data already stored in the database.
+ *
+ * &lt;br&gt;&lt;br&gt;
+ * A &lt;code&gt;ContractsInProgressReportForm&lt;/code&gt; is comprised of data for many different contracts.
+ * A pointer is maintained to the current contract and each get method where the returned value
+ * is for a particular contract will return that value for the current contract.
+ * The getTotalXXX methods return totals and are next affected by the current contract.
+ *
+ * @author Kevin Craig
+ */
+public class CompletedContractsReportForm extends ReportForm
+{
+  private String companyName;
+  private Vector contracts;
+  private Iterator contractsIterator;
+  private Contract currentContract;
+
+<span class="fc" id="L37">  private int totalCostIncurred = 0;</span>
+<span class="fc" id="L38">  private int totalUnbilled = 0;</span>
+<span class="fc" id="L39">  private int totalRevenueEarned = 0;</span>
+
+<span class="fc" id="L41">  private int totalOverbilled = 0;</span>
+
+<span class="fc" id="L43">  private int totalCurrentCostIncurred = 0;</span>
+<span class="fc" id="L44">  private int totalCurrentRevenueEarned = 0;</span>
+<span class="fc" id="L45">  private int totalCurrentRevenueRecordable = 0;</span>
+
+<span class="fc" id="L47">  private int totalPreviousCostIncurred = 0;</span>
+<span class="fc" id="L48">  private int totalPreviousRevenueEarned = 0;</span>
+<span class="fc" id="L49">  private int totalRevenuePreviouslyRecorded = 0;</span>
+
+
+
+  /**
+   * Creates an empty contracts in progress report.  An empty contracts in progress report
+   * can be used if a dummy contracts in progress report
+   * is needed but should not be used for any real purpose because the data may be inconsistent with
+   * data in other reports.
+   */
+  public CompletedContractsReportForm()
+<span class="fc" id="L60">  {</span>
+<span class="fc" id="L61">      companyName = null;</span>
+<span class="fc" id="L62">  }</span>
+
+  /**
+   * Constructor to be used by the database when creating a new &lt;code&gt;CompletedContractsReportForm&lt;/code&gt;.
+   * New &lt;code&gt;CompletedContractsReportForm&lt;/code&gt;s should only ever be created from database data.
+   * &lt;br&gt;&lt;br&gt;
+   * &lt;b&gt;Precondition:&lt;/b&gt; The class instantiating &lt;code&gt;ContractsInProgressReportForm&lt;/code&gt; implements
+   * &lt;code&gt;edu.calpoly.lib.multimedia.big.db.ContractsReportsDBHandler&lt;/code&gt;.
+   */
+  public CompletedContractsReportForm(String companyName, Vector contracts)
+<span class="fc" id="L72">  {</span>
+<span class="fc" id="L73">	  this.companyName = companyName;</span>
+<span class="fc" id="L74">	  this.contracts = contracts;</span>
+<span class="fc" id="L75">	  contractsIterator = this.contracts.iterator();</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">	  while(contractsIterator.hasNext())</span>
+	  {
+<span class="fc" id="L79">		  Contract c = (Contract) contractsIterator.next();</span>
+
+<span class="fc" id="L81">		  totalCostIncurred += c.getCostIncurred();</span>
+<span class="fc" id="L82">		  totalUnbilled += c.getUnbilledPortionOfContract();</span>
+<span class="fc" id="L83">		  totalOverbilled += c.getOverbilling();</span>
+<span class="fc" id="L84">		  totalRevenueEarned += c.getRevenueEarned();</span>
+
+<span class="fc" id="L86">		  totalCurrentCostIncurred += c.getCurrentCostIncurred();</span>
+<span class="fc" id="L87">		  totalCurrentRevenueEarned += c.getCurrentRevenueEarned();</span>
+<span class="fc" id="L88">		  totalCurrentRevenueRecordable += c.getCurrentRevenueRecorded();</span>
+
+<span class="fc" id="L90">		  totalPreviousCostIncurred += c.getPreviousCostIncurred();</span>
+<span class="fc" id="L91">		  totalPreviousRevenueEarned += c.getPreviousRevenueEarned();</span>
+<span class="fc" id="L92">		  totalRevenuePreviouslyRecorded += c.getRevenuePreviouslyRecorded();</span>
+<span class="fc" id="L93">	  }</span>
+
+	  //Reset the iterator
+<span class="fc" id="L96">	  contractsIterator = this.contracts.iterator();</span>
+
+<span class="fc" id="L98">  }</span>
+
+  public String getCompanyName()
+  {
+<span class="fc" id="L102">	  return companyName;</span>
+  }
+
+  public void setCompanyName(String name)
+  {
+<span class="fc" id="L107">	  this.companyName = name;</span>
+<span class="fc" id="L108">  }</span>
+
+  /**
+   * Returns true if there is data for more contracts in this report.
+   * Returns false if there are no more contracts in the current report.
+   */
+  public boolean moreContracts()
+  {
+<span class="fc" id="L116">	  return contractsIterator.hasNext();</span>
+  }
+
+  /**
+   * Advances the current contract to the next contract in the report.
+   * If the current contract is the last contract in the report
+   * this method will do nothing and the last contract will remain the current contract.
+   */
+  public void nextContract()
+  {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">  	  if(contractsIterator.hasNext())</span>
+<span class="fc" id="L127">  	     currentContract = (Contract) contractsIterator.next();</span>
+<span class="fc" id="L128">  }</span>
+
+  public Contract getCurrentContract()
+  {
+<span class="fc" id="L132">	  return currentContract;</span>
+  }
+
+  public int getTotalCostIncurred()
+  {
+<span class="fc" id="L137">  	  return totalCostIncurred;</span>
+  }
+
+  public int getTotalUnbilled()
+  {
+<span class="fc" id="L142">	  return totalUnbilled;</span>
+  }
+
+  public int getTotalOverbilled()
+  {
+<span class="fc" id="L147">	  return totalOverbilled;</span>
+  }
+
+  public int getTotalRevenueEarned()
+  {
+<span class="fc" id="L152">	  return totalRevenueEarned;</span>
+  }
+
+  public int getTotalGrossMarginEarned()
+  {
+<span class="fc" id="L157">	  return getTotalRevenueEarned() - getTotalCostIncurred();</span>
+  }
+
+  public float getTotalGrossMarginEarnedPercent()
+  {
+<span class="fc" id="L162">	  return ((float) getTotalGrossMarginEarned()) / ((float) getTotalRevenueEarned());</span>
+  }
+
+  public int getTotalCurrentCostIncurred()
+  {
+<span class="fc" id="L167">	  return totalCurrentCostIncurred;</span>
+  }
+
+  public int getTotalCurrentRevenueEarned()
+  {
+<span class="fc" id="L172">	  return totalCurrentRevenueEarned;</span>
+  }
+
+  public int getTotalCurrentRevenueRecordable()
+  {
+<span class="fc" id="L177">	  return totalCurrentRevenueRecordable;</span>
+  }
+
+  public int getTotalCurrentGrossMarginEarned()
+  {
+<span class="fc" id="L182">	  return getTotalCurrentRevenueEarned() - getTotalCurrentCostIncurred();</span>
+  }
+
+  public float getTotalCurrentGrossMarginEarnedPercent()
+  {
+<span class="fc" id="L187">	  return ((float) getTotalCurrentGrossMarginEarned() ) / ((float) getTotalCurrentRevenueEarned());</span>
+  }
+
+  public int getTotalPreviousCostIncurred()
+  {
+<span class="fc" id="L192">	  return totalPreviousCostIncurred;</span>
+  }
+
+  public int getTotalPreviousRevenueEarned()
+  {
+<span class="fc" id="L197">	  return totalPreviousRevenueEarned;</span>
+  }
+
+  public int getTotalRevenuePreviouslyRecorded()
+  {
+<span class="fc" id="L202">	  return totalRevenuePreviouslyRecorded;</span>
+  }
+
+  public int getTotalPreviousGrossMarginEarned()
+  {
+<span class="fc" id="L207">	  return getTotalPreviousRevenueEarned() - getTotalPreviousCostIncurred();</span>
+  }
+
+  public float getTotalPreviousGrossMarginEarnedPercent()
+  {
+<span class="fc bfc" id="L212" title="All 2 branches covered.">	  if(getTotalPreviousRevenueEarned() &lt; 1)</span>
+	  {
+<span class="fc" id="L214">		  return 0;</span>
+	  }
+	  else
+  	  {
+<span class="fc" id="L218">	  	  return ((float) getTotalPreviousGrossMarginEarned() ) / ((float) getTotalPreviousRevenueEarned());</span>
+	  }
+  }
+
+
+  //************** METHODS THAT APPLY TO THE CURRENT CONTRACT **************************
+
+    /**
+     * Returns the jobID of the current contract
+     */
+    public int getJobID()
+	{
+<span class="fc" id="L230">		return currentContract.getJobID();</span>
+	}
+
+    /**
+     * Returns the jobTypeID of the current contract
+     */
+	public int getJobTypeID()
+	{
+<span class="fc" id="L238">		return currentContract.getJobTypeID();</span>
+	}
+
+	/**
+	 * Returns the PUBLIC / PRIVATE modifier for the current job
+	 */
+	public int getJobTypeModifier()
+	{
+<span class="fc" id="L246">		return currentContract.getJobTypeModifier();</span>
+	}
+
+    /**
+     * Returns the total cost incurred of the current contract
+     */
+	public int getCostIncurred()
+	{
+<span class="fc" id="L254">		return currentContract.getCostIncurred();</span>
+	}
+
+    /**
+     * Returns the total amount unbilled on the current contract
+     */
+	public int getUnbilledPortionOfContract()
+	{
+<span class="fc" id="L262">		return currentContract.getUnbilledPortionOfContract();</span>
+	}
+
+    /**
+     * Returns the total revenue earned on the current contract
+     */
+	public int getRevenueEarned()
+	{
+<span class="fc" id="L270">		return currentContract.getRevenueEarned();</span>
+	}
+
+    /**
+     * Returns the gross margin earned on the current contract
+     */
+    public int getGrossMarginEarned()
+    {
+<span class="fc" id="L278">		return currentContract.getGrossMarginEarned();</span>
+	}
+
+    /**
+     * Returns the gross margin percent earned of the current contract
+     */
+	public float getGrossMarginEarnedPercent()
+	{
+<span class="nc" id="L286">		return currentContract.getGrossMarginEarnedPercent();</span>
+	}
+
+    /**
+     * Returns the cost incurred on the current contract, during period of this report
+     */
+    public int getCurrentCostIncurred()
+    {
+<span class="fc" id="L294">		return currentContract.getCurrentCostIncurred();</span>
+	}
+
+    /**
+     * Returns the revenue earned on the current contract, during period of this report
+     */
+    public int getCurrentRevenueEarned()
+    {
+<span class="fc" id="L302">		return currentContract.getCurrentRevenueEarned();</span>
+	}
+
+    /**
+     * Returns the revenue recordable on the current contract, during period of this report
+     */
+    public int getCurrentRevenueRecordable()
+    {
+<span class="fc" id="L310">		return currentContract.getCurrentRevenueRecorded();</span>
+	}
+
+    /**
+     * Returns the gross margin of the current contract, during period of this report
+     */
+    public int getCurrentGrossMargin()
+    {
+<span class="fc" id="L318">		return currentContract.getCurrentGrossMargin();</span>
+	}
+
+    /**
+     * Returns the gross margin percent of the current contract, during period of this report
+     */
+	public float getCurrentGrossMarginPercent()
+	{
+<span class="nc" id="L326">		return currentContract.getCurrentGrossMarginPercent();</span>
+	}
+
+    /**
+     * Returns the cost incurred on the current contract, during all periods previous to the period of this report
+     */
+    public int getPreviousCostIncurred()
+    {
+<span class="fc" id="L334">		return currentContract.getPreviousCostIncurred();</span>
+	}
+
+    /**
+     * Returns the revenue earned on the current contract, during all periods previous to the period of this report
+     */
+    public int getPreviousRevenueEarned()
+    {
+<span class="fc" id="L342">		return currentContract.getPreviousRevenueEarned();</span>
+	}
+
+    /**
+     * Returns the revenue recorded on the current contract, during all periods previous to the period of this report
+     */
+    public int getRevenuePreviouslyRecorded()
+    {
+<span class="fc" id="L350">		return currentContract.getRevenuePreviouslyRecorded();</span>
+	}
+
+    /**
+     * Returns the gross margin percent of the current contract, during all periods previous to the period of this report
+     */
+    public int getPreviousGrossMargin()
+    {
+<span class="fc" id="L358">		return currentContract.getPreviousGrossMargin();</span>
+	}
+
+    /**
+     * Returns the gross margin percent of the current contract, during all periods previous to the period of this report
+     */
+	public float getPreviousGrossMarginPercent()
+	{
+<span class="nc" id="L366">		return currentContract.getPreviousGrossMarginPercent();</span>
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

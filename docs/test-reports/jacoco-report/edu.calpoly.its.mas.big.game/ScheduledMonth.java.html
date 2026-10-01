@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScheduledMonth.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">ScheduledMonth.java</span></div><h1>ScheduledMonth.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Date;
+import java.util.Random;
+
+import java.text.SimpleDateFormat;
+import java.text.ParsePosition;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Represents a month that has had its workdays and raindays scheduled on certain days.
+ * &lt;br&gt;&lt;br&gt;
+ * The amount of workdays in a BIG month is is set as a game parameter.
+ * After a possible reduction for poor labor availability, there will be X workdays in a given month.  The total number of days
+ * in the month will be greater than (or equal to) X by some amount. &lt;code&gt;ScheduledMonth&lt;/code&gt; decides which of the
+ * days in the month are part of the group of X workdays.  If X is larger than the number of days in the month then all days that month will be
+ * workdays.
+ * &lt;br&gt;&lt;br&gt;
+ * Each month also has a certain number of workdays that are also raindays.  Activities whose
+ * current method is affected by rainfall will not be worked on raindays.  Depending on how many inches of rain occur in a given month
+ * (determined by game parameters) a number of days, R, will be raindays as well as workdays.
+ * &lt;br&gt;&lt;br&gt;
+ * A &lt;code&gt;ScheduledMonth&lt;/code&gt; object will contain a calendar for a given month that marks which days are
+ * workdays and which of those are raindays.  The algorithm used to determine which days are workdays will
+ * first try to schedule days based on an internal order.  By default this order goes: Wed, Thurs, Tue, Fri, Mon, Sat, Sun.
+ * In this case all Wednesday would be marked workdays, then all Thursdays, and so on until all workdays are scheduled.
+ * Raindays are randomly scheduled amongst those days which are workdays.  Only workdays can be raindays
+ * because BIG only cares about rain when it occurs on a workday.
+ * &lt;br&gt;&lt;br&gt;
+ * &lt;code&gt;ScheduledMonth&lt;/code&gt; is built around &lt;code&gt;java.util.GregorianCalendar&lt;/code&gt; and is able to handle all
+ * months handled by this class.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.7 $ $Date: 2002/05/02 23:59:36 $
+ *
+ */
+public class ScheduledMonth
+{
+<span class="fc" id="L45">  private static final Log log = LogFactory.getLog(ScheduledMonth.class);</span>
+
+  private Calendar calendar;
+
+  private int daysThisMonth;
+  private int currentDay;
+
+  boolean[] workdays;
+  boolean[] raindays;
+
+  private int workdaysToSchedule;
+  private int raindaysToSchedule;
+
+  int[] order;
+
+  /**
+   * Constructor for ScheduledMonth.
+   * The current day will be set to the first day of the month.
+   * @param date Date set to the first day of the month to be scheduled.  ie if the month to be
+   *             scheduled is January 2001, date should be Jan. 1, 2001
+   * @param workdays The number of workdays this month
+   * @param raindays The number of raindays this month
+   * &lt;br&gt;&lt;br&gt;&lt;b&gt;Precondition:&lt;/b&gt;rainday must be less than or equal to workdays&lt;br&gt;
+   */
+  public ScheduledMonth(Date date, int workdays, int raindays)
+<span class="fc" id="L70">  {</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">	  if(workdays &lt; raindays) {</span>
+<span class="fc" id="L72">	      log.debug(&quot;Precondition not met in ScheduledMonth.  raindays must be &lt;= workdays, clamping raindays to workdays&quot;);</span>
+<span class="fc" id="L73">	      raindays = workdays;</span>
+	  }
+
+<span class="fc" id="L76">	  workdaysToSchedule = workdays;</span>
+<span class="fc" id="L77">	  raindaysToSchedule = raindays;</span>
+
+<span class="fc" id="L79">	  calendar = Calendar.getInstance();</span>
+<span class="fc" id="L80">	  calendar.setLenient(false);</span>
+<span class="fc" id="L81">	  calendar.setTime(date);</span>
+<span class="fc" id="L82">	  daysThisMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);</span>
+<span class="fc" id="L83">	  currentDay = 0; //0 is 1st index in array which corresponds to 1st of month</span>
+
+<span class="fc" id="L85">	  this.workdays = new boolean[daysThisMonth];</span>
+<span class="fc" id="L86">	  this.raindays = new boolean[daysThisMonth];</span>
+
+<span class="fc" id="L88">	  order = new int[7];</span>
+<span class="fc" id="L89">	  setOrderDefaults();</span>
+
+<span class="fc" id="L91">	  scheduleWorkdays();</span>
+<span class="fc" id="L92">	  scheduleRaindays();</span>
+<span class="fc" id="L93">  }</span>
+
+  /**
+   * Sets the internal order which days of the week are scheduled first.  The ints in the array must correspond
+   * to the static ints for days of the week in the java.util.Calendar class.
+   * &lt;br&gt;&lt;br&gt;
+   * &lt;b&gt;Precondition:&lt;/b&gt; The int array order must only contain ints that are used for days of the week in java.util.Calendar&lt;br&gt;
+   * &lt;b&gt;Precondition:&lt;/b&gt; Each int in the array can appear no more than once
+   * &lt;b&gt;Precondition:&lt;/b&gt; int[] order must be of length 7
+   */
+  public void setScheduleOrder(int[] order)
+  {
+<span class="fc" id="L105">	  this.order = order;</span>
+<span class="fc" id="L106">  }</span>
+
+  /**
+   * Returns an int array listing the order in which days will be scheduled.  The ints in the array correspond to the static ints for
+   * days of the week in the java.util.Calendar class
+   */
+  public int[] getScheduleOrder()
+  {
+<span class="fc" id="L114">	  return order;</span>
+  }
+
+  /**
+   * Returns true if the current day is a workday
+   *
+   */
+  public boolean getWorkday()
+  {
+<span class="fc" id="L123">	  return workdays[currentDay];</span>
+  }
+
+  /**
+   * Returns true if the current day is a rainday.  Only workdays can be raindays.
+   *
+   */
+  public boolean getRainday()
+  {
+<span class="fc" id="L132">	  return raindays[currentDay];</span>
+  }
+
+  /**
+   * Returns the current day's date as a &lt;code&gt;java.util.Date&lt;/code&gt; object.
+   *
+   */
+  public Date getDate()
+  {
+<span class="fc" id="L141">	  return calendar.getTime();</span>
+  }
+
+  /**
+   * Advances the current day to the next day in the month.
+   * If there are no more days left in the month, does nothing
+   */
+  public void advanceDay()
+  {
+
+<span class="fc" id="L151">	  currentDay++;</span>
+
+<span class="fc bfc" id="L153" title="All 2 branches covered.">      if (currentDay &lt; daysThisMonth)</span>
+      {
+<span class="fc" id="L155">	      calendar.set(Calendar.DAY_OF_MONTH, (currentDay + 1));</span>
+
+	  }
+
+
+<span class="fc" id="L160">  }</span>
+
+  /**
+   * Returns true if there are days left in the current month.  False if the current days
+   * is the last day of the month.
+   */
+  public boolean daysLeft()
+  {
+<span class="fc bfc" id="L168" title="All 2 branches covered.">      if (currentDay &lt; daysThisMonth)</span>
+<span class="fc" id="L169">         return true;</span>
+      else
+<span class="fc" id="L171">         return false;</span>
+  }
+
+  /**
+   * Sets the current day to the first day in the month.
+   *
+   */
+  public void firstDay()
+  {
+<span class="fc" id="L180">	  currentDay = 0; //0 is 1st index in array which corresponds to 1st of month</span>
+<span class="fc" id="L181">	  calendar.set(Calendar.DAY_OF_MONTH, 1);</span>
+<span class="fc" id="L182">  }</span>
+
+
+  //Schedules which days are to be workdays
+  private void scheduleWorkdays()
+  {
+	  int i;
+<span class="fc" id="L189">	  int j = 0;</span>
+
+      //While their are still days of the week left and there are still workdays to schedule
+<span class="pc bpc" id="L192" title="1 of 4 branches missed.">	  while((j &lt; 7) &amp;&amp; (workdaysToSchedule &gt; 0))</span>
+	  {
+		  //Set the day type (Monday, Tuesday, etc) to be scheduled
+<span class="fc" id="L195">	  	  int day_being_scheduled = order[j];</span>
+<span class="fc" id="L196">	      i = 1;</span>
+
+	      //While there are still days left in the month
+<span class="fc bfc" id="L199" title="All 4 branches covered.">          while((i &lt;= daysThisMonth) &amp;&amp; (workdaysToSchedule &gt; 0))</span>
+          {
+<span class="fc" id="L201">              calendar.set(Calendar.DAY_OF_MONTH, i);</span>
+<span class="fc" id="L202">	          int day = calendar.get(Calendar.DAY_OF_WEEK);</span>
+
+<span class="fc bfc" id="L204" title="All 2 branches covered.">	          if(day == day_being_scheduled)</span>
+	          {
+<span class="fc" id="L206">		          workdays[i - 1] = true;</span>
+<span class="fc" id="L207">		          workdaysToSchedule--;</span>
+	          }
+<span class="fc" id="L209">	          i++;</span>
+<span class="fc" id="L210">  	      }</span>
+<span class="fc" id="L211">  	      j++;</span>
+<span class="fc" id="L212">	  }</span>
+<span class="fc" id="L213">	  calendar.set(Calendar.DAY_OF_MONTH, 1); //reset the calendar back to the first day of the month</span>
+
+<span class="fc" id="L215">  }</span>
+
+  //Schedule raindays random amongst the workdays
+  private void scheduleRaindays()
+  {
+<span class="fc" id="L220">	  Random random = new Random();</span>
+
+<span class="fc" id="L222">	  int i = 0;</span>
+
+<span class="fc bfc" id="L224" title="All 2 branches covered.">	  while (raindaysToSchedule &gt; 0)</span>
+	  {
+<span class="fc" id="L226">	      i = random.nextInt(daysThisMonth);</span>
+<span class="fc bfc" id="L227" title="All 4 branches covered.">	      if ((workdays[i] == true) &amp;&amp; !(raindays[i] == true)) //the day is a workday and not already a rainday</span>
+	      {
+<span class="fc" id="L229">			  raindays[i] = true;</span>
+<span class="fc" id="L230">			  raindaysToSchedule--;</span>
+		  }
+	  }
+<span class="fc" id="L233">  }</span>
+
+
+  //Populates order with a default order of days
+  private void setOrderDefaults()
+  {
+<span class="fc" id="L239">	  order[0] = Calendar.WEDNESDAY;</span>
+<span class="fc" id="L240">	  order[1] = Calendar.THURSDAY;</span>
+<span class="fc" id="L241">	  order[2] = Calendar.TUESDAY;</span>
+<span class="fc" id="L242">	  order[3] = Calendar.FRIDAY;</span>
+<span class="fc" id="L243">	  order[4] = Calendar.MONDAY;</span>
+<span class="fc" id="L244">	  order[5] = Calendar.SATURDAY;</span>
+<span class="fc" id="L245">	  order[6] = Calendar.SUNDAY;</span>
+<span class="fc" id="L246">  }</span>
+
+
+  /**
+   * Unit test for scheduled month
+   */
+  public static void main(String args[])
+  {
+<span class="nc" id="L254">	  SimpleDateFormat formatter = new SimpleDateFormat(&quot;MM/dd/yyyy&quot;);</span>
+
+<span class="nc" id="L256">	  Date date = formatter.parse(&quot;1/1/2004&quot;, new ParsePosition(0));</span>
+<span class="nc" id="L257">	  ScheduledMonth scheduledMonth = new ScheduledMonth(date, 20, 3);</span>
+
+<span class="nc" id="L259">	  int i = 0;</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">	  while(scheduledMonth.daysLeft())</span>
+	  {
+<span class="nc" id="L262">		  String today = formatter.format(scheduledMonth.getDate());</span>
+<span class="nc" id="L263">		  i++;</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">		  if(scheduledMonth.getWorkday())</span>
+<span class="nc" id="L265">		      System.out.print(today + &quot;: Workday: &quot;);</span>
+		  else
+<span class="nc" id="L267">		      System.out.print(today + &quot;: Not a workday: &quot;);</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">		  if(scheduledMonth.getRainday())</span>
+<span class="nc" id="L269">		      System.out.println(&quot;Rainday&quot;);</span>
+		  else
+<span class="nc" id="L271">		  	  System.out.println(&quot;Not a rainday&quot;);</span>
+<span class="nc" id="L272">		  scheduledMonth.advanceDay();</span>
+<span class="nc" id="L273">	  }</span>
+<span class="nc" id="L274">	  scheduledMonth.firstDay();</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">	  while(scheduledMonth.daysLeft())</span>
+	  {
+<span class="nc" id="L277">		  String today = formatter.format(scheduledMonth.getDate());</span>
+<span class="nc" id="L278">		  i++;</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">		  if(scheduledMonth.getWorkday())</span>
+<span class="nc" id="L280">		      System.out.print(today + &quot;: Workday: &quot;);</span>
+		  else
+<span class="nc" id="L282">		      System.out.print(today + &quot;: Not a workday: &quot;);</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">		  if(scheduledMonth.getRainday())</span>
+<span class="nc" id="L284">		      System.out.println(&quot;Rainday&quot;);</span>
+		  else
+<span class="nc" id="L286">		  	  System.out.println(&quot;Not a rainday&quot;);</span>
+<span class="nc" id="L287">		  scheduledMonth.advanceDay();</span>
+<span class="nc" id="L288">	  }</span>
+<span class="nc" id="L289">  }</span>
+
+}
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

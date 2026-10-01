@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubmitBillAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.company</a> &gt; <span class="el_source">SubmitBillAction.java</span></div><h1>SubmitBillAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.company;
+
+//JDK imports
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Activity;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.reports.JobCostEstimator;
+import edu.calpoly.lib.multimedia.big.reports.IncomeStatementGetter;
+import edu.calpoly.lib.multimedia.big.reports.IncomeStatementForm;
+import edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm;
+import edu.calpoly.lib.multimedia.big.reports.CompletedContractsReportForm;
+import edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportForm;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+<span class="nc" id="L53">public class SubmitBillAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+					       		 ActionForm form,
+					       		 HttpServletRequest request,
+				           		 HttpServletResponse response)
+	{
+<span class="nc" id="L60">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L63">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="nc bnc" id="L67" title="All 2 branches missed.">	    if(!isCancelled(request))</span>
+	    {
+
+<span class="nc" id="L70">	        ActionMessages errors = new ActionMessages();</span>
+
+	        // Check for existance of Game object in user's session
+<span class="nc" id="L73">            ServletContext context = servlet.getServletContext();</span>
+<span class="nc" id="L74">            HttpSession session = request.getSession();</span>
+<span class="nc" id="L75">	        Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc" id="L76">	        Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+<span class="nc" id="L78">            LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+            // If for any reason the company should not be allowed to login, route the
+            // company to an error message page.
+<span class="nc bnc" id="L82" title="All 2 branches missed.">	        if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="nc" id="L83">		      return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L85">	        BillingForm billingForm = (BillingForm) form;</span>
+<span class="nc" id="L86">	        BillingForm oldBillingForm = (BillingForm) session.getAttribute(&quot;oldBillingForm&quot;);</span>
+<span class="nc" id="L87">	        Job job = (Job) session.getAttribute(&quot;job&quot;);</span>
+
+
+     		//Check which submit button was pressed
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			if(	request.getParameter(&quot;calculate&quot;) != null )</span>
+			{
+<span class="nc" id="L93">				int billingAmount = 0;</span>
+<span class="nc" id="L94">				int[] activityAmounts = billingForm.getActivityAmounts();</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">				for(int i = 0; i &lt; activityAmounts.length; i++)</span>
+				{
+<span class="nc" id="L97">					billingAmount += activityAmounts[i];</span>
+				}
+
+<span class="nc" id="L100">				billingForm.setBillingAmount(billingAmount);</span>
+<span class="nc" id="L101">				session.setAttribute(&quot;billingForm&quot;, billingForm);</span>
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">				if (!errors.isEmpty())</span>
+				{
+<span class="nc bnc" id="L105" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L107">						log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+					}
+
+					// Report any errors we have discovered back to the original form
+<span class="nc" id="L111">					saveErrors(request, errors);</span>
+<span class="nc" id="L112">	 	    		saveToken(request);</span>
+<span class="nc" id="L113">	 	    		return (new ActionForward(mapping.getInput()));</span>
+				}
+				else
+				{
+<span class="nc bnc" id="L117" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L119">						log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;calculated\&quot;&quot;);</span>
+					}
+<span class="nc" id="L121">					return mapping.findForward(&quot;calculated&quot;);</span>
+				}
+			}
+			else
+			{
+<span class="nc" id="L126">				BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+            	try
+            	{
+<span class="nc" id="L129">					int prevRetention = job.calculateRetainedAmount(oldBillingForm.getBillingAmount());</span>
+<span class="nc" id="L130">					int currRetention = job.calculateRetainedAmount(billingForm.getBillingAmount());</span>
+
+<span class="nc" id="L132">					BalanceSheetForm balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, game.getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L133">         		    ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, game.getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L134"> 		 	        CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, game.getCurrentPeriodNumber() -1, company);</span>
+
+<span class="nc" id="L136">				    balanceSheet.setUnderbilledAmount(contractsInProgress.getTotalUnderbilling() + oldBillingForm.getBillingAmount() - billingForm.getBillingAmount());  //This new value won't be saved, it's only for this object</span>
+<span class="nc" id="L137">				    balanceSheet.setUnbilledAmount(completedContracts.getTotalUnbilled());</span>
+
+<span class="nc" id="L139">				    balanceSheet.setOverbilledAmount(contractsInProgress.getTotalOverbilling() );</span>
+<span class="nc" id="L140">					balanceSheet.setCurrentAccountsReceivable(balanceSheet.getCurrentAccountsReceivable() + (billingForm.getBillingAmount() - currRetention) - (oldBillingForm.getBillingAmount() - prevRetention));</span>
+
+<span class="nc" id="L142">					balanceSheet.setRetentionReceivable(balanceSheet.getRetentionReceivable() + currRetention - prevRetention);</span>
+<span class="nc" id="L143">					balanceSheet.setPeriod(game.getCurrentPeriodNumber() - 1);</span>
+
+<span class="nc" id="L145">					billingForm.setOldAmountBilled(oldBillingForm.getBillingAmount() );</span>
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">					if(balanceSheet.assertBalance())</span>
+					{
+<span class="nc" id="L149">						dbFacade.getBillingDBHandler().updateBillingForm(game, company, game.getCurrentPeriodNumber() -1, billingForm);</span>
+<span class="nc" id="L150">						dbFacade.getBalanceSheetDBHandler().updateBalanceSheet(game, company, balanceSheet);</span>
+					}
+					else
+					{
+<span class="nc bnc" id="L154" title="All 2 branches missed.">						if(log.isErrorEnabled())</span>
+						{
+<span class="nc" id="L156">							log.error(this.getClass() + &quot;: Balance Sheet does not balance for company id &quot; + company.getCompanyID() + &quot; in period &quot; + game.getCurrentPeriodNumber() + &quot; - &quot; + balanceSheet.getTotalAssets() + &quot; to &quot; + balanceSheet.getTotalLiabilitiesAndEquity() );</span>
+						}
+<span class="nc" id="L158">                        dbFacade.close();</span>
+<span class="nc" id="L159">						return mapping.findForward(&quot;error&quot;);</span>
+					}
+
+<span class="nc" id="L162">					dbFacade.close();</span>
+				}
+<span class="nc" id="L164">				catch (BIGDatabaseFacadeException bigdbe)</span>
+				{
+<span class="nc" id="L166">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L167">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L169">				catch (ObjectNotFoundException onfe)</span>
+				{
+<span class="nc" id="L171">					log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L172">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+				}
+				finally
+				{
+					try
+					{
+<span class="nc" id="L178">      	   				dbFacade.close();</span>
+					}
+<span class="nc" id="L180">					catch (BIGDatabaseFacadeException e)</span>
+					{
+<span class="nc" id="L182">						log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L183"> 						errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L184">					}</span>
+				}
+
+<span class="nc" id="L187">				session.setAttribute(&quot;oldBillingForm&quot;, billingForm);</span>
+
+<span class="nc bnc" id="L189" title="All 2 branches missed.">				if (!errors.isEmpty())</span>
+				{
+<span class="nc bnc" id="L191" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L193">						log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+					}
+
+					// Report any errors we have discovered back to the original form
+<span class="nc" id="L197">					saveErrors(request, errors);</span>
+<span class="nc" id="L198">	 	    		saveToken(request);</span>
+<span class="nc" id="L199">	 	    		return (new ActionForward(mapping.getInput()));</span>
+				}
+				else
+				{
+<span class="nc bnc" id="L203" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L205">						log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+					}
+<span class="nc" id="L207">					return (mapping.findForward(&quot;success&quot;));</span>
+				}
+			}
+	    }
+	    else
+	    {
+<span class="nc bnc" id="L213" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L215">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L217">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

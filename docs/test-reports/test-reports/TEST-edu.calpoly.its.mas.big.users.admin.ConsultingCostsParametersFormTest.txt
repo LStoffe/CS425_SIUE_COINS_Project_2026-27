@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.ConsultingCostsParametersFormTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+
+Testcase: testValidateFlagsNullAndNegativeValues took 0.006 sec
+Testcase: testConsultingCostsHashtableRoundTrip took 0 sec
+Testcase: testGetSetMakeDefaults took 0 sec
+Testcase: testValidatePassesForValidData took 0 sec

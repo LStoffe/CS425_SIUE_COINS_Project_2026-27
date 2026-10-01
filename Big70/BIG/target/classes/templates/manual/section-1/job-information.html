@@ -1,0 +1,102 @@
+<!--
+  job-information.html
+  Section 1.7 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.7 Job Information</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.7 Job Information
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            There are two types of jobs in BIG: public sector jobs (worked for government entities) and private sector jobs (worked for private businesses). 
+            Public sector jobs are open to all construction companies and will be the first type of job your new company will be able to work. 
+            The only way to get a public job is through open bidding. In BIG, all companies working public jobs must be bonded for the work as a precaution against companies failing to complete jobs. 
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            In BIG, private job customers are far more careful when choosing a construction company. 
+            They will screen companies based on past performance and only offer jobs to those companies who meet their standards. 
+            Private jobs may be offered directly to a single company, in which case the price of the job is negotiated, or they may be offered through a closed bid to a select group of construction companies. 
+            Because of the extra care private customers take when choosing a company, they do not require that companies be bonded. Jobs in BIG are broken up into nine different activities that must be completed for the job to be complete. T
+            he type of job determines the quantity takeoff (percentage of job) for each activity. 
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The percentage of a job that is comprised of a given activity may differ with job type, however these percentages are all fixed for jobs of the same type. (e.g. Excavation may make up 10% of one job type and only 5% of another, but all jobs of the first type would be 10% excavation). The activities are:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>Excavation</li>
+            <li>Foundation</li>
+            <li>Basement</li>
+            <li>Framing</li>
+            <li>Closure</li>
+            <li>Roof</li>
+            <li>Siding</li>
+            <li>Finishing</li>
+            <li>Mechanical and Electrical</li>
+        </ul>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            All activities are worked using one of five different methods. Methods vary in speed, cost, uncertainty, and sensitivity to weather. 
+            Faster methods will get the job done sooner but will cost more. Slower methods are more cost-effective but may not get the job done on time. 
+            Players are not required to do any quantity takeoffs during this game. The computer calculates quantities and supplies all information needed for a cost estimate on each available job.
+            Quantities for all activities are given on the basis of "construction units," a standard unit that represents a specific amount of work for a given job type. 
+            Job sizes are stated as total required construction units, and the total is broken down into construction units per activity. 
+            Production rates are given as construction units per hour (CU/hr) and costs for both labor and materials are given as dollars per construction unit ($/CU).
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+         <strong>TIP</strong>: The amount of work in a CU differs between job types, so when choosing jobs to bid on be careful not to make assumptions about the relative sizes of jobs of two different types based on their job size in CUs.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/company-inbox}" class="font-semibold hover:underline">
+        ← 1.6 Company Inbox
+    </a>
+    <a th:href="@{/manual/productivity-report}" class="font-semibold hover:underline">
+        Next → 1.8 Productivity Report
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

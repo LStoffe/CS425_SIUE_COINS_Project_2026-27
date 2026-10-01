@@ -1,0 +1,90 @@
+<!--
+  method-rescheduling.html
+  Section 5.5 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.5 Method Rescheduling</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.5 Method Rescheduling
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            If a job falls behind schedule you have two ways to get it back on track. You may either add overtime hours or change methods. 
+            Changing methods simply means choosing a new method for one or more of the unfinished activities on a job. 
+            To do this effectively you will need to modify the schedule created during your bid to plan for the new methods.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            There are a couple of ways BIG helps you see the effects of changing methods. 
+            The first is the Estimated Time and Cost Report which shows you the estimated cost and estimated number of days for every possible method for each activity. 
+            The Estimated Time and Cost Report will help you plan your schedule, but if you really want to see the effects of changing methods on your finances look at your Contracts in Progress Report. 
+            The Contracts in Progress Report is automatically updated each time you change methods, so to see the effects enter the decision to change methods into BIG then look again at the Contracts in Progress Report. 
+            A change in methods will change the estimated cost to complete the job, which alters all the values dependant on it such as percent work complete and revenue. 
+            Changes to the Contracts in Progress Report propagate to the Statement of Earnings and Balance Sheet, so you may want to look there too to see the full effect of the methods change. 
+            You may keep changing methods and viewing the reports until you find a change that works for you. If you decide not to make the changes you may cancel them by setting your methods back to what they were before you made any changes.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Changing methods is the best strategy if your current choice of methods misses the required completion date by a large amount. If your schedule is off by only a few days, adding overtime is a much better choice.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Remember that changing methods can be very costly if it was unplanned. If you created your bid with one set of methods and you need change to faster, more expensive methods, 
+            the difference will come out of your job profit (and your company equity). In some cases you may need to decide if it is better to pay for the more costly methods or pay the liquidated damages that will otherwise occur. 
+            The good news is that if you schedule the job using methods that would complete the job before the required completion date, you may be able to switch to slower, cheaper methods. 
+            In this case the difference in method cost becomes additional profit for your company.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To change methods, click the "Change Methods" link. Select your new method choice for each method from the list and press the submit button.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/subcontracting}" class="font-semibold hover:underline">
+        ← 5.4 Subcontracting
+    </a>
+    <a th:href="@{/manual/overtime}" class="font-semibold hover:underline">
+        Next → 5.6 Overtime
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

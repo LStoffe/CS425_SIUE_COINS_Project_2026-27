@@ -1,0 +1,114 @@
+<!--
+  reschedule-methods.html
+  This page allows a company to change methods scheduling for a selected job.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Change Methods</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Change Methods</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-3xl">
+
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2">Choose Job to Change Method</h3>
+      </div>
+
+      <!-- Success Message -->
+      <div th:if="${success}" class="mb-6 bg-green-100 text-green-700 border border-green-400 rounded-lg px-4 py-2">
+        <p th:text="${success}"></p>
+      </div>
+
+      <!-- Error Message -->
+      <div th:if="${error}" class="mb-6 bg-red-100 text-red-700 border border-red-400 rounded-lg px-4 py-2">
+        <p th:text="${error}"></p>
+      </div>
+
+      <!-- Method Descriptions -->
+      <div class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+        <h4 class="font-bold text-lg mb-3">Available Methods</h4>
+        <ul class="space-y-2 text-sm text-gray-700">
+          <li><span class="font-semibold">1 - Standard:</span> Normal pace — no additional cost</li>
+          <li><span class="font-semibold">2 - Accelerated:</span> 25% faster — costs 10% of bid amount per period</li>
+          <li><span class="font-semibold">3 - Overtime:</span> 50% faster — costs 20% of bid amount per period</li>
+          <li><span class="font-semibold">4 - Economy:</span> 25% slower — saves 5% of bid amount per period</li>
+        </ul>
+      </div>
+
+      <!-- Active Jobs -->
+      <div th:if="${!#lists.isEmpty(jobs)}">
+        <div th:each="job : ${jobs}" class="mb-6 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+          <h4 class="text-lg font-bold mb-2">
+            Job #<span th:text="${job.jobid}">0</span> —
+            <span th:text="${job.job_type_name}">Type</span>
+          </h4>
+          <p class="text-sm text-gray-600 mb-4">
+            Current Method: <span class="font-semibold" th:text="${job.method_name}">Standard</span>
+          </p>
+
+          <!-- Change Method Form -->
+          <form th:if="${job.can_change}"
+                th:action="@{/company/project-management/reschedule-methods}" method="post"
+                class="flex items-center gap-3">
+            <input type="hidden" name="jobId" th:value="${job.jobid}">
+            <select name="newMethod"
+                    class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="1">1 - Standard</option>
+              <option value="2">2 - Accelerated</option>
+              <option value="3">3 - Overtime</option>
+              <option value="4">4 - Economy</option>
+            </select>
+            <button type="submit"
+                    class="px-4 py-2 bg-amber-500 hover:bg-amber-600 font-semibold rounded-lg transition">
+              Change Method
+            </button>
+          </form>
+
+          <!-- Already changed this period -->
+          <p th:if="${!job.can_change}"
+             class="text-sm text-gray-500 italic">
+            Method already changed this period. You can change again next period.
+          </p>
+        </div>
+      </div>
+
+      <!-- No Jobs -->
+      <div th:if="${#lists.isEmpty(jobs)}"
+           class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg text-center">
+        <p class="text-lg text-gray-800 font-medium">
+          You do not have any current jobs.
+        </p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/company/project-management-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Project Management
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

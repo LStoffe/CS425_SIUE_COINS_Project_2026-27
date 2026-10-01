@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="AutomaticPeriodUpdates">
+
+  <!-- AUTO UPDATE POLICY -->
+
+  <insert id="addAutomaticUpdatePolicy" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO update_policy (gameid, policy)
+    VALUES (#gameid#, #policy#)
+    
+    ]]>		               
+  </insert>
+  
+  <select id="getAutomaticUpdatePolicy" resultClass="int" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT policy
+    FROM update_policy
+    WHERE gameid=#value#
+    
+    ]]>		               
+  </select>  
+  
+  <delete id="deleteAutomaticUpdatePolicy" parameterClass="int">
+    <![CDATA[
+
+    DELETE FROM update_policy
+
+    WHERE gameid=#value#
+
+	
+    ]]>		               
+  </delete>    
+
+  <select id="getGamesWithAutoPolicy" resultClass="java.util.HashMap">
+    <![CDATA[
+ 
+    SELECT gameid, policy 
+    FROM update_policy
+    
+    ]]>	  
+  </select>
+  
+
+  <!-- INTERVAL POLICY SETTINGS -->
+
+  <insert id="addIntervalUpdatePolicySettings" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO interval_update_policy (gameid, interval, update_time, next_update_date)
+    VALUES (#gameid#, #interval#, #time#, #nextUpdate#)
+    
+    ]]>		               
+  </insert>
+  
+  <delete id="deleteIntervalUpdatePolicySettings" parameterClass="int">
+    <![CDATA[
+
+    DELETE FROM interval_update_policy 
+    WHERE gameid=#gameid#
+    
+    ]]>		               
+  </delete>  
+  
+  <resultMap id="getIntervalUpdatePolicySettingsResults" class="edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval.IntervalUpdatePolicySettings">
+    <result property="interval" column="interval" />
+    <result property="updateTime" column="update_time" />
+    <result property="nextScheduledUpdate" column="next_update_date" />
+  </resultMap>    
+  
+  <select id="getIntervalUpdatePolicySettings" resultMap="getIntervalUpdatePolicySettingsResults" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT interval, update_time, next_update_date
+    FROM interval_update_policy
+    WHERE gameid=#value#
+    
+    ]]>		               
+  </select>    
+  
+  
+  <!-- DAYS POLICY SETTINGS -->  
+  
+  <insert id="addDaysUpdatePolicySettings" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO days_update_policy (gameid, day, update_time)
+    VALUES (#gameid#, #day#, #time#)
+    
+    ]]>		               
+  </insert>
+  
+  <delete id="deleteDaysUpdatePolicySettings" parameterClass="int">
+    <![CDATA[
+
+    DELETE FROM days_update_policy 
+    WHERE gameid=#gameid#
+    
+    ]]>		               
+  </delete>  
+  
+  <resultMap id="getDaysUpdatePolicySettingsResults" class="java.util.HashMap">
+    <result property="day" column="day" />
+    <result property="time" column="update_time" />
+  </resultMap>      
+  
+  <select id="getDaysUpdatePolicySettings" resultMap="getDaysUpdatePolicySettingsResults" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT day, update_time
+    FROM days_update_policy
+    WHERE gameid=#value#
+    
+    ]]>		               
+  </select>  
+  
+  <!-- DATES POLICY SETTINGS -->  
+  
+  <insert id="addDatePolicyScheduledUpdate" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO dates_update_policy (gameid, date, update_time, date_hash, complete)
+    VALUES (#gameid#, #date#, #time#, #dateHashCode#, #complete#)
+    
+    ]]>		               
+  </insert>
+  
+  <delete id="deleteDatePolicyScheduledUpdate" parameterClass="map">
+    <![CDATA[
+
+    DELETE FROM dates_update_policy 
+    WHERE gameid=#gameid#
+    AND date_hash = #dateHashCode#
+    
+    ]]>		               
+  </delete>  
+  
+  <update id="markScheduledUpdateComplete" parameterClass="map">
+    <![CDATA[
+
+    UPDATE dates_update_policy 
+    SET complete = 't'
+    WHERE gameid=#gameid#
+    AND date_hash = #dateHashCode#
+    
+    ]]>		               
+  </update>    
+  
+  <resultMap id="getDatePolicyScheduledUpdatesResults" class="edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates.ScheduledDate">
+    <result property="date" column="date" />
+    <result property="time" column="update_time" />
+    <result property="complete" column="complete" />
+    <result property="dateHashCode" column="date_hash" />
+  </resultMap>     
+  
+  <select id="getDatePolicyScheduledUpdate" parameterClass="map" resultMap="getDatePolicyScheduledUpdatesResults">
+    <![CDATA[
+
+    SELECT date, update_time, date_hash, complete
+    FROM dates_update_policy
+    WHERE gameid = #gameid#
+    AND date_hash = #dateHashCode#
+    
+    ]]>		               
+  </select>  
+  
+  <select id="getDatePolicyScheduledUpdates" resultMap="getDatePolicyScheduledUpdatesResults" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT date, update_time, date_hash, complete
+    FROM dates_update_policy
+    WHERE gameid=#value#
+    ORDER BY date, update_time
+    
+    ]]>		               
+  </select>    
+
+</sqlMap>

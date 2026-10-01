@@ -1,0 +1,65 @@
+<!--
+    bill-for-work-completed.html
+    This page allows a company to select a job to bill for completed work as part of its project management functions.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Choose Job for Billing</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Choose Job for Billing</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2">Bill for Work Completed</h3>
+      </div>
+
+      <!-- Content Box -->
+      <div class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg text-center">
+        <p class="text-lg text-gray-800 font-medium mb-3">
+          Billing is handled automatically each period.
+        </p>
+        <p class="text-gray-600 text-sm">
+          Your company receives payment for active jobs automatically when the admin advances the period. 
+          You can view your current jobs and income progress on the Progress Report page.
+        </p>
+      </div>
+
+      <div class="mt-4 text-center">
+        <a th:href="@{/company/project-management/progress-report}"
+          class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          View Progress Report
+        </a>
+      </div>
+
+       <!-- Back Button -->
+       <div class="mt-8 text-center">
+        <a th:href="@{/company/project-management-menu}" 
+        class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Project Management
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

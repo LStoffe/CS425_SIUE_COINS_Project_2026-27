@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Loan.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">Loan.java</span></div><h1>Loan.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+/**
+ * Contains information about a loan requested by a company.
+ * &lt;code&gt;Loan&lt;/code&gt; keeps track of current balances and how many payments
+ * a company has left on a loan they've requested.  When a company requests a loan,
+ * a new &lt;code&gt;Loan&lt;/code&gt; object is created to calculate what their monthly payment will
+ * be based on the amount requested and other game parameters.  When it comes time to payback
+ * loans, BIG will identify current loans and create &lt;code&gt;Loan&lt;/code&gt; objects to deal with them.
+ *
+ * @author Kevin Craig
+ * @version $Revision: 1.12 $ $Date: 2002/04/26 18:03:07 $
+ */
+public class Loan
+{
+
+  private int loanID;
+
+  private int numberOfPayments;
+  private long amount;
+  private long balance;
+  private int APR;
+  private long paymentAmount;
+  private int paymentsRemaining;
+<span class="fc" id="L26">  private long interestPaid = 0;</span>
+<span class="fc" id="L27">  private boolean approved = false;</span>
+<span class="fc" id="L28">  private boolean repayImmediately = false;</span>
+
+  /**
+   * Contructor for creating a brand new loan
+   * @param periodNum The period this Loan object is for
+   * @param amount Dollar amount of the loan
+   * @param APR Annual percentage rate of interest applied to this loan
+   */
+  public Loan(long amount, int APR, int numberOfPayments)
+<span class="fc" id="L37">  {</span>
+<span class="fc" id="L38">     this.amount = amount;</span>
+<span class="fc" id="L39">     this.APR = APR;</span>
+<span class="fc" id="L40">	 this.numberOfPayments = numberOfPayments;</span>
+<span class="fc" id="L41">     balance = amount;</span>
+<span class="fc" id="L42">     paymentsRemaining = numberOfPayments;</span>
+<span class="fc" id="L43">     determinePaymentAmount();</span>
+<span class="fc" id="L44">  }</span>
+
+  /**
+   * Constructor for creating a loan object from a loan previously saved
+   * in the database
+   * @param loanID loanID used to identify this loan for this period, to the database
+   * @param amount Initial dollar amount of the loan
+   * @param balance Remaining balance on the loan
+   * @param APR Annual percentage rate of interest applied to this loan
+   * @param paymentAmount Dollar amount of each payment
+   * @param paymentsRemaining Number of payments that must be made before this loan will be paidoff
+   * @param interestPaid Amount of of last payment that went towards interest
+   * @param approved True if the loan has been approved
+   */
+  public Loan(int loanID,
+  			  long amount,
+  			  long balance,
+  			  int APR,
+  			  long paymentAmount,
+  			  int paymentsRemaining,
+  			  long interestPaid,
+  			  boolean approved,
+  			  boolean repayImmediately)
+<span class="fc" id="L67">  {</span>
+<span class="fc" id="L68">	 this.loanID = loanID;</span>
+<span class="fc" id="L69">     this.amount = amount;</span>
+<span class="fc" id="L70">     this.balance = balance;</span>
+<span class="fc" id="L71">     this.APR = APR;</span>
+<span class="fc" id="L72">     this.paymentAmount = paymentAmount;</span>
+<span class="fc" id="L73">     this.paymentsRemaining = paymentsRemaining;</span>
+<span class="fc" id="L74">     this.interestPaid = interestPaid;</span>
+<span class="fc" id="L75">     this.approved = approved;</span>
+<span class="fc" id="L76">     this.repayImmediately = repayImmediately;</span>
+<span class="fc" id="L77">  }</span>
+
+  /**
+   * Uses a loan amortization equation to determine what the amount of the payments should be
+   */
+  private void determinePaymentAmount()
+  {
+<span class="fc" id="L84">     float interestPerPeriod = getInterestRatePerPeriod();</span>
+<span class="fc" id="L85">     paymentAmount = (int) Math.round(interestPerPeriod * (amount - (amount/(1 - Math.pow((double) (1d + interestPerPeriod) , (double) numberOfPayments)))));</span>
+<span class="fc" id="L86">  }</span>
+
+  /**
+   * Returns the interest rate per period
+   */
+  private float getInterestRatePerPeriod()
+  {
+     //Calculate the per period interest rate.
+     //APR is an integer so divide by 100 to get the decimal.  There are 6
+     //periods per year so divide by 6.  The 600 comes from 100*6
+<span class="fc" id="L96">     return (((float) APR) / 600f);</span>
+  }
+
+  /**
+   * Makes a payment to this loan.  If the repayImmediately flag is set, this
+   * payment will be equal to the balance of the loan, no part of the payment will
+   * go to interest, and the number of payments remaining will be set to zero.
+   * &lt;br&gt;&lt;br&gt;
+   * If the repayImmediately flag is not set, a payment will be made that is
+   * equal to the &lt;code&gt;paymentAmount&lt;/code&gt; provided or calculated
+   * when this object was constructed.  Part of this payment
+   * equal to APR / 6 percent of the outstanding balance will go to
+   * interest and the remainder of the payment will reduce the loan balance.
+   * The APR is divided by 6 because there are six periods in a year.
+   * The number of payments remaining will be reduced by 1.
+   * &lt;br&gt;&lt;br&gt;
+   * &lt;b&gt;Note:&lt;/b&gt;It is the responsibility of the method that
+   * calls makePayment to deduct the dollar amount of that payment
+   * from the company's cash-on-hand.  This dollar amount can be obtained
+   * from the getPaymentAmount method.
+   */
+  public void makePayment()
+  {
+<span class="fc bfc" id="L119" title="All 2 branches covered.">	 if(!repayImmediately)</span>
+	 {
+		//Make a normal periodic payment
+
+<span class="fc" id="L123">     	float periodPercentageRate = getInterestRatePerPeriod();</span>
+
+     	//Determine how much interest to charge this payment
+<span class="fc" id="L126">     	interestPaid = (int) Math.round(periodPercentageRate * (float) balance);</span>
+
+     	//Deduct from the balance the amount of the payment that didn't go to paying interest
+<span class="fc" id="L129">     	balance = balance - (paymentAmount - interestPaid);</span>
+
+<span class="fc" id="L131">     	paymentsRemaining--;</span>
+<span class="fc" id="L132">     }</span>
+     else
+     {
+		 //Pay off the loan in full
+<span class="fc" id="L136">		 this.paymentAmount = balance;</span>
+<span class="fc" id="L137">		 balance = 0;</span>
+<span class="fc" id="L138">		 interestPaid = 0;</span>
+<span class="fc" id="L139">		 paymentsRemaining = 0;</span>
+	 }
+<span class="fc" id="L141">  }</span>
+
+  /**
+   * Returns true if there are no more payments to be made on this loan.
+   */
+  public boolean isPaidOff()
+  {
+<span class="fc bfc" id="L148" title="All 2 branches covered.">      if (paymentsRemaining &lt;= 0)</span>
+<span class="fc" id="L149">         return true;</span>
+<span class="fc" id="L150">      return false;</span>
+  }
+
+  //**********************  Simple Get &amp; Set Methods  *************************
+
+  /**
+   * Returns the initial amount of the loan
+   */
+  public long getAmount()
+  {
+<span class="fc" id="L160">     return amount;</span>
+  }
+
+  /**
+   * Sets the initial amount of the loan
+   */
+  public void setAmount(long amount)
+  {
+<span class="fc" id="L168">     this.amount = amount;</span>
+<span class="fc" id="L169">  }</span>
+
+  /**
+   * Returns the remaining balance of the loan
+   */
+  public long getBalance()
+  {
+<span class="fc" id="L176">     return balance;</span>
+  }
+
+  /**
+   * Sets the remaining balance of the loan
+   */
+  public void setBalance(long balance)
+  {
+<span class="fc" id="L184">     this.balance = balance;</span>
+<span class="fc" id="L185">  }</span>
+
+  /**
+   * Returns the annual percent rate of interest applied to this loan
+   */
+  public int getAPR()
+  {
+<span class="fc" id="L192">     return APR;</span>
+  }
+
+  /**
+   * Sets the annual percent rate of interested to be applied to this loan
+   */
+  public void setAPR(int APR)
+  {
+<span class="fc" id="L200">     this.APR = APR;</span>
+<span class="fc" id="L201">  }</span>
+
+  /**
+   * Returns the dollar amount of each payment
+   */
+  public long getPaymentAmount()
+  {
+<span class="fc" id="L208">     return paymentAmount;</span>
+  }
+
+  /**
+   * Sets the dollar amount of each payment
+   */
+  public void setPaymentAmount(long paymentAmount)
+  {
+<span class="fc" id="L216">     this.paymentAmount = paymentAmount;</span>
+<span class="fc" id="L217">  }</span>
+
+  /**
+   * Returns the number of payments remaining on this loan
+   */
+  public int getPaymentsRemaining()
+  {
+<span class="fc" id="L224">     return paymentsRemaining;</span>
+  }
+
+  /**
+   * Sets the number of payments remaining on this loan
+   */
+  public void setPaymentsRemaining(int paymentsRemaining)
+  {
+<span class="fc" id="L232">     this.paymentsRemaining = paymentsRemaining;</span>
+<span class="fc" id="L233">  }</span>
+
+  /**
+   * Gets the dollar amount of the current payment that is interest.
+   * &lt;br&gt;&lt;br&gt;&lt;b&gt;Note:&lt;/b&gt;
+   * If the makePayment method has not been called since the Loan object
+   * was instantiated, this method will return 0.
+   */
+  public long getInterestPaid()
+  {
+<span class="fc" id="L243">     return interestPaid;</span>
+  }
+
+  /**
+   * Returns true if this loan is approved.
+   */
+  public boolean isApproved()
+  {
+<span class="fc" id="L251">     return approved;</span>
+  }
+
+  /**
+   * Set whether or not this loan is marked as approved.
+   * @param approved True for approved, false for not approved
+   */
+  public void setApproved(boolean approved)
+  {
+<span class="fc" id="L260">     this.approved = approved;</span>
+<span class="fc" id="L261">  }</span>
+
+
+  /**
+   * Returns the loanID assigned to this loan for this period by the database
+   */
+  public int getLoanID()
+  {
+<span class="fc" id="L269">	  return loanID;</span>
+  }
+
+  /**
+   * Sets the loan id used to identify this loan to the database
+   */
+  public void setLoanID(int loanID)
+  {
+<span class="fc" id="L277">	  this.loanID = loanID;</span>
+<span class="fc" id="L278">  }</span>
+
+
+
+  /**
+   * Returns the  total value (total interest + unpaid principle) of this loan.
+   * Note: The total value will always be the total value at that point in time, so if payments
+   * have been made the value decreases.
+   */
+  public long getTotalLoanValue()
+  {
+<span class="fc" id="L289">	  return paymentAmount * paymentsRemaining;</span>
+  }
+
+  public boolean repayImmediately()
+  {
+<span class="fc" id="L294">	  return repayImmediately;</span>
+  }
+
+  public void setRepayImmediately(boolean repayImmediately)
+  {
+<span class="fc" id="L299">	  this.repayImmediately = repayImmediately;</span>
+<span class="fc" id="L300">  }</span>
+
+  //**************************** UNIT TEST ****************************
+  public static void main(String args[])
+  {
+<span class="nc" id="L305">     boolean testPassed = true;</span>
+
+
+<span class="nc" id="L308">     int initial = 10000;</span>
+<span class="nc" id="L309">     int rate = 12;</span>
+<span class="nc" id="L310">     int balance1 = 8655;</span>
+<span class="nc" id="L311">     int paid1 = 200;</span>
+<span class="nc" id="L312">     int balance2 = 7283;</span>
+<span class="nc" id="L313">     int paid2 = 173;</span>
+<span class="nc" id="L314">     int balance3 = 5884;</span>
+<span class="nc" id="L315">     int paid3 = 146;</span>
+<span class="nc" id="L316">     int balance4 = 4457;</span>
+<span class="nc" id="L317">     int paid4 = 118;</span>
+<span class="nc" id="L318">     int balance5 = 3001;</span>
+<span class="nc" id="L319">     int paid5 = 89;</span>
+<span class="nc" id="L320">     int balance6 = 1516;</span>
+<span class="nc" id="L321">     int paid6 = 60;</span>
+<span class="nc" id="L322">     int balance7 = 1;</span>
+<span class="nc" id="L323">     int paid7 = 30;</span>
+
+<span class="nc" id="L325">     Loan l = new Loan(10000, 12, 7);</span>
+
+     //Values that are known to be correct are compared against the values output by the Loan
+
+<span class="nc" id="L329">     l.makePayment();</span>
+<span class="nc" id="L330">     System.out.println(&quot;1: Balance = &quot; + l.getBalance() + &quot; Interest Paid = &quot;  + l.getInterestPaid());</span>
+
+<span class="nc bnc" id="L332" title="All 4 branches missed.">     if ((l.getBalance() == balance1) &amp;&amp; (l.getInterestPaid() == paid1))</span>
+<span class="nc" id="L333">         System.out.println(&quot;Correct&quot;);</span>
+     else
+     {
+<span class="nc" id="L336">         testPassed = false;</span>
+<span class="nc" id="L337">         System.out.println(&quot;Incorrect&quot;);</span>
+     }
+
+<span class="nc" id="L340">     l.makePayment();</span>
+<span class="nc" id="L341">     System.out.println(&quot;2: Balance = &quot; + l.getBalance() + &quot; Interest Paid = &quot;  + l.getInterestPaid());</span>
+
+<span class="nc bnc" id="L343" title="All 4 branches missed.">     if ((l.getBalance() == balance2) &amp;&amp; (l.getInterestPaid() == paid2))</span>
+<span class="nc" id="L344">         System.out.println(&quot;Correct&quot;);</span>
+     else
+     {
+<span class="nc" id="L347">         testPassed = false;</span>
+<span class="nc" id="L348">         System.out.println(&quot;Incorrect&quot;);</span>
+     }
+
+<span class="nc" id="L351">     l.makePayment();</span>
+<span class="nc" id="L352">     System.out.println(&quot;3: Balance = &quot; + l.getBalance() + &quot; Interest Paid = &quot;  + l.getInterestPaid());</span>
+
+<span class="nc bnc" id="L354" title="All 4 branches missed.">     if ((l.getBalance() == balance3) &amp;&amp; (l.getInterestPaid() == paid3))</span>
+<span class="nc" id="L355">         System.out.println(&quot;Correct&quot;);</span>
+     else
+     {
+<span class="nc" id="L358">         testPassed = false;</span>
+<span class="nc" id="L359">         System.out.println(&quot;Incorrect&quot;);</span>
+     }
+
+<span class="nc" id="L362">     l.makePayment();</span>
+<span class="nc" id="L363">     System.out.println(&quot;4: Balance = &quot; + l.getBalance() + &quot; Interest Paid = &quot;  + l.getInterestPaid());</span>
+
+<span class="nc bnc" id="L365" title="All 4 branches missed.">     if ((l.getBalance() == balance4) &amp;&amp; (l.getInterestPaid() == paid4))</span>
+<span class="nc" id="L366">         System.out.println(&quot;Correct&quot;);</span>
+     else
+     {
+<span class="nc" id="L369">         testPassed = false;</span>
+<span class="nc" id="L370">         System.out.println(&quot;Incorrect&quot;);</span>
+     }
+
+<span class="nc" id="L373">     l.makePayment();</span>
+<span class="nc" id="L374">     System.out.println(&quot;5: Balance = &quot; + l.getBalance() + &quot; Interest Paid = &quot;  + l.getInterestPaid());</span>
+
+<span class="nc bnc" id="L376" title="All 4 branches missed.">     if ((l.getBalance() == balance5) &amp;&amp; (l.getInterestPaid() == paid5))</span>
+<span class="nc" id="L377">         System.out.println(&quot;Correct&quot;);</span>
+     else
+     {
+<span class="nc" id="L380">         testPassed = false;</span>
+<span class="nc" id="L381">         System.out.println(&quot;Incorrect&quot;);</span>
+     }
+
+<span class="nc" id="L384">     l.makePayment();</span>
+<span class="nc" id="L385">     System.out.println(&quot;6: Balance = &quot; + l.getBalance() + &quot; Interest Paid = &quot;  + l.getInterestPaid());</span>
+
+<span class="nc bnc" id="L387" title="All 4 branches missed.">     if ((l.getBalance() == balance6) &amp;&amp; (l.getInterestPaid() == paid6))</span>
+<span class="nc" id="L388">         System.out.println(&quot;Correct&quot;);</span>
+     else
+     {
+<span class="nc" id="L391">         testPassed = false;</span>
+<span class="nc" id="L392">         System.out.println(&quot;Incorrect&quot;);</span>
+     }
+
+<span class="nc" id="L395">     l.makePayment();</span>
+<span class="nc" id="L396">     System.out.println(&quot;7: Balance = &quot; + l.getBalance() + &quot; Interest Paid = &quot;  + l.getInterestPaid());</span>
+
+<span class="nc bnc" id="L398" title="All 4 branches missed.">     if ((l.getBalance() == balance7) &amp;&amp; (l.getInterestPaid() == paid7))</span>
+<span class="nc" id="L399">         System.out.println(&quot;Correct&quot;);</span>
+     else
+     {
+<span class="nc" id="L402">         testPassed = false;</span>
+<span class="nc" id="L403">         System.out.println(&quot;Incorrect&quot;);</span>
+     }
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">     if(testPassed)</span>
+<span class="nc" id="L407">         System.out.println(&quot;Unit test passed!&quot;);</span>
+     else
+<span class="nc" id="L409">         System.out.println(&quot;Unit test failed&quot;);</span>
+
+<span class="nc" id="L411">  }</span>
+
+}
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

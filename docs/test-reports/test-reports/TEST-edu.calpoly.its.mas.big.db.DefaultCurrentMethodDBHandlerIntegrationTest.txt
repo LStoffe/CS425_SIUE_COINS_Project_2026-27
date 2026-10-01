@@ -1,0 +1,12 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultCurrentMethodDBHandlerIntegrationTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.825 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testGetCurrentMethodsThrowsWhenNotFound took 0.809 sec
+Testcase: testUpdateCurrentMethods took 0.008 sec
+Testcase: testAddAndGetCurrentMethods took 0.001 sec

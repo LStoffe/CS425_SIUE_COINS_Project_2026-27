@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetMaterialCostIndexParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">SetMaterialCostIndexParametersAction.java</span></div><h1>SetMaterialCostIndexParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+
+//Serlvet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Handles Administrator's request to set a game's &quot;material cost index per period&quot; parameters.
+ * Options are:
+ * 1. the &quot;Set Parameters&quot; button was pressed; therefore parameters are saved to the database.
+ *    (If the Administrator also specified that these parameters should become his defaults, they will be recorded as such in the database.)
+ * 2. the &quot;Restore Default Parameters&quot; button was pressed: therefore game's default parameters are retrieved from the database.
+ *    Currently, these default parameters are not saved as the game's default material cost index availability parameters.  It is left to the admin to set them by
+ *    clicking on the &quot;Set Parameters&quot; button after these params have been displayed to him.
+ *
+ * Inputs: materialCostIndexParameterForm parameters are valid
+ *         materialCostIndexParams.jsp form button &quot;Set Parameters&quot; must be named &quot;submit&quot;, and &quot;Set To Defaults&quot; button must be named &quot;submit2&quot;.
+ *
+ * @author Dara Manker
+ *
+ * @version $Revision: 1.6 $ $Date: 2002/03/14 18:53:06 $
+ *
+ */
+
+<span class="fc" id="L55">public class SetMaterialCostIndexParametersAction extends BIGAction</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+		  				         ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L62">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L65">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L71">            BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+<span class="fc" id="L72">			ActionMessages errors = new ActionMessages();</span>
+<span class="fc" id="L73">			HttpSession session = request.getSession();</span>
+
+            // Get the game information
+<span class="fc" id="L76">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+<span class="fc" id="L77">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+            // Get the material cost index parameters form bean
+<span class="fc" id="L80">            MaterialCostIndexParametersForm materialCostIndexParamForm = (MaterialCostIndexParametersForm) form;</span>
+
+            // This hashtable will be used to save the material cost index parameters to or get the material cost index parameters from the database
+<span class="fc" id="L83">			Hashtable materialCostIndexParams = null;</span>
+
+            // Determine which submit button was pressed by the Administrator. The button that was not pressed will have a null value.
+<span class="fc" id="L86">            String testSetParametersSubmitButton = (String) request.getParameter(&quot;submit&quot;);</span>
+<span class="fc" id="L87">            String testRestoreDefaultParametersSubmitButton = (String) request.getParameter(&quot;restoreDefaults&quot;);</span>
+
+            try
+            {
+               // Admin pressed &quot;Set Parameters&quot; button: save Admin's parameters to database
+<span class="fc bfc" id="L92" title="All 2 branches covered.">               if(testSetParametersSubmitButton != null)</span>
+               {
+                  // Determine if Admin also wants to make these parameters his defaults
+<span class="fc" id="L95">                  boolean setAsDefaults = materialCostIndexParamForm.getMakeDefaults();</span>
+
+                  // Save these parameters to the database. &quot;setAsDefaults&quot; will be 'true' if the parameters should also be set as the admin's defaults,
+<span class="fc" id="L98">			   	  materialCostIndexParams = materialCostIndexParamForm.setAllParameters();</span>
+
+<span class="fc" id="L100">			      dbFacade.getGameParametersDBHandler().updateAllMaterialCostIndexParameters(game, admin, materialCostIndexParams, setAsDefaults);</span>
+<span class="fc" id="L101">	           }</span>
+               // Admin pressed &quot;Reset&quot; button: ignore the values in the form, and retrieve the Admin's default parameters from the database
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">               else if(testRestoreDefaultParametersSubmitButton != null)</span>
+               {
+<span class="fc" id="L105">		          Hashtable materialCostIndexParamsHashtable = dbFacade.getGameParametersDBHandler().getAllMaterialCostIndexParameters(game, admin, true);</span>
+<span class="fc" id="L106">			      materialCostIndexParamForm.setAllParameters(materialCostIndexParamsHashtable);</span>
+
+<span class="fc" id="L108">				  dbFacade.close();</span>
+<span class="fc" id="L109">			      return (mapping.findForward(&quot;defaultParamsObtained&quot;));</span>
+		       }
+               // Admin pressed neither submit button: this should never happen since the Admin must press a submit button to get to this Action
+               else
+               {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">				   if(log.isWarnEnabled())</span>
+				   {
+<span class="nc" id="L116">				       log.warn(this.getClass() + &quot;: could not determine which submit button was pressed&quot;);</span>
+				   }
+<span class="nc" id="L118">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+		       }  // end &quot;if&quot; test of submit buttons
+
+<span class="fc" id="L121">			   dbFacade.close();</span>
+		    }
+<span class="nc" id="L123">		    catch(ParametersNotFoundException pnfe)</span>
+		    {
+			    //All games should have parameters.  If there are no parameters found for a game it is an error.
+<span class="nc" id="L126">				log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L127">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.notfound&quot;));</span>
+		    }
+<span class="nc" id="L129">		    catch(BIGDatabaseFacadeException bigdbe)</span>
+		    {
+				//Problem with the database
+<span class="nc" id="L132">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L133">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="pc" id="L134">			}</span>
+
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L138" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L140">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L143">				saveErrors(request, errors);</span>
+<span class="nc" id="L144">	 	    	saveToken(request);</span>
+<span class="nc" id="L145">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L151">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;paramsSetSuccessfully\&quot;&quot;);</span>
+				}
+<span class="fc" id="L153">				return (mapping.findForward(&quot;paramsSetSuccessfully&quot;));</span>
+			}
+    	}
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L160">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L162">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+	    }
+   }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

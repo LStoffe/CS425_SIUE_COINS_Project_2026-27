@@ -1,0 +1,6 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.ChooseCompanyActionTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.625 sec
+
+Testcase: testExecuteSuccess took 0.614 sec
+Testcase: testExecuteNoCompanyFoundWhenCompaniesNull took 0.002 sec
+Testcase: testExecuteSuccessWithSecondCompany took 0.003 sec

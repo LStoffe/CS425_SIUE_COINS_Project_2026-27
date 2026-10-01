@@ -1,0 +1,31 @@
+Testsuite: edu.calpoly.its.mas.big.game.PeriodTest
+Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+
+Testcase: testGetLaborCostAdjustment took 0.002 sec
+Testcase: testLaborAvailabilityAt96 took 0.001 sec
+Testcase: testGetTemperature took 0 sec
+Testcase: testStatisticalConstructorRainfallAbove3GivesThreeAndThreeRaindays took 0 sec
+Testcase: testDatabaseConstructorStoresValues took 0 sec
+Testcase: testLaborAvailability100NoReduction took 0 sec
+Testcase: testGetProductivityAdjustmentAt55Degrees took 0 sec
+Testcase: testGetProductivityAdjustmentAt72Degrees took 0 sec
+Testcase: testGetProductivityAdjustmentAt85Degrees took 0 sec
+Testcase: testGetMaterialsCostAdjustmentWhenBelow100 took 0 sec
+Testcase: testGetLaborCostAdjustmentWhenExactly100 took 0 sec
+Testcase: testGetLaborCostAdjustmentWhenBelow100 took 0 sec
+Testcase: testGetNumberOfNewBuildingAndHeavyJobs took 0 sec
+Testcase: testDatabaseConstructorWithZeroRaindays took 0.001 sec
+Testcase: testGetMaterialsCostAdjustmentAt110 took 0 sec
+Testcase: testStatisticalConstructorRainfallBetween2And3GivesOneAndTwoRaindays took 0 sec
+Testcase: testGetProductivityAdjustmentAt40Degrees took 0 sec
+Testcase: testStatisticalConstructorRainfallUnder2GivesZeroRaindays took 0 sec
+Testcase: testLaborAvailabilityAdjustmentsReduceWorkdays took 0 sec
+Testcase: testGetProductivityAdjustmentTemperatureBoundaries took 0 sec
+Testcase: testGetProductivityAdjustmentTemperatureExtremes took 0 sec
+Testcase: testGetMaterialsCostAdjustmentWhenExactly100 took 0 sec
+Testcase: testGetProductivityAdjustmentDueToTemperature took 0 sec
+Testcase: testStatisticalConstructorWithVariousJobCounts took 0.001 sec
+Testcase: testGetLaborCostAdjustmentAt80 took 0 sec
+Testcase: testGetPeriodNumberAndRainfall took 0 sec
+Testcase: testGetMaterialsCostAdjustment took 0 sec
+Testcase: testDatabaseConstructorAllFields took 0 sec

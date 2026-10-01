@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.DeleteCompanyConfirmActionTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.592 sec
+
+Testcase: testExecuteSuccessWhenCompanyFromCompaniesList took 0.577 sec
+Testcase: testExecuteErrorWhenGameStarted took 0.006 sec
+Testcase: testExecuteNoCompanyFoundWhenCompaniesNull took 0.001 sec
+Testcase: testExecuteSuccessWhenCompanyInSession took 0.001 sec

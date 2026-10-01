@@ -1,0 +1,679 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RatiosReportForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">RatiosReportForm.java</span></div><h1>RatiosReportForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.reports;
+
+import edu.calpoly.its.mas.big.reports.ReportForm;
+import edu.calpoly.its.mas.big.reports.FinancialReportForm;
+
+/**
+ *
+ *
+ * @author Kevin Craig
+ */
+public class RatiosReportForm extends ReportForm
+{
+	//This is the number of periods to look into the past
+	//when averaging ratios.
+	public static final int PAST_RATIOS_IN_AVERAGE = 3;
+
+	private String companyName;
+
+    Float currentRatioAvg;
+    Float[] currentRatios;
+    Float receivableTurnsAvg;
+    Float[] receivableTurns;
+    Float payableTurnsAvg;
+    Float[] payableTurns;
+    Float cashTurnsAvg;
+    Float[] cashTurns;
+    Float cashToWIPAvg;
+    Float[] cashToWIP;
+    Float earningsToInterestAvg;
+    Float[] earningsToInterest;
+	Float debtToEquityAvg;
+	Float[] debtToEquity;
+	Float grossProfitAvg;
+	Float[] grossProfit;
+	Float netProfitAvg;
+	Float[] netProfit;
+	Float returnOnEquityAvg;
+	Float[] returnOnEquity;
+	Float returnOnAssetsAvg;
+	Float[] returnOnAssets;
+	Float costsToSalesAvg;
+	Float[] costsToSales;
+	Float gaToSalesAvg;
+	Float[] gaToSales;
+	Float opExpenseToSalesAvg;
+	Float[] opExpenseToSales;
+
+    /**
+     * Creates an empty &lt;code&gt;RatiosReportForm&lt;/code&gt; that serves as a place holder only.
+     * null will be returned or exceptions thrown if any methods are invoked.
+     */
+    public RatiosReportForm()
+<span class="fc" id="L54">    {</span>
+<span class="fc" id="L55">	}</span>
+
+
+    /**
+     * Creates a new Ratios Report Form
+     * The 3 other ReportForms are used to calculate the current values for each
+     * ratio.  Ratios from past periods are provided in the &lt;code&gt;pastRatios&lt;/code&gt; argument.
+     * The first index is in the 2D array is the number of periods previous to the
+     * period of the report.  The second index is the ratio number where 0 = Current Ratio,
+     * 1 = Receviable Turns, 2 = Payable Turns,
+     *         3 = Cash Turns, 4 = Cash to WIP, 5 = Earnings to Interest, 6 = Debt to Equity,
+     *         7 = Gross Profit, 8 = Net Profit, 9 = Return on Equity, 10 = Return on Assets, 11 =  Costs to Sales,
+     *	     12 = GA to Sales, 13 = Operating Expense to Sales.
+     * So for example, pastRatios[2][7] should contain the value of the Gross Profit ratio from 2 periods ago.
+     * @param pastRatios Cannot be &lt;code&gt;null&lt;/code&gt; but can have a length of 0.
+     *
+     */
+	public RatiosReportForm(IncomeStatementForm incomeStatement,
+							BalanceSheetForm balanceSheet,
+							ContractsInProgressReportForm contractsInProgress,
+							CompletedContractsReportForm completedContracts,
+							Float[][] pastRatios
+						   )
+<span class="fc" id="L78">	{</span>
+
+		//Set the values in the Balance Sheet that do not come from the database
+<span class="fc" id="L81">		balanceSheet.setUnderbilledAmount(contractsInProgress.getTotalUnderbilling());</span>
+<span class="fc" id="L82">		balanceSheet.setUnbilledAmount(completedContracts.getTotalUnbilled());</span>
+<span class="fc" id="L83">		balanceSheet.setOverbilledAmount(contractsInProgress.getTotalOverbilling() + completedContracts.getTotalOverbilled());</span>
+
+        //*************  CURRENT RATIO  ****************
+<span class="fc" id="L86">		currentRatios = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		if(balanceSheet.getTotalCurrentLiabilities() != 0)</span>
+		{
+<span class="fc" id="L89">			currentRatios[0] = new Float( ( (float) balanceSheet.getTotalCurrentAssets() ) / ( (float) balanceSheet.getTotalCurrentLiabilities()) );</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L94">		    currentRatios[0] = null;</span>
+		}
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L99">			currentRatios[i+1] = pastRatios[i][0];</span>
+		}
+
+<span class="fc" id="L102">		currentRatioAvg = computeAverage(currentRatios);</span>
+
+
+        //*************  RECEIVABLE TURNS  ****************
+<span class="fc" id="L106">		receivableTurns = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">		if((balanceSheet.getCurrentAccountsReceivable() + balanceSheet.getRetentionReceivable()) != 0)</span>
+		{
+<span class="fc" id="L109">			receivableTurns[0] = new Float( ( (float) incomeStatement.getConstructionRevenue() ) / ( (float) (balanceSheet.getCurrentAccountsReceivable() + balanceSheet.getRetentionReceivable())) );</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L114">		    receivableTurns[0] = null;</span>
+		}
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L119">			receivableTurns[i+1] = pastRatios[i][1];</span>
+		}
+
+<span class="fc" id="L122">        receivableTurnsAvg = computeAverage(receivableTurns);</span>
+
+
+        //*************  PAYABLE TURNS  ****************
+<span class="fc" id="L126">		payableTurns = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		if((balanceSheet.getCurrentAccountsPayable() + balanceSheet.getRetentionPayable()) != 0)</span>
+		{
+<span class="fc" id="L129">			payableTurns[0] = new Float( ( (float) incomeStatement.getCostOfConstruction() ) / ( (float) (balanceSheet.getCurrentAccountsPayable() + balanceSheet.getRetentionPayable())) );</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L134">		    payableTurns[0] = null;</span>
+		}
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L138">			payableTurns[i+1] = pastRatios[i][2];</span>
+		}
+
+<span class="fc" id="L141">        payableTurnsAvg = computeAverage(payableTurns);</span>
+
+
+        //*************  CASH TURNS  ****************
+<span class="fc" id="L145">		cashTurns = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">		if(balanceSheet.getCashOnHand() != 0)</span>
+		{
+<span class="fc" id="L148">			cashTurns[0] = new Float( ( (float) incomeStatement.getConstructionRevenue() ) / ( (float) balanceSheet.getCashOnHand()) );</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L153">		    cashTurns[0] = null;</span>
+		}
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L158">			cashTurns[i+1] = pastRatios[i][3];</span>
+		}
+
+<span class="fc" id="L161">        cashTurnsAvg = computeAverage(cashTurns);</span>
+
+
+        //*************  CASH TO WIP  ****************
+<span class="fc" id="L165">		cashToWIP = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">		if(contractsInProgress.getTotalRevenueToBeEarned() != 0)</span>
+		{
+<span class="fc" id="L168">			cashToWIP[0] = new Float( ( (float) balanceSheet.getCashOnHand()) / ( (float) contractsInProgress.getTotalRevenueToBeEarned() ));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L173">		    cashToWIP[0] = null;</span>
+		}
+
+<span class="fc bfc" id="L176" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L178">			cashToWIP[i+1] = pastRatios[i][4];</span>
+		}
+
+<span class="fc" id="L181">       cashToWIPAvg = computeAverage(cashToWIP);</span>
+
+
+        //*************  EARNINGS TO INTEREST  ****************
+<span class="fc" id="L185">		earningsToInterest = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">		if(incomeStatement.getInterestExpense() != 0)</span>
+		{
+<span class="fc" id="L188">			earningsToInterest[0] = new Float( ( (float) incomeStatement.getEarningsFromOperations()) / ( (float) Math.abs(incomeStatement.getInterestExpense()) ));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L193">		    earningsToInterest[0] = null;</span>
+		}
+<span class="fc bfc" id="L195" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L197">			earningsToInterest[i+1] = pastRatios[i][5];</span>
+		}
+
+<span class="fc" id="L200">        earningsToInterestAvg = computeAverage(earningsToInterest);</span>
+
+
+        //*************  DEBT TO EQUITY  ****************
+<span class="fc" id="L204">		debtToEquity = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">		if(balanceSheet.getEquity() != 0)</span>
+		{
+<span class="fc" id="L207">			debtToEquity[0] = new Float( ( (float) balanceSheet.getTotalCurrentLiabilities() ) / ( (float) balanceSheet.getEquity()));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L212">		    debtToEquity[0] = null;</span>
+		}
+
+<span class="fc bfc" id="L215" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L217">			debtToEquity[i+1] = pastRatios[i][6];</span>
+		}
+
+<span class="fc" id="L220">        debtToEquityAvg = computeAverage(debtToEquity);</span>
+
+
+        //*************  GROSS PROFIT  ****************
+<span class="fc" id="L224">		grossProfit = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		if(incomeStatement.getConstructionRevenue() != 0)</span>
+		{
+<span class="fc" id="L227">			grossProfit[0] = new Float( ( (float) incomeStatement.getGrossProfit() ) / ( (float) incomeStatement.getConstructionRevenue()));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L232">		    grossProfit[0] = null;</span>
+		}
+<span class="fc bfc" id="L234" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L236">			grossProfit[i+1] = pastRatios[i][7];</span>
+		}
+
+<span class="fc" id="L239">        grossProfitAvg = computeAverage(grossProfit);</span>
+
+
+        //*************  NET PROFIT  ****************
+<span class="fc" id="L243">		netProfit = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">		if(incomeStatement.getConstructionRevenue() != 0)</span>
+		{
+<span class="fc" id="L246">			netProfit[0] = new Float( ( (float) incomeStatement.getNetEarnings() ) / ( (float) incomeStatement.getConstructionRevenue()));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L251">		    netProfit[0] = null;</span>
+		}
+
+<span class="fc bfc" id="L254" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L256">			netProfit[i+1] = pastRatios[i][8];</span>
+		}
+
+<span class="fc" id="L259">        netProfitAvg = computeAverage(netProfit);</span>
+
+
+        //************* RETURN ON EQUITY ****************
+<span class="fc" id="L263">		returnOnEquity = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">		if(incomeStatement.getEndRetainedEarnings() != 0)</span>
+		{
+<span class="fc" id="L266">			returnOnEquity[0] = new Float( ( (float) incomeStatement.getPreTaxEarnings() ) / ( (float) incomeStatement.getEndRetainedEarnings() ));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L271">		    returnOnEquity[0] = null;</span>
+		}
+<span class="fc bfc" id="L273" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L275">			returnOnEquity[i+1] = pastRatios[i][9];</span>
+		}
+
+<span class="fc" id="L278">        returnOnEquityAvg = computeAverage(returnOnEquity);</span>
+
+
+        //*************  RETURN ON ASSETS ****************
+<span class="fc" id="L282">		returnOnAssets = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">		if(balanceSheet.getTotalAssets() != 0)</span>
+		{
+<span class="fc" id="L285">			returnOnAssets[0] = new Float( ( (float) incomeStatement.getPreTaxEarnings() ) / ( (float) balanceSheet.getTotalAssets() ));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L290">		    returnOnAssets[0] = null;</span>
+		}
+<span class="fc bfc" id="L292" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L294">			returnOnAssets[i+1] = pastRatios[i][10];</span>
+		}
+
+<span class="fc" id="L297">		returnOnAssetsAvg = computeAverage(returnOnAssets);</span>
+
+
+        //************* COSTS TO SALES ****************
+<span class="fc" id="L301">		costsToSales = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">		if(incomeStatement.getConstructionRevenue() != 0)</span>
+		{
+<span class="fc" id="L304">			costsToSales[0] = new Float( ( (float) incomeStatement.getCostOfConstruction() ) / ( (float) incomeStatement.getConstructionRevenue() ));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L309">		    costsToSales[0] = null;</span>
+		}
+
+<span class="fc bfc" id="L312" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L314">			costsToSales[i+1] = pastRatios[i][11];</span>
+		}
+
+<span class="fc" id="L317">		costsToSalesAvg = computeAverage(costsToSales);</span>
+
+
+        //*************  GA TO SALES  ****************
+<span class="fc" id="L321">		gaToSales = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">		if(incomeStatement.getConstructionRevenue() != 0)</span>
+		{
+<span class="fc" id="L324">			gaToSales[0] = new Float( ( (float) incomeStatement.getTotalGAExpense() ) / ( (float) incomeStatement.getConstructionRevenue() ));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L329">		    gaToSales[0] = null;</span>
+		}
+<span class="fc bfc" id="L331" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L333">			gaToSales[i+1] = pastRatios[i][12];</span>
+		}
+
+<span class="fc" id="L336">		gaToSalesAvg = computeAverage(gaToSales);</span>
+
+
+        //************* OPERATING EXPENSE TO SALES  ****************
+<span class="fc" id="L340">		opExpenseToSales = new Float[pastRatios.length + 1];</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">		if(incomeStatement.getConstructionRevenue() != 0)</span>
+		{
+<span class="fc" id="L343">			opExpenseToSales[0] = new Float( ( (float) (incomeStatement.getCostOfConstruction() + incomeStatement.getTotalGAExpense()) ) / ( (float) incomeStatement.getConstructionRevenue() ));</span>
+		}
+		else
+		{
+			//Null signifies no value due to a divide by zero error
+<span class="fc" id="L348">		    opExpenseToSales[0] = null;</span>
+		}
+<span class="fc bfc" id="L350" title="All 2 branches covered.">		for(int i = 0; i &lt; pastRatios.length; i++)</span>
+		{
+<span class="fc" id="L352">			opExpenseToSales[i+1] = pastRatios[i][13];</span>
+		}
+
+<span class="fc" id="L355">		opExpenseToSalesAvg = computeAverage(opExpenseToSales);</span>
+
+<span class="fc" id="L357">	}</span>
+
+
+    private Float computeAverage(Float[] ratios)
+    {
+<span class="fc" id="L362">        int items = ratios.length;</span>
+<span class="fc" id="L363">	    float average = 0.0f;</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">	    for(int i = 0; i &lt; ratios.length; i++)</span>
+	    {
+<span class="fc bfc" id="L366" title="All 2 branches covered.">	        if (ratios[i] != null)</span>
+	        {
+<span class="fc" id="L368">		   	    average += ratios[i].floatValue();</span>
+		    }
+		    else
+		    {
+			    //Ignore periods with no value when taking the average
+<span class="fc" id="L373">			    items--;</span>
+		    }
+	    }
+
+	    //If all periods have no value, the average will also have no value (i.e. be null)
+<span class="fc bfc" id="L378" title="All 2 branches covered.">	    if(items == 0)</span>
+	    {
+<span class="fc" id="L380">		    return null;</span>
+	    }
+	    else
+	    {
+<span class="fc" id="L384">		    return new Float(average / ((float) items));</span>
+	    }
+
+    }
+
+
+
+  //************************  Set and Get Methods  ***********************************
+
+    public String getCompanyName()
+    {
+<span class="fc" id="L395">	    return companyName;</span>
+    }
+
+    public void setCompanyName(String name)
+    {
+<span class="fc" id="L400">	    this.companyName = name;</span>
+<span class="fc" id="L401">    }</span>
+
+    /**
+     *  Returns the &quot;current ratio&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getCurrentRatio(int periodsAgo)
+    {
+<span class="fc" id="L414">		return currentRatios[periodsAgo];</span>
+	}
+
+	public Float getCurrentRatioAverage()
+	{
+<span class="fc" id="L419">		return currentRatioAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;receivable turns&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getReceivableTurns(int periodsAgo)
+    {
+<span class="fc" id="L433">		return receivableTurns[periodsAgo];</span>
+	}
+
+    public Float getReceivableTurnsAverage()
+    {
+<span class="fc" id="L438">		return receivableTurnsAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;payable turns&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getPayableTurns(int periodsAgo)
+    {
+<span class="fc" id="L452">		return payableTurns[periodsAgo];</span>
+	}
+
+	public Float getPayableTurnsAverage()
+	{
+<span class="fc" id="L457">		return payableTurnsAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;cash turns&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getCashTurns(int periodsAgo)
+    {
+<span class="fc" id="L471">		return cashTurns[periodsAgo];</span>
+	}
+
+	public Float getCashTurnsAverage()
+	{
+<span class="fc" id="L476">		return cashTurnsAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;cash to WIP&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getCashToWIP(int periodsAgo)
+    {
+<span class="fc" id="L490">		return cashToWIP[periodsAgo];</span>
+	}
+
+	public Float getCashToWIPAverage()
+	{
+<span class="fc" id="L495">		return cashToWIPAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;earnings to interest&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getEarningsToInterest(int periodsAgo)
+    {
+<span class="fc" id="L509">		return earningsToInterest[periodsAgo];</span>
+	}
+
+	public Float getEarningsToInterestAverage()
+	{
+<span class="fc" id="L514">		return earningsToInterestAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;debt to equity&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getDebtToEquity(int periodsAgo)
+    {
+<span class="fc" id="L528">		return debtToEquity[periodsAgo];</span>
+	}
+
+    public Float getDebtToEquityAverage()
+    {
+<span class="fc" id="L533">		return debtToEquityAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;gross profit&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getGrossProfit(int periodsAgo)
+    {
+<span class="fc" id="L547">		return grossProfit[periodsAgo];</span>
+	}
+
+    public Float getGrossProfitAverage()
+    {
+<span class="nc" id="L552">		return grossProfitAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;net profit&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getNetProfit(int periodsAgo)
+    {
+<span class="fc" id="L566">		return netProfit[periodsAgo];</span>
+	}
+
+    public Float getNetProfitAverage()
+    {
+<span class="fc" id="L571">		return netProfitAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;return on equity&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getReturnOnEquity(int periodsAgo)
+    {
+<span class="fc" id="L585">		return returnOnEquity[periodsAgo];</span>
+	}
+
+    public Float getReturnOnEquityAverage()
+    {
+<span class="fc" id="L590">		return returnOnEquityAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;return on assets&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getReturnOnAssets(int periodsAgo)
+    {
+<span class="fc" id="L604">		return returnOnAssets[periodsAgo];</span>
+	}
+
+	public Float getReturnOnAssetsAverage()
+	{
+<span class="fc" id="L609">		return returnOnAssetsAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;costs to sales&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getCostsToSales(int periodsAgo)
+    {
+<span class="fc" id="L623">		return costsToSales[periodsAgo];</span>
+	}
+
+	public Float getCostsToSalesAverage()
+	{
+<span class="fc" id="L628">		return costsToSalesAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;ga to sales&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getGAToSales(int periodsAgo)
+    {
+<span class="fc" id="L642">		return gaToSales[periodsAgo];</span>
+	}
+
+    public Float getGAToSalesAverage()
+    {
+<span class="fc" id="L647">		return gaToSalesAvg;</span>
+	}
+
+    /**
+     *  Returns the &quot;operating expense to sales&quot; from a given number of periods prior
+     *  to the period of this report.
+     *  @param periodsAgo Number of periods to go back.  0 (zero) means
+     *  return current value.  If this value is greater than the amount of
+     *  past period values populated by the constructor, then an
+     * &lt;code&gt;ArrayIndexOutOfBoundsException&lt;/code&gt; will be thrown.
+     *
+     */
+    public Float getOpExpenseToSales(int periodsAgo)
+    {
+<span class="fc" id="L661">		return opExpenseToSales[periodsAgo];</span>
+	}
+
+    public Float getOpExpenseToSalesAverage()
+    {
+<span class="fc" id="L666">		return opExpenseToSalesAvg;</span>
+	}
+
+
+}
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

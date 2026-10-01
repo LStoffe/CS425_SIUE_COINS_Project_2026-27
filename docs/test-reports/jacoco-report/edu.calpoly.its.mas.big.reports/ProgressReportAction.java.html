@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProgressReportAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">ProgressReportAction.java</span></div><h1>ProgressReportAction.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.reports;
+
+//JDK imports
+import java.util.Hashtable;
+import java.text.NumberFormat;
+import java.util.Vector;
+import java.util.Iterator;
+
+//Serlvet imports
+import javax.servlet.ServletContext;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+
+//Servlet imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Period;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Activity;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.User;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ *  Handles requests to view a Progress Report.
+ *
+ *  @author Kevin Craig
+ *  @version $Revision: 1.24 $ $Date: 2002/04/16 00:35:36 $
+ */
+<span class="nc" id="L57">public class ProgressReportAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+		           				 ActionForm form,
+		           			     HttpServletRequest request,
+		           			     HttpServletResponse response)
+		{
+<span class="nc" id="L64">			Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L67">				log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+			}
+
+<span class="nc" id="L70">	       	ActionMessages errors = new ActionMessages();</span>
+
+	       	// Check for existance of Game object in user's session
+<span class="nc" id="L73">           	ServletContext context = servlet.getServletContext();</span>
+
+<span class="nc" id="L75">           	HttpSession session = request.getSession();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">           	if(session == null)</span>
+           	{
+<span class="nc" id="L78">			   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+			}
+
+<span class="nc" id="L81">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">			if(game == null)</span>
+			{
+<span class="nc" id="L84">		       return (mapping.findForward(&quot;loginFailure&quot;));</span>
+			}
+
+<span class="nc" id="L87">			Company company = null;</span>
+
+<span class="nc" id="L89">			String periodNumber = (String) request.getParameter(&quot;period&quot;);</span>
+<span class="nc" id="L90">			User user = (User) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			if(user instanceof Company)</span>
+			{
+<span class="nc" id="L94">			   LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+			   // If for any reason the company should not be allowed to login, route the
+			   // company to an error message page.
+<span class="nc bnc" id="L97" title="All 2 branches missed.">			   if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+			   {
+<span class="nc" id="L99">			       return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		   	   }
+<span class="nc" id="L101">			   company = (Company) user;</span>
+<span class="nc" id="L102">			}</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">			else if(user instanceof Admin)</span>
+			{
+<span class="nc" id="L105">			   company = (Company) session.getAttribute(&quot;company&quot;);</span>
+			}
+
+<span class="nc" id="L108">		    Period period = null;</span>
+<span class="nc" id="L109">		    Vector jobs = null;</span>
+<span class="nc" id="L110">		    Vector jobTitles = new Vector();</span>
+<span class="nc" id="L111">		    Method[][] methods = new Method[9][5];</span>
+<span class="nc" id="L112">		    Method[][] methodsHC = new Method[9][5];</span>
+
+		    int reportPeriod;
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">		    if (periodNumber == null)</span>
+		    {
+<span class="nc" id="L118">		 	   reportPeriod = game.getCurrentPeriodNumber() - 1;</span>
+		    }
+		    else
+		    {
+<span class="nc" id="L122">			   reportPeriod = Integer.parseInt(periodNumber);</span>
+		    }
+
+<span class="nc" id="L125">		    ProgressReportForm progressReportForm = new ProgressReportForm();</span>
+
+		    //Load report with company title, report date, and report period
+<span class="nc" id="L128">		    progressReportForm.setCompanyName(company.getTitle());</span>
+<span class="nc" id="L129">		    progressReportForm.setReportDate(game.getDateString(reportPeriod));</span>
+<span class="nc" id="L130">		    progressReportForm.setPeriod(reportPeriod);</span>
+
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		    if(reportPeriod &gt; 0)</span>
+		    {
+<span class="nc" id="L134">		 	    MessageResources resources = getResources(request);</span>
+
+<span class="nc" id="L136"> 			    BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+ 			    try
+				{
+<span class="nc bnc" id="L140" title="All 2 branches missed.">					for(int j = 0; j &lt; 9; j++)</span>
+				    {
+<span class="nc" id="L142">				  	    methods[j] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, (j+1));</span>
+				    }
+<span class="nc bnc" id="L144" title="All 2 branches missed.">					for(int j = 0; j &lt; 9; j++)</span>
+				    {
+<span class="nc" id="L146">				  	    methodsHC[j] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, (j+10));</span>
+				    }
+
+<span class="nc" id="L149">				    period = dbFacade.getPeriodDBHandler().getPeriod(game, reportPeriod);</span>
+<span class="nc" id="L150">				    jobs = dbFacade.getJobDBHandler().getWorkedJobs(game, company, reportPeriod) ;</span>
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		  		    if(jobs != null)</span>
+					{
+<span class="nc" id="L154">					    Iterator i = jobs.iterator();</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">					    while(i.hasNext())</span>
+					    {
+<span class="nc" id="L157">					        Job job = (Job) i.next();</span>
+<span class="nc" id="L158">						    Activity[] activities = dbFacade.getActivityDBHandler().getActivities(game, job, reportPeriod);</span>
+<span class="nc" id="L159">						    job.setActivities(activities);</span>
+<span class="nc" id="L160">						    jobTitles.add(resources.getMessage(&quot;jobType.jobType&quot; + job.getJobType()));</span>
+
+<span class="nc" id="L162">						}</span>
+					}
+
+<span class="nc" id="L165">					dbFacade.close();</span>
+
+				}
+<span class="nc" id="L168">				catch (BIGDatabaseFacadeException bdbe)</span>
+				{
+<span class="nc" id="L170">					errors.add(&quot;database&quot;, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L171">					log.fatal(&quot;&quot;, bdbe);</span>
+				}
+<span class="nc" id="L173">				catch(ObjectNotFoundException onfe)</span>
+				{
+<span class="nc" id="L175">					log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L176">				}</span>
+
+				//Determine the activity name in the resource bundle associated with the activity type number
+<span class="nc" id="L179">				String[] activityTypes = new String[18];</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">				for(int i = 0; i &lt; 18; i++)</span>
+				{
+<span class="nc" id="L182">				   activityTypes[i] = resources.getMessage(&quot;activity.activity&quot; + (i+1));</span>
+				}
+
+				//Load report with period values
+<span class="nc" id="L186">				loadTemperature(period, resources, progressReportForm);</span>
+<span class="nc" id="L187">				loadRainfall(period, resources, progressReportForm);</span>
+<span class="nc" id="L188">				loadMaterialsCostIndex(period, progressReportForm);</span>
+<span class="nc" id="L189">				loadLaborAvailability(period, resources, progressReportForm);</span>
+
+<span class="nc" id="L191">				progressReportForm.setJobs(jobs);</span>
+<span class="nc" id="L192">				progressReportForm.setJobTitles(jobTitles);</span>
+<span class="nc" id="L193">				progressReportForm.setActivityTypes(activityTypes);</span>
+<span class="nc" id="L194">				progressReportForm.setMethods(methods);</span>
+<span class="nc" id="L195">				progressReportForm.setMethodsHC(methodsHC);</span>
+			}
+		    else
+		    {
+
+		    }
+
+<span class="nc" id="L202">		    session.setAttribute(&quot;progressReportForm&quot;, progressReportForm);</span>
+
+<span class="nc bnc" id="L204" title="All 2 branches missed.">		    if (!errors.isEmpty())</span>
+			{
+			    // Report any errors we have discovered back to the original form
+<span class="nc" id="L207">		    	saveErrors(request, errors);</span>
+<span class="nc" id="L208">				saveToken(request);</span>
+<span class="nc" id="L209">				return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc" id="L213">			    return (mapping.findForward(&quot;success&quot;));</span>
+			}
+
+		} // end execute()
+
+
+		//Pre: period contains the temperature value for the report period.  resources contains the key &quot;progressReport.temperatureUnits&quot;
+		//which gives the key to the units string for temperature
+		//Post: The temperature value is now a String with units appended in progressReportForm
+		private void loadTemperature(Period period, MessageResources resources, ProgressReportForm progressReportForm)
+		{
+<span class="nc" id="L224">		    String temperatureUnits = resources.getMessage(&quot;progressReport.temperatureUnits&quot;);</span>
+<span class="nc" id="L225">		    progressReportForm.setTemperature(period.getTemperature() + temperatureUnits);</span>
+<span class="nc" id="L226">		}</span>
+
+
+		//Pre: period contains the rainfall value for the report period.  resources contains the key &quot;progressReport.precipitationUnits&quot;
+		//which gives the key to the units string for rainfall
+        //Post: The rainfall value is now a String with units appended in progressReportForm
+		private void loadRainfall(Period period, MessageResources resources, ProgressReportForm progressReportForm)
+		{
+<span class="nc" id="L234">			NumberFormat formatter = NumberFormat.getInstance();</span>
+<span class="nc" id="L235">	        formatter.setMaximumFractionDigits(2);</span>
+<span class="nc" id="L236">			String rainfallUnits = resources.getMessage(&quot;progressReport.precipitationUnits&quot;);</span>
+<span class="nc" id="L237">			progressReportForm.setRainfall(formatter.format(period.getRainfall()) + &quot; &quot; + rainfallUnits);</span>
+<span class="nc" id="L238">		}</span>
+
+
+		//Pre: period contains the labor availability value for the report period.  resources contains keys to the String
+		//representations of the labor availability values
+		//Post: The labor availability is now a String in progressReportForm
+		private void loadLaborAvailability(Period period, MessageResources resources, ProgressReportForm progressReportForm)
+		{
+<span class="nc" id="L246">			int laborAvailability = period.getLaborAvailability();</span>
+<span class="nc" id="L247">			String laborAvailabilityString = &quot;Error&quot;;</span>
+
+			//Hardcoded cutoff values from SRS
+<span class="nc bnc" id="L250" title="All 2 branches missed.">			if(laborAvailability &lt;= 95)</span>
+			{
+<span class="nc" id="L252">			   laborAvailabilityString = resources.getMessage(&quot;laborAvailability.verybad&quot;);</span>
+			}
+<span class="nc bnc" id="L254" title="All 2 branches missed.">			else if(laborAvailability &lt;= 99)</span>
+			{
+<span class="nc" id="L256">			   laborAvailabilityString = resources.getMessage(&quot;laborAvailability.bad&quot;);</span>
+			}
+<span class="nc bnc" id="L258" title="All 2 branches missed.">			else if(laborAvailability &lt;= 101)</span>
+			{
+<span class="nc" id="L260">			   laborAvailabilityString = resources.getMessage(&quot;laborAvailability.fair&quot;);</span>
+			}
+<span class="nc bnc" id="L262" title="All 2 branches missed.">			else if(laborAvailability &lt;= 105)</span>
+			{
+<span class="nc" id="L264">			   laborAvailabilityString = resources.getMessage(&quot;laborAvailability.good&quot;);</span>
+			}
+			else
+			{
+<span class="nc" id="L268">			   laborAvailabilityString = resources.getMessage(&quot;laborAvailability.verygood&quot;);</span>
+			}
+<span class="nc" id="L270">			progressReportForm.setLaborAvailability(laborAvailabilityString);</span>
+<span class="nc" id="L271">		}</span>
+
+
+		//Pre: period contains the cost index value value for the report period.
+		//Post: The materials cost index is now a number String with 2 decimal places, in proper percent format for the current
+		//local, in progressReportForm
+		private void loadMaterialsCostIndex(Period period, ProgressReportForm progressReportForm)
+		{
+		   //Setup NumberFormat to fix decimals to 2 places in percents
+<span class="nc" id="L280">		   NumberFormat percentFormatter = NumberFormat.getPercentInstance();</span>
+<span class="nc" id="L281">		   percentFormatter.setMaximumFractionDigits(0);</span>
+<span class="nc" id="L282">		   progressReportForm.setMaterialsCostIndex(percentFormatter.format(((double) period.getMaterialsCostIndex()) / 100));</span>
+<span class="nc" id="L283">		}</span>
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

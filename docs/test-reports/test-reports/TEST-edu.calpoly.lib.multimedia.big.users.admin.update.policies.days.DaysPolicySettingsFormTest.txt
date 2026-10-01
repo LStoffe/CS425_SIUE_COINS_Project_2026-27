@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.update.policies.days.DaysPolicySettingsFormTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.093 sec
+
+Testcase: testGetSetUpdateTime took 0.079 sec
+Testcase: testValidateValidInput took 0.004 sec
+Testcase: testDayGettersAndSetters took 0 sec
+Testcase: testSetUpdateTimeAsDate took 0.001 sec
+Testcase: testGetUpdateTimeAsDate took 0 sec
+Testcase: testValidateInvalidTime took 0 sec
+Testcase: testResetClearsDays took 0 sec
+Testcase: testValidateWithEmptyUpdateTime took 0 sec
+Testcase: testAllDaysTrue took 0 sec
+Testcase: testAllDaysFalse took 0 sec

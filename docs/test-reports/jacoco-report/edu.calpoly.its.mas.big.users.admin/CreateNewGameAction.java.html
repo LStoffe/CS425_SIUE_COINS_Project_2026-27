@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateNewGameAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">CreateNewGameAction.java</span></div><h1>CreateNewGameAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.ParsePosition;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.GameForm;
+import edu.calpoly.its.mas.big.users.GameLoginInfo;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Handles a request to create a new game.
+ *
+ * @author Kevin Craig
+ *  Modified 3/21/02 Dara Manker: added code to add company login checking
+ *
+ * @version $Revision: 1.16 $ $Date: 2002/05/01 16:58:00 $
+ */
+<span class="fc" id="L51">public class CreateNewGameAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L59">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L62">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L68">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L70">			String gameName = ( (GameForm) form).getGameName();</span>
+<span class="fc" id="L71">			String startYear = ( (GameForm) form).getStartYear();</span>
+<span class="fc" id="L72">			boolean building = ( (GameForm) form).getBuilding();</span>
+<span class="fc" id="L73">			boolean heavy = ( (GameForm) form).getHeavy();</span>
+
+<span class="fc" id="L75">			HttpSession session = request.getSession();</span>
+<span class="fc" id="L76">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="fc" id="L78">            int adminID = admin.getAdminID();</span>
+
+            //Ensure user's adminID is &gt;= 1.  Valid adminID's begin at 1.
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">            if(adminID &gt; 0)</span>
+            {
+
+            	//Create a date string for Jan. 1st of the start year
+<span class="nc" id="L85">            	String startDateString = &quot;1/1/&quot; + startYear;</span>
+
+            	//Convert date string to Date object
+<span class="nc" id="L88">            	Date startDate = (new SimpleDateFormat(&quot;MM/dd/yyyy&quot;)).parse(startDateString, new ParsePosition(0));</span>
+
+                //Determine value for gametype
+<span class="nc" id="L91">                int gametype = 0;</span>
+<span class="nc bnc" id="L92" title="All 4 branches missed.">                if (building &amp;&amp; !heavy) { gametype = 1; }</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">                if (!building &amp;&amp; heavy) { gametype = 2; }</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">                if (building &amp;&amp; heavy)  { gametype = 3; }</span>
+                //System.out.println(&quot;gametype = &quot; + gametype);
+
+<span class="nc" id="L97">            	Game game = new Game(adminID, gameName, startDate, gametype);</span>
+
+            	try
+            	{
+<span class="nc" id="L101">                    BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+<span class="nc" id="L102">					dbFacade.getGameDBHandler().addGame(game);</span>
+
+                    //Create a set of starting parameters for the new game by making a copy of the administrators defaults
+<span class="nc" id="L105">                    dbFacade.getGameParametersDBHandler().copyAdminDefaultParameters(admin, game.getGameID()); //game was assigned a gameID by the dbFacade.addGame method</span>
+
+<span class="nc" id="L107">					dbFacade.getComponentsDBHandler().newEstimatingComponentEntry(game);</span>
+<span class="nc" id="L108">					dbFacade.getEstimatingComponentDBHandler().initializeEstimatingComponentDatabase(game);</span>
+<span class="nc" id="L109">					dbFacade.getGradingTemplateDBHandler().createGradingTemplate(admin, game.getGameID());</span>
+
+<span class="nc" id="L111">                    dbFacade.close();</span>
+
+					//Place this game in the session for the administrator to edit
+<span class="nc" id="L114">					session.setAttribute(&quot;game&quot;, game);</span>
+
+					// Place a GameLoginInfo object into the ServletContext.
+					// The GameLoginInfo object will be used by BIG to determine when
+					// companies should be allowed to log into this game.
+<span class="nc" id="L119">					ServletContext context = servlet.getServletContext();</span>
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">					if(context != null)</span>
+					{
+<span class="nc" id="L123">                       LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+<span class="nc" id="L124">					   loginBroker.addGameLoginInfoToServletContext(game, context);</span>
+				    }
+				}
+<span class="nc" id="L127">				catch(BIGDatabaseFacadeException BIGdbe)</span>
+				{
+<span class="nc" id="L129">					log.fatal(&quot;&quot;, BIGdbe);</span>
+<span class="nc" id="L130">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L131">				}</span>
+<span class="nc" id="L132">			}</span>
+			else
+			{
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">				if(log.isWarnEnabled())</span>
+				{
+<span class="fc" id="L137">					log.warn(this.getClass() + &quot; user permission error&quot;);</span>
+				}
+				//User's adminID was &lt; 1.  Valid adminID's begin at 1
+<span class="fc" id="L140">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.user.permission&quot;));</span>
+			}
+
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L147">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="fc" id="L150">				saveErrors(request, errors);</span>
+<span class="fc" id="L151">	 	    	saveToken(request);</span>
+<span class="fc" id="L152">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L156" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L158">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L160">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L168">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L170">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

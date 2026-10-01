@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Period.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">Period.java</span></div><h1>Period.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import java.util.Random;
+
+/**
+ * Period holds information about one period of one game of BIG.
+ *
+ *
+ * @version $Revision: 1.10 $ $Date: 2001/11/26 21:47:37 $
+ */
+public class Period
+{
+
+	private Random r;
+
+	private int periodNumber;
+	private int workdaysFirstMonth;
+    private int workdaysSecondMonth;
+	private int raindaysFirstMonth;
+    private int raindaysSecondMonth;
+	private int laborAvailability;
+	private int materialsCostIndex;
+	private float rainfall;
+	private int temperature;
+    private int numberOfNewBuildingJobs;
+    private int numberOfNewHeavyJobs;
+
+    /**
+     * Constructor for retrieving a Period from the database.
+     * @param periodNumber The number of this period
+     * @param laborAvailability The labor availability index value for this period
+     * @param materialsCostIndex The materials cost index value for this period
+     * @param rainfall The inches of rainfall this period
+     * @param temperature The temperature this period
+     * @param numberOfNewBuildingJobs The number of new Building jobs that will be generated this period
+     * @param numberOfNewHeavyJobs The number of new Heavy jobs that will be generated this period
+     * @param workdaysFirstMonth The number of workdays in the first month of this period
+     * @param workdaysSecondMonth The number of workdays in the second month of this period
+     * @param raindaysFirstMonth The number of raindays in the first month of this period
+     * @param raindaysSecondMonth The number of raindays in the second month of this period
+     */
+	public Period(int periodNumber,
+				  int laborAvailability,
+				  int materialsCostIndex,
+				  float rainfall,
+				  int temperature,
+				  int numberOfNewBuildingJobs,
+				  int numberOfNewHeavyJobs,
+				  int workdaysFirstMonth,
+				  int workdaysSecondMonth,
+				  int raindaysFirstMonth,
+				  int raindaysSecondMonth)
+<span class="fc" id="L54">	{</span>
+<span class="fc" id="L55">		this.periodNumber = periodNumber;</span>
+<span class="fc" id="L56">		this.laborAvailability = laborAvailability;</span>
+<span class="fc" id="L57">		this.materialsCostIndex = materialsCostIndex;</span>
+<span class="fc" id="L58">		this.rainfall = rainfall;</span>
+<span class="fc" id="L59">		this.temperature = temperature;</span>
+<span class="fc" id="L60">		this.numberOfNewBuildingJobs = numberOfNewBuildingJobs;</span>
+<span class="fc" id="L61">		this.numberOfNewHeavyJobs = numberOfNewHeavyJobs;</span>
+<span class="fc" id="L62">        this.workdaysFirstMonth = workdaysFirstMonth;</span>
+<span class="fc" id="L63">        this.workdaysSecondMonth = workdaysSecondMonth;</span>
+<span class="fc" id="L64">        this.raindaysFirstMonth = raindaysFirstMonth;</span>
+<span class="fc" id="L65">        this.raindaysSecondMonth = raindaysSecondMonth;</span>
+<span class="fc" id="L66">	}</span>
+
+    /**
+     * Constructor for creating a new period from statistical information.
+     * @param numberJobsMean The mean of the possible numbers of jobs to be created this period
+     * @param numberJobsStddev The standard deviation of the possible numbers of jobs to be created this period
+     * @param numberJobsMin The minimum possible value for number of jobs that will be created this period
+     * @param numberJobsMax The maximum possible value for number of jobs that will be created this period
+     * @param temperatureMean The mean of the possible temperatures this period
+     * @param temperatureStddev The standard deviation of the possible temperature values this period
+     * @param temperatureMin The minimum possible value for temperature this period
+     * @param temperatureMax The maximum possible value for temperature this period
+     * @param rainfallMean The mean of the possible rainfall amounts this period
+     * @param rainfallStddev The standard deviation of the possible rainfall amounts this period
+     * @param rainfallMin The minimum possible value for rainfall this period
+     * @param rainfallMax The maximum possible value for rainfall this period
+     * @param laborAvailabilityMean The mean of the possible labor availabilities this period
+     * @param laborAvailabilityStddev The standard deviation of the possible labor availabilities this period
+     * @param laborAvailabilityMin The minimum possible value for labor availability this period
+     * @param laborAvailabilityMax The maximum possible value for labor availability this period
+     * @param materialsCostMean The mean of the possible values for materials cost index
+     * @param materialsCostStddev The standard deviation of the possible values for materials cost index
+     * @param materialsCostMin The minimum possible value for the materials cost index
+     * @param materialsCostMax The maximum possible value for the materials cost index
+     * @param baseWorkdaysPerMonth The number of workdays each month before any adjustments
+     * @param periodNumber The number of this period
+     */
+    public Period(//Number of new jobs per period statistics
+		          int numberJobsMean,
+    			  int numberJobsStddev,
+    			  int numberJobsMin,
+    			  int numberJobsMax,
+    			  int numberHCJobsMin,
+    			  int numberHCJobsMax,
+    			  //Temperature statistics
+    			  int temperatureMean,
+    			  int temperatureStddev,
+    			  int temperatureMin,
+    			  int temperatureMax,
+    			  //Rainfall statistics
+    			  int rainfallMean,
+    			  int rainfallStddev,
+    			  int rainfallMin,
+    			  int rainfallMax,
+    			  //Labor availability statistics
+    			  int laborAvailabilityMean,
+    			  int laborAvailabilityStddev,
+    			  int laborAvailabilityMin,
+    			  int laborAvailabilityMax,
+    			  //Materials Cost Index statistics
+    			  int materialsCostMean,
+    			  int materialsCostStddev,
+    			  int materialsCostMin,
+    			  int materialsCostMax,
+    			  //Default number of days each month
+    			  int baseWorkdaysPerMonth,
+    			  //Period number
+    			  int periodNumber)
+<span class="fc" id="L124">    {</span>
+<span class="fc" id="L125">		this.periodNumber = periodNumber;</span>
+<span class="fc" id="L126">		workdaysFirstMonth = baseWorkdaysPerMonth;</span>
+<span class="fc" id="L127">		workdaysSecondMonth = baseWorkdaysPerMonth;</span>
+
+<span class="fc" id="L129">		r = new Random();</span>
+<span class="fc" id="L130">		numberOfNewBuildingJobs = Math.round(calculateValueFromStatistics(numberJobsMean, numberJobsStddev, numberJobsMin, numberJobsMax));</span>
+<span class="fc" id="L131">		numberOfNewHeavyJobs = Math.round(calculateValueFromStatistics(numberJobsMean, numberJobsStddev, numberHCJobsMin, numberHCJobsMax));</span>
+<span class="fc" id="L132">		temperature = Math.round(calculateValueFromStatistics(temperatureMean, temperatureStddev, temperatureMin, temperatureMax));</span>
+<span class="fc" id="L133">		rainfall = calculateValueFromStatistics(rainfallMean, rainfallStddev, rainfallMin, rainfallMax);</span>
+<span class="fc" id="L134">		laborAvailability = Math.round(calculateValueFromStatistics(laborAvailabilityMean, laborAvailabilityStddev, laborAvailabilityMin, laborAvailabilityMax));</span>
+<span class="fc" id="L135">        materialsCostIndex = Math.round(calculateValueFromStatistics(materialsCostMean, materialsCostStddev, materialsCostMin, materialsCostMax));</span>
+
+<span class="fc" id="L137">       	calculateRaindays();</span>
+<span class="fc" id="L138">        calculateLaborAdjustments();</span>
+<span class="fc" id="L139">	}</span>
+
+
+	//Calculates a value from the mean, standard deviation, minimum and maximum statistics for the value and
+	//a random number from the normal distribution
+	private float calculateValueFromStatistics(int mean, int stddev, int min, int max)
+	{
+		float value;
+<span class="fc" id="L147">		float normal = (float) r.nextGaussian();</span>
+<span class="fc" id="L148">		value = (normal * stddev) + mean;</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">		if (value &gt; max)</span>
+<span class="fc" id="L150">		    value = max;</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">		if (value &lt; min)</span>
+<span class="nc" id="L152">		    value = min;</span>
+
+<span class="fc" id="L154">		return value;</span>
+	}
+
+
+    //Calculates the number of raindays each month.
+    //If rainfall &lt; 2 there are 0 raindays both months
+	//If  2 &lt;= rainfall &lt;= 3 there is 1 rainday the first month and 2 the second month
+    //If rainfall &gt; 3 there are 3 raindays each month
+    private void calculateRaindays()
+    {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (rainfall &lt; 2)</span>
+        {
+<span class="fc" id="L166">            raindaysFirstMonth = 0;</span>
+<span class="fc" id="L167">            raindaysSecondMonth = 0;</span>
+        }
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        else if (rainfall &lt;= 3)</span>
+        {
+<span class="fc" id="L171">            raindaysFirstMonth = 1;</span>
+<span class="fc" id="L172">            raindaysSecondMonth = 2;</span>
+        }
+        else
+        {
+<span class="fc" id="L176">            raindaysFirstMonth = 3;</span>
+<span class="fc" id="L177">			raindaysSecondMonth = 3;</span>
+        }
+
+<span class="fc" id="L180">	}</span>
+
+    private void calculateLaborAdjustments()
+    {
+<span class="fc bfc" id="L184" title="All 2 branches covered.">		if(laborAvailability &lt;= 95)</span>
+		{
+<span class="fc" id="L186">			workdaysFirstMonth = workdaysFirstMonth - 3;</span>
+<span class="fc" id="L187">			workdaysSecondMonth = workdaysSecondMonth - 3;</span>
+		}
+<span class="fc bfc" id="L189" title="All 2 branches covered.">		else if (laborAvailability &lt;= 99)</span>
+		{
+<span class="fc" id="L191">			workdaysFirstMonth = workdaysFirstMonth - 1;</span>
+<span class="fc" id="L192">			workdaysSecondMonth = workdaysSecondMonth - 2;</span>
+		}
+<span class="fc" id="L194">	}</span>
+
+  	//*************************  Get Methods  **********************************
+
+  	/**
+  	 * Returns the number of this period
+  	 */
+  	public int getPeriodNumber()
+  	{
+<span class="fc" id="L203">  	  	return periodNumber;</span>
+  	}
+
+	/**
+	 * Returns the total number of workdays in the first month of this period taking into account possible reductions
+     * due to poor labor availability.
+     * &lt;br&gt;&lt;b&gt;Note:&lt;/b&gt;This number does not take raindays into account because raindays are still potential workdays
+	 * depending on the methods used.  Use the getRaindaysFirstMonth method to retrieve the number of raindays.
+	 */
+  	public int getWorkdaysFirstMonth()
+  	{
+<span class="fc" id="L214">  	  	return workdaysFirstMonth;</span>
+  	}
+
+    /**
+     * Returns the total number of workdays in the second month of this period taking into account possible reductions
+     * due to poor labor availability.
+     * &lt;br&gt;&lt;b&gt;note:&lt;/b&gt;This number does not take raindays into account becase raindays are still potential workdays
+     * depending on the methods used.  Use the getRaindaysSecondMonth method to retrieve the number of raindays.
+     */
+    public int getWorkdaysSecondMonth()
+    {
+<span class="fc" id="L225">        return workdaysSecondMonth;</span>
+    }
+
+  	/**
+  	 * Returns the number of days in the first month that are raindays.
+  	 *
+  	 */
+  	public int getRaindaysFirstMonth()
+  	{
+<span class="fc" id="L234">		return raindaysFirstMonth;</span>
+  	}
+
+    /**
+     * Returns the number of days in the second month that are raindays.
+     */
+    public int getRaindaysSecondMonth()
+    {
+<span class="fc" id="L242">        return raindaysSecondMonth;</span>
+    }
+
+
+    /**
+     * Returns the labor availability index for this period.
+     */
+  	public int getLaborAvailability()
+  	{
+<span class="fc" id="L251">  	  	return laborAvailability;</span>
+  	}
+
+    /**
+     * Returns the materials cost index for this period.
+     */
+  	public int getMaterialsCostIndex()
+  	{
+<span class="fc" id="L259">  	  	return materialsCostIndex;</span>
+  	}
+
+    /**
+     * Returns the number of inches of rainfall this period.
+     */
+  	public float getRainfall()
+  	{
+<span class="fc" id="L267">  	  	return rainfall;</span>
+  	}
+
+    /**
+     * Returns the temperature this period.
+     */
+  	public int getTemperature()
+  	{
+<span class="fc" id="L275">  	  	return temperature;</span>
+  	}
+
+    /**
+     * Returns the number of new buildingjobs this period.
+     */
+    public int getNumberOfNewBuildingJobs()
+    {
+<span class="fc" id="L283">        return numberOfNewBuildingJobs;</span>
+    }
+
+    /**
+     * Returns the number of new heavy jobs this period.
+     */
+    public int getNumberOfNewHeavyJobs()
+    {
+<span class="fc" id="L291">        return numberOfNewHeavyJobs;</span>
+    }
+
+    /**
+     * Returns the percentage to adjust productivities by due to the temperature this period.
+     * Temperature affects productivies in the follow ways: &lt;br&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;Temperature &lt;= 14       : -30% productivity&lt;/li&gt;
+     * &lt;li&gt;15 &lt;= Temperature &lt;= 23 : -20% productivity&lt;/li&gt;
+     * &lt;li&gt;24 &lt;= Temperature &lt;= 32 : -15% productivity&lt;/li&gt;
+     * &lt;li&gt;33 &lt;= Temperature &lt;= 41 : -10% productivity&lt;/li&gt;
+     * &lt;li&gt;42 &lt;= Temperature &lt;= 59 :  +0% productivity&lt;/li&gt;
+     * &lt;li&gt;60 &lt;= Temperature &lt;= 72 :  +5% productivity&lt;/li&gt;
+     * &lt;li&gt;73 &lt;= Temperature &lt;= 80 :  -5% productivity&lt;/li&gt;
+     * &lt;li&gt;81 &lt;= Temperature &lt;= 90 : -10% productivity&lt;/li&gt;
+     * &lt;li&gt;91 &lt;= Temperature       : -20% productivity&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+	 * @return int representing the percent
+     */
+    public int getProductivityAdjustmentDueToTemperature()
+    {
+		int productivityAdjustmentDueToTemperature;
+
+<span class="fc bfc" id="L315" title="All 2 branches covered.">		if (temperature &lt;= 14)</span>
+		{
+<span class="fc" id="L317">			productivityAdjustmentDueToTemperature = -30;</span>
+		}
+<span class="fc bfc" id="L319" title="All 2 branches covered.">		else if (temperature &lt;= 23)</span>
+		{
+<span class="fc" id="L321">			productivityAdjustmentDueToTemperature = -20;</span>
+		}
+<span class="fc bfc" id="L323" title="All 2 branches covered.">		else if(temperature &lt;= 32)</span>
+		{
+<span class="fc" id="L325">			productivityAdjustmentDueToTemperature = -15;</span>
+		}
+<span class="fc bfc" id="L327" title="All 2 branches covered.">		else if(temperature &lt;= 41)</span>
+		{
+<span class="fc" id="L329">			productivityAdjustmentDueToTemperature = -10;</span>
+		}
+<span class="fc bfc" id="L331" title="All 2 branches covered.">		else if(temperature &lt;= 59)</span>
+		{
+<span class="fc" id="L333">			productivityAdjustmentDueToTemperature = 0;</span>
+		}
+<span class="fc bfc" id="L335" title="All 2 branches covered.">		else if(temperature &lt;= 72)</span>
+		{
+<span class="fc" id="L337">			productivityAdjustmentDueToTemperature = 5;</span>
+		}
+<span class="fc bfc" id="L339" title="All 2 branches covered.">		else if(temperature &lt;= 80)</span>
+		{
+<span class="fc" id="L341">			productivityAdjustmentDueToTemperature = -5;</span>
+		}
+<span class="fc bfc" id="L343" title="All 2 branches covered.">		else if(temperature &lt;= 90)</span>
+		{
+<span class="fc" id="L345">			productivityAdjustmentDueToTemperature = -10;</span>
+		}
+		else
+		{
+<span class="fc" id="L349">			productivityAdjustmentDueToTemperature = -20;</span>
+		}
+<span class="fc" id="L351">        return productivityAdjustmentDueToTemperature;</span>
+    }
+
+    /**
+     * Returns the percentage to adjust labor cost by due to the effects of the labor availability index for this period.
+     * The percent that labor cost is adjusted by is 100 - Labor availability Index
+     *
+	 * @return int representing the percent
+     */
+    public int getLaborCostAdjustment()
+    {
+<span class="fc" id="L362">		return 100 - laborAvailability;</span>
+	}
+
+
+	/**
+	 * Returns the percentage to adjust materials cost by due to the effects of the materials cost index for this period.
+	 * The percent that materials cost is adjusted by is the Materials Cost Index minus 100;
+	 * @return int representing the percent
+	 */
+	public int getMaterialsCostAdjustment()
+	{
+<span class="fc" id="L373">		return materialsCostIndex - 100;</span>
+	}
+
+
+	/**
+	 * Unit test
+	 */
+	public static void main(String args[])
+	{
+<span class="nc" id="L382">		Period p = new Period(//number of jobs per period</span>
+			                  3,
+		                      1,
+		                      0,
+		                      5,
+		                      1,
+		                      1,
+		                      //temperature
+		                      70,
+		                      10,
+		                      50,
+		                      95,
+		                      //rainfall
+		                      2,
+		                      2,
+		                      1,
+		                      3,
+		                      //labor availability
+		                      100,
+		                      5,
+		                      90,
+		                      107,
+		                      //materials cost
+		                      100,
+		                      10,
+		                      85,
+		                      110,
+		                      //
+		                      20,
+		                      1);
+
+<span class="nc" id="L413">		 System.out.println(&quot;Number of new jobs: &quot; + p.getNumberOfNewBuildingJobs());</span>
+<span class="nc" id="L414">		 System.out.println(&quot;Temperature: &quot; + p.getTemperature());</span>
+<span class="nc" id="L415">		 System.out.println(&quot;Rainfall: &quot; + p.getRainfall());</span>
+<span class="nc" id="L416">		 System.out.println(&quot;Labor Availability: &quot; + p.getLaborAvailability());</span>
+<span class="nc" id="L417">		 System.out.println(&quot;Materials Cost Index: &quot; + p.getMaterialsCostIndex());</span>
+<span class="nc" id="L418">		 System.out.println(&quot;Materials Cost Adjust: &quot; + p.getMaterialsCostAdjustment());</span>
+<span class="nc" id="L419">		 System.out.println(&quot;Labor Cost Adjustment: &quot; + p.getLaborCostAdjustment());</span>
+<span class="nc" id="L420">		 System.out.println(&quot;Prod adjustment due to temperature: &quot; + p.getProductivityAdjustmentDueToTemperature());</span>
+<span class="nc" id="L421">		 System.out.println(&quot;Workdays first month: &quot; + p.getWorkdaysFirstMonth());</span>
+<span class="nc" id="L422">		 System.out.println(&quot;Workdays second month: &quot; + p.getWorkdaysSecondMonth());</span>
+<span class="nc" id="L423">		 System.out.println(&quot;Raindays first month: &quot; + p.getRaindaysFirstMonth());</span>
+<span class="nc" id="L424">		 System.out.println(&quot;Raindays second month: &quot; + p.getRaindaysSecondMonth());</span>
+
+<span class="nc" id="L426">	}</span>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

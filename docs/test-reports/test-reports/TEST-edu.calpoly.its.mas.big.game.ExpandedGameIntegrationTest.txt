@@ -1,0 +1,25 @@
+Testsuite: edu.calpoly.its.mas.big.game.ExpandedGameIntegrationTest
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.126 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testGetMethodsAllActivitiesHaveFiveMethods took 0.885 sec
+Testcase: testGetNetworkDependenciesHCAllJobTypes took 0.013 sec
+Testcase: testGetNetworkDependenciesAllJobTypes took 0.02 sec
+Testcase: testGetExpandedCompanyWithInsertedCompany took 0.097 sec
+Testcase: testGetNetworkDependenciesLoadedFromDatabase took 0.014 sec
+Testcase: testGetNetworkDependenciesHCLoadedFromDatabase took 0.011 sec
+Testcase: testGetWorkdaysPerMonthLoadedFromMiscParams took 0.017 sec
+Testcase: testGetExpandedCompanyReturnsNullForMissingCompany took 0.009 sec
+Testcase: testRecordJobMethod took 0.009 sec
+Testcase: testGetCurrentPeriodNumber took 0.008 sec
+Testcase: testGetMethodsHCLoadedFromDatabase took 0.007 sec
+Testcase: testGetGameThrowsWhenGameNotFound took 0 sec
+Testcase: testConstructorWithRealDatabase took 0.007 sec
+Testcase: testGetGameReturnsSameInstance took 0.007 sec
+Testcase: testGetMethodsLoadedFromDatabase took 0.006 sec
+Testcase: testGetMethodsHCAllActivitiesHaveFiveMethods took 0.006 sec

@@ -1,0 +1,35 @@
+Testsuite: edu.calpoly.its.mas.big.game.ActivityTest
+Tests run: 32, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 sec
+
+Testcase: testUpdateWhenRainingWithWeatherSensitivity1StillWorks took 0.007 sec
+Testcase: testUpdateDoesStandardAndOvertimeWorkWhenNotRaining took 0 sec
+Testcase: testUpdateCapsLusCompletedAtLusTotal took 0.001 sec
+Testcase: testUpdateWithZeroStandardAndOvertimeHours took 0 sec
+Testcase: testSetLusCompletedAndCurrentPeriod took 0 sec
+Testcase: testSetFinishToFinishActivityAndPercent took 0.001 sec
+Testcase: testGetCurrentMethodReturnsSetMethod took 0 sec
+Testcase: testSetStartToStartAndFinishToFinish took 0 sec
+Testcase: testGetAccumulatedCostsFromConstructor took 0 sec
+Testcase: testActivityConstructorAndBasicGetters took 0 sec
+Testcase: testUpdateWhenRainingButNotWeatherSensitive took 0 sec
+Testcase: testGetActivityTypeAndLusTotalFromConstructor took 0 sec
+Testcase: testUpdateSkipsWorkOnRainDayWhenWeatherSensitive took 0 sec
+Testcase: testIncrementPeriodNumberIncrementsCurrentPeriod took 0 sec
+Testcase: testIncrementPeriodNumberResetsPerPeriodState took 0 sec
+Testcase: testSetMethodScalingFactor took 0 sec
+Testcase: testSetCurrentMaterialCost took 0 sec
+Testcase: testSetCurrentPeriod took 0 sec
+Testcase: testSetCurrentLaborCost took 0 sec
+Testcase: testSetMethodScalingFactorStored took 0 sec
+Testcase: testSetOvertimeDaysAndActivityType took 0 sec
+Testcase: testGetOvertimeModifierDefault took 0 sec
+Testcase: testSetCostsAndAccumulatedCosts took 0 sec
+Testcase: testGetLusRemainingWhenPartial took 0 sec
+Testcase: testSetCurrentEquipmentCost took 0.001 sec
+Testcase: testSetAndGetOvertimeModifier took 0 sec
+Testcase: testSetStandardAndOvertimeHours took 0 sec
+Testcase: testGetLusTotalAndLusCompleted took 0 sec
+Testcase: testUpdateSkipsWorkWhenNotActive took 0 sec
+Testcase: testGetLusRemainingAndIsComplete took 0 sec
+Testcase: testSetIsActive took 0 sec
+Testcase: testSetLusTotal took 0.001 sec

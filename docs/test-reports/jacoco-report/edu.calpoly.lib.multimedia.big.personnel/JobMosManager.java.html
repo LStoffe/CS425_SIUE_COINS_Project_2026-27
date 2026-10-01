@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JobMosManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.personnel</a> &gt; <span class="el_source">JobMosManager.java</span></div><h1>JobMosManager.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.personnel;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Job;
+
+//JDK imports
+import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Class to determine how many Mos points for each skill
+ * a job requires, to keep track of how many of each skill
+ * are completed, and to determine penalties for incomplete
+ * mos points.
+ */
+public class JobMosManager
+{
+	//Map of Map.  Each inner Map has keys that are skill codes
+	//and values that are the Mos to Cu ratio for a job type.
+	//The key in the outer Map represents the job type id.  So key &quot;1&quot; is
+	//for job type id 1, &quot;2&quot; for 2, and so on.
+	private Map&lt;String, Map&lt;String, MosToCUsRatio&gt;&gt; jobTypeMosParams;
+
+	//Map where each skill code is a key and the related value is
+	//the penalty per each incomplete mosp of that skill.
+	private Map&lt;String,Integer&gt; costPerMospParams;
+
+	//The Jobs whose Mosp are being managed.
+	private List&lt;Job&gt; jobs;
+
+	private Map&lt;String, Integer&gt; mospCompletion;
+
+	private Map&lt;String, Integer&gt; mospFailure;
+
+	private Log log;
+
+	/**
+	 *
+	 *
+	 */
+	public JobMosManager(Map&lt;String, Map&lt;String, MosToCUsRatio&gt;&gt; jobTypeMosParams,
+					     Map&lt;String,Integer&gt; costPerMospParams,
+					     List&lt;Job&gt; jobs
+					    )
+<span class="fc" id="L51">	{</span>
+<span class="fc" id="L52">		log = LogFactory.getLog(this.getClass());</span>
+
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L56">			log.debug(this.getClass() + &quot;: Creating JobMosManager &quot;);</span>
+		}
+
+<span class="fc" id="L59">		this.jobTypeMosParams = jobTypeMosParams;</span>
+<span class="fc" id="L60">		this.costPerMospParams = costPerMospParams;</span>
+<span class="fc" id="L61">		this.jobs = jobs;</span>
+
+<span class="fc" id="L63">		mospCompletion = new HashMap&lt;String, Integer&gt;();</span>
+<span class="fc" id="L64">		mospFailure = new HashMap&lt;String, Integer&gt;();</span>
+<span class="fc" id="L65">		setupMospCompletionTable();</span>
+<span class="fc" id="L66">	}</span>
+
+	private void setupMospCompletionTable()
+	{
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		for(Job job : jobs)</span>
+		{
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(this.getClass() + &quot; computing MOSP required for job &quot; + job.getJobID());
+			} */
+
+<span class="fc" id="L77">			Map&lt;String, MosToCUsRatio&gt; params = jobTypeMosParams.get((new Integer(job.getJobType())).toString());</span>
+
+<span class="fc bfc" id="L79" title="All 2 branches covered.">			for(String skillCode : params.keySet())</span>
+			{
+<span class="fc" id="L81">				MosToCUsRatio mosRatio = params.get(skillCode);</span>
+
+<span class="fc" id="L83">				int mospReq = Math.round(((float) job.getJobSize()) * mosRatio.getRatio());</span>
+
+/*				if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot;: MOSP req for skill &quot; + skillCode + &quot; is &quot; + mospReq);
+				} */
+
+<span class="fc" id="L90">				Integer currentMospForSkill = mospCompletion.get(skillCode);</span>
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">				if(currentMospForSkill == null)</span>
+				{
+<span class="fc" id="L94">					currentMospForSkill = new Integer(0);</span>
+				}
+
+<span class="fc" id="L97">				Integer newMospForSkill = currentMospForSkill.intValue() + mospReq;</span>
+
+/*				if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot;: New total MOSP req for skill &quot; + skillCode + &quot; is &quot; + newMospForSkill.toString());
+				} */
+
+<span class="fc" id="L104">				mospCompletion.put(skillCode, newMospForSkill);</span>
+<span class="fc" id="L105">			}</span>
+<span class="fc" id="L106">		}</span>
+
+<span class="fc" id="L108">		clearEmptySkillsFromTable();</span>
+
+<span class="fc" id="L110">	}</span>
+
+	private void clearEmptySkillsFromTable()
+	{
+		//Make a pass of the table removing all the skills that are zero or less
+<span class="fc" id="L115">		Iterator&lt;String&gt; i = mospCompletion.keySet().iterator();</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		while(i.hasNext())</span>
+		{
+<span class="fc" id="L118">			String skillCode = i.next();</span>
+<span class="fc" id="L119">			Integer mosp = mospCompletion.get(skillCode);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">			if(mosp.intValue() &lt;= 0)</span>
+			{
+<span class="nc" id="L122">				i.remove();</span>
+
+/*				if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot; &quot; + skillCode + &quot; has been removed from job MOSPs&quot;);
+				} */
+			}
+<span class="fc" id="L129">		}</span>
+<span class="fc" id="L130">	}</span>
+
+	public void reduceRequiredMOSP(String skillCode, int amount)
+	{
+<span class="fc" id="L134">		Integer currentAmount = mospCompletion.get(skillCode);</span>
+
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		if(currentAmount != null)</span>
+		{
+<span class="fc" id="L138">			int newAmount = currentAmount.intValue() - amount;</span>
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">			if(newAmount &gt; 0)</span>
+			{
+<span class="fc" id="L142">				mospCompletion.put(skillCode, new Integer(newAmount));</span>
+			}
+			else
+			{
+<span class="fc" id="L146">				mospCompletion.remove(skillCode);</span>
+
+/*				if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot; &quot; + skillCode + &quot; has been removed from job MOSPs&quot;);
+				} */
+			}
+		}
+
+<span class="fc" id="L155">	}</span>
+
+	/**
+	 * This is used to indicate to the JobMosManager that
+	 * the company is unable to complete this skill
+	 * the the manager should treat it as failed and move on.
+	 */
+	public void failMosp(String skillCode)
+	{
+<span class="fc" id="L164">		Integer currentAmount = mospCompletion.get(skillCode);</span>
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">		if(currentAmount != null)</span>
+		{
+<span class="fc" id="L168">			mospCompletion.remove(skillCode);</span>
+<span class="fc" id="L169">			mospFailure.put(skillCode, currentAmount);</span>
+		}
+<span class="fc" id="L171">	}</span>
+
+	/**
+	 * Return true if at least one skill still requires MOSP, false if not.
+	 */
+	public boolean stillMOSPRequired()
+	{
+<span class="fc bfc" id="L178" title="All 2 branches covered.">		return (mospCompletion.keySet().size() &gt; 0);</span>
+	}
+
+
+	/**
+	 * Returns the skill code for the skill that is currently contributing the biggest
+	 * dollar amount to the total penalty.
+	 * &lt;br&gt;&lt;br&gt;
+	 * A valid question might be &quot;Why is this the most damaging skill?  Shouldn't
+	 * the skill with the highest cost per point &lt;i&gt;always&lt;/i&gt; be the most damaging?&quot;
+	 * Technically this is true, but what we're really looking for here
+	 * is the skill that will have the most benefit.  Different employee
+	 * types can produce different points as different rates.  If we always
+	 * take the skill with the biggest cost per point, that means each employee will
+	 * work at that skill until it is complete, even if it would be far more efficient
+	 * for them to work at a different skill.
+	 * The skill contributing the most to the dollar penalty will change over time.
+	 * Assuming a good distribution of employee skills, an employee who is efficient at the skill
+	 * can be selected to work on the most damaging skill until a different skill becomes more damaging.
+	 * Then a different employee (who is efficient at that skill) will likely take over to work on that skill.
+	 * &lt;br&gt;&lt;br&gt;
+	 * Note this does not guarantee perfect efficiency.  If no one is efficient at the
+	 * most damaging skill, everyone will still work at it until it is not the most damaging
+	 * regardless of other skills that could be causing a fair amount of damage.
+	 * The employee assignment algorithm may require a lot of work if efficiency problems
+	 * appear.
+	 */
+	public String getMostDamagingMOS()
+	{
+<span class="fc" id="L207">		String skill = &quot;&quot;;</span>
+<span class="fc" id="L208">		int damage = 0;</span>
+<span class="fc" id="L209">		Integer remainingMosp = null;</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">		for(String skillCode : mospCompletion.keySet())</span>
+		{
+<span class="fc" id="L212">			remainingMosp = mospCompletion.get(skillCode);</span>
+<span class="fc" id="L213">			Integer penaltyPerMosp = costPerMospParams.get(skillCode);</span>
+
+<span class="fc" id="L215">			int skillDamage = (remainingMosp.intValue() * penaltyPerMosp.intValue());</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">			if(skillDamage &gt; damage)</span>
+			{
+<span class="fc" id="L218">				damage = skillDamage;</span>
+<span class="fc" id="L219">				skill = skillCode;</span>
+			}
+<span class="fc" id="L221">		}</span>
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(this.getClass() + &quot;: returning next most damaging skill : &quot; + skill + &quot; @ $&quot; + damage + &quot;(&quot; + remainingMosp.intValue() + &quot;) left&quot; );
+		} */
+
+<span class="fc" id="L228">		return skill;</span>
+	}
+
+
+	public int getTotalMospPenalty()
+	{
+<span class="fc" id="L234">		int totalPenalty = 0;</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">		for(String skillCode : mospCompletion.keySet())</span>
+		{
+<span class="fc" id="L237">			Integer remainingMosp = mospCompletion.get(skillCode);</span>
+<span class="fc" id="L238">			Integer penaltyPerMosp = costPerMospParams.get(skillCode);</span>
+
+<span class="fc" id="L240">			totalPenalty += (remainingMosp.intValue() * penaltyPerMosp.intValue());</span>
+<span class="fc" id="L241">		}</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">		for(String skillCode : mospFailure.keySet())</span>
+		{
+<span class="fc" id="L244">			Integer remainingMosp = mospFailure.get(skillCode);</span>
+<span class="fc" id="L245">			Integer penaltyPerMosp = costPerMospParams.get(skillCode);</span>
+
+<span class="fc" id="L247">			totalPenalty += (remainingMosp.intValue() * penaltyPerMosp.intValue());</span>
+<span class="fc" id="L248">		}</span>
+
+<span class="fc" id="L250">		return totalPenalty;</span>
+	}
+
+	/**
+	 * Return a &lt;code&gt;List&lt;/code&gt; of all MOS that
+	 * have any points unfilled and the amount.
+	 */
+	public Map&lt;String, Integer&gt; getFailedMosp()
+	{
+<span class="fc" id="L259">		Map&lt;String, Integer&gt; skillMap = new HashMap&lt;String,Integer&gt;();</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">		for(String skillCode : mospCompletion.keySet())</span>
+		{
+<span class="fc" id="L262">			Integer remainingMosp = mospCompletion.get(skillCode);</span>
+
+<span class="fc" id="L264">			skillMap.put(skillCode, remainingMosp);</span>
+
+<span class="fc" id="L266">		}</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">		for(String skillCode : mospFailure.keySet())</span>
+		{
+<span class="fc" id="L269">			Integer remainingMosp = mospFailure.get(skillCode);</span>
+
+<span class="fc" id="L271">			skillMap.put(skillCode, remainingMosp);</span>
+<span class="fc" id="L272">		}</span>
+
+<span class="fc" id="L274">		return skillMap;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

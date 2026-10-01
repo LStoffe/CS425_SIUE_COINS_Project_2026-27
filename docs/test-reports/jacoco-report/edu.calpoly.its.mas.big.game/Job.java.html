@@ -1,0 +1,1406 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Job.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">Job.java</span></div><h1>Job.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import java.util.Date;
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Random;
+import java.io.PrintWriter;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.ExpandedCompany;
+import edu.calpoly.its.mas.big.users.company.Bid;
+import edu.calpoly.its.mas.big.reports.FinancialReportForm;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.CAMUpdater;
+import edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm;
+import edu.calpoly.lib.multimedia.big.game.Utility;
+import edu.calpoly.lib.multimedia.big.game.Message;
+import edu.calpoly.lib.multimedia.big.game.Customer;
+import edu.calpoly.lib.multimedia.big.reports.Contract;
+
+/**
+ * Contains information on a job.
+ * The job class holds information about the current state of a job.  There is only one copy of a &lt;code&gt;Job&lt;/code&gt; class stored in the
+ * database, unlike Activities which have seperate copies for each period.  During period updates the state of the job is changed
+ * and the updates are saved to the database.
+ * &lt;br&gt;&lt;br&gt;
+ * The three most important functions of the &lt;code&gt;Job&lt;/code&gt; class are to:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Determine the bid winner of the job&lt;/li&gt;
+ *   &lt;li&gt;Do one month's work on the job&lt;/li&gt;
+ *   &lt;li&gt;Make payments for work done on the job&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;br&gt;
+ * &lt;code&gt;Job&lt;/code&gt; cannot perform the functions above without first receiving data from the &lt;code&gt;ExpandedCompany&lt;/code&gt; and
+ * &lt;code&gt;ExpandedGame&lt;/code&gt; classes, which control the period updates.  When a &lt;code&gt;Job&lt;/code&gt; is created using its constructor (such as when
+ * it is received from a DBHandler class) it will be missing its company, its list of bids, and its activities.  Before bid winners can be determined the &lt;code&gt;Job&lt;/code&gt;
+ * must receive a &lt;code&gt;Vector&lt;/code&gt; of bids.  Before it can be updated or income paid activities and a company must be set.
+ * The &lt;code&gt;ExpandedGame&lt;/code&gt; and &lt;code&gt;ExpandedCompany&lt;/code&gt; classes provide
+ * a &lt;code&gt;Job&lt;/code&gt; with these components via set methods.
+ *
+ *
+ * @version $Revision: 1.50 $ $Date: 2002/05/13 22:54:31 $
+ */
+public class Job
+{
+
+  public static final short PUBLIC = 0;
+  public static final short PRIVATE = 1;
+  public static final short HEAVY = 2;
+
+  protected int jobID;
+  private int jobType;
+  private int liquidatedDamages;
+  private int retentionID;
+  private Date completionDate;
+  private Date completionDeadline;
+  protected int jobSize;
+  private int percentRetained;
+  private int percentOfJob;
+  private long directCost;
+  private long retainedAmount;
+  private int lusRemaining;
+  private int periodCreated;
+  private boolean isActive;
+  private boolean isAuto;
+  private int estimatedWorkdays;
+  private float methodScalingFactor;
+  protected long bidAmount;
+  protected long changeOrderPrice;
+  protected int changeOrderLus;
+  protected int amountRetainedFromSubcontractors;
+  protected int billedToDate;
+
+  protected int fixedFieldOverhead;
+  protected int variableFieldOverhead;
+
+  //List of companies allowed to bid on this job
+  Vector companiesAllowedToBid;
+
+  protected ExpandedCompany company;
+  protected ExpandedGame game;
+
+  //0 if job is not complete yet
+  private int periodCompleted;
+
+  //This is stored here only for convenience, it is also in the Game associated with this Job
+  private int currentPeriod;
+
+  private Activity[] activities;
+
+  protected Vector bids;
+
+  //Temporary variables for doing calculations
+  private int laborExpense;
+  private int materialsExpense;
+  private int equipmentExpense;
+  private int subcontractorExpense;
+  private int fixedFieldCharge;
+
+  private int variableFieldCharge;
+  private int currentLiquidatedDamages;
+
+  private short typeModifier;
+
+  private Customer customer;
+
+
+  public Job(int jobID,
+  			 int liquidatedDamages,
+  			 Date completionDate,
+			 Date completionDeadline,
+			 int jobSize,
+			 int percentRetained,
+			 int percentOfJob,
+			 long directCost,
+			 long retainedAmount,
+			 int lusRemaining,
+			 int periodCompleted,
+			 int periodCreated,
+			 boolean isActive,
+			 boolean isAuto,
+			 int jobType,
+			 int estimatedWorkdays,
+			 float methodScalingFactor,
+			 long changeOrderPrice,
+			 int changeOrderLus,
+			 int fixedFieldOverhead,
+			 int variableFieldOverhead,
+			 int amountRetainedFromSubcontractors,
+			 int billedToDate,
+			 short typeModifier
+			)
+<span class="fc" id="L135">  {</span>
+<span class="fc" id="L136">	  this.jobID = jobID;</span>
+<span class="fc" id="L137">	  this.liquidatedDamages = liquidatedDamages;</span>
+<span class="fc" id="L138">	  this.completionDate = completionDate;</span>
+<span class="fc" id="L139">	  this.completionDeadline = completionDeadline;</span>
+<span class="fc" id="L140">	  this.jobSize = jobSize;</span>
+<span class="fc" id="L141">	  this.percentRetained = percentRetained;</span>
+<span class="fc" id="L142">	  this.percentOfJob = percentOfJob;</span>
+<span class="fc" id="L143">	  this.directCost = directCost;</span>
+<span class="fc" id="L144">	  this.retainedAmount = retainedAmount;</span>
+<span class="fc" id="L145">	  this.lusRemaining = lusRemaining;</span>
+<span class="fc" id="L146">	  this.periodCompleted = periodCompleted;</span>
+<span class="fc" id="L147">	  this.periodCreated = periodCreated;</span>
+<span class="fc" id="L148">	  this.isActive = isActive;</span>
+<span class="fc" id="L149">	  this.isAuto = isAuto;</span>
+<span class="fc" id="L150">	  this.jobType = jobType;</span>
+<span class="fc" id="L151">	  this.estimatedWorkdays = estimatedWorkdays;</span>
+<span class="fc" id="L152">	  this.methodScalingFactor = methodScalingFactor;</span>
+<span class="fc" id="L153">	  this.changeOrderPrice = changeOrderPrice;</span>
+<span class="fc" id="L154">	  this.changeOrderLus = changeOrderLus;</span>
+<span class="fc" id="L155">	  this.fixedFieldOverhead = fixedFieldOverhead;</span>
+<span class="fc" id="L156">	  this.variableFieldOverhead = variableFieldOverhead;</span>
+<span class="fc" id="L157">	  this.amountRetainedFromSubcontractors = amountRetainedFromSubcontractors;</span>
+<span class="fc" id="L158">	  this.billedToDate = billedToDate;</span>
+<span class="fc" id="L159">	  this.typeModifier = typeModifier;</span>
+
+      //Calculate how much to charge for variable overhead each period for this job
+<span class="fc" id="L162">	  variableFieldCharge = Math.round(( ((float) variableFieldOverhead) / 100f) * ((float) directCost));</span>
+
+<span class="fc" id="L164">	  companiesAllowedToBid = new Vector();</span>
+<span class="fc" id="L165">  }</span>
+
+
+  //Hardcodes the job type names from the properties file
+  //This method should be rewritten or removed when the list of job type names is no longer static
+  protected String TEMPORARY_getJobType()
+  {
+<span class="fc bfc" id="L172" title="All 2 branches covered.">	  if(jobType == 1)</span>
+	  {
+<span class="fc" id="L174">		  return &quot;Apartment Building&quot;;</span>
+	  }
+<span class="fc bfc" id="L176" title="All 2 branches covered.">	  if(jobType == 2)</span>
+	  {
+<span class="fc" id="L178">		  return &quot;School Building&quot;;</span>
+	  }
+<span class="fc bfc" id="L180" title="All 2 branches covered.">	  if(jobType == 3)</span>
+	  {
+<span class="fc" id="L182">		  return &quot;Office Building&quot;;</span>
+	  }
+<span class="fc bfc" id="L184" title="All 2 branches covered.">	  if(jobType == 4)</span>
+	  {
+<span class="fc" id="L186">		  return &quot;Hospital&quot;;</span>
+	  }
+<span class="fc bfc" id="L188" title="All 2 branches covered.">	  if(jobType == 5)</span>
+	  {
+<span class="fc" id="L190">		  return &quot;Industrial Building&quot;;</span>
+	  }
+<span class="fc bfc" id="L192" title="All 2 branches covered.">	  if(jobType == 6)</span>
+	  {
+<span class="fc" id="L194">		  return &quot;Highways&quot;;</span>
+	  }
+<span class="fc bfc" id="L196" title="All 2 branches covered.">	  if(jobType == 7)</span>
+	  {
+<span class="fc" id="L198">		  return &quot;Bridges&quot;;</span>
+	  }
+<span class="fc bfc" id="L200" title="All 2 branches covered.">	  if(jobType == 8)</span>
+	  {
+<span class="fc" id="L202">		  return &quot;Site Development&quot;;</span>
+	  }
+<span class="fc bfc" id="L204" title="All 2 branches covered.">	  if(jobType == 9)</span>
+	  {
+<span class="fc" id="L206">		  return &quot;Mass Excavation&quot;;</span>
+	  }
+<span class="fc bfc" id="L208" title="All 2 branches covered.">	  if(jobType == 10)</span>
+	  {
+<span class="fc" id="L210">		  return &quot;Underground Utilities&quot;;</span>
+	  }
+<span class="fc" id="L212">	  return &quot;Unknown Type&quot;;</span>
+  }
+
+  /**
+   * Charges a bidding expense to each company who bid on this job.
+   * A bidding expense is (Bid expense factor game parameter / 1000) * bid amount.
+   * This expense is deducted from the cash-on-hand of each company who placed a bid on this job.
+   */
+  public void chargeBiddingExpenses(int bidExpensePercent)
+  {
+<span class="fc" id="L222">	  Iterator bidIterator = bids.iterator();</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">	  while(bidIterator.hasNext()) {</span>
+<span class="fc" id="L224">		  Bid theBid = (Bid) bidIterator.next();</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		  if (theBid.getCompanyID() &gt; -1) {   // negative companyIDs are CCCs</span>
+<span class="fc" id="L226">			  ExpandedCompany theCompany = (ExpandedCompany) game.getExpandedCompany(theBid.getCompanyID());</span>
+<span class="fc" id="L227">			  FinancialReportForm financialReportForm = theCompany.getFinancialReport();</span>
+<span class="fc" id="L228">			  financialReportForm.increaseBiddingExpenses((theBid.getBidAmount() * bidExpensePercent) / 1000);</span>
+<span class="fc" id="L229">			  theCompany.decreaseCashOnHand((theBid.getBidAmount() * bidExpensePercent) / 1000, &quot;BID_EXPENSE&quot;);</span>
+
+			  //When the company is charged the bidding expense they also get name recognition
+			  //points for placing the bid
+<span class="fc" id="L233">			  game.modifyCAMUpdate(theCompany, CAMUpdater.NAME_RECOGNITION, CAMUpdater.NAME_RECOGNITION_BID_JOB);</span>
+		  }
+<span class="fc" id="L235">	  }</span>
+<span class="fc" id="L236">  }</span>
+
+  /**
+   * Determines which company is awarded this job.
+   * Examines all bids made on this job and chooses one based on the following factors:
+   * &lt;ul&gt;
+   *   &lt;li&gt;The company has the required percentage of the bid amount as cash-on-hand&lt;/li&gt;
+   *   &lt;li&gt;The company's bid is greater than or equal to a lower limit determined for this job(80-90% of direct cost)&lt;/li&gt;
+   *   &lt;li&gt;The company's bid is lower than all other bids&lt;/li&gt;
+   * &lt;/ul&gt;
+   *
+   * The bid outcome codes are:
+   * &lt;ul&gt;
+   *   &lt;li&gt;1 - The project was awarded to your firm&lt;/li&gt;
+   *   &lt;li&gt;2 - Your bid was deemed too low and was therefore disregarded&lt;/li&gt;
+   *   &lt;li&gt;3 - Your firm was found to have too many jobs in progress&lt;/li&gt;
+   *   &lt;li&gt;4 - Your firm was considered to be financially weak&lt;/li&gt;
+   *   &lt;li&gt;5 - Your firm did not bid on this project&lt;/li&gt;
+   *   &lt;li&gt;6 - Another firm made a lower bid&lt;/li&gt;
+   * &lt;/ul&gt;
+   * Company X's bid is treated as any other bid during this process.  If for some reason no company is
+   * determined to be the winner, Company X will be the winner by default.
+   * &lt;br&gt;
+   * &lt;br&gt;
+   * The job will be assigned to the winner.
+   *
+   * @precondition This Job's bid list (&lt;code&gt;bids&lt;/code&gt;) has been populated by its parent ExpandedGame
+   * @precondition The bid list contains a bid on behalf of CompanyX.  This bid is valid in that it will
+   *               not be disqualified based on outcome codes 2, 3, or 4.
+   * @postcondition Each &lt;code&gt;Bid&lt;/code&gt; in the bid list has been marked with an outcome code.
+   *                Exactly one bid has been assigned outcome code 1 (bid winner)  This winning bid
+   *                is the one with the lowest bid amount among the bids that satisfy the conditions
+   *                of acceptable bids.
+   */
+  public void determineBidWinner()
+  {
+	  // Note: Bids do not contain [Expanded]Company objects, just company ids
+	  // for use in game.getExpandedCompany(companyID)
+
+	  // Serves as a starting point when finding the lowest bid
+<span class="nc" id="L276">	  double[] unitPrices = new double[9];</span>
+<span class="nc" id="L277">	  double theBidPrice = 0;</span>
+<span class="nc" id="L278">	  Bid lowBid = new Bid(-1, -1, -1, Long.MAX_VALUE, theBidPrice, unitPrices, -1);</span>
+
+      // Value to use as cutoff point for bids.  All bids below this percentage of the direct cost
+      // are rejected with code 2.
+	  // Random number between 70 and 80, inclusive (see BIG FAQ - 8/7/2001)
+<span class="nc" id="L283">	  int minDirectCostPercent = 70 + (new Random()).nextInt(11);</span>
+
+	  // DEBUG - To Be Removed
+	  //System.out.println(&quot;Before:&quot;);
+<span class="nc" id="L287">	  Iterator bidIterat = bids.iterator();</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">	  while(bidIterat.hasNext()) {</span>
+<span class="nc" id="L289">		  Bid theBid = (Bid) bidIterat.next();</span>
+		  //System.out.println(&quot; &quot; + theBid);
+<span class="nc" id="L291">	  }</span>
+
+	  /*
+	   * Disqualify bids based on outcome codes 6, 2, 3, and 4
+	   * (which don't require comparison with other bids)
+	   */
+<span class="nc" id="L297">	  Iterator bidIterator = bids.iterator();</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">	  while(bidIterator.hasNext())</span>
+	  {
+<span class="nc" id="L300">		  Bid theBid = (Bid) bidIterator.next();</span>
+
+<span class="nc bnc" id="L302" title="All 2 branches missed.">		  if (theBid.getCompanyID() &gt; -1)</span>
+		  {
+			  // Do not check CompanyX against codes 6, 2, 3 or 4
+<span class="nc" id="L305">			  ExpandedCompany theCompany = (ExpandedCompany) game.getExpandedCompany(theBid.getCompanyID());</span>
+<span class="nc" id="L306">			  long bidAmount = theBid.getBidAmount();</span>
+
+<span class="nc bnc" id="L308" title="All 2 branches missed.">			  if (bidAmount &lt; (getDirectCost() * minDirectCostPercent) / 100)</span>
+			  {
+<span class="nc" id="L310">				  theBid.setOutcomeCode(2);     // Bid is too low</span>
+<span class="nc" id="L311">          		  game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+<span class="nc" id="L312">													  		   game.getExpandedCompany(theBid.getCompanyID()).getCompany(),</span>
+<span class="nc" id="L313">													  		   &quot;We regret to inform you that we have chosen a different contractor for work on the &quot; + TEMPORARY_getJobType() + &quot;, Job# &quot; + jobID + &quot;.  We appreciate your bid and look forward to possible future business opportunities with your company.&quot;,</span>
+													  		   &quot;Your bid on job #&quot; + jobID,
+<span class="nc" id="L315">													  		   game.getGame().getCurrentPeriodNumber() + 1,</span>
+													  		   Message.TEXT_ONLY,
+													  		   -1
+													 		 )
+										 		 );
+			  }
+<span class="nc bnc" id="L321" title="All 2 branches missed.">			  else if (!theCompany.hasFewerThanMaxJobs())</span>
+			  {
+<span class="nc" id="L323">				  theBid.setOutcomeCode(3);     // Company already has too many jobs</span>
+<span class="nc" id="L324">          		  game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+<span class="nc" id="L325">													  		   game.getExpandedCompany(theBid.getCompanyID()).getCompany(),</span>
+<span class="nc" id="L326">													  		   &quot;We regret to inform you that we have chosen a different contractor for work on the &quot; + TEMPORARY_getJobType() + &quot;, Job# &quot; + jobID + &quot;.  We appreciate your bid and look forward to possible future business opportunities with your company.&quot;,</span>
+													  		   &quot;Your bid on job #&quot; + jobID,
+<span class="nc" id="L328">													  		   game.getGame().getCurrentPeriodNumber() + 1,</span>
+													  		   Message.TEXT_ONLY,
+													  		   -1
+													 		 )
+										 		 );
+			  }
+<span class="nc bnc" id="L334" title="All 4 branches missed.">			  else if (!theCompany.jobWithinPerJobLimit(bidAmount) &amp;&amp; typeModifier==PUBLIC)</span>
+			  {
+<span class="nc" id="L336">				  theBid.setOutcomeCode(4);     // Per job limit exceeded</span>
+<span class="nc" id="L337">          		  game.sendInGameMessageToCompany(new Message(&quot;TBC&quot;,</span>
+<span class="nc" id="L338">													  		   game.getExpandedCompany(theBid.getCompanyID()).getCompany(),</span>
+<span class="nc" id="L339">													  		   &quot;We are unable to provide you with a bond for your bid on the &quot; + TEMPORARY_getJobType() + &quot;, Job# &quot; + jobID + &quot;, because the amount of your bid exceeds your per job limit for bonds.  Public jobs require a bond, so your bid has been disregared by the customer.  Please be aware of your bond limits when you bid to prevent this from happening in the future.&quot;,</span>
+													  		   &quot;Bond for your bid on job #&quot; + jobID,
+<span class="nc" id="L341">													  		   game.getGame().getCurrentPeriodNumber() + 1,</span>
+													  		   Message.TEXT_ONLY,
+													  		   -1
+													 		 )
+										 		 );
+			  }
+<span class="nc bnc" id="L347" title="All 4 branches missed.">			  else if (!theCompany.jobWithinWIPLimit(bidAmount) &amp;&amp; typeModifier==PUBLIC)</span>
+			  {
+<span class="nc" id="L349">				  theBid.setOutcomeCode(6);     // WIP limit exceeded</span>
+<span class="nc" id="L350">          		  game.sendInGameMessageToCompany(new Message(&quot;TBC&quot;,</span>
+<span class="nc" id="L351">													  		   game.getExpandedCompany(theBid.getCompanyID()).getCompany(),</span>
+<span class="nc" id="L352">													  		   &quot;We are unable to provide you with a bond for your bid on the &quot; + TEMPORARY_getJobType() + &quot;, Job# &quot; + jobID + &quot;, because the amount of your bid plus the value of your work currently in progress would exceed your WIP limit.  Public jobs require a bond, so your bid has been disregared by the customer.  Please be aware of your bond limits when you bid to prevent this from happening in the future.&quot;,</span>
+													  		   &quot;Bond for your bid on job #&quot; + jobID,
+<span class="nc" id="L354">													  		   game.getGame().getCurrentPeriodNumber() + 1,</span>
+													  		   Message.TEXT_ONLY,
+													  		   -1
+													 		 )
+										 		 );
+			  }
+
+		  }
+
+<span class="nc" id="L363">	  }</span>
+
+	  /*
+	   * Find the lowest bid
+	   */
+<span class="nc" id="L368">	  bidIterator = bids.iterator();</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">	  while(bidIterator.hasNext()) {</span>
+<span class="nc" id="L370">		  Bid theBid = (Bid) bidIterator.next();</span>
+
+		  try
+		  {
+<span class="nc bnc" id="L374" title="All 4 branches missed.">		  if ((theBid.getOutcomeCode() &lt; 1) || (theBid.getOutcomeCode() &gt; 7)) {</span>
+			  // Bid has not yet been assigned an outcome code, which means
+			  // it should be checked against the lowest bid
+<span class="nc bnc" id="L377" title="All 2 branches missed.">			  if (theBid.getBidAmount() &lt; lowBid.getBidAmount()) {</span>
+				  // We've found a lower bid
+<span class="nc" id="L379">				  lowBid.setOutcomeCode(7);</span>
+<span class="nc" id="L380">				  Bid temp = lowBid;</span>
+<span class="nc" id="L381">				  lowBid = theBid;</span>
+<span class="nc" id="L382">          		  game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+<span class="nc" id="L383">													  		   game.getExpandedCompany(temp.getCompanyID()).getCompany(),</span>
+<span class="nc" id="L384">													  		   &quot;We regret to inform you that we have chosen a different contractor for work on the &quot; + TEMPORARY_getJobType() + &quot;, Job# &quot; + jobID + &quot;.  We appreciate your bid and look forward to possible future business opportunities with your company.&quot;,</span>
+													  		   &quot;Your bid on job #&quot; + jobID,
+<span class="nc" id="L386">													  		   game.getGame().getCurrentPeriodNumber() + 1,</span>
+													  		   Message.TEXT_ONLY,
+													  		   -1
+													 		 )
+										 		 );
+
+<span class="nc" id="L392">			  } else {</span>
+<span class="nc" id="L393">				  theBid.setOutcomeCode(7);</span>
+<span class="nc" id="L394">          		  game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+<span class="nc" id="L395">													  		   game.getExpandedCompany(theBid.getCompanyID()).getCompany(),</span>
+<span class="nc" id="L396">													  		   &quot;We regret to inform you that we have chosen a different contractor for work on the &quot; + TEMPORARY_getJobType() + &quot;, Job# &quot; + jobID + &quot;.  We appreciate your bid and look forward to possible future business opportunities with your company.&quot;,</span>
+													  		   &quot;Your bid on job #&quot; + jobID,
+<span class="nc" id="L398">													  		   game.getGame().getCurrentPeriodNumber() + 1,</span>
+													  		   Message.TEXT_ONLY,
+													  		   -1
+													 		 )
+										 		 );
+			  }
+		  }
+	  	  }
+<span class="nc" id="L406">	  	  catch(NullPointerException npe)</span>
+	  	  {
+			  //A bit sloppy...  we want to ignore cases
+			  //were the bid is by a CCC
+<span class="nc" id="L410">		  }</span>
+
+<span class="nc" id="L412">	  }</span>
+
+	  // lowBid now contains the winning bid (may be CompanyX's bid)
+<span class="nc" id="L415">	  lowBid.setOutcomeCode(1);</span>
+
+	  // DEBUG - To Be Removed
+<span class="nc" id="L418">	  bidIterator = bids.iterator();</span>
+<span class="nc bnc" id="L419" title="All 2 branches missed.">	  while(bidIterator.hasNext()) {</span>
+<span class="nc" id="L420">		  Bid theBid = (Bid) bidIterator.next();</span>
+		  //System.out.println(&quot; &quot; + theBid);
+<span class="nc" id="L422">	  }</span>
+
+<span class="nc" id="L424">	  game.storeBids(this, bids);</span>
+
+	  // Associate the winning company with this job, leaving &lt;code&gt;company&lt;/code&gt;
+	  // null if a CCC placed the winning bid;
+<span class="nc bnc" id="L428" title="All 2 branches missed.">	  if (lowBid.getCompanyID() &gt; -1) {</span>
+<span class="nc" id="L429">		  company = game.getExpandedCompany(lowBid.getCompanyID());</span>
+<span class="nc" id="L430">          game.getExpandedCompany(lowBid.getCompanyID()).awardJob(this, lowBid);</span>
+<span class="nc" id="L431">          game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+<span class="nc" id="L432">													  game.getExpandedCompany(lowBid.getCompanyID()).getCompany(),</span>
+<span class="nc" id="L433">													  &quot;We are pleased to inform you that we have chosen your company to be the contractor for work on our new &quot; + TEMPORARY_getJobType() + &quot;, Job# &quot; + jobID,</span>
+													  &quot;Job Award Notification&quot;,
+<span class="nc" id="L435">													  game.getGame().getCurrentPeriodNumber() + 1,</span>
+													  Message.TEXT_ONLY,
+													  -1
+													 )
+										 );
+
+          //Give this company name recognition credit for getting this job
+<span class="nc" id="L442">          int nameRecognitionBonus = Math.round(((float) jobSize) / ((float) CAMUpdater.NAME_RECOGNITION_GET_JOB_MODIFIER));</span>
+<span class="nc" id="L443">          game.modifyCAMUpdate(company, CAMUpdater.NAME_RECOGNITION, nameRecognitionBonus);</span>
+
+          //Give this company job type credit for getting this job
+<span class="nc" id="L446">		  giveJobTypeCredit(CAMUpdater.JOB_TYPE_AWARD_BONUS);</span>
+
+
+		  //Need to store this bid amount in the job -- K.C. 1/9/2002
+<span class="nc" id="L450">		  bidAmount = lowBid.getBidAmount();</span>
+<span class="nc" id="L451">		  createChangeOrder();</span>
+	  }
+
+<span class="nc" id="L454">  }</span>
+
+  /**
+   * For each bid made by a player company, determines how responsible that
+   * bid is, using the criteria described in the BIGv3.2 SRS:
+   * &lt;ul&gt;
+   *   &lt;li&gt;
+   *     If a company sumbits a bid that is within 1 standard deviation
+   *     of the average of all bids for the job, then the value for the
+   *     responsibility metric will be increased by the
+   *     value of &lt;code&gt;CAMUpdater.BID_RESPONSIBILITY_1SD_INC&lt;/code&gt;
+   *   &lt;/li&gt;
+   *   &lt;li&gt;
+   *     If a company sumbits a bid that is within 2 standard deviations
+   *     of the average of all bids for the job, then the value for the
+   *     responsibility metric will be increased by the
+   *     value of &lt;code&gt;CAMUpdater.BID_RESPONSIBILITY_2SD_INC&lt;/code&gt;
+   *   &lt;/li&gt;
+   *   &lt;li&gt;
+   *     If a company sumbits a bid that is below BIG's calculated
+   *     direct cost of the job, then the value for the responsibility metric
+   *     will be decreased by the
+   *     value of &lt;code&gt;CAMUpdater.BID_RESPONSIBILITY_LOW_DC&lt;/code&gt;
+   *   &lt;/li&gt;
+   *   &lt;li&gt;
+   *     If a company sumbits a bid that is over 3 standard deviations
+   *     of the average of all bids for the job, then the value for the
+   *     responsibility metric will be decreased by the
+   *     value of &lt;code&gt;CAMUpdater.BID_RESPONSIBILITY_3SD_DEC&lt;/code&gt;
+   *   &lt;/li&gt;
+   * &lt;/ul&gt;
+   */
+  public void determineResponsibility()
+  {
+	  // Note: Bids do not contain [Expanded]Company objects, just company ids
+	  // for use in game.getExpandedCompany(companyID)
+
+<span class="nc" id="L491">	  long[] bidPrices = new long[bids.size()];</span>
+
+<span class="nc bnc" id="L493" title="All 2 branches missed.">	  for(int i = 0; i &lt; bids.size(); i++)</span>
+	  {
+<span class="nc" id="L495">		  Bid theBid = (Bid) bids.elementAt(i);</span>
+<span class="nc" id="L496">		  bidPrices[i] = theBid.getBidAmount();</span>
+	  }
+
+<span class="nc" id="L499">	  long bidAverage = Utility.average(bidPrices);</span>
+<span class="nc" id="L500">	  long bidStdDev = (long) Utility.stdDev(bidPrices);</span>
+
+<span class="nc bnc" id="L502" title="All 2 branches missed.">	  for(int i = 0; i &lt; bids.size(); i++)</span>
+	  {
+<span class="nc" id="L504">		  Bid theBid = (Bid) bids.elementAt(i);</span>
+
+<span class="nc bnc" id="L506" title="All 2 branches missed.">		  if(theBid.getCompanyID() &gt; -1)</span>
+		  {
+<span class="nc" id="L508">		      ExpandedCompany ec = game.getExpandedCompany(theBid.getCompanyID());</span>
+
+		      //Bid is less than direct cost
+<span class="nc bnc" id="L511" title="All 2 branches missed.">		      if(theBid.getBidAmount() &lt; directCost)</span>
+		      {
+<span class="nc" id="L513">			      game.modifyCAMUpdate(ec, CAMUpdater.BID_RESPONSIBILITY, CAMUpdater.BID_RESPONSIBILITY_LOW_DC);</span>
+		      }
+		      //Bid between 2 and 1 standard devs below average
+<span class="nc bnc" id="L516" title="All 4 branches missed.">		      else if ((theBid.getBidAmount() &gt; (bidAverage - (2 * bidStdDev))) &amp;&amp; (theBid.getBidAmount() &lt; (bidAverage - (1 * bidStdDev))))</span>
+		      {
+<span class="nc" id="L518">			      game.modifyCAMUpdate(ec, CAMUpdater.BID_RESPONSIBILITY, CAMUpdater.BID_RESPONSIBILITY_2SD_INC);</span>
+		      }
+		      //Bid between 1 standard dev below average and average
+<span class="nc bnc" id="L521" title="All 4 branches missed.">		      else if ( (theBid.getBidAmount() &lt;= bidAverage) &amp;&amp; (theBid.getBidAmount() &gt; (bidAverage - (1 * bidStdDev))))</span>
+		      {
+<span class="nc" id="L523">			      game.modifyCAMUpdate(ec, CAMUpdater.BID_RESPONSIBILITY, CAMUpdater.BID_RESPONSIBILITY_1SD_INC);</span>
+		      }
+		      //Bid between average and 1 standard dev above average
+<span class="nc bnc" id="L526" title="All 4 branches missed.">		      else if ( (theBid.getBidAmount() &gt; bidAverage) &amp;&amp; (theBid.getBidAmount() &lt; (bidAverage + (1 * bidStdDev))))</span>
+		      {
+<span class="nc" id="L528">			      game.modifyCAMUpdate(ec, CAMUpdater.BID_RESPONSIBILITY, CAMUpdater.BID_RESPONSIBILITY_1SD_INC);</span>
+		      }
+		      //Bid between 1 and 2 standard devs above average
+<span class="nc bnc" id="L531" title="All 4 branches missed.">		      else if ((theBid.getBidAmount() &lt; (bidAverage + (2 * bidStdDev))) &amp;&amp; (theBid.getBidAmount() &gt; (bidAverage + (1 * bidStdDev))))</span>
+		      {
+<span class="nc" id="L533">			      game.modifyCAMUpdate(ec, CAMUpdater.BID_RESPONSIBILITY, CAMUpdater.BID_RESPONSIBILITY_2SD_INC);</span>
+		      }
+		      //Bid above 3 standard devs above average
+<span class="nc bnc" id="L536" title="All 2 branches missed.">		      else if (theBid.getBidAmount() &gt; (bidAverage + (3 * bidStdDev)))</span>
+		      {
+<span class="nc" id="L538">			      game.modifyCAMUpdate(ec, CAMUpdater.BID_RESPONSIBILITY, CAMUpdater.BID_RESPONSIBILITY_3SD_DEC);</span>
+		      }
+		  }
+	  }
+
+<span class="nc" id="L543">  }</span>
+
+  /**
+   *  Gives a company job type credit for this job
+   */
+  protected void giveJobTypeCredit(int creditAmount)
+  {
+<span class="nc bnc" id="L550" title="All 2 branches missed.">	  if(jobType == 1)</span>
+	  {
+<span class="nc" id="L552">		  game.modifyCAMUpdate(company, CAMUpdater.APARTMENTS, 1);</span>
+		  // game.modifyCAMUpdate(company, CAMUpdater.APARTMENTS, creditAmount);
+		  // game.modifyCAMUpdate(company, CAMUpdater.SCHOOLS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.OFFICES, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.HOSPITALS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.INDUSTRIAL, CAMUpdater.JOB_TYPE_DECAY);
+	  }
+<span class="nc bnc" id="L559" title="All 2 branches missed.">	  else if(jobType == 2)</span>
+	  {
+<span class="nc" id="L561">		  game.modifyCAMUpdate(company, CAMUpdater.SCHOOLS, 1);</span>
+		  // game.modifyCAMUpdate(company, CAMUpdater.APARTMENTS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.SCHOOLS, creditAmount);
+		  // game.modifyCAMUpdate(company, CAMUpdater.OFFICES, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.HOSPITALS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.INDUSTRIAL, CAMUpdater.JOB_TYPE_DECAY);
+	  }
+<span class="nc bnc" id="L568" title="All 2 branches missed.">	  else if(jobType == 3)</span>
+	  {
+<span class="nc" id="L570">		  game.modifyCAMUpdate(company, CAMUpdater.OFFICES, 1);</span>
+		  // game.modifyCAMUpdate(company, CAMUpdater.APARTMENTS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.SCHOOLS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.OFFICES, creditAmount);
+		  // game.modifyCAMUpdate(company, CAMUpdater.HOSPITALS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.INDUSTRIAL, CAMUpdater.JOB_TYPE_DECAY);
+	  }
+<span class="nc bnc" id="L577" title="All 2 branches missed.">	  else if(jobType == 4)</span>
+	  {
+<span class="nc" id="L579">		  game.modifyCAMUpdate(company, CAMUpdater.HOSPITALS, 1);</span>
+		  // game.modifyCAMUpdate(company, CAMUpdater.APARTMENTS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.SCHOOLS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.OFFICES, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.HOSPITALS, creditAmount);
+		  // game.modifyCAMUpdate(company, CAMUpdater.INDUSTRIAL, CAMUpdater.JOB_TYPE_DECAY);
+	  }
+<span class="nc bnc" id="L586" title="All 2 branches missed.">	  else if(jobType == 5)</span>
+	  {
+<span class="nc" id="L588">		  game.modifyCAMUpdate(company, CAMUpdater.INDUSTRIAL, 1);</span>
+		  // game.modifyCAMUpdate(company, CAMUpdater.APARTMENTS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.SCHOOLS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.OFFICES, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.HOSPITALS, CAMUpdater.JOB_TYPE_DECAY);
+		  // game.modifyCAMUpdate(company, CAMUpdater.INDUSTRIAL, creditAmount);
+	  }
+<span class="nc bnc" id="L595" title="All 2 branches missed.">	  else if(jobType == 6)</span>
+	  {
+<span class="nc" id="L597">		  game.modifyCAMUpdate(company, CAMUpdater.HIGHWAYS, 1);</span>
+	  }
+<span class="nc bnc" id="L599" title="All 2 branches missed.">	  else if(jobType == 7)</span>
+	  {
+<span class="nc" id="L601">		  game.modifyCAMUpdate(company, CAMUpdater.BRIDGES, 1);</span>
+	  }
+<span class="nc bnc" id="L603" title="All 2 branches missed.">	  else if(jobType == 8)</span>
+	  {
+<span class="nc" id="L605">		  game.modifyCAMUpdate(company, CAMUpdater.SITEDEVELOPMENT, 1);</span>
+	  }
+<span class="nc bnc" id="L607" title="All 2 branches missed.">	  else if(jobType == 9)</span>
+	  {
+<span class="nc" id="L609">		  game.modifyCAMUpdate(company, CAMUpdater.MASSEXCAVATION, 1);</span>
+	  }
+<span class="nc bnc" id="L611" title="All 2 branches missed.">	  else if(jobType == 10)</span>
+	  {
+<span class="nc" id="L613">		  game.modifyCAMUpdate(company, CAMUpdater.UNDERGROUNDUTILITIES, 1);</span>
+	  }
+<span class="nc" id="L615">  }</span>
+
+  //Increase the job size of this job by some random amount upto 5% of the current job size.  The new LU's will be randomly
+  //allocated amongst each activity that has LU's (ie where the percent takeoff for that activity != 0)
+  //A call to ExpandedGame will be made to get the cost of doing this.  This cost will be stored in the
+  //changeOrderPrice variable.
+  protected void createChangeOrder()
+  {
+<span class="nc" id="L623">	  Random random = new Random();</span>
+<span class="nc" id="L624">	  int changeOrderPercent = random.nextInt(6); //Generates value from 0 to 5</span>
+
+<span class="nc" id="L626">	  changeOrderLus = Math.round((((float) changeOrderPercent) / 100f) * jobSize);</span>
+
+<span class="nc" id="L628">	  int tempChangeOrderLus = changeOrderLus;</span>
+<span class="nc" id="L629">	  int[] allocatedLus = new int[9];</span>
+
+<span class="nc" id="L631">      activities = game.getActivities(this);</span>
+
+	  //Randomly allocate lus to activities
+<span class="nc bnc" id="L634" title="All 2 branches missed.">	  while (tempChangeOrderLus &gt; 0)</span>
+	  {
+<span class="nc" id="L636">		  int activity = random.nextInt(9);  //Values from 0 to 8</span>
+<span class="nc bnc" id="L637" title="All 2 branches missed.">		  if (activities[activity].getLusTotal() &gt; 0) //Only allocate to activities that have some lus already</span>
+		  {
+<span class="nc" id="L639">			  int lusToAllocate = random.nextInt(tempChangeOrderLus + 1);</span>
+<span class="nc" id="L640">			  allocatedLus[activity] += lusToAllocate;</span>
+<span class="nc" id="L641">			  activities[activity].setLusTotal(activities[activity].getLusTotal() + lusToAllocate);</span>
+<span class="nc" id="L642">			  tempChangeOrderLus -= lusToAllocate;</span>
+		  }
+<span class="nc" id="L644">	  }</span>
+
+<span class="nc" id="L646">	  changeOrderPrice = game.getChangeOrderPrice(allocatedLus);</span>
+
+	  //System.out.println(changeOrderPrice);
+<span class="nc" id="L649">      game.updateActivities(activities, this);</span>
+<span class="nc" id="L650">      activities = null;</span>
+<span class="nc" id="L651">  }</span>
+
+
+  public Activity[] getActivities()
+  {
+<span class="fc" id="L656">	  return this.activities;</span>
+  }
+
+
+  public void setActivities(Activity[] activities)
+  {
+<span class="fc bfc" id="L662" title="All 4 branches covered.">	  if((activities != null) &amp;&amp; (activities.length == 9))</span>
+	  {
+<span class="fc bfc" id="L664" title="All 2 branches covered.">	  	for(int i = 0; i &lt; 9; i++)</span>
+<span class="fc" id="L665">	  	    activities[i].setMethodScalingFactor(methodScalingFactor);</span>
+<span class="fc" id="L666">	  	this.activities = activities;</span>
+	  }
+<span class="fc" id="L668">  }</span>
+
+
+  /**
+   * Returns the amount to be retained given a payment amount
+   *
+   */
+  public int calculateRetainedAmount(int paymentAmount)
+  {
+<span class="fc" id="L677">	  int amountToRetain = 0;</span>
+<span class="fc" id="L678">      float percentOfJobComplete = getPercentOfJobComplete();</span>
+
+<span class="fc bfc" id="L680" title="All 2 branches covered.">	  if(percentOfJobComplete &lt; percentOfJob)</span>
+	  {
+<span class="fc" id="L682">		  amountToRetain = Math.round((percentRetained / 100f) * paymentAmount);</span>
+
+	  }
+<span class="fc" id="L685">	  return amountToRetain;</span>
+
+  }
+
+
+  /**
+   * Makes this job pay its company any money is has retained.
+   * &lt;br&gt;&lt;br&gt;
+   * &lt;b&gt;Precondition: &lt;/b&gt;This job must have been assigned an &lt;code&gt;ExpandedCompany&lt;/code&gt; using the setCompany() method,
+   * &lt;br&gt;
+   */
+  public void payRetention(FinancialReportForm financialReportForm)
+  {
+	  //System.out.println(&quot;Paying retention: &quot; + retainedAmount);
+<span class="fc" id="L699">	  company.increaseCashOnHand(retainedAmount, &quot;RETAINAGE&quot;);</span>
+<span class="fc" id="L700">	  financialReportForm.increaseRetainageReceived(this, retainedAmount);</span>
+<span class="fc" id="L701">	  retainedAmount = 0;</span>
+<span class="fc" id="L702">  }</span>
+
+  public void setRetention(int amount)
+  {
+<span class="fc" id="L706">	  retainedAmount += amount;</span>
+<span class="fc" id="L707">  }</span>
+
+  public int getRetention()
+  {
+<span class="fc" id="L711">	  return (int) retainedAmount;</span>
+  }
+
+
+  /**
+   * Charges a day's worth of liquidated damages to the company who holds this job.
+   * Also increments the amount the Pace metric will be decreased by during the next period update.
+   */
+  private void incLiquidatedDamages(FinancialReportForm financialReportForm)
+  {
+<span class="nc" id="L721">	  financialReportForm.incrementDaysLate(this);</span>
+
+<span class="nc" id="L723">	  currentLiquidatedDamages += liquidatedDamages;</span>
+
+<span class="nc" id="L725">	  game.modifyCAMUpdate(company, CAMUpdater.PACE, CAMUpdater.PACE_DAY_LATE);</span>
+<span class="nc" id="L726">  }</span>
+
+  /**
+   * Charges liquidated damages to the company who holds this job.
+   */
+  public void chargeLiquidatedDamages(FinancialReportForm financialReportForm)
+  {
+<span class="fc bfc" id="L733" title="All 2 branches covered.">	  if(currentLiquidatedDamages &gt; 0)</span>
+	  {
+<span class="fc" id="L735">	  	  company.decreaseCashOnHand(currentLiquidatedDamages, &quot;LIQ_DAM&quot;);</span>
+	  }
+<span class="fc" id="L737">  }</span>
+
+  /**
+   * Does work on each activity of this job for each workday of the month, or until the job completes.
+   * &lt;br&gt;&lt;br&gt;
+   * &lt;b&gt;Precondition: &lt;/b&gt;This job must have been assigned an &lt;code&gt;ExpandedCompany&lt;/code&gt; using the setCompany() method,
+   * and an array of &lt;code&gt;Activity&lt;/code&gt; using the setActivities() methods.
+   * &lt;br&gt;
+   * @
+   *
+   */
+  public void update(ScheduledMonth month, FinancialReportForm financialReportForm, PrintWriter out)
+  {
+		//System.out.println(&quot;Did one month's work&quot;);
+<span class="nc" id="L751">		boolean complete = false;</span>
+<span class="nc" id="L752">		Vector activitiesVector = new Vector();</span>
+<span class="nc" id="L753">		fixedFieldCharge = 0;</span>
+
+		//Place the Activities into a Vector for use in the NetworkDependencies object
+<span class="nc" id="L756">		NetworkDependencies networkDependencies = new NetworkDependencies();</span>
+
+
+<span class="nc bnc" id="L759" title="All 2 branches missed.">		for(int i = 0; i &lt; 9; i++)</span>
+<span class="nc" id="L760">		     activitiesVector.add(activities[i]);</span>
+
+<span class="nc bnc" id="L762" title="All 4 branches missed.">		while(month.daysLeft() &amp;&amp; !complete)  // work through a single day as long as the month is not yet over and the job is not finished</span>
+		{
+<span class="nc bnc" id="L764" title="All 2 branches missed.">			if(month.getWorkday())</span>
+			{
+				//Charge company for overhead for this workday
+<span class="nc" id="L767">				fixedFieldCharge += fixedFieldOverhead;</span>
+
+<span class="nc" id="L769">                networkDependencies.update(activitiesVector);  // will set the &quot;isActive&quot; field for all activities</span>
+
+<span class="nc bnc" id="L771" title="All 2 branches missed.">				for(int i = 0; i &lt; 9; i++)</span>
+				{
+<span class="nc" id="L773">				    activities[i].update(month.getRainday(), this.jobType, this.jobID, company, game, out);</span>
+				    /* System.out.println(i+1);
+				    System.out.println(activities[i].getLusTotal());
+				    System.out.println(activities[i].getLusCompleted()); */
+				}
+
+			}
+<span class="nc" id="L780">	        updateLusRemaining();</span>
+<span class="nc bnc" id="L781" title="All 2 branches missed.">			if(allActivitiesComplete())</span>
+			{
+<span class="nc" id="L783">			    completionDate = month.getDate();</span>
+<span class="nc" id="L784">			    complete = true;</span>
+<span class="nc" id="L785">                periodCompleted = game.getGame().getCurrentPeriodNumber();</span>
+
+<span class="nc" id="L787">	  			java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(&quot;MM/dd/yyyy&quot;);</span>
+	  			//System.out.println(formatter.format(completionDate));
+<span class="nc" id="L789">	  			isActive = false;</span>
+
+	  			//Give this company name recognition credit if the job is finished on time
+	  			//Give this company job type credit if the job is finished on time
+	  			//Give this company pace metric credit if the job is finished on time
+<span class="nc bnc" id="L794" title="All 2 branches missed.">	  			if(month.getDate().getTime() &lt; completionDeadline.getTime())</span>
+	  			{
+<span class="nc" id="L796">					int nameRecognitionBonus = Math.round(((float) jobSize) / ((float) CAMUpdater.NAME_RECOGNITION_FINISH_JOB_MODIFIER));</span>
+<span class="nc" id="L797">					game.modifyCAMUpdate(company, CAMUpdater.NAME_RECOGNITION, nameRecognitionBonus);</span>
+				//	giveJobTypeCredit(CAMUpdater.JOB_TYPE_FINISHING_BONUS);
+<span class="nc" id="L799">					game.modifyCAMUpdate(company, CAMUpdater.PACE, CAMUpdater.PACE_FINISHED_ONTIME);</span>
+				}
+
+			}
+<span class="nc bnc" id="L803" title="All 2 branches missed.">			if(month.getDate().getTime() &gt; completionDeadline.getTime())</span>
+<span class="nc" id="L804">			    incLiquidatedDamages(financialReportForm);</span>
+<span class="nc" id="L805">			month.advanceDay();</span>
+		}  // end of move through one day -- on to the next day!
+
+
+
+
+
+		//Give this company name recognition credit for work done on this job
+<span class="nc" id="L813">		int nameRecognitionBonus = Math.round(((float) jobSize) / ((float) CAMUpdater.NAME_RECOGNITION_WORK_JOB_MODIFIER));</span>
+<span class="nc" id="L814">		game.modifyCAMUpdate(company, CAMUpdater.NAME_RECOGNITION, nameRecognitionBonus);</span>
+<span class="nc" id="L815">  }</span>
+
+  public void jobCompleted(Contract contract)
+  {
+<span class="fc" id="L819">  }</span>
+
+  public void clearOvertime()
+  {
+		//Clear all assigned overtime
+<span class="fc bfc" id="L824" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+<span class="fc" id="L825">		     activities[i].setOvertimeDays(0);</span>
+<span class="fc" id="L826">  }</span>
+
+  public void recordDirectCosts(FinancialReportForm financialReportForm, BalanceSheetForm balanceSheet)
+  {
+<span class="fc" id="L830">	    laborExpense = 0;</span>
+<span class="fc" id="L831">	    materialsExpense = 0;</span>
+<span class="fc" id="L832">	    equipmentExpense = 0;</span>
+<span class="fc" id="L833">	    subcontractorExpense = 0;</span>
+<span class="fc bfc" id="L834" title="All 2 branches covered.">	    for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="fc" id="L836">			laborExpense += activities[i].getCurrentLaborCost();</span>
+<span class="fc" id="L837">			materialsExpense += activities[i].getCurrentMaterialCost();</span>
+<span class="fc" id="L838">			equipmentExpense += activities[i].getCurrentEquipmentCost();</span>
+<span class="fc" id="L839">			subcontractorExpense += activities[i].getCurrentSubcontractorCost();</span>
+		}
+
+<span class="fc" id="L842">		financialReportForm.increaseDirectLaborCost(this, laborExpense);</span>
+<span class="fc" id="L843">		financialReportForm.increaseDirectMaterialsCost(this, materialsExpense);</span>
+<span class="fc" id="L844">		financialReportForm.increaseDirectEquipmentCost(this, equipmentExpense);</span>
+<span class="fc" id="L845">		financialReportForm.increaseSubcontractorCost(this, subcontractorExpense);</span>
+
+        //Determine the total amount retained from subcontractors
+<span class="fc" id="L848">		int activityAmountRetained = 0;</span>
+<span class="fc bfc" id="L849" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="fc" id="L851">			activityAmountRetained += amountToRetain(activities[i], percentRetained, percentOfJob);</span>
+		}
+
+		//Increase the running total of amounts retained from subs by the current amount
+<span class="fc" id="L855">		amountRetainedFromSubcontractors += activityAmountRetained;</span>
+
+<span class="fc" id="L857">		balanceSheet.setCurrentAccountsPayable(  balanceSheet.getCurrentAccountsPayable()</span>
+		                                       + materialsExpense
+		                                       + (subcontractorExpense - activityAmountRetained)
+		                                       );
+
+<span class="fc" id="L862">		balanceSheet.setRetentionPayable(balanceSheet.getRetentionPayable() + activityAmountRetained);</span>
+
+		//If the job completed this period, all amounts retained from subcontractors become payable
+<span class="fc bfc" id="L865" title="All 2 branches covered.">		if(!isActive)</span>
+		{
+<span class="fc" id="L867">			balanceSheet.setRetentionPayable(balanceSheet.getRetentionPayable() - amountRetainedFromSubcontractors);</span>
+<span class="fc" id="L868">			balanceSheet.setCurrentAccountsPayable(balanceSheet.getCurrentAccountsPayable() + amountRetainedFromSubcontractors);</span>
+		}
+
+
+
+<span class="fc" id="L873">  }</span>
+
+  //Calculates the amount to retain from subcontractor payments on an activity.
+  //If a subcontracted method was not used on the activity this method will return 0.
+  private int amountToRetain(Activity activity, int percentRetained, int percentOfJob)
+  {
+<span class="fc" id="L879">      int percentActivityComplete = Math.round((((float) activity.getLusCompleted()) / ((float) activity.getLusTotal())) * 100f);</span>
+<span class="fc" id="L880">      int retained = 0;</span>
+
+      //If the % work complete is greater than the percent of the activity to collect
+      //retention for, return 0
+<span class="fc bfc" id="L884" title="All 2 branches covered.">      if(percentActivityComplete &lt; percentOfJob)</span>
+      {
+<span class="fc" id="L886">		  retained = Math.round(( ((float) percentRetained) / 100f) * activity.getCurrentSubcontractorCost());</span>
+	  }
+	  else
+	  {
+<span class="fc" id="L890">		  return 0;</span>
+	  }
+
+<span class="fc" id="L893">	  return retained;</span>
+  }
+
+  public void payImmediateExpenses()
+  {
+<span class="fc" id="L898">	  company.decreaseCashOnHand(laborExpense, &quot;LABOR_EXPENSE&quot;);</span>
+<span class="fc" id="L899">	  company.decreaseCashOnHand(equipmentExpense, &quot;EQUIPMENT_EXPENSE&quot;);</span>
+<span class="fc" id="L900">  }</span>
+
+  private void updateLusRemaining()
+  {
+<span class="fc" id="L904">	  int totalLusComplete = 0;</span>
+<span class="fc bfc" id="L905" title="All 2 branches covered.">	  for(int i = 0; i &lt; 9; i++)</span>
+	  {
+<span class="fc" id="L907">		  totalLusComplete += activities[i].getLusCompleted();</span>
+	  }
+<span class="fc" id="L909">	  lusRemaining = (jobSize + changeOrderLus) - totalLusComplete;</span>
+<span class="fc" id="L910">  }</span>
+
+  //Return true if all the activities are complete
+  private boolean allActivitiesComplete()
+  {
+<span class="nc" id="L915">  	  boolean allComplete = true;</span>
+<span class="nc bnc" id="L916" title="All 2 branches missed.">  	  for (int i = 0; i &lt; 9; i++)</span>
+  	  {
+<span class="nc bnc" id="L918" title="All 2 branches missed.">		  if(activities[i].getLusCompleted() &lt; activities[i].getLusTotal())</span>
+<span class="nc" id="L919">			    allComplete = false;</span>
+  	  }
+<span class="nc" id="L921">  	  return allComplete;</span>
+  }
+
+  /**
+   * Calls the incrementPeriodNumber() method for each activity in this job.
+   * This will clear the period specific variable of the activities.
+   */
+  public void clearActivityStates()
+  {
+<span class="fc bfc" id="L930" title="All 2 branches covered.">	  for(int i = 0; i &lt; 9; i++)</span>
+	  {
+<span class="fc" id="L932">		  activities[i].incrementPeriodNumber();</span>
+	  }
+<span class="fc" id="L934">  }</span>
+
+
+  public void chargeFixedFieldOverhead(FinancialReportForm financialReportForm)
+  {
+<span class="fc" id="L939">	  financialReportForm.increaseFieldOverhead(this, fixedFieldCharge);</span>
+<span class="fc" id="L940">	  company.decreaseCashOnHand(fixedFieldCharge, &quot;FIELD_OVERHEAD&quot;);</span>
+<span class="fc" id="L941">  }</span>
+
+
+  /**
+   * Charges the company for variable field, variable office, and fixed office overhead.
+   * Fixed field overhead is charged automatically as work is done on the job.
+   *
+   */
+  public void chargeVariableOverhead(FinancialReportForm financialReportForm)
+  {
+<span class="fc" id="L951">	  company.decreaseCashOnHand(variableFieldCharge, &quot;FIELD_OVERHEAD&quot;);</span>
+<span class="fc" id="L952">	  financialReportForm.increaseFieldOverhead(this, variableFieldCharge);</span>
+<span class="fc" id="L953">  }</span>
+
+  public String getCompletionDeadlineString()
+  {
+<span class="fc" id="L957">	  java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(&quot;MMMMM d, yyyy&quot;);</span>
+<span class="fc" id="L958">	  return formatter.format(completionDeadline);</span>
+  }
+
+  public String getCompletionDateString()
+  {
+<span class="fc" id="L963">  	  java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(&quot;MMMMM d, yyyy&quot;);</span>
+<span class="fc" id="L964">  	  return formatter.format(completionDate);</span>
+  }
+
+
+  //**********************  Simple Get Methods  *************************************
+  public int getJobID()
+  {
+<span class="fc" id="L971">    return jobID;</span>
+  }
+
+  public int getLiquidatedDamages()
+  {
+<span class="fc" id="L976">    return liquidatedDamages;</span>
+  }
+
+  public Date getCompletionDate()
+  {
+<span class="fc" id="L981">    return completionDate;</span>
+  }
+
+  public int getJobSize()
+  {
+<span class="fc" id="L986">    return jobSize;</span>
+  }
+
+  public int getRetentionID()
+  {
+<span class="fc" id="L991">    return retentionID;</span>
+  }
+
+  public void setRetentionID(int retentionID)
+  {
+<span class="fc" id="L996">	  this.retentionID = retentionID;</span>
+<span class="fc" id="L997">  }</span>
+
+  public int getPercentRetained()
+  {
+<span class="fc" id="L1001">	  return percentRetained;</span>
+  }
+
+  public int getPercentOfJob()
+  {
+<span class="fc" id="L1006">	  return percentOfJob;</span>
+  }
+
+  /**
+   * The direct cost estimated for the job when it was created.
+   * Company players do not see this number.  BIG uses this number
+   * to calculate variable overhead on a job.
+   */
+  public long getDirectCost()
+  {
+<span class="fc" id="L1016">    return directCost;</span>
+  }
+
+  public long getRetainedAmount()
+  {
+<span class="fc" id="L1021">    return retainedAmount;</span>
+  }
+
+  public int getLusRemaining()
+  {
+<span class="fc bfc" id="L1026" title="All 2 branches covered.">	if(activities != null)</span>
+	{
+<span class="fc" id="L1028">		updateLusRemaining();</span>
+	}
+<span class="fc" id="L1030">    return lusRemaining;</span>
+  }
+
+  public int getJobType()
+  {
+<span class="fc" id="L1035">    return jobType;</span>
+  }
+
+  public int getPeriodCreated()
+  {
+<span class="fc" id="L1040">    return periodCreated;</span>
+  }
+
+  public int getCurrentPeriod()
+  {
+<span class="fc" id="L1045">    return currentPeriod;</span>
+  }
+
+  public boolean isComplete()
+  {
+<span class="fc bfc" id="L1050" title="All 2 branches covered.">	  return (periodCompleted &gt; periodCreated);</span>
+  }
+
+  //A job that is currently owned by a company and not yet complete is active
+  public boolean getIsActive()
+  {
+<span class="fc" id="L1056">    return isActive;</span>
+  }
+
+  public int getPeriodCompleted()
+  {
+<span class="fc" id="L1061">    return periodCompleted;</span>
+  }
+
+  public Date getCompletionDeadline()
+  {
+<span class="fc" id="L1066">    return completionDeadline;</span>
+  }
+
+  public ExpandedGame getGame()
+  {
+<span class="fc" id="L1071">	  return game;</span>
+  }
+
+  public void setGame(ExpandedGame game)
+  {
+<span class="fc" id="L1076">	  this.game = game;</span>
+<span class="fc" id="L1077">  }</span>
+
+  public ExpandedCompany getCompany()
+  {
+<span class="fc" id="L1081">	  return company;</span>
+  }
+
+  public void setCompany(ExpandedCompany company)
+  {
+<span class="fc" id="L1086">	  this.company = company;</span>
+<span class="fc" id="L1087">  }</span>
+
+  public void setBids(Vector bids)
+  {
+<span class="fc" id="L1091">	  this.bids = bids;</span>
+<span class="fc" id="L1092">  }</span>
+
+  public Vector getBids()
+  {
+<span class="fc" id="L1096">	  return bids;</span>
+  }
+
+  /**
+   * Gets the estimate of how many workdays this job will take to complete.
+   * This number is equal to the number of workdays between the job's creation date
+   * and required completion date.
+   */
+  public int getEstimatedWorkdays()
+  {
+<span class="fc" id="L1106">	  return estimatedWorkdays;</span>
+  }
+
+  public float getMethodScalingFactor()
+  {
+<span class="fc" id="L1111">	  return methodScalingFactor;</span>
+  }
+
+  /**
+   * Returns the dollar amount of the bid to which this job was awarded.
+   *
+   */
+  public long getBidAmount()
+  {
+<span class="fc" id="L1120">	  return bidAmount;</span>
+  }
+
+  public void setBidAmount(long bidAmount)
+  {
+<span class="fc" id="L1125">	  this.bidAmount = bidAmount;</span>
+<span class="fc" id="L1126">  }</span>
+
+  public long getTotalPrice()
+  {
+<span class="fc" id="L1130">	  return bidAmount + changeOrderPrice;</span>
+  }
+
+  public int getTotalJobSize()
+  {
+<span class="fc" id="L1135">	  return getJobSize() + getChangeOrderLus();</span>
+  }
+
+  public long getChangeOrderPrice()
+  {
+<span class="fc" id="L1140">	  return changeOrderPrice;</span>
+
+  }
+
+  public int getChangeOrderLus()
+  {
+<span class="fc" id="L1146">	  return changeOrderLus;</span>
+  }
+
+  public int getFixedFieldOverhead()
+  {
+<span class="fc" id="L1151">	  return fixedFieldOverhead;</span>
+  }
+
+  public int getVariableFieldOverhead()
+  {
+<span class="fc" id="L1156">	  return variableFieldOverhead;</span>
+  }
+
+  public int getAmountRetainedFromSubcontractors()
+  {
+<span class="fc" id="L1161">	  return amountRetainedFromSubcontractors;</span>
+  }
+
+  public void increaseBilledToDate(int amount)
+  {
+<span class="fc" id="L1166">	  billedToDate += amount;</span>
+<span class="fc" id="L1167">  }</span>
+
+  public int getBilledToDate()
+  {
+<span class="fc" id="L1171">	  return billedToDate;</span>
+  }
+
+  public float getPercentOfJobComplete()
+  {
+<span class="fc" id="L1176">	  return (((float) ((jobSize + changeOrderLus) - lusRemaining)) / ((float) (jobSize + changeOrderLus))) * 100f;</span>
+  }
+
+  /**
+   * Returns the cost of work done (via calls to the &lt;code&gt;update&lt;/code&gt; method)
+   * since this &lt;code&gt;Job&lt;/code&gt; object was created.  This value is not persistent
+   * to a job and will be zero each time a &lt;code&gt;Job&lt;/code&gt; object is created even if
+   * created from data for a job currently being worked.  Costs considered are labor, material,
+   * subcontractor, field overhead, and liquidated damages.
+   */
+  public int getCurrentCost()
+  {
+<span class="fc" id="L1188">	  return laborExpense + materialsExpense + equipmentExpense + subcontractorExpense + fixedFieldCharge + variableFieldCharge + currentLiquidatedDamages;</span>
+  }
+
+  /**
+   * Returns the dollar amount that is charged each period as variable field overhead
+   */
+  public int getVariableFieldCharge()
+  {
+<span class="fc" id="L1196">	  return variableFieldCharge;</span>
+  }
+
+  /**
+   * Sets the retained amount to zero.  This can be use to clear the accumulated retention
+   * when the job completes
+   */
+  public void clearRetainedAmount()
+  {
+<span class="fc" id="L1205">       retainedAmount = 0;</span>
+<span class="fc" id="L1206">  }</span>
+
+  public void setRetainedAmount(int retainedAmount)
+  {
+<span class="fc" id="L1210">  	   this.retainedAmount = retainedAmount;</span>
+<span class="fc" id="L1211">  }</span>
+
+  public void setTypeModifier(short typeModifier)
+  {
+<span class="fc" id="L1215">	  this.typeModifier = typeModifier;</span>
+<span class="fc" id="L1216">  }</span>
+
+  public short getTypeModifier()
+  {
+<span class="fc" id="L1220">		return typeModifier;</span>
+  }
+
+  /**
+   * Sets the companies allowed to bid on this job, if the type for
+   * this job is Job.PRIVATE.  If the type is Job.PUBLIC or Job.HEAVY
+   * then all companies can bid regardless of this value.
+   */
+  public void setCompaniesAllowedToBid(Vector companyIDs)
+  {
+<span class="fc" id="L1230">	  this.companiesAllowedToBid = companyIDs;</span>
+<span class="fc" id="L1231">  }</span>
+
+  public Vector getCompaniesAllowedToBid()
+  {
+<span class="fc" id="L1235">	  return companiesAllowedToBid;</span>
+  }
+
+  /**
+   * Returns true if the company matching the companyID passed is allowed
+   * to bid on this job.  A company is considered allowed to bid on
+   * a job if that job is PUBLIC or HEAVY or if the job is PRIVATE and
+   * the company's id is a member of the Vector returned by
+   * the &lt;code&gt;getCompaniesAllowedToBid&lt;/code&gt; method.
+   */
+  public boolean isCompanyAllowedToBid(int companyID)
+  {
+<span class="fc" id="L1247">	  Integer company = new Integer(companyID);</span>
+<span class="fc bfc" id="L1248" title="All 8 branches covered.">	  if ( (getTypeModifier() == Job.PUBLIC) || (getTypeModifier() == Job.HEAVY) || ((companiesAllowedToBid != null) &amp;&amp; (companiesAllowedToBid.contains(company))) )</span>
+	  {
+<span class="fc" id="L1250">		  return true;</span>
+	  }
+	  else
+	  {
+<span class="fc" id="L1254">		  return false;</span>
+	  }
+  }
+
+  public void setCustomer(Customer customer)
+  {
+<span class="fc" id="L1260">	  this.customer = customer;</span>
+<span class="fc" id="L1261">  }</span>
+
+  public Customer getCustomer()
+  {
+<span class="fc" id="L1265">	  return customer;</span>
+  }
+
+  public int getCustomerID()
+  {
+<span class="fc bfc" id="L1270" title="All 2 branches covered.">	  if(customer == null)</span>
+	  {
+<span class="fc" id="L1272">		  return 0;</span>
+	  }
+	  else
+	  {
+<span class="fc" id="L1276">		  return customer.getCustomerID();</span>
+	  }
+  }
+
+  public void setIsAuto(boolean isAuto)
+  {
+<span class="fc" id="L1282">	  this.isAuto = isAuto;</span>
+<span class="fc" id="L1283">  }</span>
+
+  public boolean getIsAuto()
+  {
+<span class="fc" id="L1287">	  return isAuto;</span>
+  }
+
+  /*** UNIT TEST ***/
+
+/*
+  public static void main(String args[])
+  {
+        //java.util.Calendar calendar = new java.util.GregorianCalendar();
+	    //calendar.set(java.util.Calendar.DAY_OF_MONTH, 1); //set to first day of month
+        Date month1 = (new java.text.SimpleDateFormat(&quot;MM/dd/yyyy&quot;)).parse(&quot;1/1/2002&quot;, new java.text.ParsePosition(0));
+        Date month2 = (new java.text.SimpleDateFormat(&quot;MM/dd/yyyy&quot;)).parse(&quot;2/1/2002&quot;, new java.text.ParsePosition(0));
+        Date month3 = (new java.text.SimpleDateFormat(&quot;MM/dd/yyyy&quot;)).parse(&quot;3/1/2002&quot;, new java.text.ParsePosition(0));
+        Date completionDate = (new java.text.SimpleDateFormat(&quot;MM/dd/yyyy&quot;)).parse(&quot;3/20/2002&quot;, new java.text.ParsePosition(0));
+
+        Method[] methods = new Method[9];
+		methods[0] = new Method(1, &quot;Excavation1&quot;, 45, 60, 10, 0, 0, 5, 0, false);
+		methods[1] = new Method(3, &quot;Foundation3&quot;, 55, 70, 35, 0, 0, 10, 2, false);
+		methods[2] = new Method(1, &quot;Basement1&quot;, 30, 40, 15, 0, 0, 5, 0, false);
+		methods[3] = new Method(5, &quot;Framing5&quot;, 55, 285, 0, 0, 0, 0, 0, false);
+		methods[4] = new Method(3, &quot;Closure3&quot;, 35, 65, 60, 0, 0, 10, 2, false);
+		methods[5] = new Method(2, &quot;Roof2&quot;, 25, 45, 35, 0, 0, 5, 1, false);
+		methods[6] = new Method(4, &quot;Siding4&quot;, 50, 100, 120, 0, 0, 15, 3, false);
+		methods[7] = new Method(5, &quot;Finishing5&quot;, 35, 650, 0, 0, 0, 0, 0, false);
+		methods[8] = new Method(2, &quot;Mech/Elec2&quot;, 15, 200, 0, 0, 0, 5, 1, false);
+
+        int[] STSActivities = {0, 1, 2, 3, 4, 5, 5, 7, 1};
+        int[] STSPercents = {0, 70, 40, 30, 50, 40, 40, 30, 70};
+        int[] FTFActivities = {0, 0, 2, 3, 4, 5, 5, 7, 5};
+        int[] FTFPercents = {0, 0, 50, 40, 50, 80, 90, 50, 40};
+
+		//Create some activities for the test job
+		int activitySize = 5000;
+        Activity[] activities = new Activity[9];
+        for(int i = 0; i&lt;9; i++)
+        {
+			boolean active = false;
+			if (i == 0) active = true;
+			activities[i] = new Activity(i+1, //Activity type, 1 greater than the index
+			                             activitySize, //Total number of lu's in this activity
+			                             0,   //no lu's completed yet
+			                             0,   //no labor cost incurred yet
+			                             0,   //no materials cost incurred yet
+			                             0,   //no equipment cost incurred yet
+			                             0,   //no sub cost incurred yet
+			                             active,  //set activity active if it is the first activity
+			                             0,   //no lu's completed yet
+			                             0,   //no costs yet
+			                             0,   //store these as last period so work can begin on them this period
+			                             0,   //Current method used will need to be set before work is done
+			                             0,   //don't work any overtime days
+			                             8, //standard hours in a day
+			                             5   //overtime hours in a day
+			                             );
+
+			activities[i].setMethod(methods[i]);
+
+			activities[i].setStartToStartActivity(STSActivities[i]);
+			activities[i].setStartToStartPercent(STSPercents[i]);
+			activities[i].setFinishToFinishActivity(FTFActivities[i]);
+			activities[i].setFinishToFinishPercent(FTFPercents[i]);
+
+		}
+
+		//Create a fake company for this test job to interact with
+		edu.calpoly.its.mas.big.users.company.Company company =
+			new edu.calpoly.its.mas.big.users.company.Company(0, &quot;Test Company&quot;, &quot;testcompany&quot;, &quot;testcompany&quot;, 100000, 10000000, 10, 3500000, 35, 0, &quot;&quot;, &quot;&quot;);
+		//Wrap an ExpandedCompany around this company
+		ExpandedCompany exCompany = new ExpandedCompany();
+		exCompany.setCompany(company);
+
+		Job testJob = new Job(1,               //dummy jobID
+		                      500,             //made-up liquidated damages
+		                      null,            //no completion date yet because job is not complete
+							  completionDate,  //made-up date.  can be changed above to cause liquidated damages to be charged
+							  activitySize * 9,//job size is sum of the 9 activity sizes
+							  5, 			   //made-up percent retained
+							  100,               //made-up percent of job
+							  1000000,         //made-up direct cost,
+							  0,               //made-up retained amount
+							  activitySize * 9,//All labor units are still remaining
+							  0,               //Zero to indicate job is not yet completed
+							  1,               //made-up period number
+							  true,            //job is still active
+                              false,           //job is not auto generated
+							  1,               //dummy job type
+							  1,               //dummy estimatedWorkdays - this value isn't used in this test
+							  1.4f,            //made-up method scaling factor
+							  0,               //dummy change order
+							  0,		       //dummy change order price
+							  900,             //made-up overhead values
+							  1,
+							  0,
+							  0,
+							  Job.PUBLIC);
+
+        //Set variable that cannot be set through the constructor
+		testJob.setBidAmount(400000);
+		testJob.setActivities(activities);
+		testJob.setCompany(exCompany);
+
+
+
+        ScheduledMonth month = new ScheduledMonth(month1, 20, 3);
+        testJob.update(month, new FinancialReportForm());
+		month = new ScheduledMonth(month2, 20, 3);
+		testJob.update(month, new FinancialReportForm());
+
+        testJob.chargeVariableOverhead(new FinancialReportForm());
+		testJob.clearActivityStates();
+
+		month = new ScheduledMonth(month3, 20, 3);
+		testJob.update(month, new FinancialReportForm());
+
+		System.out.println(exCompany.getCompany().getCashOnHandString());
+
+  }
+*/
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

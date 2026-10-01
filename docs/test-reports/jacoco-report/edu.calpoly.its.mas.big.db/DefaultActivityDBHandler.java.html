@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultActivityDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultActivityDBHandler.java</span></div><h1>DefaultActivityDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Activity;
+
+import java.util.Vector;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;ActivityDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.13 $ $Date: 2002/04/24 17:46:20 $
+ */
+public class DefaultActivityDBHandler extends DefaultDBHandler implements ActivityDBHandler
+{
+
+    public DefaultActivityDBHandler(Connection connection)
+    {
+<span class="fc" id="L27">		super(connection);</span>
+<span class="fc" id="L28">	}</span>
+
+    public Activity getActivity(Game game, Job job, int periodNum, int activityType) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L32">		Activity theActivity = null;</span>
+
+<span class="fc" id="L34">		float overtimeExpenseFactor = getOvertimeExpenseFactor(game);</span>
+
+		try	{
+<span class="fc" id="L37">			String query = &quot;SELECT a.lus_total, a.lus_completed, a.current_labor_cost, &quot; +</span>
+				           &quot;a.current_material_cost, a.current_equipment_cost, a.current_subcontractor_cost, a.is_active, &quot; +
+				           &quot;a.lus_completed_this_period, a.periodid, &quot; +
+				           &quot;a.current_method_used, &quot; +
+				           &quot;a.accumulated_costs, o.overtime_days, &quot; +
+				           &quot;gpm.standard_hrs_per_day, gpm.overtime_hrs_per_day, j.method_scaling_factor &quot; +
+				           &quot;FROM activity a, overtime o, game_params_misc gpm, job j &quot; +
+				           &quot;WHERE a.activity_type_id = ? AND a.gameid = ? AND &quot; +
+				           &quot;a.jobid = ? AND a.periodid = ? AND o.activity_type_id = a.activity_type_id &quot; +
+				           &quot;AND o.gameid = a.gameid AND o.jobid = a.jobid AND a.gameid = gpm.gameid AND j.jobid = a.jobid &quot; +
+				           &quot;AND a.gameid = j.gameid&quot; ;
+
+<span class="fc" id="L49">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L51">			pstmt.setInt(1, activityType);</span>
+<span class="fc" id="L52">			pstmt.setInt(2, game.getGameID());</span>
+<span class="fc" id="L53">			pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L54">			pstmt.setInt(4, periodNum);</span>
+
+<span class="fc" id="L56">			ResultSet rset = pstmt.executeQuery();</span>
+
+			// Check if no rows are returned
+			// (rset.last() returns false if there are no rows in the result set)
+<span class="fc bfc" id="L60" title="All 2 branches covered.">			if(!rset.last()) {</span>
+				// Just return null or... ?
+				// throw new ObjectNotFoundException()
+			} else {
+<span class="fc" id="L64">				rset.first();</span>
+<span class="fc" id="L65">				theActivity = new Activity(activityType,</span>
+<span class="fc" id="L66">										   rset.getInt(&quot;lus_total&quot;),</span>
+<span class="fc" id="L67">										   rset.getInt(&quot;lus_completed&quot;),</span>
+<span class="fc" id="L68">										   rset.getLong(&quot;current_labor_cost&quot;),</span>
+<span class="fc" id="L69">										   rset.getLong(&quot;current_material_cost&quot;),</span>
+<span class="fc" id="L70">										   rset.getLong(&quot;current_equipment_cost&quot;),</span>
+<span class="fc" id="L71">										   rset.getLong(&quot;current_subcontractor_cost&quot;),</span>
+<span class="fc" id="L72">										   rset.getBoolean(&quot;is_active&quot;),</span>
+<span class="fc" id="L73">										   rset.getInt(&quot;lus_completed_this_period&quot;),</span>
+<span class="fc" id="L74">										   rset.getLong(&quot;accumulated_costs&quot;),</span>
+										   periodNum,
+<span class="fc" id="L76">										   rset.getInt(&quot;current_method_used&quot;),</span>
+<span class="fc" id="L77">										   rset.getInt(&quot;overtime_days&quot;),</span>
+<span class="fc" id="L78">										   rset.getInt(&quot;standard_hrs_per_day&quot;),</span>
+<span class="fc" id="L79">										   rset.getInt(&quot;overtime_hrs_per_day&quot;));</span>
+
+<span class="fc" id="L81">			    theActivity.setMethodScalingFactor(rset.getFloat(&quot;method_scaling_factor&quot;));</span>
+<span class="fc" id="L82">				theActivity.setOvertimeModifier(overtimeExpenseFactor);</span>
+			}
+			//done with the result set
+<span class="fc" id="L85">			rset.close();</span>
+<span class="fc" id="L86">			pstmt.close();</span>
+<span class="nc" id="L87">		} catch(SQLException sqle) {</span>
+			//close the connection if an exception occurs
+<span class="nc" id="L89">			close();</span>
+<span class="nc" id="L90">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L91">		}</span>
+<span class="fc" id="L92">		return theActivity;</span>
+	}
+
+    public Activity[] getActivities(Game game, Job job, int periodNum) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L97">		Activity[] activities = new Activity[9];</span>
+
+<span class="fc" id="L99">		float overtimeExpenseFactor = getOvertimeExpenseFactor(game);</span>
+
+<span class="fc" id="L101">		String query = &quot;SELECT a.activity_type_id, a.lus_total, a.lus_completed, a.current_labor_cost, &quot; +</span>
+				           &quot;a.current_material_cost, a.current_equipment_cost, a.current_subcontractor_cost, a.is_active, &quot; +
+				           &quot;a.lus_completed_this_period, a.periodid, &quot; +
+				           &quot;a.current_method_used, &quot; +
+				           &quot;a.accumulated_costs, o.overtime_days, &quot; +
+				           &quot;gpm.standard_hrs_per_day, gpm.overtime_hrs_per_day, j.method_scaling_factor &quot; +
+				           &quot;FROM activity a, overtime o, game_params_misc gpm, job j &quot; +
+				           &quot;WHERE a.gameid = ? AND &quot; +
+				           &quot;a.jobid = ? AND a.periodid = ? AND o.activity_type_id = a.activity_type_id &quot; +
+				           &quot;AND o.gameid = a.gameid AND o.jobid = a.jobid AND a.gameid = gpm.gameid &quot; +
+				           &quot; AND j.jobid = a.jobid AND j.gameid = a.gameid ORDER BY activity_type_id&quot;;
+
+		try
+		{
+<span class="fc" id="L115">			PreparedStatement pstmt = connection.prepareStatement(query);</span>
+<span class="fc" id="L116">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L117">			pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L118">			pstmt.setInt(3, periodNum);</span>
+
+<span class="fc" id="L120">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc" id="L122">			int i = 0;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L125">				activities[i] = new Activity(rset.getInt(&quot;activity_type_id&quot;),</span>
+<span class="fc" id="L126">											 rset.getInt(&quot;lus_total&quot;),</span>
+<span class="fc" id="L127">											 rset.getInt(&quot;lus_completed&quot;),</span>
+<span class="fc" id="L128">											 rset.getLong(&quot;current_labor_cost&quot;),</span>
+<span class="fc" id="L129">											 rset.getLong(&quot;current_material_cost&quot;),</span>
+<span class="fc" id="L130">											 rset.getLong(&quot;current_equipment_cost&quot;),</span>
+<span class="fc" id="L131">											 rset.getLong(&quot;current_subcontractor_cost&quot;),</span>
+<span class="fc" id="L132">											 rset.getBoolean(&quot;is_active&quot;),</span>
+<span class="fc" id="L133">											 rset.getInt(&quot;lus_completed_this_period&quot;),</span>
+<span class="fc" id="L134">											 rset.getLong(&quot;accumulated_costs&quot;),</span>
+											 periodNum,
+<span class="fc" id="L136">											 rset.getInt(&quot;current_method_used&quot;),</span>
+<span class="fc" id="L137">											 rset.getInt(&quot;overtime_days&quot;),</span>
+<span class="fc" id="L138">											 rset.getInt(&quot;standard_hrs_per_day&quot;),</span>
+<span class="fc" id="L139">											 rset.getInt(&quot;overtime_hrs_per_day&quot;));</span>
+
+<span class="fc" id="L141">				activities[i].setMethodScalingFactor(rset.getFloat(&quot;method_scaling_factor&quot;));</span>
+<span class="fc" id="L142">				activities[i].setOvertimeModifier(overtimeExpenseFactor);</span>
+<span class="fc" id="L143">				i++;</span>
+			}
+
+<span class="fc" id="L146">			rset.close();</span>
+
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">			if (i &lt; 8)</span>
+			{
+<span class="nc" id="L150">				throw new ObjectNotFoundException();</span>
+			}
+		}
+<span class="nc" id="L153">		catch(SQLException sqle)</span>
+		{
+			//Close the connection if there's an error
+<span class="nc" id="L156">			close();</span>
+<span class="nc" id="L157">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L158">		}</span>
+
+<span class="fc" id="L160">		return activities;</span>
+	}
+
+
+	private float getOvertimeExpenseFactor(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L166">		float overtimeExpenseFactor = 2.0f;</span>
+
+		try	{
+
+			// Retrieve the overtime expense factor
+<span class="fc" id="L171">			String miscParamQuery = &quot;SELECT overtime_expense_factor &quot; +</span>
+				                    &quot;FROM game_params_misc WHERE gameid = ? and adminid = ?&quot;;
+
+<span class="fc" id="L174">			PreparedStatement pstmt = connection.prepareStatement(miscParamQuery, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L175">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L176">			pstmt.setInt(2, game.getAdminID());</span>
+
+<span class="fc" id="L178">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">			if (rset.last())</span>
+			{
+<span class="fc" id="L182">				rset.first();</span>
+<span class="fc" id="L183">				overtimeExpenseFactor = rset.getFloat(&quot;overtime_expense_factor&quot;);</span>
+			}
+
+<span class="fc" id="L186">			rset.close();</span>
+<span class="fc" id="L187">			pstmt.close();</span>
+
+		}
+<span class="nc" id="L190">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L193">			close();</span>
+<span class="nc" id="L194">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L195">		}</span>
+
+<span class="fc" id="L197">		return overtimeExpenseFactor;</span>
+	}
+
+    public void updateActivity(Game game, Job job, Activity theActivity) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+		//SQL statement to update password field of admin
+<span class="fc" id="L203">		String update = &quot;UPDATE activity SET lus_total = ?, lus_completed = ?, current_labor_cost = ?, &quot; +</span>
+		                &quot;current_material_cost = ?, current_equipment_cost = ?, current_subcontractor_cost = ?, is_active = ?, lus_completed_this_period = ?, &quot; +
+		                &quot;accumulated_costs = ?, current_method_used = ? WHERE gameid = ? AND jobid = ? AND activity_type_id = ? &quot; +
+		                &quot;AND periodid = ?&quot;;
+
+		try
+		{
+<span class="fc" id="L210">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L211">			pstmt.setInt(1, theActivity.getLusTotal());</span>
+<span class="fc" id="L212">			pstmt.setInt(2, theActivity.getLusCompleted());</span>
+<span class="fc" id="L213">			pstmt.setLong(3, theActivity.getCurrentLaborCost());</span>
+<span class="fc" id="L214">			pstmt.setLong(4, theActivity.getCurrentMaterialCost());</span>
+<span class="fc" id="L215">			pstmt.setLong(5, theActivity.getCurrentEquipmentCost());</span>
+<span class="fc" id="L216">			pstmt.setLong(6, theActivity.getCurrentSubcontractorCost());</span>
+<span class="fc" id="L217">			pstmt.setBoolean(7, theActivity.getIsActive());</span>
+<span class="fc" id="L218">			pstmt.setLong(8, theActivity.getLusCompletedThisPeriod());</span>
+<span class="fc" id="L219">			pstmt.setLong(9, theActivity.getAccumulatedCosts());</span>
+<span class="fc" id="L220">			pstmt.setInt(10, theActivity.getCurrentMethodUsed());</span>
+<span class="fc" id="L221">			pstmt.setInt(11, game.getGameID());</span>
+<span class="fc" id="L222">			pstmt.setInt(12, job.getJobID());</span>
+<span class="fc" id="L223">			pstmt.setInt(13, theActivity.getActivityType());</span>
+<span class="fc" id="L224">			pstmt.setInt(14, theActivity.getCurrentPeriod());</span>
+
+<span class="fc" id="L226">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L228">			pstmt.close();</span>
+
+<span class="fc bfc" id="L230" title="All 2 branches covered.">			if (rowsChanged &lt; 1)</span>
+<span class="fc" id="L231">				throw new ObjectNotFoundException();</span>
+		}
+<span class="nc" id="L233">		catch(SQLException sqle)</span>
+		{
+			//Close connection if an exception occurs
+<span class="nc" id="L236">			close();</span>
+<span class="nc" id="L237">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L238">		}</span>
+<span class="fc" id="L239">	}</span>
+
+    public void addActivity(Game game, Job job, Activity theActivity) throws BIGDatabaseFacadeException
+    {
+		try
+		{
+
+			//Create the SQL statement used to insert the new activity into the database.
+<span class="fc" id="L247">			String insert = &quot;INSERT INTO activity (activity_type_id, periodid, jobid, gameid, &quot; +</span>
+			                &quot;lus_total, lus_completed, current_labor_cost, current_material_cost, current_equipment_cost, current_subcontractor_cost, &quot; +
+			                &quot;is_active, lus_completed_this_period, accumulated_costs, current_method_used) &quot; +
+			                &quot;VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
+
+			//Perform the insert
+<span class="fc" id="L253">			PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L254">			pstmt.setInt(1, theActivity.getActivityType());</span>
+<span class="fc" id="L255">			pstmt.setInt(2, theActivity.getCurrentPeriod());</span>
+<span class="fc" id="L256">			pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L257">			pstmt.setInt(4, game.getGameID());</span>
+<span class="fc" id="L258">			pstmt.setInt(5, theActivity.getLusTotal());</span>
+<span class="fc" id="L259">			pstmt.setInt(6, theActivity.getLusCompleted());</span>
+<span class="fc" id="L260">			pstmt.setLong(7, theActivity.getCurrentLaborCost());</span>
+<span class="fc" id="L261">			pstmt.setLong(8, theActivity.getCurrentMaterialCost());</span>
+<span class="fc" id="L262">			pstmt.setLong(9, theActivity.getCurrentEquipmentCost());</span>
+<span class="fc" id="L263">			pstmt.setLong(10, theActivity.getCurrentSubcontractorCost());</span>
+<span class="fc" id="L264">			pstmt.setBoolean(11, theActivity.getIsActive());</span>
+<span class="fc" id="L265">			pstmt.setInt(12, theActivity.getLusCompletedThisPeriod());</span>
+<span class="fc" id="L266">			pstmt.setLong(13, theActivity.getAccumulatedCosts());</span>
+<span class="fc" id="L267">			pstmt.setInt(14, theActivity.getCurrentMethodUsed());</span>
+
+
+<span class="fc" id="L270">			int rowsAdded = pstmt.executeUpdate();</span>
+<span class="fc" id="L271">			connection.commit();</span>
+
+<span class="fc" id="L273">			pstmt.close();</span>
+
+		}
+<span class="fc" id="L276">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="fc" id="L279">			close();</span>
+<span class="fc" id="L280">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L281">		}</span>
+<span class="fc" id="L282">	}</span>
+
+    public void removeActivities(int gameID, int jobID) throws BIGDatabaseFacadeException
+    {
+
+		//String to remove the admin matching the ID number passed in
+<span class="fc" id="L288">		String update = &quot;DELETE FROM activity WHERE jobid = ? AND gameid = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L292">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L293">			pstmt.setInt(1, jobID);</span>
+<span class="fc" id="L294">			pstmt.setInt(2, gameID);</span>
+
+<span class="fc" id="L296">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L298">			pstmt.close();</span>
+		}
+<span class="nc" id="L300">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L303">			close();</span>
+<span class="nc" id="L304">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L305">		}</span>
+<span class="fc" id="L306">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

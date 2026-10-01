@@ -1,0 +1,176 @@
+<!--
+  add-new-company.html
+  Allows admins to register a new company (user) to the game.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Add Company</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Add a New Company</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-lg">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Company Details
+      </h3>
+
+      <form name="companyForm2" method="post" action="#" class="space-y-6">
+
+        <!-- Username -->
+        <div>
+          <label for="username" class="block font-semibold mb-1">
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            maxlength="10"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block font-semibold mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            maxlength="10"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label for="confirmPassword" class="block font-semibold mb-1">
+            Re-type Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            maxlength="10"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Title -->
+        <div>
+          <label for="title" class="block font-semibold mb-1">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            maxlength="80"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Cash on Hand -->
+        <div>
+          <label for="cashOnHandString" class="block font-semibold mb-1">
+            Cash-on-hand
+          </label>
+          <input
+            type="text"
+            id="cashOnHandString"
+            name="cashOnHandString"
+            maxlength="12"
+            value="$1,000,000"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- WIP Bond Limit -->
+        <div>
+          <label for="WIPLimitString" class="block font-semibold mb-1">
+            Work-in-progress Bond Limit
+          </label>
+          <input
+            type="text"
+            id="WIPLimitString"
+            name="WIPLimitString"
+            maxlength="12"
+            value="$10,000,000"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Per Job Bond Limit -->
+        <div>
+          <label for="perJobLimitAsWIPPercentString" class="block font-semibold mb-1">
+            Per Job Bond Limit (% of WIP Limit)
+          </label>
+          <div class="flex items-center gap-2">
+            <input
+              type="text"
+              id="perJobLimitAsWIPPercentString"
+              name="perJobLimitAsWIPPercentString"
+              maxlength="3"
+              value="35"
+              class="w-20 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            >
+            <span class="font-semibold">%</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-between pt-4">
+
+        <a th:href="@{/admin/recall-menu}"
+            class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+            Cancel
+        </a>
+
+        <div class="space-x-2">
+            <button
+            type="reset"
+            class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+            Reset
+            </button>
+
+            <button
+            type="submit"
+            class="px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+            Create Game
+            </button>
+        </div>
+
+        </div>
+  
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

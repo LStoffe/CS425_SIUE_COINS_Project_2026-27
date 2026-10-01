@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewCurrentMethodsAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">ViewCurrentMethodsAction.java</span></div><h1>ViewCurrentMethodsAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+//JDK imports
+import javax.sql.DataSource;
+import java.util.Vector;
+import java.util.ArrayList;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.users.admin.LabelValueBean;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+<span class="fc" id="L44">public class ViewCurrentMethodsAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+					   			 ActionForm form,
+					   			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L51">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L54">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="fc" id="L57">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L59">        ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L60">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L61">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L63">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L68">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+        //Get the parameter off the end of the URL
+<span class="nc" id="L71">		String index = (String) request.getParameter(&quot;jobIndex&quot;);</span>
+
+<span class="nc" id="L73">		int jobIndex = (new Integer(index)).intValue();</span>
+
+<span class="nc" id="L75">        Vector jobs = (Vector) session.getAttribute(&quot;jobs&quot;);</span>
+
+<span class="nc" id="L77">        Job job = null;</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (jobs != null)</span>
+        {
+<span class="nc" id="L81">	        job = (Job) jobs.elementAt(jobIndex);</span>
+<span class="nc" id="L82">			session.setAttribute(&quot;job&quot;, job);</span>
+<span class="nc" id="L83">			session.removeAttribute(&quot;jobs&quot;);</span>
+		}
+		else
+		{
+<span class="nc" id="L87">			return (mapping.findForward(&quot;noJobFound&quot;));</span>
+		}
+<span class="nc" id="L89">		int[] currentMethods = null;</span>
+<span class="nc" id="L90">		Method[][] possibleMethods = new Method[9][];</span>
+
+		//Make the calls to the database
+		try
+		{
+<span class="nc" id="L95">			BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request), true);</span>
+<span class="nc" id="L96">			currentMethods = dbFacade.getCurrentMethodDBHandler().getCurrentMethods(game, job);</span>
+/*
+Note: getCurrentMethods() retrieves the correct method numbers for the methods curently scheduled for use on an activity,
+but the wrong names are displayed (building instead of heavy)
+
+In tables: schedule_estimated_methods and column current_method_used in table activity all use numbers 1-5 for methods, even if Heavy job
+
+getAllMethods() - retrieves a list of all possible methods to use on a certain activity type.
+needs to be 10-18 if a heavy job
+*/
+
+<span class="nc bnc" id="L107" title="All 4 branches missed.">            if (job.getTypeModifier() == Job.PUBLIC || job.getTypeModifier() == Job.PRIVATE)</span>
+            {
+<span class="nc" id="L109">			   possibleMethods[0] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 1);</span>
+<span class="nc" id="L110">			   possibleMethods[1] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 2);</span>
+<span class="nc" id="L111">			   possibleMethods[2] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 3);</span>
+<span class="nc" id="L112">			   possibleMethods[3] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 4);</span>
+<span class="nc" id="L113">			   possibleMethods[4] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 5);</span>
+<span class="nc" id="L114">			   possibleMethods[5] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 6);</span>
+<span class="nc" id="L115">			   possibleMethods[6] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 7);</span>
+<span class="nc" id="L116">			   possibleMethods[7] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 8);</span>
+<span class="nc" id="L117">			   possibleMethods[8] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 9);</span>
+		    }
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (job.getTypeModifier() == Job.HEAVY)</span>
+            {
+<span class="nc" id="L121">			   possibleMethods[0] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 10);</span>
+<span class="nc" id="L122">			   possibleMethods[1] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 11);</span>
+<span class="nc" id="L123">			   possibleMethods[2] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 12);</span>
+<span class="nc" id="L124">			   possibleMethods[3] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 13);</span>
+<span class="nc" id="L125">			   possibleMethods[4] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 14);</span>
+<span class="nc" id="L126">			   possibleMethods[5] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 15);</span>
+<span class="nc" id="L127">			   possibleMethods[6] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 16);</span>
+<span class="nc" id="L128">			   possibleMethods[7] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 17);</span>
+<span class="nc" id="L129">			   possibleMethods[8] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 18);</span>
+		    }
+
+<span class="nc" id="L132">            dbFacade.close();</span>
+		}
+<span class="nc" id="L134">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L136">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L137">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+<span class="nc" id="L139">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L141">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L142">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L143">		}</span>
+
+        //Place a ChangeMethodsForm action form into the session.  Struts will use it to populate the values to edit
+<span class="nc" id="L146">        ChangeMethodsForm changeMethodsForm = new ChangeMethodsForm();</span>
+
+<span class="nc" id="L148">        changeMethodsForm.setActivity1((new Integer(currentMethods[0])).toString());</span>
+<span class="nc" id="L149">        changeMethodsForm.setActivity2((new Integer(currentMethods[1])).toString());</span>
+<span class="nc" id="L150">        changeMethodsForm.setActivity3((new Integer(currentMethods[2])).toString());</span>
+<span class="nc" id="L151">        changeMethodsForm.setActivity4((new Integer(currentMethods[3])).toString());</span>
+<span class="nc" id="L152">        changeMethodsForm.setActivity5((new Integer(currentMethods[4])).toString());</span>
+<span class="nc" id="L153">        changeMethodsForm.setActivity6((new Integer(currentMethods[5])).toString());</span>
+<span class="nc" id="L154">        changeMethodsForm.setActivity7((new Integer(currentMethods[6])).toString());</span>
+<span class="nc" id="L155">        changeMethodsForm.setActivity8((new Integer(currentMethods[7])).toString());</span>
+<span class="nc" id="L156">        changeMethodsForm.setActivity9((new Integer(currentMethods[8])).toString());</span>
+
+
+<span class="nc" id="L159">        ArrayList[] options = new ArrayList[9];</span>
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        for (int i = 0; i &lt; 9; i++)</span>
+        {
+<span class="nc" id="L163">            options[i] = new ArrayList();</span>
+<span class="nc" id="L164">	        options[i].add(new LabelValueBean(possibleMethods[i][0].getMethodName(), &quot;1&quot; ));</span>
+<span class="nc" id="L165">	        options[i].add(new LabelValueBean(possibleMethods[i][1].getMethodName(), &quot;2&quot; ));</span>
+<span class="nc" id="L166">	        options[i].add(new LabelValueBean(possibleMethods[i][2].getMethodName(), &quot;3&quot; ));</span>
+<span class="nc" id="L167">	        options[i].add(new LabelValueBean(possibleMethods[i][3].getMethodName(), &quot;4&quot; ));</span>
+<span class="nc" id="L168">	        options[i].add(new LabelValueBean(possibleMethods[i][4].getMethodName(), &quot;5&quot; ));</span>
+		}
+
+<span class="nc" id="L171">		changeMethodsForm.setActivity1TypeArray(options[0]);</span>
+<span class="nc" id="L172">		changeMethodsForm.setActivity2TypeArray(options[1]);</span>
+<span class="nc" id="L173">		changeMethodsForm.setActivity3TypeArray(options[2]);</span>
+<span class="nc" id="L174">		changeMethodsForm.setActivity4TypeArray(options[3]);</span>
+<span class="nc" id="L175">		changeMethodsForm.setActivity5TypeArray(options[4]);</span>
+<span class="nc" id="L176">		changeMethodsForm.setActivity6TypeArray(options[5]);</span>
+<span class="nc" id="L177">		changeMethodsForm.setActivity7TypeArray(options[6]);</span>
+<span class="nc" id="L178">		changeMethodsForm.setActivity8TypeArray(options[7]);</span>
+<span class="nc" id="L179">		changeMethodsForm.setActivity9TypeArray(options[8]);</span>
+
+<span class="nc" id="L181">        session.setAttribute(&quot;jobTitle&quot;, (new Integer(job.getJobID())).toString());</span>
+<span class="nc" id="L182">        session.setAttribute(&quot;methodSchedulingForm&quot;, changeMethodsForm);</span>
+
+        //List of companies is no longer needed
+<span class="nc" id="L185">        session.removeAttribute(&quot;jobs&quot;);</span>
+<span class="nc" id="L186">        session.removeAttribute(&quot;jobTitles&quot;);</span>
+
+
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+<span class="nc bnc" id="L191" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L193">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+
+			// Report any errors we have discovered back to the original form
+<span class="nc" id="L197">			saveErrors(request, errors);</span>
+<span class="nc" id="L198">			saveToken(request);</span>
+<span class="nc" id="L199">			return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L203" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L205">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L207">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

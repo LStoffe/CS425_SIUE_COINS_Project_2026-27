@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginInitializationServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users</a> &gt; <span class="el_source">LoginInitializationServlet.java</span></div><h1>LoginInitializationServlet.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users;
+
+//JDK imports
+import java.util.Enumeration;
+import java.util.Vector;
+
+//Serlvet imports
+import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
+
+//Struts imports
+import org.apache.struts.Globals;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * &lt;code&gt;LoginInitializationServlet&lt;/code&gt; is used to load a GameLoginInfo object in to the
+ * servlet context for each game found in the BIG database.  GameLoginInfo objects are used
+ * to determine whether or not a company may log in, and to determine how many companies are
+ * currently logged in to a game.  LoginInitializationServlet is run upon BIG startup by inclusion
+ * in the web.xml's &lt;load-on-startup&gt; line.
+ *
+ * @author Dara Manker
+ *
+ * @version $Revision: 1.2 $ $Date: 2002/04/12 17:44:08 $
+ */
+
+<span class="nc" id="L46">public class LoginInitializationServlet extends HttpServlet</span>
+{
+
+
+    /**
+     * Loads one GameLoginInfo object into the servlet context for each game found in the
+     * BIG database.
+     */
+    public void init() throws ServletException
+    {
+        // select log4J as the logging implementation for iBatis -- method must preceed any calls to iBatis
+<span class="nc" id="L57">        com.ibatis.common.logging.LogFactory.selectLog4JLogging();</span>
+
+<span class="nc" id="L59">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L62">			log.debug(this.getClass() + &quot; initializing LoginInitializationServlet&quot;);</span>
+		}
+
+<span class="nc" id="L65">        BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade( (DataSource) getServletContext().getAttribute(Globals.DATA_SOURCE_KEY) );</span>
+
+        // Instantiate the one and only LoginBroker for BIG
+<span class="nc" id="L68">        LoginBroker loginBroker = new LoginBroker();</span>
+<span class="nc" id="L69">        ServletContext context = getServletContext();</span>
+<span class="nc" id="L70">        context.setAttribute(&quot;loginBroker&quot;, loginBroker);</span>
+
+        try
+	    {
+		    // Get all existing games from the database
+<span class="nc" id="L75">		    Vector gameidVector = dbFacade.getGameDBHandler().getAllGames();</span>
+<span class="nc" id="L76">            dbFacade.close();</span>
+
+            //If any games exist, have LoginBroker put the GameLoginInfo objects into the ServletContext
+<span class="nc bnc" id="L79" title="All 4 branches missed.">            if((gameidVector != null) &amp;&amp; (gameidVector.size() != 0))</span>
+            {
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                for (Enumeration e = gameidVector.elements() ; e.hasMoreElements() ;)</span>
+                {
+<span class="nc" id="L84">		  	        loginBroker.addGameLoginInfoToServletContext(((Game) e.nextElement()), context);</span>
+                }
+	         }
+
+	    }
+<span class="nc" id="L89">	    catch (BIGDatabaseFacadeException bdbe)</span>
+	    {
+<span class="nc" id="L91">  	       log.fatal(bdbe);</span>
+	    }
+	    finally
+	    {
+			try
+			{
+<span class="nc" id="L97">				dbFacade.close();</span>
+			}
+<span class="nc" id="L99">	    	catch (BIGDatabaseFacadeException bdbe)</span>
+	    	{
+<span class="nc" id="L101">  	       		log.fatal(bdbe);</span>
+<span class="nc" id="L102">	    	}</span>
+		}
+<span class="nc" id="L104">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

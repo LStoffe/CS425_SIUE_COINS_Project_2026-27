@@ -1,0 +1,93 @@
+<!-- 
+  generated-list-of-bids-report.html
+  Shows all company bids for a given period
+-->
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Complete List of Bids Report</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8 mt-20">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Complete List of Bids Report</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-5xl">
+
+
+      <!-- Company Info -->
+      <div class="text-center mb-10">
+        <h3 class="text-2xl font-bold mb-2" th:text="${username}">Company Name</h3>
+        <p class="text-gray-600" th:text="'Report Date: ' + ${periodDate}">Report Date</p>
+      </div>
+
+      <!-- Job Cards -->
+      <div th:each="job : ${jobs}" class="mb-10">
+        <div class="bg-gray-100 px-6 py-3 rounded-t-xl border border-gray-200">
+          <h4 class="text-lg font-semibold"
+              th:text="'Job #' + ${job.jobid} + ' — ' + ${job.job_type_name}">Job</h4>
+        </div>
+
+        <div class="border border-t-0 border-gray-200 rounded-b-xl overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+              <tr>
+                <th class="text-left px-6 py-3">Company</th>
+                <th class="text-right px-6 py-3">Result</th>
+                <th class="text-right px-6 py-3">Bid Amount</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr th:each="bid : ${job.bids}" class="hover:bg-gray-50">
+                <td class="px-6 py-3 font-medium" th:text="${bid.company_title}">Company</td>
+                <td class="px-6 py-3 text-right">
+                  <span th:if="${bid.outcome_code == 1}"
+                        class="text-green-600 font-semibold">Bid Winner</span>
+                  <span th:if="${bid.outcome_code == 2}"
+                        class="text-red-500">Bid Too Low</span>
+                  <span th:if="${bid.outcome_code == 6}"
+                        class="text-gray-500">Outbid</span>
+                </td>
+                <td class="px-6 py-3 text-right"
+                    th:text="'$' + ${#numbers.formatDecimal(bid['bid_amount'], 1, 'COMMA', 2, 'POINT')}">$0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div th:if="${#lists.isEmpty(jobs)}"
+           class="p-6 bg-gray-50 border border-gray-200 rounded-xl text-center">
+        <p class="text-gray-500 text-lg">No bids were placed last period.</p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-12 text-center">
+        <a th:href="@{/company/bidding-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Bidding
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

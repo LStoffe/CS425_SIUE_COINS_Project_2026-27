@@ -1,0 +1,9 @@
+Testsuite: edu.calpoly.its.mas.big.reports.ReportFromBidOpeningFormTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+
+Testcase: testGetJobTypeWhenNoJob took 0.004 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testGetBidAmountWhenNoBid took 0 sec
+Testcase: testGetSetCompanyName took 0 sec
+Testcase: testAddBid took 0 sec
+Testcase: testSetJobs took 0 sec

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NegotiatedJobFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">NegotiatedJobFactory.java</span></div><h1>NegotiatedJobFactory.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.game;
+
+
+//JDK imports
+import java.util.Vector;
+import java.util.Hashtable;
+import java.util.Random;
+import java.util.Date;
+
+//BIGv2 imports
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.JobFactory;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.users.company.ExpandedCompany;
+import edu.calpoly.its.mas.big.game.ExpandedGame;
+
+//BIGv3 imports
+import edu.calpoly.lib.multimedia.big.game.Message;
+
+
+/**
+ * Extends functionality of the &lt;code&gt;Job&lt;/code&gt; class
+ * to handle aspects unique to jobs that are negotiated.
+ */
+public class NegotiatedJobFactory extends JobFactory
+{
+	private Vector customers;
+	private Hashtable negotiationParameters;
+	private Vector companies;
+	private int chanceOfNegotiations; //The percent chance that a job open for closed bid will become a negotiated job
+	private Random r;
+
+	public NegotiatedJobFactory(ExpandedGame game,
+								Hashtable[] jobSizeParams,
+           			            int[][] percentTakeoffs,
+     						    Method[][] methods,
+           			            Hashtable[][] networkDependencies,
+           			            Hashtable liquidatedDamagesParameters,
+								int currentPeriod,
+							    Date periodDate,
+							    int workdaysPerMonth,
+							    int stdHours,
+							    int overtimeHours,
+							    Vector customers,
+							    Hashtable negotiationParameters,
+							    Vector companies
+							    )
+	{
+<span class="nc" id="L49">		super(game,</span>
+			  jobSizeParams,
+           	  percentTakeoffs,
+     		  methods,
+           	  networkDependencies,
+           	  liquidatedDamagesParameters,
+			  currentPeriod,
+			  periodDate,
+			  workdaysPerMonth,
+			  stdHours,
+			  overtimeHours,
+			  0,
+			  0,
+			  1);
+
+<span class="nc" id="L64">		this.customers = customers;</span>
+<span class="nc" id="L65">		this.negotiationParameters = negotiationParameters;</span>
+<span class="nc" id="L66">		this.companies = companies;</span>
+<span class="nc" id="L67">		r = new Random();</span>
+<span class="nc" id="L68">		chanceOfNegotiations = ((Integer) negotiationParameters.get(&quot;PercentOfClosedBidsBecomingNegotiations&quot;)).intValue();</span>
+
+<span class="nc" id="L70">	}</span>
+
+	/**
+	 * Creates new &lt;code&gt;Job&lt;/code&gt; or &lt;code&gt;NegotiatedJob&lt;/code&gt; objects.
+	 * All &lt;code&gt;Job&lt;/code&gt; objects created will have a limited number of companies
+	 * allowed to bid on them.
+	 */
+	public Job createJob(int jobID)
+	{
+<span class="nc" id="L79">		Job job = super.createJob(jobID);</span>
+
+		//Choose a customer for this job
+<span class="nc" id="L82">		int customerID = r.nextInt(10); //10 is a magic number for now</span>
+
+<span class="nc" id="L84">		job.setTypeModifier(Job.PRIVATE);</span>
+<span class="nc" id="L85">		job.setCustomer((Customer) customers.elementAt(customerID));</span>
+
+		//System.out.println(&quot;Set customer &quot; + job.getCustomer().getCustomerID() + &quot; for job &quot; + job.getJobID() );
+<span class="nc" id="L88">		job.setCompaniesAllowedToBid(job.getCustomer().getAllowedCompanies(companies, job.getJobType()));</span>
+
+<span class="nc" id="L90">		int spin = r.nextInt(100);  //percent chance is spin out of 100</span>
+
+		//If there is only 1 company eligible to bid, or
+		//by random chance, this job will become a negotiated job
+<span class="nc bnc" id="L94" title="All 6 branches missed.">		if ( ((spin &lt; chanceOfNegotiations) &amp;&amp; (job.getCompaniesAllowedToBid().size() &gt; 0) ) || (job.getCompaniesAllowedToBid().size() == 1) )</span>
+		{
+			//System.out.println(&quot;Negotiated job.  size: &quot; + job.getCompaniesAllowedToBid().size());
+<span class="nc" id="L97">			job = new NegotiatedJob(job, 0, 0, NegotiatedJob.NEW);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">			if(job.getCompaniesAllowedToBid().size() &gt; 1)</span>
+			{
+<span class="nc" id="L100">				int companyChosen = r.nextInt(job.getCompaniesAllowedToBid().size());</span>
+<span class="nc" id="L101">				Vector newCompaniesAllowedToBid = new Vector();</span>
+<span class="nc" id="L102">				newCompaniesAllowedToBid.add(job.getCompaniesAllowedToBid().elementAt(companyChosen));</span>
+<span class="nc" id="L103">				job.setCompaniesAllowedToBid(newCompaniesAllowedToBid);</span>
+				//System.out.println(&quot;Negotiated job by chance  size: &quot; + newCompaniesAllowedToBid.size());
+			}
+
+			//System.out.println(&quot;Negotiated job.  size: &quot; + job.getCompaniesAllowedToBid().size());
+<span class="nc bnc" id="L108" title="All 2 branches missed.">			if(job.getCompaniesAllowedToBid().size() &gt; 0)</span>
+			{
+<span class="nc" id="L110">				ExpandedCompany ec = game.getExpandedCompany( ((Integer) job.getCompaniesAllowedToBid().elementAt(0)).intValue());  //The first company</span>
+<span class="nc" id="L111">				game.sendInGameMessageToCompany(new Message(job.getCustomer().getCustomerName(),</span>
+<span class="nc" id="L112">				 											ec.getCompany(),</span>
+				   											&quot;We have a new job coming up and we would like your company to work it for us.  If you are interested in this job, please send us an estimate of your price.  We hope you will consider our request.&quot;,
+				   											&quot;Upcoming job for your company&quot;,
+<span class="nc" id="L115">				   											game.getGame().getCurrentPeriodNumber(),</span>
+				   											Message.NEGOTATION_REQUEST,
+				   											jobID
+				   										   )
+					   						   );
+<span class="nc" id="L120">			}</span>
+		}
+		else
+		{
+		   //If the job did not become negotiated then it remains a closed bid job
+		   //Send an invitation to bid to each eligible company
+
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		   for(int i = 0; i &lt; job.getCompaniesAllowedToBid().size(); i++)</span>
+		   {
+<span class="nc" id="L129">			   ExpandedCompany ec = game.getExpandedCompany( ((Integer) job.getCompaniesAllowedToBid().elementAt(i)).intValue());</span>
+<span class="nc" id="L130">			   game.sendInGameMessageToCompany(new Message(job.getCustomer().getCustomerName(),</span>
+<span class="nc" id="L131">			   											   ec.getCompany(),</span>
+			   											   &quot;We have a new job coming up and we are planning to find a company to work it through bidding.  We feel your company might be a good candidate for this job and we invite you to submit a bid.&quot;,
+			   											   &quot;Invitation to bid&quot;,
+<span class="nc" id="L134">			   											   game.getGame().getCurrentPeriodNumber(),</span>
+			   											   Message.CLOSED_BID_INVITATION,
+			   											   jobID
+			   											  )
+				   							  );
+		   }
+		}
+
+<span class="nc" id="L142">		return job;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

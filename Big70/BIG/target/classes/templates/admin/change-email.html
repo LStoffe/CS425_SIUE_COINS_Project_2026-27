@@ -1,0 +1,89 @@
+<!--
+  change-email.html
+  Allows admins to update their contact e-mail for notifications
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Change E-mail</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Change E-mail</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Administrator Contact
+      </h3>
+
+      <p class="text-black mb-6 text-sm">
+        If you enter your e-mail address here, student replies to BIG's auto-generated period updated notifications will be directed to you.
+        <br>
+        Leave it blank if you do not want to receive replies. To remove a previously set e-mail, clear the box and submit.
+      </p>
+
+      <form th:action="@{/admin/change-email}" method="post" class="space-y-6">
+
+        <!-- E-mail -->
+        <div>
+          <label for="email" class="block font-semibold mb-1">
+            E-mail
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            maxlength="80"
+            placeholder="admin@example.com"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-between pt-4">
+
+          <a th:href="@{/admin/admin-menu}"
+             class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+            Cancel
+          </a>
+
+          <div class="space-x-2">
+            <button
+              type="reset"
+              class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+              Reset
+            </button>
+
+            <button
+              type="submit"
+              class="px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+              Submit
+            </button>
+          </div>
+
+        </div>
+
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

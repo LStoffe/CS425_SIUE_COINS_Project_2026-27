@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScheduledDate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates</a> &gt; <span class="el_source">ScheduledDate.java</span></div><h1>ScheduledDate.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates;
+
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+
+/**
+ * Class representing a date/time for which a period update is schedule.
+ * This class meets the java bean specifications.
+ */
+public class ScheduledDate
+{
+	private Date date;
+	private Date time;
+	private boolean complete;
+	private long dateHashCode;
+
+	public ScheduledDate()
+<span class="fc" id="L19">	{</span>
+
+<span class="fc" id="L21">	}</span>
+
+	public void setDate(Date date)
+	{
+<span class="fc" id="L25">		this.date = date;</span>
+<span class="fc" id="L26">	}</span>
+
+	public Date getDate()
+	{
+<span class="fc" id="L30">		return date;</span>
+	}
+
+	public void setTime(Date time)
+	{
+<span class="fc" id="L35">		this.time = time;</span>
+<span class="fc" id="L36">	}</span>
+
+	public Date getTime()
+	{
+<span class="fc" id="L40">		return time;</span>
+	}
+
+	/**
+	 * Returns whether or not this update is complete (i.e. has already occurred)
+	 */
+	public boolean getComplete()
+	{
+<span class="fc" id="L48">		return complete;</span>
+	}
+
+	/**
+	 * Sets whether or not this update is complete (i.e. has already occurred)
+	 */
+	public void setComplete(boolean complete)
+	{
+<span class="fc" id="L56">		this.complete = complete;</span>
+<span class="fc" id="L57">	}</span>
+
+	public long getDateHashCode()
+	{
+<span class="fc" id="L61">		return dateHashCode;</span>
+	}
+
+	public void setDateHashCode(long dateHashCode)
+	{
+<span class="fc" id="L66">		this.dateHashCode = dateHashCode;</span>
+<span class="fc" id="L67">	}</span>
+
+	/**
+	 * Returns the date/time of this update in a human readable format.
+	 * If date or time data is missing, the word &quot;Error&quot; is returned.
+	 */
+	public String toString()
+	{
+
+<span class="pc bpc" id="L76" title="1 of 4 branches missed.">		if( (this.date == null) || (this.time == null) )</span>
+		{
+<span class="fc" id="L78">			return &quot;error&quot;;</span>
+		}
+		else
+		{
+<span class="fc" id="L82">			DateFormat dateFormat = new SimpleDateFormat(&quot;MMM d, yyyy&quot; );</span>
+<span class="fc" id="L83">			DateFormat timeFormat = new SimpleDateFormat(&quot;h:mm a&quot; );</span>
+
+<span class="fc" id="L85">			String scheduledUpdateString = &quot;&quot;;</span>
+<span class="fc" id="L86">			scheduledUpdateString += dateFormat.format(this.date) + &quot;   &quot;;</span>
+<span class="fc" id="L87">			scheduledUpdateString += timeFormat.format(this.time);</span>
+
+<span class="fc" id="L89">			return scheduledUpdateString;</span>
+		}
+	}
+
+	public String getFormattedOutput()
+	{
+<span class="fc" id="L95">		return this.toString();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

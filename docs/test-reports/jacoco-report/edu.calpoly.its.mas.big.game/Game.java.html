@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Game.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">Game.java</span></div><h1>Game.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import java.util.Vector;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+import java.text.SimpleDateFormat;
+
+
+/**
+ * Game is a bean that contains state information about a game of big.
+ * The Game class is used to hold and distribute information about the current game.
+ * A Game will almost always be stored in the session where it can be accessed to provide needed information.
+ * The &lt;code&gt;Game&lt;/code&gt; class contains some utility methods for working with dates and period numbers in
+ * BIG.  Since the &lt;code&gt;Game&lt;/code&gt; class keeps track of the start year and current period
+ * it is the best place to put these methods.  Note that other utility methods are available in
+ * &lt;code&gt;ExpandedGame&lt;/code&gt; however these can only be used when &lt;code&gt;ExpandedGame&lt;/code&gt; objects are
+ * created during period updated.
+ * &lt;br&gt;&lt;br&gt;
+ * Notes for v3:
+ * &lt;br&gt;
+ * Because this class contains the start year of a game, it has become the central class for working with dates
+ * in BIG.  Whenever a period number needs to be converted into a date or vice versa, the necessary method
+ * should reside in this class.  Any new methods to be added that manipulate dates or perform conversions
+ * between dates and periods should be added to this class.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class Game
+{
+
+  private String name;
+  private int gameID;
+  private int adminID;
+  private boolean isActive;
+  private int periodNumber;
+  private Date startYear;
+  private int currentJobNumber;
+  private int gametype;
+  private boolean estimatingComponentOn;
+  private boolean autoBillingComponentOn;
+
+  //private default constructor
+  private Game()
+  {
+  }
+
+  /**
+   *  Constructor for Game class to be used when recreating a Game from database data.
+   */
+  public Game(int gameID, int adminID, String name, Date startYear, int currentPeriod,
+              boolean isActive, int currentJobNumber, int gametype)
+<span class="fc" id="L56">  {</span>
+<span class="fc" id="L57">	  this.gameID = gameID;</span>
+<span class="fc" id="L58">	  this.adminID = adminID;</span>
+<span class="fc" id="L59">	  this.name = name;</span>
+<span class="fc" id="L60">	  this.startYear = startYear;</span>
+<span class="fc" id="L61">	  periodNumber = currentPeriod;</span>
+<span class="fc" id="L62">	  this.isActive = isActive;</span>
+<span class="fc" id="L63">	  this.currentJobNumber = currentJobNumber;</span>
+<span class="fc" id="L64">	  this.gametype = gametype;</span>
+<span class="fc" id="L65">  }</span>
+
+  /**
+   * Constructor used to create a new game. (ie when the administrator wants to create new game).
+   * Period and current job number both start at 0.  &lt;code&gt;isActive()&lt;/code&gt; and &lt;code&gt;allowCompanyLogin&lt;/code&gt; both
+   * return &lt;code&gt;true&lt;/code&gt;.
+   * @param adminID adminID of the administrator creating this game
+   * @param name Name of this game
+   * @param startYear A Date object containing the date Jan 1st of the year this game is to start
+   */
+   public Game(int adminID, String name, Date startYear, int gametype)
+<span class="fc" id="L76">   {</span>
+<span class="fc" id="L77">	   this.adminID = adminID;</span>
+<span class="fc" id="L78">	   this.name = name;</span>
+<span class="fc" id="L79">	   this.startYear = startYear;</span>
+<span class="fc" id="L80">	   this.gametype = gametype;</span>
+
+<span class="fc" id="L82">	   isActive = true;</span>
+
+<span class="fc" id="L84">	   periodNumber = 0;</span>
+<span class="fc" id="L85">	   currentJobNumber = 0;</span>
+<span class="fc" id="L86">   }</span>
+
+  /**
+   * Increments the currentJobNumber by 1
+   */
+   public void incrementCurrentJobNumber()
+   {
+<span class="fc" id="L93">	   currentJobNumber++;</span>
+<span class="fc" id="L94">   }</span>
+
+  /**
+   * Returns the start year as a string
+   *
+   */
+   public String getStartYearString()
+   {
+<span class="fc" id="L102">	   Calendar calendar =  new GregorianCalendar();</span>
+<span class="fc" id="L103">	   calendar.setTime(startYear);</span>
+<span class="fc" id="L104">	   int year = calendar.get(Calendar.YEAR);</span>
+<span class="fc" id="L105">	   String yearString = String.valueOf(year);</span>
+<span class="fc" id="L106">	   return yearString;</span>
+   }
+
+   /**
+    *  Returns the current period date (months and year) as a String.
+    *
+    */
+   public String getCurrentDateString()
+   {
+<span class="fc" id="L115">		return getDateString(periodNumber);</span>
+
+   }
+
+   /**
+    * Returns the date (months and year) for a particular period.
+    * The date returned will use this game's starting year to determine the date.
+    *
+    */
+   public String getDateString(int periodNumber)
+   {
+	   //Multiply 2 times the number of periods -1 to get the month id of the first month.  Month's are zero based in the Calendar class
+<span class="fc" id="L127">	   int months = 2 * (periodNumber - 1);</span>
+
+<span class="fc" id="L129">	   int firstMonthOfThisPeriod = months;</span>
+
+<span class="fc" id="L131">	   Calendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L132">	   calendar.setTime(startYear);</span>
+
+	   //Add the number of months passed to the start date to get the date of the first month in this period
+<span class="fc" id="L135">	   calendar.add(Calendar.MONTH, firstMonthOfThisPeriod);</span>
+<span class="fc" id="L136">	   Date firstMonth = calendar.getTime();</span>
+
+	   //Add one to the month of the first month date to get the date of the second month of this period
+<span class="fc" id="L139">	   calendar.add(Calendar.MONTH, 1);</span>
+<span class="fc" id="L140">	   Date secondMonth = calendar.getTime();</span>
+
+<span class="fc" id="L142">	   SimpleDateFormat formatter = new SimpleDateFormat(&quot;MMMMM&quot;);</span>
+
+<span class="fc" id="L144">	   String firstMonthString = formatter.format(firstMonth);</span>
+<span class="fc" id="L145">	   String secondMonthString = formatter.format(secondMonth);</span>
+
+<span class="fc" id="L147">	   formatter = new SimpleDateFormat(&quot;yyyy&quot;);</span>
+
+<span class="fc" id="L149">	   String yearString = formatter.format(secondMonth);</span>
+
+<span class="fc" id="L151">	   String date = firstMonthString + &quot; &amp; &quot; + secondMonthString + &quot; &quot; + yearString;</span>
+
+<span class="fc" id="L153">	   return date;</span>
+   }
+
+   /**
+    * Returns first day of each of the months in this period.
+    * @return &lt;code&gt;Date&lt;/code&gt; array of size 2, containing 2 &lt;code&gt;Date&lt;/code&gt; objects representing the date
+    * of the first day of each of the two months in the period.
+    */
+   public Date[] getCurrentFirstOfMonths()
+   {
+<span class="fc" id="L163">	   return getFirstOfMonth(periodNumber);</span>
+   }
+
+   /**
+    * Returns first day of each of the months in a period.
+    * @param periodNumber Period number to return start dates for
+    * @return &lt;code&gt;Date&lt;/code&gt; array of size 2, containing 2 &lt;code&gt;Date&lt;/code&gt; objects representing the date
+    * of the first day of each of the two months in the period.
+    */
+   public Date[] getFirstOfMonth(int periodNumber)
+   {
+		//Multiply 2 times the number of periods -1 to get the month id of the first month.  Month's are zero based in the Calendar class
+<span class="fc" id="L175">	   int months = 2 * (periodNumber - 1);</span>
+
+<span class="fc" id="L177">	   int firstMonthOfThisPeriod = months;</span>
+
+<span class="fc" id="L179">	   Calendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L180">	   calendar.setTime(startYear);</span>
+
+	   //Add the number of months passed to the start date to get the date of the first month in this period
+<span class="fc" id="L183">	   calendar.add(Calendar.MONTH, firstMonthOfThisPeriod);</span>
+<span class="fc" id="L184">	   calendar.set(Calendar.DAY_OF_MONTH, 1); //set to first day of month</span>
+<span class="fc" id="L185">       Date firstMonth = calendar.getTime();</span>
+
+
+	   //Add one to the month of the first month date to get the date of the second month of this period
+<span class="fc" id="L189">	   calendar.add(Calendar.MONTH, 1);</span>
+<span class="fc" id="L190">           calendar.set(Calendar.DAY_OF_MONTH, 1); //set to first day of month</span>
+<span class="fc" id="L191">	   Date secondMonth = calendar.getTime();</span>
+
+<span class="fc" id="L193">	   Date[] dates = {firstMonth, secondMonth};</span>
+
+<span class="fc" id="L195">	   return dates;</span>
+   }
+
+
+   /**
+    * Returns the period number in which a date occurs.
+    * @param date A &lt;code&gt;Date&lt;/code&gt; object representing any date in the Gregorian calendar
+    * @return int The period number the date will fall in BIG.  If the date is before Jan 1st of
+    * this game's start year, -1 is returned.
+    */
+   public int convertDateToPeriod(Date date)
+   {
+<span class="fc bfc" id="L207" title="All 2 branches covered.">	   if( date.before(startYear) )</span>
+   	   {
+<span class="fc" id="L209">		   return -1;</span>
+	   }
+	   else
+	   {
+<span class="fc" id="L213">	       Calendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L214">	       calendar.setTime(date);</span>
+
+	       //Get the year and month of the date provided
+<span class="fc" id="L217">	       int currentYear = calendar.get(Calendar.YEAR);</span>
+<span class="fc" id="L218">	       int currentMonth = calendar.get(Calendar.MONTH) + 1; //Make months start at 1</span>
+
+	       //Get the start year
+<span class="fc" id="L221">	       calendar.setTime(startYear);</span>
+<span class="fc" id="L222">	       int startingYear = calendar.get(Calendar.YEAR);</span>
+
+	       //1 - 6 depending on the month
+<span class="fc" id="L225">	       int requestedPeriodNumber = Math.round(((float) currentMonth / 2f));</span>
+
+	       //Number of years greater than starting year
+<span class="fc" id="L228">	       int yearOffset = (currentYear - startingYear);</span>
+
+           //6 periods each year, so multiply the yearOffset by 6 to get the period offset
+<span class="fc" id="L231">	       return requestedPeriodNumber + 6 * yearOffset;</span>
+
+	   }
+
+
+   }
+
+   /**
+    * Given a required completion date this method estimates the percentage
+    * of the last period that will be worked assuming a job finishes on its
+    * required completion date.  This method is hardcoded to assume
+    * two months per period.
+    * &lt;br&gt;&lt;br&gt;
+    * Examples: If a job's required completion date is the first day of the second
+    * month, this method would return around .5.
+    * &lt;br&gt; If a job's required completion date is about halfway through the first month
+    * this method would return around.25.
+    * @return A float between (0 and 1]
+    *
+    */
+   public float getEstimatedPercentageOfLastPeriodWorked(Date completionDate)
+   {
+<span class="fc" id="L253">	   float maxDaysPerMonth = 30f;  //Assume 30 days per month since it's simpler</span>
+	   							     //and this is an estimate anyway
+
+<span class="fc" id="L256">	   Calendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L257">	   calendar.setTime(completionDate);</span>
+
+<span class="fc" id="L259">	   int month = calendar.get(Calendar.MONTH);</span>
+<span class="fc" id="L260">	   int day = calendar.get(Calendar.DAY_OF_MONTH);</span>
+
+	   //Calculate how far the completion day is into the completion month
+<span class="fc" id="L263">	   float percentIntoMonth = ((float) day) / maxDaysPerMonth;</span>
+
+
+	   //Two months per period so divide by 2 to get the percent in the period
+	   //not yet counting the offset
+<span class="fc" id="L268">	   float percentIntoPeriod = percentIntoMonth / 2f;</span>
+
+	   //If this is the second month of a period (even numbered) add .5 because the completion
+	   //day is at least halfway through the period
+<span class="fc bfc" id="L272" title="All 2 branches covered.">	   if ((month % 2) == 1)</span>
+	   {
+<span class="fc" id="L274">		   percentIntoPeriod += .5;</span>
+	   }
+
+	   //Make sure we didn't get over 1 somehow
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">	   if (percentIntoPeriod &gt; 1)</span>
+<span class="nc" id="L279">	      percentIntoPeriod = 1f;</span>
+
+<span class="fc" id="L281">	   return percentIntoPeriod;</span>
+   }
+
+  //********************  Simple Set &amp; Get Methods  *********************************
+
+  public String getName()
+  {
+<span class="fc" id="L288">    	return name;</span>
+  }
+
+  public void setGameID(int gameID)
+  {
+<span class="fc" id="L293">		this.gameID = gameID;</span>
+<span class="fc" id="L294">  }</span>
+
+  public int getGameID()
+  {
+<span class="fc" id="L298">    	return gameID;</span>
+  }
+
+  public int getAdminID()
+  {
+<span class="fc" id="L303">    	return adminID;</span>
+  }
+
+  public boolean getIsActive()
+  {
+<span class="fc" id="L308">    	return isActive;</span>
+  }
+
+  public void setIsActive(boolean isActive)
+  {
+<span class="fc" id="L313">	  this.isActive = isActive;</span>
+<span class="fc" id="L314">  }</span>
+
+  public Date getStartYear()
+  {
+<span class="fc" id="L318">    	return startYear;</span>
+  }
+
+  public int getCurrentJobNumber()
+  {
+<span class="fc" id="L323">		return currentJobNumber;</span>
+  }
+
+  public int getCurrentPeriodNumber()
+  {
+<span class="fc" id="L328">	    return periodNumber;</span>
+  }
+
+  public void setCurrentPeriodNumber(int period)
+  {
+<span class="fc" id="L333">	  this.periodNumber = period;</span>
+<span class="fc" id="L334">  }</span>
+
+  public int getGametype()
+  {
+<span class="fc" id="L338">	    return gametype;</span>
+  }
+
+  public void setGametype(int gametype)
+  {
+<span class="fc" id="L343">	  this.gametype = gametype;</span>
+<span class="fc" id="L344">  }</span>
+
+  public boolean isEstimatingComponentOn()
+  {
+<span class="fc" id="L348">	  return estimatingComponentOn;</span>
+  }
+
+  public void setEstimatingComponentOn(boolean on)
+  {
+<span class="fc" id="L353">	  this.estimatingComponentOn = on;</span>
+<span class="fc" id="L354">  }</span>
+
+  public boolean isAutoBillingComponentOn()
+  {
+<span class="fc" id="L358">	  return autoBillingComponentOn;</span>
+  }
+
+  public void setAutoBillingComponentOn(boolean on)
+  {
+<span class="fc" id="L363">	  this.autoBillingComponentOn = on;</span>
+<span class="fc" id="L364">  }</span>
+
+  /**
+   * Return a Game object with the given gameid, but no real data.
+   * This can be used to convert between gameid and &lt;code&gt;Game&lt;/code&gt; object
+   * when a &lt;code&gt;Game&lt;/code&gt; object is required simply as a wrapper for a gameid.
+   */
+  public static Game mockGame(int gameid)
+  {
+<span class="fc" id="L373">	  Game g = new Game();</span>
+<span class="fc" id="L374">	  g.gameID = gameid;</span>
+<span class="fc" id="L375">	  return g;</span>
+  }
+
+
+  /**
+   * For Unit Testing Purposes Only&lt;br&gt;
+   * This unit test tests the &lt;code&gt;convertDateToPeriod&lt;/code&gt;
+   * and &lt;code&gt;getEstimatedPercentageOfLastPeriodWorked&lt;/code&gt;
+   * methods.
+   */
+  public static void main(String[] args)
+  {
+<span class="nc" id="L387">	  SimpleDateFormat formatter = new SimpleDateFormat(&quot;MM/dd/yyyy&quot;);</span>
+
+<span class="nc" id="L389">	  Date date = formatter.parse(&quot;1/1/2004&quot;, new java.text.ParsePosition(0));</span>
+
+<span class="nc" id="L391">      System.out.println(&quot;TESTING convertDateToPeriod&quot;);</span>
+
+	  //Assume start year is hard coded to the value above in this unit test
+	  //It doesn't really matter what the start year is to test the convertDateToPeriod method
+<span class="nc" id="L395">	  String[] testDates = { &quot;1/1/2003&quot;, &quot;1/1/2004&quot;, &quot;2/25/2004&quot;, &quot;5/4/2004&quot;, &quot;8/10/2005&quot;, &quot;12/2/2006&quot; };</span>
+<span class="nc" id="L396">	  int[] correctAnswers =  { -1, 1, 1, 3, 10, 18 };</span>
+
+<span class="nc" id="L398">	  System.out.println(&quot;Start Year: 1/1/2004&quot;);</span>
+<span class="nc" id="L399">	  Game testGame = new Game(0, null, date, 0);</span>
+
+<span class="nc" id="L401">	  boolean testPassed = true;</span>
+
+<span class="nc bnc" id="L403" title="All 2 branches missed.">      for(int i = 0; i &lt; testDates.length; i++)</span>
+      {
+<span class="nc" id="L405">		  System.out.println(&quot;Testing Date: &quot; + testDates[i]);</span>
+<span class="nc" id="L406">		  System.out.println(&quot;Correct Period should be: &quot; + correctAnswers[i]);</span>
+<span class="nc" id="L407">		  Date testDate = formatter.parse(testDates[i], new java.text.ParsePosition(0));</span>
+<span class="nc" id="L408">		  int testResult = testGame.convertDateToPeriod(testDate);</span>
+<span class="nc" id="L409">		  System.out.println(&quot;convertDateToPeriod method returned: &quot; + testResult);</span>
+
+<span class="nc bnc" id="L411" title="All 2 branches missed.">		  if(testResult == correctAnswers[i])</span>
+		  {
+<span class="nc" id="L413">		  	  System.out.println(&quot;Test Passed&quot;);</span>
+		  }
+		  else
+		  {
+<span class="nc" id="L417">		  	  System.out.println(&quot;TEST FAILED&quot;);</span>
+<span class="nc" id="L418">		  	  testPassed = false;</span>
+		  }
+
+	  }
+
+<span class="nc bnc" id="L423" title="All 2 branches missed.">	  if(testPassed)</span>
+	  {
+<span class="nc" id="L425">	  	System.out.println(&quot;TEST RESULTS: PASSED&quot;);</span>
+	  }
+	  else
+	  {
+<span class="nc" id="L429">	  	System.out.println(&quot;TEST RESULTS: FAILED&quot;);</span>
+	  }
+
+	  //It's much easier to test the percentages by visual inspection
+<span class="nc" id="L433">      System.out.println(&quot;\n\n\n&quot;);</span>
+<span class="nc" id="L434">      System.out.println(&quot;TESTING getEstimatedPercentageOfLastPeriodWorked&quot;);</span>
+<span class="nc" id="L435">      System.out.println(&quot;Confirm through visual inspection-&quot;);</span>
+<span class="nc" id="L436">      System.out.println(&quot;1/1/2003 between 0 and .1&quot;);</span>
+<span class="nc" id="L437">      System.out.println(&quot;1/1/2004 between 0 and .1&quot;);</span>
+<span class="nc" id="L438">      System.out.println(&quot;2/25/2004 between .8 and 1&quot;);</span>
+<span class="nc" id="L439">      System.out.println(&quot;5/4/2004 between 0 and .1&quot;);</span>
+<span class="nc" id="L440">      System.out.println(&quot;8/10/2005 between .6 and .7&quot;);</span>
+<span class="nc" id="L441">      System.out.println(&quot;12/2/2006 between .5 and .6&quot;);</span>
+
+<span class="nc bnc" id="L443" title="All 2 branches missed.">      for(int i = 0; i &lt; testDates.length; i++)</span>
+      {
+<span class="nc" id="L445">		  System.out.println(&quot;Testing Date: &quot; + testDates[i]);</span>
+
+<span class="nc" id="L447">		  Date testDate = formatter.parse(testDates[i], new java.text.ParsePosition(0));</span>
+<span class="nc" id="L448">		  float testResult = testGame.getEstimatedPercentageOfLastPeriodWorked(testDate);</span>
+<span class="nc" id="L449">		  System.out.println(&quot;getEstimatedPercentageOfLastPeriodWorked method returned: &quot; + testResult);</span>
+
+
+	  }
+
+
+<span class="nc" id="L455">  }</span>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

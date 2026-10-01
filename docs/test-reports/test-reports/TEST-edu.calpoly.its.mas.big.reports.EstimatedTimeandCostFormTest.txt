@@ -1,0 +1,33 @@
+Testsuite: edu.calpoly.its.mas.big.reports.EstimatedTimeandCostFormTest
+Tests run: 30, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 sec
+
+Testcase: testGetPercentofJobAndRetainedAmount took 0.004 sec
+Testcase: testGetPercentofJobWithInvalidRetentionID took 0 sec
+Testcase: testGetLaborCostWithStaticReportFlagFalse took 0.005 sec
+Testcase: testGetLaborCostWithValidActivityAndMethod took 0 sec
+Testcase: testGetDaysWithStaticReportFlagFalse took 0.001 sec
+Testcase: testGetSetJob took 0 sec
+Testcase: testGetSetMethods took 0 sec
+Testcase: testGetMethodName took 0 sec
+Testcase: testGetDays took 0 sec
+Testcase: testSetQuantities took 0 sec
+Testcase: testGetSetHoursPerDay took 0 sec
+Testcase: testGetSetActivities took 0 sec
+Testcase: testHeavyJobGetDays took 0 sec
+Testcase: testGetSetUnitPrices took 0 sec
+Testcase: testGetSetQuantities took 0.001 sec
+Testcase: testGetSetStaticReportFlag took 0 sec
+Testcase: testHeavyJobGetLaborCost took 0 sec
+Testcase: testGetSubcontractorCostWithStaticReportFlagFalse took 0 sec
+Testcase: testGetMaterialsCostWithValidActivityAndMethod took 0 sec
+Testcase: testGetPercentofJobWithNullRetentionPolicies took 0 sec
+Testcase: testGetEquipmentCostWithValidActivityAndMethod took 0 sec
+Testcase: testGetSubcontractorCostWithValidActivityAndMethod took 0 sec
+Testcase: testGetRetainedAmountWithNullRetentionPolicies took 0 sec
+Testcase: testGetRetainedAmountWithInvalidRetentionID took 0 sec
+Testcase: testGetEquipmentCostWithStaticReportFlagFalse took 0 sec
+Testcase: testGetMaterialsCostWithStaticReportFlagFalse took 0 sec
+Testcase: testGetLaborCostReturnsZeroForInvalidActivity took 0 sec
+Testcase: testHeavyJobGetEquipmentCost took 0 sec
+Testcase: testHeavyJobGetMaterialsCost took 0 sec
+Testcase: testHeavyJobGetSubcontractorCost took 0 sec

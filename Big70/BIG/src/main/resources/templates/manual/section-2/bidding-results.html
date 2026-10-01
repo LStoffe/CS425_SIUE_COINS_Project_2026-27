@@ -1,0 +1,101 @@
+<!--
+  bidding-results.html
+  Section 2.7 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>2.7 Bidding Results</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            2.7 Bidding Result
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            At the beginning of each period the results of the previous period's bidding can be found in two reports: The Report From Bid Opening and the Complete List of Bids Report.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Report From Bid Opening</strong><br>
+            The Report From Bid Opening lists the name of the company who won each job up for bid in the previous period. The amount of the bid is also listed. 
+            If a computer-controlled contractor won a job, the report will list "unknown contractor" as the bid winner. 
+            This report does not provide much information, but since the contract price of a job is readily available to the public it offers a cheap way to see who won which jobs. 
+            To access the "Report from Bid Opening", select "Report from Bid Opening" from the Main Menu.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Complete List of Bids Report</strong><br>
+            If your company is not satisfied with the information provided by the Report from Big Opening, you have the option to hire a business consultant to analyze the previous period's bids and prepare a complete report of the results. 
+            This report, called the Complete List of Bids Report, will list every bid that was submitted for every job in the previous period, the dollar amount of each bid, and the results of the bid. 
+            If the bid was rejected, the reason for the rejection is listed. This will help you understand not only what was wrong with your bid, but also what was wrong with the unsuccessful bids from other companies.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Although this report contains useful information, it comes at the cost of the consulting fees paid to the consultant. Your company will need to determine if the value of the information provided by the report is worth the cost to purchase it.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Tip:</strong> Computer-controlled unknown contractors are different from each other so it is pointless to try and figure out a strategy for the unknown contractor.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Tip:</strong> One good use of the Complete List of Bids Report is to determine how far your bid price was from the average bid price for a job. 
+            If your bid price is consistently far below or far above the average, then you may have discovered a problem with your bidding strategy. Of course, 
+            it is always possible that the other player companies are making poor bids too. 
+            In BIG, unknown contractors tend to bid a little high so you also might want to consider how far your bid is from the bid of the unknown contractor on a job.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To access the "Complete List of Bids" report, select "Complete List of Bids Report" from the Main Menu. You will be asked to pay the fee before you may view the report.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/bid-closing}" class="font-semibold hover:underline">
+        ← 2.6 Bid Closing
+    </a>
+    <a th:href="@{/manual/progress-report}" class="font-semibold hover:underline">
+        Next → 2.8 Progress Report
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

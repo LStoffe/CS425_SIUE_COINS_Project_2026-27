@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Utility.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">Utility.java</span></div><h1>Utility.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.game;
+
+
+/**
+ * This class provides some basic functions needed by multiple
+ * other classes in BIG.
+ */
+<span class="nc" id="L8">public class Utility</span>
+{
+
+	public static synchronized double average(double[] values)
+	{
+<span class="fc" id="L13">		double sum = 0.0;</span>
+<span class="fc" id="L14">		double length = (double) values.length;</span>
+<span class="fc bfc" id="L15" title="All 2 branches covered.">		for(int i=0; i &lt; values.length; i++)</span>
+		{
+<span class="fc" id="L17">			sum += values[i];</span>
+		}
+<span class="fc" id="L19">		return sum / length;</span>
+	}
+
+	public static synchronized long average(long[] values)
+	{
+<span class="fc" id="L24">		double sum = 0.0f;</span>
+<span class="fc" id="L25">		double length = (float) values.length;</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">		for(int i=0; i &lt; values.length; i++)</span>
+		{
+<span class="fc" id="L28">			sum += values[i];</span>
+		}
+<span class="fc" id="L30">		return Math.round(sum / length);</span>
+	}
+
+    public static synchronized double stdDev(double[] values)
+    {
+<span class="fc" id="L35">		double average = average(values);</span>
+<span class="fc" id="L36">		double sum = 0.0;</span>
+<span class="fc" id="L37">		double length = (double) values.length;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">		for(int i=0; i &lt; values.length; i++)</span>
+		{
+<span class="fc" id="L40">			sum += (values[i] - average) * (values[i] - average);</span>
+		}
+<span class="fc" id="L42">		double variance = sum / length;</span>
+<span class="fc" id="L43">		return Math.sqrt(variance);</span>
+	}
+
+	public static synchronized double stdDev(long[] values)
+	{
+<span class="fc" id="L48">		double average = (double) average(values);</span>
+<span class="fc" id="L49">		double sum = 0.0;</span>
+<span class="fc" id="L50">		double length = (double) values.length;</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">		for(int i=0; i &lt; values.length; i++)</span>
+		{
+<span class="fc" id="L53">			sum += (((double) values[i]) - average) * (((double) values[i]) - average);</span>
+		}
+<span class="fc" id="L55">		double variance = sum / length;</span>
+<span class="fc" id="L56">		return Math.sqrt(variance);</span>
+	}
+
+	public static void main(String args[])
+	{
+<span class="nc" id="L61">		double[] test = {2.0, 2.0, 2.0, 2.0, 2.0};</span>
+<span class="nc" id="L62">		System.out.println(Utility.stdDev(test));</span>
+<span class="nc" id="L63">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompleteListofBidsReportForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">CompleteListofBidsReportForm.java</span></div><h1>CompleteListofBidsReportForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.reports;
+
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Vector;
+import java.util.Iterator;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.company.Bid;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+/**
+ * Holds info for a Complete List of Bids Report
+ *
+ * @version $Revision: 1.9 $
+ */
+
+<span class="fc" id="L18">public class CompleteListofBidsReportForm extends ReportForm {</span>
+
+  //private Vector bids;
+  private Vector jobs;
+<span class="fc" id="L22">  private Vector companies = new Vector();</span>
+  private int period;
+  private String periodString;
+  private int maxJobsPerCompany;
+  private int companyID;
+  private String companyName;
+
+  // Keyed by 'jobID.companyID' for now (there's probably
+  // a much better way...)
+<span class="fc" id="L31">  private TreeMap bids = new TreeMap();</span>
+
+  //******************************  Simple Get and Set Methods  **************************************
+
+  public void setBids(Vector inBids)
+  {
+<span class="pc bpc" id="L37" title="1 of 4 branches missed.">	  if (inBids != null &amp;&amp; inBids.size() &gt; 0) {</span>
+		  // Iterate through the bids for this job, populating the bids TreeMap
+<span class="fc" id="L39">		  Iterator bidIterator = inBids.iterator();</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">		  while(bidIterator.hasNext()) {</span>
+<span class="fc" id="L41">			  Bid theBid = (Bid) bidIterator.next();</span>
+
+<span class="fc" id="L43">			  String key = theBid.getJobNumber() + &quot;.&quot; + theBid.getCompanyID();</span>
+<span class="fc" id="L44">			  bids.put(key, theBid);</span>
+<span class="fc" id="L45">		  }</span>
+	  }
+
+<span class="fc" id="L48">  }</span>
+
+  public String getBidAmount(int jobID, int companyID)
+  {
+<span class="fc" id="L52">	  String bidString = &quot;&quot;;</span>
+<span class="fc" id="L53">	  String key = jobID + &quot;.&quot; + companyID;</span>
+
+<span class="fc" id="L55">	  Bid theBid = (Bid) bids.get(key);</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">	  if (theBid == null) {</span>
+<span class="fc" id="L58">		  bidString = &quot;&quot;;</span>
+	  } else {
+<span class="fc" id="L60">		  bidString = NumberConverter.stringValue(theBid.getBidAmount());</span>
+	  }
+
+<span class="fc" id="L63">	  return bidString;</span>
+
+  }
+
+  public int getOutcomeCode(int jobID, int companyID)
+  {
+<span class="fc" id="L69">	  int outcomeCode = 0;</span>
+<span class="fc" id="L70">	  String key = jobID + &quot;.&quot; + companyID;</span>
+
+<span class="fc" id="L72">	  Bid theBid = (Bid) bids.get(key);</span>
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">	  if (theBid == null) {</span>
+<span class="fc" id="L75">		  outcomeCode = 5;</span>
+	  } else {
+<span class="fc" id="L77">		  outcomeCode = theBid.getOutcomeCode();</span>
+	  }
+
+<span class="fc" id="L80">	  return outcomeCode;</span>
+  }
+
+  public String getOutcomeArgument(int jobID, int companyID)
+  {
+<span class="nc" id="L85">	  String outcomeArg = &quot;&quot;;</span>
+
+<span class="nc" id="L87">	  int outcome = getOutcomeCode(jobID, companyID);</span>
+
+<span class="nc bnc" id="L89" title="All 2 branches missed.">	  if (outcome == 3)</span>
+<span class="nc" id="L90">		  outcomeArg = getMaxJobsPerCompany();</span>
+
+<span class="nc" id="L92">	  return outcomeArg;</span>
+  }
+
+
+  public Vector getJobs()
+  {
+<span class="nc" id="L98">    return jobs;</span>
+  }
+
+  public void setJobs(Vector jobs)
+  {
+<span class="nc" id="L103">    this.jobs = jobs;</span>
+<span class="nc" id="L104">  }</span>
+
+  public Vector getCompanies()
+  {
+<span class="nc" id="L108">    return companies;</span>
+  }
+
+  /**
+   *  Add &lt;code&gt;Contractor&lt;/code&gt; instances to an internal list of contractors.
+   *  Each time
+   *  The list is retrievable through the &lt;code&gt;getCompanies&lt;/code&gt; method.
+   *
+   */
+  public void addCompanies(Vector companies)
+  {
+<span class="nc" id="L119">	  this.companies.addAll(companies);</span>
+
+<span class="nc" id="L121">	  TreeSet sorter = new TreeSet(this.companies);</span>
+
+<span class="nc" id="L123">	  this.companies = new Vector(sorter);</span>
+<span class="nc" id="L124">  }</span>
+
+
+  public void setPeriodString(String periodString)
+  {
+<span class="nc" id="L129">	  this.periodString = periodString;</span>
+<span class="nc" id="L130">  }</span>
+
+  public String getPeriodString()
+  {
+<span class="nc" id="L134">	  return periodString;</span>
+  }
+
+  public void setPeriod(int period)
+  {
+<span class="nc" id="L139">	  this.period = period;</span>
+<span class="nc" id="L140">  }</span>
+
+  public int getPeriod()
+  {
+<span class="nc" id="L144">	  return period;</span>
+  }
+
+  public void setMaxJobsPerCompany(int maxJobs)
+  {
+<span class="nc" id="L149">	  this.maxJobsPerCompany = maxJobs;</span>
+<span class="nc" id="L150">  }</span>
+
+  public String getMaxJobsPerCompany()
+  {
+<span class="nc" id="L154">	  return String.valueOf(maxJobsPerCompany);</span>
+  }
+
+  public int getCompanyID()
+  {
+<span class="nc" id="L159">	  return companyID;</span>
+  }
+
+  public void setCompanyID(int companyID)
+  {
+<span class="nc" id="L164">	  this.companyID = companyID;</span>
+<span class="nc" id="L165">  }</span>
+
+  public String getCompanyName()
+  {
+<span class="nc bnc" id="L169" title="All 2 branches missed.">	  return companyName==null?&quot;&quot;:companyName;</span>
+  }
+
+  public void setCompanyName(String companyName)
+  {
+<span class="nc" id="L174">	  this.companyName = companyName;</span>
+<span class="nc" id="L175">  }</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

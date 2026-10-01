@@ -1,0 +1,16 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.SetLiqdamParametersActionTest
+Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.614 sec
+
+Testcase: testExecuteSetParametersSuccess took 0.604 sec
+	Caused an ERROR
+Cannot invoke "String.trim()" because "in" is null
+java.lang.NullPointerException: Cannot invoke "String.trim()" because "in" is null
+	at java.base/jdk.internal.math.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1838)
+	at java.base/jdk.internal.math.FloatingDecimal.parseFloat(FloatingDecimal.java:122)
+	at java.base/java.lang.Float.parseFloat(Float.java:556)
+	at edu.calpoly.its.mas.big.users.admin.LiqdamParametersForm.getMedian(LiqdamParametersForm.java:197)
+	at edu.calpoly.its.mas.big.users.admin.SetLiqdamParametersAction.execute(SetLiqdamParametersAction.java:96)
+	at edu.calpoly.its.mas.big.users.admin.SetLiqdamParametersActionTest.testExecuteSetParametersSuccess(SetLiqdamParametersActionTest.java:81)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.005 sec

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultPeriodDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultPeriodDBHandler.java</span></div><h1>DefaultPeriodDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Period;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;PeriodDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.6 $ $Date: 2002/03/14 18:53:05 $
+ */
+public class DefaultPeriodDBHandler extends DefaultDBHandler implements PeriodDBHandler
+{
+
+    public DefaultPeriodDBHandler(Connection connection)
+    {
+<span class="fc" id="L24">		super(connection);</span>
+<span class="fc" id="L25">	}</span>
+
+
+	public Period getPeriod(Game game, int periodNumber) throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L30">		Period period = null;</span>
+
+		try
+		{
+<span class="fc" id="L34">		   String query = &quot;SELECT temperature, rainfall, labor_availability, material_cost_index, number_of_new_jobs, number_of_new_heavy_jobs, workdays_first_month, &quot; +</span>
+		   				  &quot; workdays_second_month, raindays_first_month, raindays_second_month &quot; +
+		   				  &quot; FROM period WHERE gameid = ? AND periodid = ?&quot;;
+
+<span class="fc" id="L38">		   PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L39">		   pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L40">		   pstmt.setInt(2, periodNumber);</span>
+
+<span class="fc" id="L42">		   ResultSet rset = pstmt.executeQuery();</span>
+
+		   //Check if no rows are returned
+		   //(rset.last() returns false if there are no rows in the result set)
+<span class="fc bfc" id="L46" title="All 2 branches covered.">    	   if(!rset.last())</span>
+           {
+<span class="fc" id="L48">    		   throw new ObjectNotFoundException();</span>
+    	   }
+           else
+           {
+<span class="fc" id="L52">		       period = new Period(periodNumber,</span>
+<span class="fc" id="L53">				 				   rset.getInt(&quot;labor_availability&quot;),</span>
+<span class="fc" id="L54">				 				   rset.getInt(&quot;material_cost_index&quot;),</span>
+<span class="fc" id="L55">				  			       rset.getFloat(&quot;rainfall&quot;),</span>
+<span class="fc" id="L56">				  				   rset.getInt(&quot;temperature&quot;),</span>
+<span class="fc" id="L57">				  				   rset.getInt(&quot;number_of_new_jobs&quot;),</span>
+<span class="fc" id="L58">				  				   rset.getInt(&quot;number_of_new_heavy_jobs&quot;),</span>
+<span class="fc" id="L59">				  				   rset.getInt(&quot;workdays_first_month&quot;),</span>
+<span class="fc" id="L60">				  				   rset.getInt(&quot;workdays_second_month&quot;),</span>
+<span class="fc" id="L61">				  				   rset.getInt(&quot;raindays_first_month&quot;),</span>
+<span class="fc" id="L62">				     			   rset.getInt(&quot;raindays_second_month&quot;));</span>
+		   }
+
+<span class="fc" id="L65">		   rset.close();</span>
+<span class="fc" id="L66">		   pstmt.close();</span>
+		}
+<span class="fc" id="L68">		catch(SQLException sqle)</span>
+		{
+		   //close the connection if an exception occurs
+<span class="fc" id="L71">		   close();</span>
+<span class="fc" id="L72">		   throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L73">    	}</span>
+
+<span class="fc" id="L75">    	return period;</span>
+	}
+
+	public void updatePeriod(Game game, Period thePeriod) throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+		try
+		{
+<span class="fc" id="L82">		   String update = &quot;UPDATE period SET temperature = ?, rainfall = ?, labor_availability = ?, material_cost_index = ?, &quot; +</span>
+		                   &quot; number_of_new_jobs = ?, number_of_new_heavy_jobs = ?, workdays_first_month = ?, workdays_second_month = ?, raindays_first_month = ?, &quot; +
+		                   &quot; raindays_second_month = ? WHERE gameid = ? AND periodid = ?&quot;;
+
+<span class="fc" id="L86">		   PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L87">		   pstmt.setInt(1, thePeriod.getTemperature());</span>
+<span class="fc" id="L88">		   pstmt.setFloat(2, thePeriod.getRainfall());</span>
+<span class="fc" id="L89">		   pstmt.setInt(3, thePeriod.getLaborAvailability());</span>
+<span class="fc" id="L90">		   pstmt.setInt(4, thePeriod.getMaterialsCostIndex());</span>
+<span class="fc" id="L91">		   pstmt.setInt(5, thePeriod.getNumberOfNewBuildingJobs());</span>
+<span class="fc" id="L92">		   pstmt.setInt(6, thePeriod.getNumberOfNewHeavyJobs());</span>
+<span class="fc" id="L93">		   pstmt.setInt(7, thePeriod.getWorkdaysFirstMonth());</span>
+<span class="fc" id="L94">		   pstmt.setInt(8, thePeriod.getWorkdaysSecondMonth());</span>
+<span class="fc" id="L95">		   pstmt.setInt(9, thePeriod.getRaindaysFirstMonth());</span>
+<span class="fc" id="L96">		   pstmt.setInt(10, thePeriod.getRaindaysSecondMonth());</span>
+<span class="fc" id="L97">		   pstmt.setInt(11, game.getGameID());</span>
+<span class="fc" id="L98">		   pstmt.setInt(12, thePeriod.getPeriodNumber());</span>
+
+<span class="fc" id="L100">		   int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">           if (rowsChanged &lt; 1)</span>
+           {
+<span class="fc" id="L104">			   throw new ObjectNotFoundException();</span>
+		   }
+<span class="fc bfc" id="L106" title="All 2 branches covered.">		   else if (rowsChanged &gt; 1)</span>
+		   {
+<span class="fc" id="L108">			   throw new BIGDatabaseFacadeException(&quot;More than one Period in database matching game: &quot; + game.getGameID() + &quot; period: &quot; + thePeriod.getPeriodNumber());</span>
+		   }
+
+<span class="fc" id="L111">		   pstmt.close();</span>
+		}
+<span class="nc" id="L113">		catch(SQLException sqle)</span>
+		{
+		   //close the connection if an exception occurs
+<span class="nc" id="L116">		   close();</span>
+<span class="nc" id="L117">		   throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L118">    	}</span>
+
+<span class="fc" id="L120">	}</span>
+
+	public void addPeriod(Game game, Period thePeriod) throws BIGDatabaseFacadeException
+	{
+		try
+		{
+<span class="fc" id="L126">		   String add = &quot;INSERT INTO period (gameid, periodid, temperature, rainfall, labor_availability, material_cost_index, &quot; +</span>
+		                &quot; number_of_new_jobs, number_of_new_heavy_jobs, workdays_first_month, workdays_second_month, raindays_first_month, raindays_second_month) &quot; +
+		                &quot; VALUES (?,?,?,?,?,?,?,?,?,?,?,?)&quot;;
+
+<span class="fc" id="L130">		   PreparedStatement pstmt = connection.prepareStatement(add);</span>
+<span class="fc" id="L131">		   pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L132">		   pstmt.setInt(2, thePeriod.getPeriodNumber());</span>
+<span class="fc" id="L133">		   pstmt.setInt(3, thePeriod.getTemperature());</span>
+<span class="fc" id="L134">		   pstmt.setFloat(4, thePeriod.getRainfall());</span>
+<span class="fc" id="L135">		   pstmt.setInt(5, thePeriod.getLaborAvailability());</span>
+<span class="fc" id="L136">		   pstmt.setInt(6, thePeriod.getMaterialsCostIndex());</span>
+<span class="fc" id="L137">		   pstmt.setInt(7, thePeriod.getNumberOfNewBuildingJobs());</span>
+<span class="fc" id="L138">		   pstmt.setInt(8, thePeriod.getNumberOfNewHeavyJobs());</span>
+<span class="fc" id="L139">		   pstmt.setInt(9, thePeriod.getWorkdaysFirstMonth());</span>
+<span class="fc" id="L140">		   pstmt.setInt(10, thePeriod.getWorkdaysSecondMonth());</span>
+<span class="fc" id="L141">		   pstmt.setInt(11, thePeriod.getRaindaysFirstMonth());</span>
+<span class="fc" id="L142">		   pstmt.setInt(12, thePeriod.getRaindaysSecondMonth());</span>
+
+<span class="fc" id="L144">		   int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L146">		   pstmt.close();</span>
+		}
+<span class="fc" id="L148">		catch(SQLException sqle)</span>
+		{
+		   //close the connection if an exception occurs
+<span class="fc" id="L151">		   close();</span>
+<span class="fc" id="L152">		   throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L153">    	}</span>
+
+<span class="fc" id="L155">	}</span>
+
+	public void removePeriods(int gameID) throws BIGDatabaseFacadeException
+	{
+		try
+		{
+<span class="fc" id="L161">		   String remove = &quot;DELETE FROM period WHERE gameid = ?&quot;;</span>
+
+<span class="fc" id="L163">    	   PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L164">  		   pstmt.setInt(1, gameID);</span>
+
+<span class="fc" id="L166">		   int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L168">		   pstmt.close();</span>
+		}
+<span class="nc" id="L170">		catch(SQLException sqle)</span>
+		{
+		   //close the connection if an exception occurs
+<span class="nc" id="L173">		   close();</span>
+<span class="nc" id="L174">		   throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L175">    	}</span>
+<span class="fc" id="L176">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,463 @@
+Testsuite: edu.calpoly.its.mas.big.game.JobTest
+Tests run: 98, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.215 sec
+------------- Standard Output ---------------
+23:50:03,077 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getCustomerDBHandler(JobTest.java:790)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:158)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,088 FATAL company.ExpandedCompany - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getBalanceSheetDBHandler(JobTest.java:772)
+	at edu.calpoly.its.mas.big.users.company.ExpandedCompany.<init>(ExpandedCompany.java:152)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:173)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,089 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getCurrentMethodDBHandler(JobTest.java:742)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadMethods(ExpandedGame.java:765)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:178)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,089 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:814)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,127 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:814)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,127 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:814)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,128 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:814)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,129 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:814)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,130 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:835)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,130 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:835)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,131 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:835)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,132 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:835)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,132 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNetworkDependencies(ExpandedGame.java:835)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:179)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,133 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadMiscParameters(ExpandedGame.java:920)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:180)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,133 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadLiquidatedDamagesParameters(ExpandedGame.java:858)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:181)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,134 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getGameParametersDBHandler(JobTest.java:750)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadNegotiationParameters(ExpandedGame.java:880)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:182)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,135 FATAL game.ExpandedGame - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getPersonnelParametersDBHandler(JobTest.java:804)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.loadPersonnelParameters(ExpandedGame.java:901)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.<init>(ExpandedGame.java:183)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:701)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:50:03,142 FATAL company.ExpandedCompany - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+mock
+	at edu.calpoly.its.mas.big.game.JobTest$2.getCAMDBHandler(JobTest.java:786)
+	at edu.calpoly.its.mas.big.users.company.ExpandedCompany.modifyCAMUpdate(ExpandedCompany.java:1341)
+	at edu.calpoly.its.mas.big.game.ExpandedGame.modifyCAMUpdate(ExpandedGame.java:1479)
+	at edu.calpoly.its.mas.big.game.Job.chargeBiddingExpenses(Job.java:233)
+	at edu.calpoly.its.mas.big.game.JobTest.testChargeBiddingExpensesWithNonEmptyBids(JobTest.java:709)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+------------- ---------------- ---------------
+
+Testcase: testCalculateRetainedAmountWhenPercentCompleteExceedsThreshold took 0.003 sec
+Testcase: testGetCompletionDateStringAndDeadlineString took 0.015 sec
+Testcase: testChargeLiquidatedDamagesWithPositiveDamages took 0.067 sec
+Testcase: testGetEstimatedWorkdaysAndMethodScalingFactor took 0.001 sec
+Testcase: testChargeBiddingExpensesSkipsNegativeCompanyID took 0 sec
+Testcase: testIsCompanyAllowedToBidPrivateWithNullList took 0 sec
+Testcase: testCalculateRetainedAmountWhenUnderThreshold took 0 sec
+Testcase: testGetCompletionDateAndDeadlineWithSameDate took 0 sec
+Testcase: testGetLusRemainingWithActivitiesAndChangeOrders took 0 sec
+Testcase: testGetPercentOfJobCompleteWithChangeOrders took 0 sec
+Testcase: testCalculateRetainedAmountWithZeroPercentRetained took 0 sec
+Testcase: testGetVariableFieldChargeWithFiftyPercentOverhead took 0 sec
+Testcase: testGetFixedFieldOverheadAndVariableFieldOverhead took 0.001 sec
+Testcase: testGetVariableFieldChargeWithNonZeroOverhead took 0 sec
+Testcase: testGetCompaniesAllowedToBidReturnsSetVector took 0 sec
+Testcase: testGetAmountRetainedFromSubcontractors took 0 sec
+Testcase: testGetFixedAndVariableFieldOverhead took 0 sec
+Testcase: testGetDirectCostAndCompletionDeadline took 0.002 sec
+Testcase: testSetRetentionIDAndGetRetentionID took 0 sec
+Testcase: testIsCompanyAllowedToBidPrivateJob took 0 sec
+Testcase: testGetCompletionDateAndDeadlineStrings took 0 sec
+Testcase: testChargeBiddingExpensesWithEmptyBids took 0 sec
+Testcase: testGetRetentionIDAndSetRetentionID took 0 sec
+Testcase: testSetActivitiesWithNullDoesNotSet took 0 sec
+Testcase: testGetVariableFieldChargeWithZeroOverhead took 0.001 sec
+Testcase: testChargeBiddingExpensesWithNonEmptyBids took 0.081 sec
+Testcase: testGetCurrentCostAfterRecordDirectCosts took 0.001 sec
+Testcase: testGetPercentRetainedFromConstructor took 0 sec
+Testcase: testGetCurrentCostWithOverheadCharges took 0 sec
+Testcase: testRecordDirectCostsWhenJobInactive took 0.001 sec
+Testcase: testGetFixedFieldOverheadFromConstructor took 0 sec
+Testcase: testGetActivitiesReturnsNullBeforeSet took 0 sec
+Testcase: testChargeLiquidatedDamagesWithZeroDamages took 0 sec
+Testcase: testSetActivitiesWithWrongLengthDoesNotSet took 0 sec
+Testcase: testPayRetention took 0 sec
+Testcase: testGetCustomer took 0 sec
+Testcase: testTEMPORARY_getJobType took 0 sec
+Testcase: testGetJobTypeForAllTypes took 0.001 sec
+Testcase: testClearRetainedAmount took 0 sec
+Testcase: testGetGameAndGetCompany took 0.001 sec
+Testcase: testGetTotalJobSize took 0 sec
+Testcase: testJobTypeConstants took 0 sec
+Testcase: testPayImmediateExpenses took 0 sec
+Testcase: testGetMethodScalingFactor took 0 sec
+Testcase: testSetGameAndGetGame took 0 sec
+Testcase: testGetLiquidatedDamages took 0 sec
+Testcase: testChargeVariableOverhead took 0 sec
+Testcase: testGetBidAmountAfterSet took 0 sec
+Testcase: testConstructorAndGetters took 0 sec
+Testcase: testGetRetainedAmount took 0 sec
+Testcase: testGetChangeOrderLus took 0 sec
+Testcase: testGetPercentOfJob took 0 sec
+Testcase: testGetBilledToDate took 0 sec
+Testcase: testSetBilledToDate took 0 sec
+Testcase: testSetTypeModifier took 0 sec
+Testcase: testGetPeriodCompleted took 0 sec
+Testcase: testGetTypeModifier took 0 sec
+Testcase: testGetLusRemaining took 0 sec
+Testcase: testSetRetainedAmount took 0 sec
+Testcase: testGetPeriodCreated took 0 sec
+Testcase: testGetEstimatedWorkdays took 0 sec
+Testcase: testGetChangeOrderPrice took 0 sec
+Testcase: testClearActivityStates took 0 sec
+Testcase: testIncreaseBilledToDate took 0 sec
+Testcase: testGetCurrentPeriod took 0 sec
+Testcase: testGetVariableFieldCharge took 0 sec
+Testcase: testGetPercentRetained took 0 sec
+Testcase: testRecordDirectCosts took 0 sec
+Testcase: testCalculateRetainedAmountWithDifferentPercentOfJob took 0 sec
+Testcase: testGetLusRemainingWithActivitiesCallsUpdateLusRemaining took 0 sec
+Testcase: testRecordDirectCostsActivityFullyCompleteNoRetention took 0 sec
+Testcase: testGetAmountRetainedFromSubcontractorsFromConstructor took 0 sec
+Testcase: testChargeFixedFieldOverhead took 0 sec
+Testcase: testIsCompanyAllowedToBidPublicJob took 0 sec
+Testcase: testGetChangeOrderPriceAndLus took 0 sec
+Testcase: testGetJobTypeReturnsCorrectValue took 0 sec
+Testcase: testRecordDirectCostsWithRetention took 0 sec
+Testcase: testGetPercentOfJobComplete took 0 sec
+Testcase: testGetCustomerIDWithFullCustomer took 0 sec
+Testcase: testSetActivitiesAndGetActivities took 0 sec
+Testcase: testCalculateRetainedAmount took 0 sec
+Testcase: testGetBidsReturnsNullBeforeSet took 0 sec
+Testcase: testGetDirectCostAndRetainedAmount took 0 sec
+Testcase: testSetCustomerAndGetCustomerID took 0 sec
+Testcase: testJobCompletedDoesNotThrow took 0 sec
+Testcase: testGetTotalPriceWithChangeOrder took 0 sec
+Testcase: testSetGameSetCompanySetBids took 0 sec
+Testcase: testSetCompanyAndGetCompany took 0 sec
+Testcase: testIsCompanyAllowedToBidHeavyJob took 0 sec
+Testcase: testSetRetentionAndGetRetention took 0 sec
+Testcase: testGetTotalPrice took 0 sec
+Testcase: testSetBidAmount took 0 sec
+Testcase: testGetCurrentCost took 0 sec
+Testcase: testGetJobSize took 0 sec
+Testcase: testGetIsAuto took 0 sec
+Testcase: testClearOvertime took 0 sec
+Testcase: testSetIsAuto took 0 sec
+Testcase: testIsComplete took 0 sec

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChooseJobToRequestOvertimeAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">ChooseJobToRequestOvertimeAction.java</span></div><h1>ChooseJobToRequestOvertimeAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+//JDK imports
+import javax.sql.DataSource;
+import java.util.Vector;
+import java.util.Iterator;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Action class used to retrieve jobs owned by the company as part of
+ * a request for overtime on a particular job.  Before a company can
+ * request overtime on a job the company must first choose the job for
+ * which they wish to schedule overtime. This action will retrieve
+ * from the database all active jobs owned by the current company.
+ * The jobs will be placed in the session in a
+ * &lt;code&gt;java.util.Vector&lt;/code&gt; under the name &quot;jobs&quot;.  Also in the
+ * session will be placed an array of String (under the name
+ * &quot;jobTitles&quot;) containing the job number and job type for each job in
+ * the Vector.  The String array can be used to display the jobs in
+ * the GUI and the Vector can be used to retrieve the job the company
+ * selected for the next stage in the overtime request process.
+ *
+ * @version $Revision: 1.5 $ $Date: 2002/04/12 17:44:29 $ */
+<span class="fc" id="L56">public class ChooseJobToRequestOvertimeAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				     			 ActionForm form,
+				     			 HttpServletRequest request,
+			         			 HttpServletResponse response)
+	{
+<span class="fc" id="L63">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L66">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="fc" id="L69">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L71">        ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L72">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L73">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L75">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L80">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L82">		MessageResources resources = getResources(request);</span>
+
+<span class="nc" id="L84">		Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+<span class="nc" id="L86">		Vector jobs = null;</span>
+<span class="nc" id="L87">		String[] jobTitles = new String[0];</span>
+
+<span class="nc" id="L89">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+		try
+		{
+<span class="nc" id="L93">			jobs = dbFacade.getJobDBHandler().getActiveJobs(game, company);</span>
+
+<span class="nc" id="L95">			dbFacade.close();</span>
+		}
+<span class="nc" id="L97">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L99">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L100">            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L101">		}</span>
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		if (jobs != null)</span>
+		{
+<span class="nc" id="L105">			jobTitles = new String[jobs.size()];</span>
+<span class="nc" id="L106">			String publicType = resources.getMessage(&quot;jobTypeMod.public&quot;);</span>
+<span class="nc" id="L107">			String privateType = resources.getMessage(&quot;jobTypeMod.private&quot;);</span>
+<span class="nc" id="L108">			String heavyType = resources.getMessage(&quot;jobTypeMod.heavy&quot;);</span>
+<span class="nc" id="L109">			Iterator i = jobs.iterator();</span>
+<span class="nc" id="L110">			int j = 0;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">			while(i.hasNext())</span>
+			{
+<span class="nc" id="L113">				Job job = (Job) i.next();</span>
+
+				String jobTitle;
+		        //Determine the job name in the resource bundle associated with the job type number
+<span class="nc" id="L117">			    jobTitle = resources.getMessage(&quot;jobType.jobType&quot; + job.getJobType());</span>
+
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			    if(job.getTypeModifier() == Job.PUBLIC)</span>
+			    {
+<span class="nc" id="L121">			    	jobTitle = &quot;Job #&quot; + job.getJobID() + &quot;: &quot; + publicType + &quot; - &quot; + jobTitle;</span>
+				}
+<span class="nc bnc" id="L123" title="All 2 branches missed.">				if(job.getTypeModifier() == Job.PRIVATE)</span>
+				{
+<span class="nc" id="L125">					jobTitle = &quot;Job #&quot; + job.getJobID() + &quot;: &quot; + privateType + &quot; - &quot; +  jobTitle;</span>
+				}
+<span class="nc bnc" id="L127" title="All 2 branches missed.">				if(job.getTypeModifier() == Job.HEAVY)</span>
+				{
+<span class="nc" id="L129">					jobTitle = &quot;Job #&quot; + job.getJobID() + &quot;: &quot; + heavyType + &quot; - &quot; +  jobTitle;</span>
+				}
+<span class="nc" id="L131">			    jobTitles[j] = jobTitle;</span>
+<span class="nc" id="L132">			    j++;</span>
+
+<span class="nc" id="L134">			}</span>
+		}
+
+<span class="nc" id="L137">		session.setAttribute(&quot;jobs&quot;, jobs);</span>
+<span class="nc" id="L138">		session.setAttribute(&quot;jobTitles&quot;, jobTitles);</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+<span class="nc bnc" id="L142" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L144">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+<span class="nc" id="L146">			saveErrors(request, errors);</span>
+<span class="nc" id="L147">	 	   	saveToken(request);</span>
+<span class="nc" id="L148">	 	   	return (new ActionForward(&quot;error&quot;));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L152" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L154">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="nc" id="L156">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

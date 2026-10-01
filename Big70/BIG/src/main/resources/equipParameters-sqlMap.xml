@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="BigEquipment">
+
+
+<!--  *=====*  SELECT statements  *=====*  -->
+
+
+  <select id="getMasterEquip" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters"  >  
+    <![CDATA[
+
+    SELECT 	 category                 as category,
+    		 brand                    as brand,
+    		 model                    as model,
+    		 cal_trans_code           as ct_code,
+    		 cal_trans_rate           as ct_rate,
+    		 percent_ct_per_hour      as percent_ct_hour,
+    		 productivity_per_hour    as productivity_hour,
+    		 deployment_cost          as deployment_cost,
+    		 decommission_cost        as decommission_cost,
+    		 is_primary               as is_primary
+
+    FROM 	 equip_available
+
+    ORDER BY category, cal_trans_code
+
+    ]]>
+  </select>
+
+
+  <select id="getNewEquip" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters"  >  
+    <![CDATA[
+
+    SELECT 	 new_equip_available.equip_number             as equip_numb,
+    		 new_equip_available.cal_trans_code           as ct_code,
+    		 new_equip_available.year                     as year,
+    		 new_equip_available.model                    as model,
+    		 new_equip_available.cost_per_hour            as calc_cost_per_hour,
+    		 new_equip_available.productivity_per_hour    as calc_productivity_hour,
+    		 new_equip_available.price_to_buy             as price_to_buy,
+    		 new_equip_available.cash_paid ,
+    		 new_equip_available.loan_amount ,
+    		 new_equip_available.description              as description,
+    	 	 new_equip_available.is_in_marketplace        as is_in_market,
+    	 	 new_equip_available.is_in_fleet ,
+    	 	 new_equip_available.is_on_project ,
+    	 	 new_equip_available.company_id ,
+    	 	 new_equip_available.project_numb ,
+    	 	 
+    	 	 equip_available.category                     as category,
+    	 	 equip_available.brand                        as brand,
+    	 	 equip_available.model                        as model_master,
+    	 	 equip_available.productivity_per_hour        as productivity_hour,
+    	 	 equip_available.cal_trans_rate               as ct_rate,
+    	 	 equip_available.percent_ct_per_hour          as percent_ct_hour
+
+    FROM 	 new_equip_available
+    
+    INNER JOIN   equip_available
+    
+    ON           new_equip_available.cal_trans_code=equip_available.cal_trans_code
+    
+    WHERE        new_equip_available.adminid = #adminID#
+    
+    ORDER BY     equip_available.category
+
+    ]]>
+  </select>
+
+
+<select id="getUsedEquip" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters"  >  
+    <![CDATA[
+
+    SELECT 	 used_equip_available.equip_number             as equip_numb,
+    		 used_equip_available.cal_trans_code           as ct_code,
+    		 used_equip_available.year                     as year,
+    		 used_equip_available.model                    as model,
+    		 used_equip_available.serial_numb              as serial_numb,
+    		 used_equip_available.hours_of_use             as hrs_of_use,
+    		 used_equip_available.condition                as condition,
+    		 used_equip_available.cost_per_hour            as calc_cost_per_hour,
+    		 used_equip_available.productivity_per_hour    as calc_productivity_hour,
+    		 used_equip_available.price_to_buy             as price_to_buy,
+    		 used_equip_available.cash_paid ,
+    		 used_equip_available.loan_amount ,
+    		 used_equip_available.description              as description,
+    	 	 used_equip_available.is_in_marketplace        as is_in_market,
+    	 	 used_equip_available.is_in_fleet ,
+    	 	 used_equip_available.is_on_project ,
+    	 	 used_equip_available.company_id ,
+    	 	 used_equip_available.project_numb ,
+    	 	 
+    	 	 equip_available.category                     as category,
+    	 	 equip_available.brand                        as brand,
+    	 	 equip_available.model                        as model_master,
+    	 	 equip_available.productivity_per_hour        as productivity_hour,
+    	 	 equip_available.cal_trans_rate               as ct_rate,
+    	 	 equip_available.percent_ct_per_hour          as percent_ct_hour
+
+    FROM 	 used_equip_available
+    
+    INNER JOIN   equip_available
+    
+    ON           used_equip_available.cal_trans_code=equip_available.cal_trans_code
+    
+    WHERE        used_equip_available.adminid = #adminID#
+    
+    ORDER BY     equip_available.category
+
+    ]]>
+  </select>
+
+
+<select id="getRentalEquip" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters"  >  
+    <![CDATA[
+
+    SELECT 	 rental_equip_available.equip_number             as equip_numb,
+    		 rental_equip_available.cal_trans_code           as ct_code,
+    		 rental_equip_available.model                    as model,
+    		 rental_equip_available.condition                as condition,
+    		 rental_equip_available.price_to_rent            as price_to_rent,
+    		 rental_equip_available.cost_per_hour            as calc_cost_per_hour,
+    		 rental_equip_available.productivity_per_hour    as calc_productivity_hour,
+    		 rental_equip_available.rental_term ,
+    		 rental_equip_available.description              as description,
+    	 	 rental_equip_available.is_in_marketplace        as is_in_market,
+    	 	 rental_equip_available.is_in_fleet ,
+    	 	 rental_equip_available.is_on_project ,
+    	 	 rental_equip_available.company_id ,
+    	 	 rental_equip_available.project_numb ,
+    	 	 
+    	 	 equip_available.category                     as category,
+    	 	 equip_available.brand                        as brand,
+    	 	 equip_available.model                        as model_master,
+    	 	 equip_available.productivity_per_hour        as productivity_hour,
+    	 	 equip_available.cal_trans_rate               as ct_rate,
+    	 	 equip_available.percent_ct_per_hour          as percent_ct_hour
+
+    FROM 	 rental_equip_available
+    
+    INNER JOIN   equip_available
+    
+    ON           rental_equip_available.cal_trans_code=equip_available.cal_trans_code
+    
+    WHERE        rental_equip_available.adminid = #adminID#
+    
+    ORDER BY     equip_available.category
+
+    ]]>
+  </select>
+
+
+  <select id="getCTcodes" resultClass="java.lang.String" >
+    <![CDATA[
+
+    SELECT 	 cal_trans_code     as ct_code
+    		
+    FROM 	 equip_available
+    
+    ORDER BY     cal_trans_code
+
+    ]]>
+  </select>
+
+
+  <select id="getModelFromCTcode" resultClass="java.lang.String" >
+    <![CDATA[
+
+    SELECT model 
+    
+    FROM equip_available 
+    
+    WHERE cal_trans_code = #ct_code[0]#
+
+    ]]>
+  </select>
+
+
+  <select id="getMaxEquipNumb" resultClass="java.lang.String" >
+    <![CDATA[
+
+    SELECT MAX(equip_number) FROM new_equip_available
+
+    ]]>
+  </select>
+
+
+  <select id="getMaxEquipNumbUsed" resultClass="java.lang.String" >
+    <![CDATA[
+
+    SELECT MAX(equip_number) FROM used_equip_available
+
+    ]]>
+  </select>
+
+
+  <select id="getMaxEquipNumbRental" resultClass="java.lang.String" >
+    <![CDATA[
+
+    SELECT MAX(equip_number) FROM rental_equip_available
+
+    ]]>
+  </select>
+
+
+  <select id="getNewEquipOnJob" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters" parameterClass="int" >  
+    <![CDATA[
+
+    SELECT 	 new_equip_available.equip_number             as equip_numb,
+    		 new_equip_available.model                    as model,
+    		 new_equip_available.cost_per_hour            as calc_cost_per_hour,
+    		 new_equip_available.productivity_per_hour    as calc_productivity_hour,
+    	 	 new_equip_available.is_on_project ,
+    	 	 new_equip_available.company_id ,
+    	 	 new_equip_available.project_numb 
+    	 	 
+    FROM 	 new_equip_available
+    
+    INNER JOIN   equip_available
+    
+    ON           new_equip_available.cal_trans_code=equip_available.cal_trans_code
+    
+    WHERE        new_equip_available.is_on_project = 't' AND new_equip_available.company_id = #value#
+    
+    ORDER BY     equip_available.category
+
+    ]]>
+  </select>
+
+
+<select id="getUsedEquipOnJob" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters" parameterClass="int" >  
+    <![CDATA[
+
+    SELECT 	 used_equip_available.equip_number             as equip_numb,
+    		 used_equip_available.model                    as model,
+    		 used_equip_available.cost_per_hour            as calc_cost_per_hour,
+    		 used_equip_available.productivity_per_hour    as calc_productivity_hour,
+    	 	 used_equip_available.is_on_project ,
+    	 	 used_equip_available.company_id ,
+    	 	 used_equip_available.project_numb
+
+    FROM 	 used_equip_available
+    
+    INNER JOIN   equip_available
+    
+    ON           used_equip_available.cal_trans_code=equip_available.cal_trans_code
+    
+    WHERE        used_equip_available.is_on_project = 't' AND used_equip_available.company_id = #value#
+    
+    ORDER BY     equip_available.category
+
+    ]]>
+  </select>
+
+
+<select id="getRentalEquipOnJob" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters" parameterClass="int" >  
+    <![CDATA[
+
+    SELECT 	 rental_equip_available.equip_number             as equip_numb,
+    		 rental_equip_available.model                    as model,
+    		 rental_equip_available.cost_per_hour            as calc_cost_per_hour,
+    		 rental_equip_available.productivity_per_hour    as calc_productivity_hour,
+    	 	 rental_equip_available.is_on_project ,
+    	 	 rental_equip_available.company_id ,
+    	 	 rental_equip_available.project_numb 
+    	 	 
+    FROM 	 rental_equip_available
+    
+    INNER JOIN   equip_available
+    
+    ON           rental_equip_available.cal_trans_code=equip_available.cal_trans_code
+
+    WHERE        rental_equip_available.is_on_project = 't' AND rental_equip_available.company_id = #value#
+    
+    ORDER BY     equip_available.category
+
+    ]]>
+  </select>
+
+
+
+<!--  *=====*  UPDATE statements  *=====*  -->
+
+
+  <update id="updateMasterEquipList" parameterClass="map">
+    <![CDATA[
+
+    UPDATE equip_available  set  CAL_TRANS_RATE        = #ct_rate#,
+    			         PERCENT_CT_PER_HOUR   = #percent_ct_hour#,
+    			         PRODUCTIVITY_PER_HOUR = #productivity_hour#,
+    				 DEPLOYMENT_COST       = #deployment_cost#,
+    				 DECOMMISSION_COST     = #decommission_cost#
+
+    WHERE CAL_TRANS_CODE = #ct_code#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateNewEquipList" parameterClass="map">
+    <![CDATA[
+
+    UPDATE new_equip_available  set  YEAR                  = #year#,
+    				     MODEL                 = #model#,
+    			             PRICE_TO_BUY          = #price_to_buy#,
+    			             DESCRIPTION           = #description#,
+    				     IS_IN_MARKETPLACE     = #is_in_market#,
+    				     COST_PER_HOUR         = #cost_hour#,
+    				     PRODUCTIVITY_PER_HOUR = #productivity_hour#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateNewEquipMarketplace" parameterClass="map">
+    <![CDATA[
+
+    UPDATE new_equip_available  set  PRICE_TO_BUY      = #price_to_buy#,
+    			             DESCRIPTION       = #description#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateNewEquipMarketplaceCompany" parameterClass="map">
+    <![CDATA[
+
+    UPDATE new_equip_available  set  CASH_PAID         = #cash_paid#,
+    			             LOAN_AMOUNT       = #loan_amount#,
+    			             COMPANY_ID        = #company_id#,
+    			             IS_IN_MARKETPLACE = #is_in_market#,
+    			             IS_IN_FLEET       = #is_in_fleet#,
+    			             IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateUsedEquipMarketplaceCompany" parameterClass="map">
+    <![CDATA[
+
+    UPDATE used_equip_available  set  CASH_PAID         = #cash_paid#,
+    			              LOAN_AMOUNT       = #loan_amount#,
+    			              COMPANY_ID        = #company_id#,
+    			              IS_IN_MARKETPLACE = #is_in_market#,
+    			              IS_IN_FLEET       = #is_in_fleet#,
+    			              IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateRentalEquipMarketplaceCompany" parameterClass="map">
+    <![CDATA[
+
+    UPDATE rental_equip_available  set  RENTAL_TERM       = #rental_term#,
+    			                COMPANY_ID        = #company_id#,
+    			                IS_IN_MARKETPLACE = #is_in_market#,
+    			                IS_IN_FLEET       = #is_in_fleet#,
+    			                IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateRemoveFromNewEquipMarketplace" parameterClass="map">
+    <![CDATA[
+
+    UPDATE new_equip_available  set  IS_IN_MARKETPLACE = #is_in_market#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateUsedEquipList" parameterClass="map">
+    <![CDATA[
+
+    UPDATE used_equip_available  set  YEAR                  = #year#,
+        			      MODEL                 = #model#,
+    			              SERIAL_NUMB           = #serial_numb#,
+    			              HOURS_OF_USE          = #hrs_of_use#,
+    			              CONDITION             = #condition#,
+    			              PRICE_TO_BUY          = #price_to_buy#,
+    			              DESCRIPTION           = #description#,
+    				      IS_IN_MARKETPLACE     = #is_in_market#,
+    				      COST_PER_HOUR         = #cost_hour#,
+    				      PRODUCTIVITY_PER_HOUR = #productivity_hour#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateUsedEquipMarketplace" parameterClass="map">
+    <![CDATA[
+
+    UPDATE used_equip_available  set  PRICE_TO_BUY      = #price_to_buy#,
+    			              DESCRIPTION       = #description#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateRemoveFromUsedEquipMarketplace" parameterClass="map">
+    <![CDATA[
+
+    UPDATE used_equip_available  set  IS_IN_MARKETPLACE = #is_in_market#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateRentalEquipList" parameterClass="map">
+    <![CDATA[
+
+    UPDATE rental_equip_available  set  MODEL                 = #model#,
+    			                CONDITION             = #condition#,
+    			                PRICE_TO_RENT         = #price_to_rent#,
+    			                DESCRIPTION           = #description#,
+    				        IS_IN_MARKETPLACE     = #is_in_market#,
+    				        COST_PER_HOUR         = #cost_hour#,
+    				        PRODUCTIVITY_PER_HOUR = #productivity_hour#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateRentalEquipMarketplace" parameterClass="map">
+    <![CDATA[
+
+    UPDATE rental_equip_available  set  PRICE_TO_RENT      = #price_to_rent#,
+    			                DESCRIPTION        = #description#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateRemoveFromRentalEquipMarketplace" parameterClass="map">
+    <![CDATA[
+
+    UPDATE rental_equip_available  set  IS_IN_MARKETPLACE = #is_in_market#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateNewFleet" parameterClass="map">
+    <![CDATA[
+
+    UPDATE new_equip_available  set  CASH_PAID         = #cash_paid#,
+    			             LOAN_AMOUNT       = #loan_amount#,
+    			             COMPANY_ID        = #company_id#,
+    			             IS_IN_MARKETPLACE = #is_in_market#,
+    			             IS_IN_FLEET       = #is_in_fleet#,
+    			             IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+<update id="updateUsedFleet" parameterClass="map">
+    <![CDATA[
+
+    UPDATE used_equip_available  set  CASH_PAID         = #cash_paid#,
+    			              LOAN_AMOUNT       = #loan_amount#,
+    			              COMPANY_ID        = #company_id#,
+    			              IS_IN_MARKETPLACE = #is_in_market#,
+    			              IS_IN_FLEET       = #is_in_fleet#,
+    			              IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+<update id="updateRentalFleet" parameterClass="map">
+    <![CDATA[
+
+    UPDATE rental_equip_available  set  RENTAL_TERM       = #rental_term#,
+    			                COMPANY_ID        = #company_id#,
+    			                IS_IN_MARKETPLACE = #is_in_market#,
+    			                IS_IN_FLEET       = #is_in_fleet#,
+    			                IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+  <update id="updateNewDispatch" parameterClass="map">
+    <![CDATA[
+
+    UPDATE new_equip_available  set  PROJECT_NUMB      = #project_numb#,
+    			             IS_IN_MARKETPLACE = #is_in_market#,
+    			             IS_IN_FLEET       = #is_in_fleet#,
+    			             IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+<update id="updateUsedDispatch" parameterClass="map">
+    <![CDATA[
+
+    UPDATE used_equip_available  set  PROJECT_NUMB      = #project_numb#,
+    			              IS_IN_MARKETPLACE = #is_in_market#,
+    			              IS_IN_FLEET       = #is_in_fleet#,
+    			              IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+<update id="updateRentalDispatch" parameterClass="map">
+    <![CDATA[
+
+    UPDATE rental_equip_available  set  PROJECT_NUMB      = #project_numb#,
+    			                IS_IN_MARKETPLACE = #is_in_market#,
+    			                IS_IN_FLEET       = #is_in_fleet#,
+    			                IS_ON_PROJECT     = #is_on_project#
+
+    WHERE EQUIP_NUMBER = #equip_numb#
+    
+    ]]>	  
+  </update>
+
+
+
+
+<!--  *=====*  INSERT statements  *=====*  -->
+
+
+  <insert id="insertNewEquip" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO new_equip_available (equip_number, cal_trans_code, year, model, price_to_buy, description, is_in_marketplace, company_id, project_numb, cost_per_hour, productivity_per_hour, cash_paid, loan_amount, is_in_fleet, is_on_project, adminid )
+
+    VALUES (#equip_numb#, #ct_code#, #year#, #model#, #price_to_buy#, #description#, #is_in_market#, #company_id#, #project_numb#, #cost_per_hour#, #productivity_per_hour#, #cash_paid#, #loan_amount#, #is_in_fleet#, #is_on_project#, #adminID# )
+    
+    ]]>	  
+  </insert>
+
+
+  <insert id="insertUsedEquip" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO used_equip_available (equip_number, cal_trans_code, year, model, serial_numb, hours_of_use, condition, price_to_buy, description, is_in_marketplace, company_id, project_numb, cost_per_hour, productivity_per_hour, cash_paid, loan_amount, is_in_fleet, is_on_project, adminid )
+
+    VALUES (#equip_numb#, #ct_code#, #year#, #model#, #serial_numb#, #hrs_of_use#, #condition#, #price_to_buy#, #description#, #is_in_market#, #company_id#, #project_numb#, #cost_per_hour#, #productivity_per_hour#, #cash_paid#, #loan_amount#, #is_in_fleet#, #is_on_project#, #adminID# )
+    
+    ]]>	  
+  </insert>
+
+
+  <insert id="insertRentalEquip" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO rental_equip_available (equip_number, cal_trans_code, model, condition, price_to_rent, description, is_in_marketplace, company_id, project_numb, cost_per_hour, productivity_per_hour, is_in_fleet, is_on_project, adminid )
+
+    VALUES (#equip_numb#, #ct_code#, #model#, #condition#, #price_to_rent#, #description#, #is_in_market#, #company_id#, #project_numb#, #cost_per_hour#, #productivity_per_hour#, #is_in_fleet#, #is_on_project#, #adminID# )
+    
+    ]]>	  
+  </insert>
+
+
+
+<!--  *=====*  DELETE statements  *=====*  -->
+
+
+  <delete id="deleteNewEquip" parameterClass="map" >
+    <![CDATA[
+
+	DELETE FROM new_equip_available
+	WHERE equip_number = #equip_numb#
+
+    ]]>
+  </delete>
+
+
+  <delete id="deleteUsedEquip" parameterClass="map" >
+    <![CDATA[
+
+	DELETE FROM used_equip_available
+	WHERE equip_number = #equip_numb#
+
+    ]]>
+  </delete>
+
+
+  <delete id="deleteRentalEquip" parameterClass="map" >
+    <![CDATA[
+
+	DELETE FROM rental_equip_available
+	WHERE equip_number = #equip_numb#
+
+    ]]>
+  </delete>
+
+
+
+</sqlMap>

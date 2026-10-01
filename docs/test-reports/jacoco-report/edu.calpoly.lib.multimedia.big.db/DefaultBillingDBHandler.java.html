@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultBillingDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultBillingDBHandler.java</span></div><h1>DefaultBillingDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.users.company.BillingForm;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;BillingDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultBillingDBHandler extends DefaultDBHandler implements BillingDBHandler
+{
+
+    public DefaultBillingDBHandler(Connection connection)
+    {
+<span class="fc" id="L36">		super(connection);</span>
+<span class="fc" id="L37">	}</span>
+
+    public BillingForm getBillingForm(Game game, int periodNum, Company company, Job job) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L41">		BillingForm billingForm = null;</span>
+<span class="fc" id="L42">		int[] activityAmounts =  new int[9];</span>
+
+		try
+		{
+<span class="fc" id="L46">			String query = &quot;SELECT amount FROM billing_breakdown &quot; +</span>
+						   &quot;WHERE gameid = ? AND periodid = ? AND companyid = ? AND jobid = ? &quot; +
+						   &quot;ORDER BY activityid&quot;;
+
+<span class="fc" id="L50">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L52">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L53">			pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L54">			pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L55">			pstmt.setInt(4, job.getJobID());</span>
+
+
+<span class="fc" id="L58">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc" id="L60">			int i = 0;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L63">			   activityAmounts[i] = rset.getInt(&quot;amount&quot;);</span>
+<span class="fc" id="L64">			   i++;</span>
+			}
+<span class="fc bfc" id="L66" title="All 2 branches covered.">			if (i != 9)</span>
+			{
+<span class="fc" id="L68">				close();</span>
+<span class="fc" id="L69">				throw new ObjectNotFoundException();</span>
+			}
+
+<span class="fc" id="L72">			rset.close();</span>
+<span class="fc" id="L73">			pstmt.close();</span>
+
+<span class="fc" id="L75"> 			query = &quot;SELECT amount_billed, amount_paid, rejected, old_amount_billed FROM billings &quot; +</span>
+						   &quot;WHERE gameid = ? AND periodid = ? AND companyid = ? AND jobid = ? &quot;;
+
+<span class="fc" id="L78"> 			pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L80">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L81">			pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L82">			pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L83">			pstmt.setInt(4, job.getJobID());</span>
+
+<span class="fc" id="L85">			rset = pstmt.executeQuery();</span>
+
+			// Check if no rows are returned
+			// (rset.last() returns false if there are no rows in the result set)
+<span class="fc bfc" id="L89" title="All 2 branches covered.">			if(!rset.last())</span>
+			{
+<span class="fc" id="L91">				close();</span>
+<span class="fc" id="L92">				throw new ObjectNotFoundException();</span>
+			}
+			else
+			{
+<span class="fc" id="L96">				rset.first();</span>
+
+
+<span class="fc" id="L99">				billingForm = new BillingForm(job.getJobID(),</span>
+											  activityAmounts,
+<span class="fc" id="L101">											  rset.getInt(&quot;amount_billed&quot;),</span>
+<span class="fc" id="L102">											  rset.getInt(&quot;amount_paid&quot;),</span>
+<span class="fc" id="L103">											  rset.getBoolean(&quot;rejected&quot;),</span>
+<span class="fc" id="L104">											  rset.getInt(&quot;old_amount_billed&quot;)</span>
+											 );
+			}
+			//done with the result set
+<span class="fc" id="L108">			rset.close();</span>
+<span class="fc" id="L109">			pstmt.close();</span>
+		}
+<span class="nc" id="L111">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L114">			close();</span>
+<span class="nc" id="L115">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L116">		}</span>
+<span class="fc" id="L117">		return billingForm;</span>
+    }
+
+    public Vector getAllBillingForms(Game game, Company company, int periodNum) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L122">		Vector billingForms = new Vector();</span>
+<span class="fc" id="L123">        int[] activityAmounts = new int[9];</span>
+
+		try
+		{
+
+<span class="fc" id="L128"> 			String query = &quot;SELECT jobid, amount_billed, amount_paid, rejected, old_amount_billed FROM billings &quot; +</span>
+						   &quot;WHERE gameid = ? AND periodid = ? AND companyid = ? AND (amount_billed &gt; 0 OR rejected) &quot; +
+						   &quot; ORDER BY jobid &quot; ;
+
+<span class="fc" id="L132"> 			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L134">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L135">			pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L136">			pstmt.setInt(3, company.getCompanyID());</span>
+
+<span class="fc" id="L138">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+
+<span class="fc" id="L143">				billingForms.add(new BillingForm(rset.getInt(&quot;jobid&quot;),</span>
+											  activityAmounts,
+<span class="fc" id="L145">											  rset.getInt(&quot;amount_billed&quot;),</span>
+<span class="fc" id="L146">											  rset.getInt(&quot;amount_paid&quot;),</span>
+<span class="fc" id="L147">											  rset.getBoolean(&quot;rejected&quot;),</span>
+<span class="fc" id="L148">											  rset.getInt(&quot;old_amount_billed&quot;)</span>
+											 ));
+			}
+			//done with the result set
+<span class="fc" id="L152">			rset.close();</span>
+<span class="fc" id="L153">			pstmt.close();</span>
+		}
+<span class="fc" id="L155">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="fc" id="L158">			close();</span>
+<span class="fc" id="L159">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L160">		}</span>
+<span class="fc" id="L161">		return billingForms;</span>
+	}
+
+    public Vector getAllJobBillingAmounts(Game game, Company company, int periodNum) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L166">		Vector billingForms = new Vector();</span>
+<span class="fc" id="L167">        int[] activityAmounts = new int[9];</span>
+
+		try
+		{
+
+<span class="fc" id="L172"> 			String query = &quot;SELECT jobid, amount_billed, amount_paid, rejected, old_amount_billed FROM billings &quot; +</span>
+						   &quot;WHERE gameid = ? AND periodid = ? AND companyid = ? &quot; +
+						   &quot; ORDER BY jobid &quot; ;
+
+<span class="fc" id="L176"> 			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L178">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L179">			pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L180">			pstmt.setInt(3, company.getCompanyID());</span>
+
+<span class="fc" id="L182">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+
+<span class="fc" id="L187">				billingForms.add(new BillingForm(rset.getInt(&quot;jobid&quot;),</span>
+											  activityAmounts,
+<span class="fc" id="L189">											  rset.getInt(&quot;amount_billed&quot;),</span>
+<span class="fc" id="L190">											  rset.getInt(&quot;amount_paid&quot;),</span>
+<span class="fc" id="L191">											  rset.getBoolean(&quot;rejected&quot;),</span>
+<span class="fc" id="L192">											  rset.getInt(&quot;old_amount_billed&quot;)</span>
+											 ));
+			}
+			//done with the result set
+<span class="fc" id="L196">			rset.close();</span>
+<span class="fc" id="L197">			pstmt.close();</span>
+		}
+<span class="nc" id="L199">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L202">			close();</span>
+<span class="nc" id="L203">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L204">		}</span>
+<span class="fc" id="L205">		return billingForms;</span>
+	}
+
+    public void addBillingForm(Game game, Company company, int periodNum, Job job) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L210">		String insert = &quot;INSERT INTO billings (gameid, companyid, jobid, periodid, amount_billed, amount_paid, rejected, old_amount_billed) &quot; +</span>
+						&quot;VALUES(?, ?, ?, ?, ?, ?, ?, ?) &quot;;
+
+<span class="fc" id="L213">		String insertActivityAmounts = &quot;INSERT INTO billing_breakdown (gameid, companyid, periodid, jobid, activityid, amount) &quot; +</span>
+						&quot;VALUES(?, ?, ?, ?, ?, ?) &quot;;
+
+
+		try
+		{
+<span class="fc" id="L219">			PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L220">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L221">			pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L222">			pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L223">			pstmt.setInt(4, periodNum);</span>
+<span class="fc" id="L224">			pstmt.setInt(5, 0);</span>
+<span class="fc" id="L225">			pstmt.setInt(6, 0);</span>
+<span class="fc" id="L226">			pstmt.setBoolean(7, false);</span>
+<span class="fc" id="L227">			pstmt.setInt(8, 0);</span>
+
+<span class="fc" id="L229">			int rowsChanged = pstmt.executeUpdate();</span>
+
+
+<span class="fc bfc" id="L232" title="All 2 branches covered.">			for(int i = 1; i &lt; 10; i++)</span>
+			{
+<span class="fc" id="L234"> 				pstmt = connection.prepareStatement(insertActivityAmounts);</span>
+<span class="fc" id="L235">				pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L236">				pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L237">				pstmt.setInt(3, periodNum);</span>
+<span class="fc" id="L238">				pstmt.setInt(4, job.getJobID());</span>
+<span class="fc" id="L239">				pstmt.setInt(5, i);</span>
+<span class="fc" id="L240">				pstmt.setInt(6, 0);</span>
+
+<span class="fc" id="L242">				rowsChanged = pstmt.executeUpdate();</span>
+			}
+
+		}
+<span class="nc" id="L246">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L248">			close();</span>
+<span class="nc" id="L249">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L250">		}</span>
+
+<span class="fc" id="L252">    }</span>
+
+    public void updateBillingForm(Game game, Company company, int periodNum, BillingForm theReport) throws BIGDatabaseFacadeException
+    {
+
+<span class="fc" id="L257">		String update = &quot;UPDATE billings SET amount_billed = ?, amount_paid = ?, rejected = ?, old_amount_billed = ? &quot; +</span>
+						&quot;WHERE gameid = ? AND companyid = ? AND jobid = ? AND periodid = ?&quot;;
+
+<span class="fc" id="L260">		String updateActivityAmounts = &quot;UPDATE billing_breakdown SET amount = ? &quot; +</span>
+						&quot;WHERE gameid = ? AND companyid = ? AND jobid = ? AND periodid = ? AND activityid = ?&quot;;
+
+
+		try
+		{
+<span class="fc" id="L266">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L267">			pstmt.setInt(1, theReport.getBillingAmount());</span>
+<span class="fc" id="L268">			pstmt.setInt(2, theReport.getAmountPaid());</span>
+<span class="fc" id="L269">			pstmt.setBoolean(3, theReport.rejected());</span>
+<span class="fc" id="L270">			pstmt.setInt(4, theReport.getOldAmountBilled());</span>
+<span class="fc" id="L271">			pstmt.setInt(5, game.getGameID());</span>
+<span class="fc" id="L272">			pstmt.setInt(6, company.getCompanyID());</span>
+<span class="fc" id="L273">			pstmt.setInt(7, theReport.getJobID());</span>
+<span class="fc" id="L274">			pstmt.setInt(8, periodNum);</span>
+
+<span class="fc" id="L276">			int rowsChanged = pstmt.executeUpdate();</span>
+
+
+<span class="fc bfc" id="L279" title="All 2 branches covered.">			for(int i = 1; i &lt; 10; i++)</span>
+			{
+<span class="fc" id="L281"> 				pstmt = connection.prepareStatement(updateActivityAmounts);</span>
+<span class="fc" id="L282">				pstmt.setInt(1, theReport.getActivityAmounts()[i-1]);</span>
+<span class="fc" id="L283">				pstmt.setInt(2, game.getGameID());</span>
+<span class="fc" id="L284">				pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L285">				pstmt.setInt(4, theReport.getJobID());</span>
+<span class="fc" id="L286">				pstmt.setInt(5, periodNum);</span>
+<span class="fc" id="L287">				pstmt.setInt(6, i);</span>
+
+<span class="fc" id="L289">				rowsChanged = pstmt.executeUpdate();</span>
+			}
+
+		}
+<span class="nc" id="L293">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L295">			close();</span>
+<span class="nc" id="L296">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L297">		}</span>
+
+<span class="fc" id="L299">    }</span>
+
+
+    public void removeBillingForms(int gameID, int companyID) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L304">		String remove = &quot;DELETE FROM billings WHERE gameid = ? AND companyid = ?&quot;;</span>
+<span class="fc" id="L305">		String remove2 = &quot;DELETE FROM billing_breakdown WHERE gameid = ? AND companyid = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L309">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L310">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L311">			pstmt.setInt(2, companyID);</span>
+
+<span class="fc" id="L313">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L315">			pstmt = connection.prepareStatement(remove2);</span>
+<span class="fc" id="L316">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L317">			pstmt.setInt(2, companyID);</span>
+
+<span class="fc" id="L319">			rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L321">			pstmt.close();</span>
+		}
+<span class="nc" id="L323">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L325">			close();</span>
+<span class="nc" id="L326">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L327">		}</span>
+
+
+<span class="fc" id="L330">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

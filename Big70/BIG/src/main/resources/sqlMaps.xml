@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMapConfig
+PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+  
+<sqlMapConfig>
+  
+  <properties resource="ibatis.properties" />
+  
+  <settings
+   lazyLoadingEnabled="true"
+   cacheModelsEnabled="true"
+   enhancementEnabled="false"
+   useStatementNamespaces="false"
+  />
+
+  <transactionManager type="JDBC" >
+    <dataSource type="DBCP">
+      <property name="driverClassName" value="${driver}" />
+      <property name="url" value="${url}" />
+      <property name="username" value="${username}" />
+      <property name="password" value="${password}" />
+      <property name="defaultAutoCommit" value="false"/>  <!-- ADD THIS -->
+      <property name="maxActive" value="10"/>
+      <property name="maxIdle" value="3"/>
+      <property name="minIdle" value="2"/>
+      <property name="initialSize" value="2"/>
+      <property name="maxWait" value="5000"/>
+      <property name="logAbandoned" value="true"/>
+      <property name="removeAbandoned" value="true"/>
+      <property name="removeAbandonedTimeout" value="1"/>
+      <property name="Driver.logUnclosedConnections" value="true"/>
+    </dataSource>
+  </transactionManager>
+  
+  <sqlMap resource="job-sqlMap.xml" />  
+  <sqlMap resource="bid-sqlMap.xml" />
+  <sqlMap resource="gradingTemplate-sqlMap.xml" />  
+  <sqlMap resource="automaticPeriodUpdates-sqlMap.xml" />  
+  <sqlMap resource="personnelParameters-sqlMap.xml" />
+  <sqlMap resource="companyPersonnel-sqlMap.xml" />
+  <sqlMap resource="equipParameters-sqlMap.xml" />
+  <sqlMap resource="usageOfEquip-sqlMap.xml" />
+
+</sqlMapConfig>

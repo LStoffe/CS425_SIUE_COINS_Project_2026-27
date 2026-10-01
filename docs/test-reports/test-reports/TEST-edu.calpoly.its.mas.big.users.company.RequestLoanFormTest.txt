@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.RequestLoanFormTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.097 sec
+
+Testcase: testValidateFailsWhenLoanAmountMissingOrDollar took 0.004 sec
+Testcase: testValidateFailsWhenAmountNonPositiveOrTooLarge took 0.085 sec
+Testcase: testValidateFailsWhenLoanAmountNotMoney took 0 sec
+Testcase: testValidateWithCommaFormattedAmount took 0.001 sec
+Testcase: testValidateFailsWhenMaxLoansExceeded took 0 sec
+Testcase: testValidatePassesForValidLoanRequest took 0.002 sec
+Testcase: testSetAPRAndRepaymentPeriods took 0 sec
+Testcase: testSetMaxLoanAmount took 0 sec

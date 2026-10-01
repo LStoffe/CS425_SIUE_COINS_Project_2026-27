@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminToCompanyAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">AdminToCompanyAction.java</span></div><h1>AdminToCompanyAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Vector;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Servlet imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.LoginForm;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+<span class="fc" id="L40">public class AdminToCompanyAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+					     	     ActionForm form,
+					       		 HttpServletRequest request,
+				           		 HttpServletResponse response)
+	{
+<span class="fc" id="L48">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L51">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="fc" id="L54">		ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L56">        HttpSession session = request.getSession();</span>
+
+<span class="fc" id="L58">        Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="fc" id="L59">        Company theCompany = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+        //Prepare for display of Mission Statement, Core Values and Company URL
+<span class="fc" id="L62">        String missionStatement = theCompany.getMissionStatement();</span>
+<span class="fc" id="L63">        String coreValues = theCompany.getCoreValues();</span>
+<span class="fc" id="L64">        String companyUrl = theCompany.getCompanyUrl();</span>
+
+<span class="fc" id="L66">        LoginForm loginForm = new LoginForm();</span>
+<span class="fc" id="L67">        loginForm.setMissionStatement(missionStatement);</span>
+<span class="fc" id="L68">        loginForm.setCoreValues(coreValues);</span>
+<span class="fc" id="L69">        loginForm.setCompanyUrl(companyUrl);</span>
+<span class="fc" id="L70">		session.setAttribute(&quot;loginform&quot;, loginForm );</span>
+
+<span class="fc" id="L72">		session.setAttribute(&quot;isAdminAsCompany&quot;, new Integer(7));</span>
+
+		try
+		{
+			//Create a new BIGDatabaseFacade that hold connections
+<span class="fc" id="L77">			BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+			//Adds to the session a list of current messages for this company
+<span class="fc" id="L80">			Vector messages = dbFacade.getInboxDBHandler().retrieveMessages(theCompany, game.getCurrentPeriodNumber());</span>
+<span class="fc" id="L81">			session.setAttribute(&quot;messages&quot;, messages);</span>
+
+			//Close connection
+<span class="fc" id="L84">			dbFacade.close();</span>
+
+		}
+<span class="fc" id="L87">		catch(BIGDatabaseFacadeException BIGDbe)</span>
+		{
+<span class="fc" id="L89">			log.fatal(&quot;&quot;, BIGDbe);</span>
+<span class="fc" id="L90">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="fc" id="L91">		}</span>
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">		if (!errors.isEmpty())</span>
+		{
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L97">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+
+			// Report any errors we have discovered back to the original form
+<span class="fc" id="L101">			saveErrors(request, errors);</span>
+<span class="fc" id="L102">	 	   	saveToken(request);</span>
+<span class="fc" id="L103">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L109">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="fc" id="L111">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

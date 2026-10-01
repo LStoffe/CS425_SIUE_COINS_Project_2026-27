@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.db.InMemoryDatabaseIntegrationTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.78 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testDatabaseConnectionAndSchema took 0.769 sec
+Testcase: testGameDBHandlerWithEmptySchema took 0.006 sec

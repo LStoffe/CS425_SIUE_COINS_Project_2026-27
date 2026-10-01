@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BIGLog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.log</a> &gt; <span class="el_source">BIGLog.java</span></div><h1>BIGLog.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.log;
+
+//JDK imports
+import java.io.PrintWriter;
+import java.io.FileOutputStream;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Class that writes log messages to a log file.
+ */
+public class BIGLog
+{
+	private String logFilePath;
+
+	private PrintWriter out;
+
+<span class="fc" id="L22">	private static String dateFormatString = &quot;MMM-dd-yyyy kk:mm:ss&quot;;</span>
+	private SimpleDateFormat dateFormat;
+
+	//We'll also add all entries to the master log file
+	//using commons-logging
+	private Log log;
+
+	public BIGLog(String logFilePath)
+<span class="fc" id="L30">	{</span>
+<span class="fc" id="L31">		this.logFilePath = logFilePath;</span>
+
+		try
+		{
+<span class="fc" id="L35">			out = new PrintWriter(new FileOutputStream(logFilePath));</span>
+		}
+<span class="nc" id="L37">		catch(Exception e)</span>
+		{
+<span class="nc" id="L39">			e.printStackTrace();</span>
+<span class="fc" id="L40">		}</span>
+
+<span class="fc" id="L42">		dateFormat = new SimpleDateFormat(dateFormatString);</span>
+
+<span class="fc" id="L44">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L45">	}</span>
+
+	private void writeToLog(String message, String level)
+	{
+<span class="fc" id="L49">		StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L50">		sb.append(dateFormat.format(new Date()));</span>
+<span class="fc" id="L51">		sb.append(&quot; - &quot;);</span>
+<span class="fc" id="L52">		sb.append(level);</span>
+<span class="fc" id="L53">		sb.append(&quot; - &quot;);</span>
+<span class="fc" id="L54">		sb.append(message);</span>
+<span class="fc" id="L55">		out.println(sb.toString());</span>
+<span class="fc" id="L56">		out.flush();</span>
+<span class="fc" id="L57">	}</span>
+
+	private void writeToLog(Exception e, String level)
+	{
+<span class="fc" id="L61">		StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L62">		sb.append(dateFormat.format(new Date()));</span>
+<span class="fc" id="L63">		sb.append(&quot; - &quot;);</span>
+<span class="fc" id="L64">		sb.append(level);</span>
+<span class="fc" id="L65">		out.println(sb.toString());</span>
+<span class="fc" id="L66">		e.printStackTrace(out);</span>
+<span class="fc" id="L67">		out.flush();</span>
+<span class="fc" id="L68">	}</span>
+
+	private void writeToLog(String message, Exception e, String level)
+	{
+<span class="fc" id="L72">		StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L73">		sb.append(dateFormat.format(new Date()));</span>
+<span class="fc" id="L74">		sb.append(&quot; - &quot;);</span>
+<span class="fc" id="L75">		sb.append(level);</span>
+<span class="fc" id="L76">		sb.append(&quot; - &quot;);</span>
+<span class="fc" id="L77">		sb.append(message);</span>
+<span class="fc" id="L78">		out.println(sb.toString());</span>
+<span class="fc" id="L79">		e.printStackTrace(out);</span>
+<span class="fc" id="L80">		out.flush();</span>
+<span class="fc" id="L81">	}</span>
+
+	//************  TRACE *******************//
+	public void trace(String message)
+	{
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		if(isTraceEnabled())</span>
+		{
+<span class="fc" id="L88">			writeToLog(message, &quot;TRACE&quot;);</span>
+<span class="fc" id="L89">			log.trace(message);</span>
+		}
+<span class="fc" id="L91">	}</span>
+
+	public void trace(Exception e)
+	{
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">		if(isTraceEnabled())</span>
+		{
+<span class="fc" id="L97">			writeToLog(e, &quot;TRACE&quot;);</span>
+<span class="fc" id="L98">			log.trace(e);</span>
+		}
+<span class="fc" id="L100">	}</span>
+
+	public void trace(String message, Exception e)
+	{
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		if(isTraceEnabled())</span>
+		{
+<span class="fc" id="L106">			writeToLog(message, e, &quot;TRACE&quot;);</span>
+<span class="fc" id="L107">			log.trace(message, e);</span>
+		}
+<span class="fc" id="L109">	}</span>
+
+	//************  DEBUG *******************//
+	public void debug(String message)
+	{
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">		if(isDebugEnabled())</span>
+		{
+<span class="fc" id="L116">			writeToLog(message, &quot;DEBUG&quot;);</span>
+<span class="fc" id="L117">			log.debug(message);</span>
+		}
+<span class="fc" id="L119">	}</span>
+
+	public void debug(Exception e)
+	{
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">		if(isDebugEnabled())</span>
+		{
+<span class="fc" id="L125">			writeToLog(e, &quot;DEBUG&quot;);</span>
+<span class="fc" id="L126">			log.debug(e);</span>
+		}
+<span class="fc" id="L128">	}</span>
+
+	public void debug(String message, Exception e)
+	{
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">		if(isDebugEnabled())</span>
+		{
+<span class="fc" id="L134">			writeToLog(message, e, &quot;DEBUG&quot;);</span>
+<span class="fc" id="L135">			log.debug(message, e);</span>
+		}
+<span class="fc" id="L137">	}</span>
+
+	//************  INFO *******************//
+	public void info(String message)
+	{
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">		if(isInfoEnabled())</span>
+		{
+<span class="fc" id="L144">			writeToLog(message, &quot;INFO&quot;);</span>
+<span class="fc" id="L145">			log.info(message);</span>
+		}
+<span class="fc" id="L147">	}</span>
+
+	public void info(Exception e)
+	{
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">		if(isInfoEnabled())</span>
+		{
+<span class="fc" id="L153">			writeToLog(e, &quot;INFO&quot;);</span>
+<span class="fc" id="L154">			log.info(e);</span>
+		}
+<span class="fc" id="L156">	}</span>
+
+	public void info(String message, Exception e)
+	{
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">		if(isInfoEnabled())</span>
+		{
+<span class="fc" id="L162">			writeToLog(message, e, &quot;INFO&quot;);</span>
+<span class="fc" id="L163">			log.info(message, e);</span>
+		}
+<span class="fc" id="L165">	}</span>
+
+	//************ WARN *******************//
+	public void warn(String message)
+	{
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">		if(isWarnEnabled())</span>
+		{
+<span class="fc" id="L172">			writeToLog(message, &quot;WARN&quot;);</span>
+<span class="fc" id="L173">			log.warn(message);</span>
+		}
+<span class="fc" id="L175">	}</span>
+
+	public void warn(Exception e)
+	{
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">		if(isWarnEnabled())</span>
+		{
+<span class="fc" id="L181">			writeToLog(e, &quot;WARN&quot;);</span>
+<span class="fc" id="L182">			log.warn(e);</span>
+		}
+<span class="fc" id="L184">	}</span>
+
+	public void warn(String message, Exception e)
+	{
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">		if(isWarnEnabled())</span>
+		{
+<span class="fc" id="L190">			writeToLog(message, e, &quot;WARN&quot;);</span>
+<span class="fc" id="L191">			log.warn(message, e);</span>
+		}
+<span class="fc" id="L193">	}</span>
+
+	//************  ERROR *******************//
+	public void error(String message)
+	{
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">		if(isErrorEnabled())</span>
+		{
+<span class="fc" id="L200">			writeToLog(message, &quot;ERROR&quot;);</span>
+<span class="fc" id="L201">			log.error(message);</span>
+		}
+<span class="fc" id="L203">	}</span>
+
+	public void error(Exception e)
+	{
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">		if(isErrorEnabled())</span>
+		{
+<span class="fc" id="L209">			writeToLog(e, &quot;ERROR&quot;);</span>
+<span class="fc" id="L210">			log.error(e);</span>
+		}
+<span class="fc" id="L212">	}</span>
+
+	public void error(String message, Exception e)
+	{
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">		if(isErrorEnabled())</span>
+		{
+<span class="fc" id="L218">			writeToLog(message, e, &quot;ERROR&quot;);</span>
+<span class="fc" id="L219">			log.error(message, e);</span>
+		}
+<span class="fc" id="L221">	}</span>
+
+	//************  FATAL *******************//
+	public void fatal(String message)
+	{
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">		if(isFatalEnabled())</span>
+		{
+<span class="fc" id="L228">			writeToLog(message, &quot;FATAL&quot;);</span>
+<span class="fc" id="L229">			log.fatal(message);</span>
+		}
+<span class="fc" id="L231">	}</span>
+
+	public void fatal(Exception e)
+	{
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">		if(isFatalEnabled())</span>
+		{
+<span class="fc" id="L237">			writeToLog(e, &quot;FATAL&quot;);</span>
+<span class="fc" id="L238">			log.fatal(e);</span>
+		}
+<span class="fc" id="L240">	}</span>
+
+	public void fatal(String message, Exception e)
+	{
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">		if(isFatalEnabled())</span>
+		{
+<span class="fc" id="L246">			writeToLog(message, e, &quot;FATAL&quot;);</span>
+<span class="fc" id="L247">			log.fatal(message, e);</span>
+		}
+<span class="fc" id="L249">	}</span>
+
+	public boolean isTraceEnabled()
+	{
+<span class="fc" id="L253">		return BIGLogFactory.isTraceEnabled();</span>
+	}
+
+	public boolean isDebugEnabled()
+	{
+<span class="fc" id="L258">		return BIGLogFactory.isDebugEnabled();</span>
+	}
+
+	public boolean isInfoEnabled()
+	{
+<span class="fc" id="L263">		return BIGLogFactory.isInfoEnabled();</span>
+	}
+
+	public boolean isWarnEnabled()
+	{
+<span class="fc" id="L268">		return BIGLogFactory.isWarnEnabled();</span>
+	}
+
+	public boolean isErrorEnabled()
+	{
+<span class="fc" id="L273">		return BIGLogFactory.isErrorEnabled();</span>
+	}
+
+	public boolean isFatalEnabled()
+	{
+<span class="fc" id="L278">		return BIGLogFactory.isFatalEnabled();</span>
+	}
+
+	public void finalize()
+	{
+<span class="fc" id="L283">		out.flush();</span>
+<span class="fc" id="L284">		out.close();</span>
+<span class="fc" id="L285">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

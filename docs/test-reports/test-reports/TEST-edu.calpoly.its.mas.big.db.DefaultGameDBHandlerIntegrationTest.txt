@@ -1,0 +1,14 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultGameDBHandlerIntegrationTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.832 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testGetGameByCompanyThrowsWhenNotFound took 0.796 sec
+Testcase: testGetGameByCompany took 0.02 sec
+Testcase: testGetGamesByAdmin took 0.002 sec
+Testcase: testGetAllGames took 0.001 sec
+Testcase: testUpdateGame took 0.007 sec

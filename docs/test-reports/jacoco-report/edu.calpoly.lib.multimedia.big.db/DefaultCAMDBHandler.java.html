@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultCAMDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultCAMDBHandler.java</span></div><h1>DefaultCAMDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+import edu.calpoly.lib.multimedia.big.game.CAMUpdater;
+
+
+//JDK imports
+import java.util.Hashtable;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;CAMDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultCAMDBHandler extends DefaultDBHandler implements CAMDBHandler
+{
+	public static final int METRIC_MAX = 100;
+
+    public DefaultCAMDBHandler(Connection connection)
+    {
+<span class="fc" id="L35">		super(connection);</span>
+<span class="fc" id="L36">	}</span>
+
+    public Hashtable getCAMs(Company company, int period) throws BIGDatabaseFacadeException, ObjectNotFoundException
+  	{
+
+<span class="fc" id="L41">		Hashtable cams = new Hashtable();</span>
+
+<span class="fc" id="L43">		String select = &quot;SELECT financial_liquidity, financial_success, bid_responsibility, &quot; +</span>
+		 				&quot;pace, ethics, name_recognition, apartments, schools, offices, &quot; +
+		 				&quot;hospitals, industrial, highways, bridges, sitedevelopment, massexcavation, undergroundutilities FROM appraisal_metrics &quot; +
+		 				&quot;WHERE companyid = ? AND periodid = ? &quot;;
+
+		try
+		{
+<span class="fc" id="L50">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L51">			pstmt.setInt(1, company.getCompanyID());</span>
+<span class="fc" id="L52">			pstmt.setInt(2, period);</span>
+
+<span class="fc" id="L54">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L56" title="All 2 branches covered.">			if(!rset.last())</span>
+			{
+<span class="fc" id="L58">				throw new ObjectNotFoundException();</span>
+			}
+			else
+			{
+<span class="fc" id="L62">				rset.first();</span>
+
+<span class="fc" id="L64">				cams.put(&quot;FinancialLiquidity&quot;, new Integer(rset.getInt(&quot;financial_liquidity&quot;)));</span>
+<span class="fc" id="L65">				cams.put(&quot;FinancialSuccess&quot;, new Integer(rset.getInt(&quot;financial_success&quot;)));</span>
+<span class="fc" id="L66">				cams.put(&quot;BiddingResponsibility&quot;, new Integer(rset.getInt(&quot;bid_responsibility&quot;)));</span>
+<span class="fc" id="L67">				cams.put(&quot;Pace&quot;, new Integer(rset.getInt(&quot;pace&quot;)));</span>
+<span class="fc" id="L68">				cams.put(&quot;Ethics&quot;, new Integer(rset.getInt(&quot;ethics&quot;)));</span>
+<span class="fc" id="L69">				cams.put(&quot;NameRecognition&quot;, new Integer(rset.getInt(&quot;name_recognition&quot;)));</span>
+<span class="fc" id="L70">				cams.put(&quot;Apartments&quot;, new Integer(rset.getInt(&quot;apartments&quot;)));</span>
+<span class="fc" id="L71">				cams.put(&quot;Schools&quot;, new Integer(rset.getInt(&quot;schools&quot;)));</span>
+<span class="fc" id="L72">				cams.put(&quot;Offices&quot;, new Integer(rset.getInt(&quot;offices&quot;)));</span>
+<span class="fc" id="L73">				cams.put(&quot;Hospitals&quot;, new Integer(rset.getInt(&quot;hospitals&quot;)));</span>
+<span class="fc" id="L74">				cams.put(&quot;Industrial&quot;, new Integer(rset.getInt(&quot;industrial&quot;)));</span>
+<span class="fc" id="L75">				cams.put(&quot;Highways&quot;, new Integer(rset.getInt(&quot;highways&quot;)));</span>
+<span class="fc" id="L76">				cams.put(&quot;Bridges&quot;, new Integer(rset.getInt(&quot;bridges&quot;)));</span>
+<span class="fc" id="L77">				cams.put(&quot;SiteDevelopment&quot;, new Integer(rset.getInt(&quot;sitedevelopment&quot;)));</span>
+<span class="fc" id="L78">				cams.put(&quot;MassExcavation&quot;, new Integer(rset.getInt(&quot;massexcavation&quot;)));</span>
+<span class="fc" id="L79">				cams.put(&quot;UndergroundUtilities&quot;, new Integer(rset.getInt(&quot;undergroundutilities&quot;)));</span>
+			}
+		}
+<span class="fc" id="L82">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L84">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L85">		}</span>
+
+<span class="fc" id="L87">		return cams;</span>
+	}
+
+    public Hashtable getCAMUpdates(Company company) throws BIGDatabaseFacadeException, ObjectNotFoundException
+  	{
+<span class="fc" id="L92">		Hashtable cams = new Hashtable();</span>
+
+<span class="fc" id="L94">		String select = &quot;SELECT financial_liquidity, financial_success, bid_responsibility, &quot; +</span>
+		 				&quot;pace, ethics, name_recognition, apartments, schools, offices, &quot; +
+		 				&quot;hospitals, industrial, highways, bridges, sitedevelopment, massexcavation, undergroundutilities FROM appraisal_metrics_updates &quot; +
+		 				&quot;WHERE companyid = ? &quot;;
+
+		try
+		{
+<span class="fc" id="L101">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L102">			pstmt.setInt(1, company.getCompanyID());</span>
+
+<span class="fc" id="L104">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L106" title="All 2 branches covered.">			if(!rset.last())</span>
+			{
+<span class="fc" id="L108">				close();</span>
+<span class="fc" id="L109">				throw new ObjectNotFoundException();</span>
+			}
+			else
+			{
+<span class="fc" id="L113">				rset.first();</span>
+
+<span class="fc" id="L115">				cams.put(&quot;FinancialLiquidity&quot;, new Integer(rset.getInt(&quot;financial_liquidity&quot;)));</span>
+<span class="fc" id="L116">				cams.put(&quot;FinancialSuccess&quot;, new Integer(rset.getInt(&quot;financial_success&quot;)));</span>
+<span class="fc" id="L117">				cams.put(&quot;BiddingResponsibility&quot;, new Integer(rset.getInt(&quot;bid_responsibility&quot;)));</span>
+<span class="fc" id="L118">				cams.put(&quot;Pace&quot;, new Integer(rset.getInt(&quot;pace&quot;)));</span>
+<span class="fc" id="L119">				cams.put(&quot;Ethics&quot;, new Integer(rset.getInt(&quot;ethics&quot;)));</span>
+<span class="fc" id="L120">				cams.put(&quot;NameRecognition&quot;, new Integer(rset.getInt(&quot;name_recognition&quot;)));</span>
+<span class="fc" id="L121">				cams.put(&quot;Apartments&quot;, new Integer(rset.getInt(&quot;apartments&quot;)));</span>
+<span class="fc" id="L122">				cams.put(&quot;Schools&quot;, new Integer(rset.getInt(&quot;schools&quot;)));</span>
+<span class="fc" id="L123">				cams.put(&quot;Offices&quot;, new Integer(rset.getInt(&quot;offices&quot;)));</span>
+<span class="fc" id="L124">				cams.put(&quot;Hospitals&quot;, new Integer(rset.getInt(&quot;hospitals&quot;)));</span>
+<span class="fc" id="L125">				cams.put(&quot;Industrial&quot;, new Integer(rset.getInt(&quot;industrial&quot;)));</span>
+<span class="fc" id="L126">				cams.put(&quot;Highways&quot;, new Integer(rset.getInt(&quot;highways&quot;)));</span>
+<span class="fc" id="L127">				cams.put(&quot;Bridges&quot;, new Integer(rset.getInt(&quot;bridges&quot;)));</span>
+<span class="fc" id="L128">				cams.put(&quot;SiteDevelopment&quot;, new Integer(rset.getInt(&quot;sitedevelopment&quot;)));</span>
+<span class="fc" id="L129">				cams.put(&quot;MassExcavation&quot;, new Integer(rset.getInt(&quot;massexcavation&quot;)));</span>
+<span class="fc" id="L130">				cams.put(&quot;UndergroundUtilities&quot;, new Integer(rset.getInt(&quot;undergroundutilities&quot;)));</span>
+			}
+		}
+<span class="nc" id="L133">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L135">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L136">		}</span>
+
+<span class="fc" id="L138">		return cams;</span>
+	}
+
+    public void updateCAM(Company company, int cam, int amount) throws BIGDatabaseFacadeException, ObjectNotFoundException
+  	{
+<span class="fc" id="L143">		String metric = &quot;&quot;;</span>
+
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">		if(cam == CAMUpdater.FINANCIAL_LIQUIDITY)</span>
+		{
+<span class="fc" id="L147">			metric = &quot; financial_liquidity &quot;;</span>
+		}
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		else if(cam == CAMUpdater.FINANCIAL_SUCCESS)</span>
+		{
+<span class="nc" id="L151">			metric = &quot; financial_success &quot;;</span>
+		}
+<span class="nc bnc" id="L153" title="All 2 branches missed.">		else if(cam == CAMUpdater.BID_RESPONSIBILITY)</span>
+		{
+<span class="nc" id="L155">			metric = &quot; bid_responsibility &quot;;</span>
+		}
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		else if(cam == CAMUpdater.PACE)</span>
+		{
+<span class="nc" id="L159">			metric = &quot; pace &quot;;</span>
+		}
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		else if(cam == CAMUpdater.ETHICS)</span>
+		{
+<span class="nc" id="L163">			metric = &quot; ethics &quot;;</span>
+		}
+<span class="nc bnc" id="L165" title="All 2 branches missed.">		else if(cam == CAMUpdater.NAME_RECOGNITION)</span>
+		{
+<span class="nc" id="L167">			metric = &quot; name_recognition &quot;;</span>
+		}
+<span class="nc bnc" id="L169" title="All 2 branches missed.">		else if(cam == CAMUpdater.APARTMENTS)</span>
+		{
+<span class="nc" id="L171">			metric = &quot; apartments &quot;;</span>
+		}
+<span class="nc bnc" id="L173" title="All 2 branches missed.">		else if(cam == CAMUpdater.SCHOOLS)</span>
+		{
+<span class="nc" id="L175">			metric = &quot; schools &quot;;</span>
+		}
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		else if(cam == CAMUpdater.OFFICES)</span>
+		{
+<span class="nc" id="L179">			metric = &quot; offices &quot;;</span>
+		}
+<span class="nc bnc" id="L181" title="All 2 branches missed.">		else if(cam == CAMUpdater.HOSPITALS)</span>
+		{
+<span class="nc" id="L183">			metric = &quot; hospitals &quot;;</span>
+		}
+<span class="nc bnc" id="L185" title="All 2 branches missed.">		else if(cam == CAMUpdater.INDUSTRIAL)</span>
+		{
+<span class="nc" id="L187">			metric = &quot; industrial &quot;;</span>
+		}
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		else if(cam == CAMUpdater.HIGHWAYS)</span>
+		{
+<span class="nc" id="L191">			metric = &quot; highways &quot;;</span>
+		}
+<span class="nc bnc" id="L193" title="All 2 branches missed.">		else if(cam == CAMUpdater.BRIDGES)</span>
+		{
+<span class="nc" id="L195">			metric = &quot; bridges &quot;;</span>
+		}
+<span class="nc bnc" id="L197" title="All 2 branches missed.">		else if(cam == CAMUpdater.SITEDEVELOPMENT)</span>
+		{
+<span class="nc" id="L199">			metric = &quot; sitedevelopment &quot;;</span>
+		}
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		else if(cam == CAMUpdater.MASSEXCAVATION)</span>
+		{
+<span class="nc" id="L203">			metric = &quot; massexcavation &quot;;</span>
+		}
+<span class="nc bnc" id="L205" title="All 2 branches missed.">		else if(cam == CAMUpdater.UNDERGROUNDUTILITIES)</span>
+		{
+<span class="nc" id="L207">			metric = &quot; undergroundutilities &quot;;</span>
+		}
+
+<span class="fc" id="L210">		String query = &quot;SELECT &quot; + metric + &quot; FROM appraisal_metrics_updates WHERE companyid = ?&quot;;</span>
+<span class="fc" id="L211">		String update = &quot;UPDATE appraisal_metrics_updates SET &quot; + metric + &quot; = ? &quot; +</span>
+		                &quot;WHERE companyid = ? &quot;;
+
+		int currentAmount;
+
+		try
+		{
+<span class="fc" id="L218">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L219">			pstmt.setInt(1, company.getCompanyID());</span>
+
+<span class="fc" id="L221">			ResultSet rset = pstmt.executeQuery();</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">			if(!rset.last())</span>
+			{
+<span class="nc" id="L224">				close();</span>
+<span class="nc" id="L225">				throw new ObjectNotFoundException();</span>
+			}
+			else
+			{
+<span class="fc" id="L229">				rset.first();</span>
+<span class="fc" id="L230">				currentAmount = rset.getInt(metric.trim());</span>
+			}
+
+<span class="fc" id="L233">			currentAmount += amount;</span>
+
+<span class="fc" id="L235">			pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L236">			pstmt.setInt(1, currentAmount);</span>
+<span class="fc" id="L237">			pstmt.setInt(2, company.getCompanyID());</span>
+
+<span class="fc" id="L239">			int rows =  pstmt.executeUpdate();</span>
+		}
+<span class="nc" id="L241">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L243">			close();</span>
+<span class="nc" id="L244">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L245">		}</span>
+<span class="fc" id="L246">	}</span>
+
+    public void addCAMs(Company company, int period, Hashtable cams) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L250">		String insert = &quot;INSERT INTO appraisal_metrics (companyid, periodid, financial_liquidity, financial_success, &quot; +</span>
+		                &quot;bid_responsibility, pace, ethics, name_recognition, &quot; +
+		                &quot;apartments, schools, offices, hospitals, industrial, highways, bridges, sitedevelopment, massexcavation, undergroundutilities) &quot; +
+		                &quot;VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) &quot;;
+
+<span class="fc" id="L255">		int financialLiquidity = ((Integer) cams.get(&quot;FinancialLiquidity&quot;)).intValue();</span>
+<span class="fc" id="L256">		int financialSuccess = ((Integer) cams.get(&quot;FinancialSuccess&quot;)).intValue();</span>
+<span class="fc" id="L257">		int biddingResponsibility = ((Integer) cams.get(&quot;BiddingResponsibility&quot;)).intValue();</span>
+<span class="fc" id="L258">		int pace = ((Integer) cams.get(&quot;Pace&quot;)).intValue();</span>
+<span class="fc" id="L259">		int ethics = ((Integer) cams.get(&quot;Ethics&quot;)).intValue();</span>
+<span class="fc" id="L260">		int nameRecognition = ((Integer) cams.get(&quot;NameRecognition&quot;)).intValue();</span>
+<span class="fc" id="L261">		int apartments = ((Integer) cams.get(&quot;Apartments&quot;)).intValue();</span>
+<span class="fc" id="L262">		int schools = ((Integer) cams.get(&quot;Schools&quot;)).intValue();</span>
+<span class="fc" id="L263">		int offices = ((Integer) cams.get(&quot;Offices&quot;)).intValue();</span>
+<span class="fc" id="L264">		int hospitals = ((Integer) cams.get(&quot;Hospitals&quot;)).intValue();</span>
+<span class="fc" id="L265">		int industrial = ((Integer) cams.get(&quot;Industrial&quot;)).intValue();</span>
+<span class="fc" id="L266">		int highways = ((Integer) cams.get(&quot;Highways&quot;)).intValue();</span>
+<span class="fc" id="L267">		int bridges = ((Integer) cams.get(&quot;Bridges&quot;)).intValue();</span>
+<span class="fc" id="L268">		int sitedevelopment = ((Integer) cams.get(&quot;SiteDevelopment&quot;)).intValue();</span>
+<span class="fc" id="L269">		int massexcavation = ((Integer) cams.get(&quot;MassExcavation&quot;)).intValue();</span>
+<span class="fc" id="L270">		int undergroundutilities = ((Integer) cams.get(&quot;UndergroundUtilities&quot;)).intValue();</span>
+
+		try
+		{
+<span class="fc" id="L274">			PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L275">			pstmt.setInt(1, company.getCompanyID());</span>
+<span class="fc" id="L276">			pstmt.setInt(2, period);</span>
+<span class="fc" id="L277">			pstmt.setInt(3, financialLiquidity);</span>
+<span class="fc" id="L278">			pstmt.setInt(4, financialSuccess);</span>
+<span class="fc" id="L279">			pstmt.setInt(5, biddingResponsibility);</span>
+<span class="fc" id="L280">			pstmt.setInt(6, pace);</span>
+<span class="fc" id="L281">			pstmt.setInt(7, ethics);</span>
+<span class="fc" id="L282">			pstmt.setInt(8, nameRecognition);</span>
+<span class="fc" id="L283">			pstmt.setInt(9, apartments);</span>
+<span class="fc" id="L284">			pstmt.setInt(10, schools);</span>
+<span class="fc" id="L285">			pstmt.setInt(11, offices);</span>
+<span class="fc" id="L286">			pstmt.setInt(12, hospitals);</span>
+<span class="fc" id="L287">			pstmt.setInt(13, industrial);</span>
+<span class="fc" id="L288">			pstmt.setInt(14, highways);</span>
+<span class="fc" id="L289">			pstmt.setInt(15, bridges);</span>
+<span class="fc" id="L290">			pstmt.setInt(16, sitedevelopment);</span>
+<span class="fc" id="L291">			pstmt.setInt(17, massexcavation);</span>
+<span class="fc" id="L292">			pstmt.setInt(18, undergroundutilities);</span>
+
+<span class="fc" id="L294">			int rows =  pstmt.executeUpdate();</span>
+		}
+<span class="nc" id="L296">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L298">			close();</span>
+<span class="nc" id="L299">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L300">		}</span>
+<span class="fc" id="L301">	}</span>
+
+
+  	public void removeCAMs(int companyid) throws BIGDatabaseFacadeException
+  	{
+<span class="fc" id="L306">		String remove = &quot;DELETE FROM appraisal_metrics WHERE companyid = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L310">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L311">			pstmt.setInt(1, companyid);</span>
+
+<span class="fc" id="L313">			int rows = pstmt.executeUpdate();</span>
+		}
+<span class="nc" id="L315">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L317">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L318">		}</span>
+<span class="fc" id="L319">	}</span>
+
+
+    public void createCAMUpdateRecord(Company company) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L324">		String insert = &quot;INSERT INTO appraisal_metrics_updates VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) &quot;;</span>
+
+		try
+		{
+<span class="fc" id="L328">			PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L329">			pstmt.setInt(1, company.getCompanyID());</span>
+<span class="fc" id="L330">			pstmt.setInt(2, 0);</span>
+<span class="fc" id="L331">			pstmt.setInt(3, 0);</span>
+<span class="fc" id="L332">			pstmt.setInt(4, 0);</span>
+<span class="fc" id="L333">			pstmt.setInt(5, 0);</span>
+<span class="fc" id="L334">			pstmt.setInt(6, 0);</span>
+<span class="fc" id="L335">			pstmt.setInt(7, 0);</span>
+<span class="fc" id="L336">			pstmt.setInt(8, 0);</span>
+<span class="fc" id="L337">			pstmt.setInt(9, 0);</span>
+<span class="fc" id="L338">			pstmt.setInt(10, 0);</span>
+<span class="fc" id="L339">			pstmt.setInt(11, 0);</span>
+<span class="fc" id="L340">			pstmt.setInt(12, 0);</span>
+<span class="fc" id="L341">			pstmt.setInt(13, 0);</span>
+<span class="fc" id="L342">			pstmt.setInt(14, 0);</span>
+<span class="fc" id="L343">			pstmt.setInt(15, 0);</span>
+<span class="fc" id="L344">			pstmt.setInt(16, 0);</span>
+
+<span class="fc" id="L346">			int rows = pstmt.executeUpdate();</span>
+		}
+<span class="nc" id="L348">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L350">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L351">		}</span>
+<span class="fc" id="L352">	}</span>
+
+	public void deleteCAMUpdateRecord(int companyid) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L356">		String remove = &quot;DELETE FROM appraisal_metrics_updates WHERE companyid = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L360">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L361">			pstmt.setInt(1, companyid);</span>
+
+<span class="fc" id="L363">			int rows = pstmt.executeUpdate();</span>
+
+		}
+<span class="nc" id="L366">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L368">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L369">		}</span>
+<span class="fc" id="L370">	}</span>
+
+	public void clearCAMUpdateRecord(Company company) throws BIGDatabaseFacadeException
+	{
+
+<span class="fc" id="L375">		String update = &quot;UPDATE appraisal_metrics_updates SET financial_liquidity = 0, &quot; +</span>
+		 				&quot;financial_success = 0, bid_responsibility = 0, pace = 0, ethics = 0, name_recognition = 0, &quot; +
+		                &quot;apartments = 0, schools = 0, offices = 0, hospitals = 0, industrial = 0, &quot; +
+		                &quot;highways = 0, bridges = 0, sitedevelopment = 0, massexcavation = 0, undergroundutilities = 0 &quot; +
+		                &quot;WHERE companyid = ? &quot;;
+		try
+		{
+<span class="fc" id="L382">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+
+<span class="fc" id="L384">			pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L385">			pstmt.setInt(1, company.getCompanyID());</span>
+
+<span class="fc" id="L387">			int rows =  pstmt.executeUpdate();</span>
+		}
+<span class="nc" id="L389">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L391">			close();</span>
+<span class="nc" id="L392">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L393">		}</span>
+<span class="fc" id="L394">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

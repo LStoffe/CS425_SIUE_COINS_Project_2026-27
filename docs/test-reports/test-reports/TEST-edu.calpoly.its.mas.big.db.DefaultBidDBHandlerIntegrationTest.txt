@@ -1,0 +1,16 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultBidDBHandlerIntegrationTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.831 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testRemoveBidsByGame took 0.801 sec
+Testcase: testAddBidAndGetBid took 0.003 sec
+Testcase: testRemoveBidsByCompany took 0.003 sec
+Testcase: testRemoveBidsByGameAndJob took 0.003 sec
+Testcase: testGetBidThrowsWhenNotFound took 0.002 sec
+Testcase: testGetBids took 0.002 sec
+Testcase: testUpdateBid took 0.009 sec

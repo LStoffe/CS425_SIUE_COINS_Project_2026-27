@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MiscParametersForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">MiscParametersForm.java</span></div><h1>MiscParametersForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+import java.util.Hashtable;
+import java.util.Enumeration;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+/**
+ * &lt;code&gt;ActionForm&lt;/code&gt; bean which contains BIG's miscellaneous
+ * parameters.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.6 $ $Date: 2002/04/24 16:43:00 $
+ */
+
+<span class="fc" id="L21">public class MiscParametersForm extends ActionForm</span>
+{
+	// This is now a misnomer, overtimeExpenseFactor is a Float rather than an Integer
+<span class="fc" id="L24">	private Hashtable miscParameterIntegers = new Hashtable(17);</span>
+<span class="fc" id="L25">	private Hashtable miscParameters = new Hashtable(17);</span>
+<span class="fc" id="L26">	boolean makeDefaults = false;</span>
+
+    public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+    {
+<span class="fc" id="L30">        ActionErrors errors = new ActionErrors();</span>
+<span class="fc" id="L31">        boolean nullParams = false;</span>
+<span class="fc" id="L32">        boolean integerParseError = false;</span>
+<span class="fc" id="L33">        boolean negativeFound = false;</span>
+
+        // If the 'Restore Defaults' button was pressed, validation should not take place
+        // This makes the assumption that the defaults are valid, but prevents
+		// problem that arises if the user enters invalid data and then tries to
+    	// restore defaults.
+
+<span class="fc" id="L40">        String testRestoreDefaults = (String) request.getParameter(&quot;restoreDefaults&quot;);</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        if (testRestoreDefaults != null)</span>
+        {
+<span class="nc" id="L43">            return(null);</span>
+        }
+
+        // Eeek!
+<span class="fc bfc" id="L47" title="All 2 branches covered.">		for (Enumeration keys = miscParameters.keys(); keys.hasMoreElements() ;)</span>
+		{
+<span class="fc" id="L49">			String currentKey = (String) keys.nextElement();</span>
+
+            // Check for null or empty Strings
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">            if((((String) miscParameters.get(currentKey)).trim() == null) ||</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">               (((String) miscParameters.get(currentKey)).trim().length() &lt; 1))</span>
+            {
+<span class="fc" id="L55">                nullParams = true;</span>
+            }
+            else
+            {
+                try
+                {
+					// overtimeExpense factor is a float, the remaining parameters are integers
+<span class="fc bfc" id="L62" title="All 2 branches covered.">					if (currentKey.equals(&quot;overtimeExpenseFactor&quot;))</span>
+					{
+						// Attempt String-&gt;flota conversion and populate 'int' table
+<span class="fc" id="L65">						miscParameterIntegers.put(currentKey,</span>
+
+<span class="fc" id="L67">						new Float((String) miscParameters.get(currentKey)));</span>
+
+						// Verify that this number isn't negative
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">						if (((Float) miscParameterIntegers.get(currentKey)).floatValue() &lt; 0.0f)</span>
+						{
+<span class="nc" id="L73">							negativeFound = true;</span>
+
+						}
+
+					}
+					else
+					{
+						// Attempt String-&gt;int conversion and populate int table
+<span class="fc" id="L81">						miscParameterIntegers.put(currentKey,</span>
+<span class="fc" id="L82">												  new Integer((String) miscParameters.get(currentKey)));</span>
+
+
+						// Verify that this number isn't negative
+<span class="fc bfc" id="L86" title="All 2 branches covered.">						if (((Integer) miscParameterIntegers.get(currentKey)).intValue() &lt; 0)</span>
+						{
+<span class="fc" id="L88">							negativeFound = true;</span>
+						}
+                    }
+
+                }
+<span class="fc" id="L93">                catch(NumberFormatException nfe)</span>
+                {
+<span class="fc" id="L95">                    integerParseError = true;</span>
+<span class="fc" id="L96">                }</span>
+            }
+<span class="fc" id="L98">		}</span>
+
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (nullParams == true)</span>
+        {
+<span class="fc" id="L102">            errors.add(ActionMessages.GLOBAL_MESSAGE,</span>
+                       new ActionMessage(&quot;error.parameters.null&quot;));
+        }
+
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (integerParseError == true)</span>
+        {
+<span class="fc" id="L108">            errors.add(ActionMessages.GLOBAL_MESSAGE,</span>
+                       new ActionMessage(&quot;error.parameters.number.format&quot;));
+        }
+
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (negativeFound == true)</span>
+        {
+<span class="fc" id="L114">            errors.add(ActionMessages.GLOBAL_MESSAGE,</span>
+                       new ActionMessage(&quot;error.parameters.number.negative&quot;));
+        }
+
+<span class="fc" id="L118">        return errors;</span>
+	}
+
+	public Hashtable getMiscParameters()
+	{
+<span class="fc" id="L123">		return miscParameterIntegers;</span>
+	}
+
+	public void setMiscParameters(Hashtable miscParameters)
+	{
+<span class="fc" id="L128">		this.miscParameterIntegers = miscParameters;</span>
+
+		// Populate the String Hashtable
+<span class="fc bfc" id="L131" title="All 2 branches covered.">		for (Enumeration keys = miscParameters.keys(); keys.hasMoreElements() ;)</span>
+		{
+<span class="fc" id="L133">			String currentKey = (String) keys.nextElement();</span>
+
+<span class="fc bfc" id="L135" title="All 2 branches covered.">			if (currentKey.equals(&quot;overtimeExpenseFactor&quot;))</span>
+			{
+<span class="fc" id="L137">				this.miscParameters.put(currentKey,</span>
+<span class="fc" id="L138">										((Float) this.miscParameterIntegers.get(currentKey)).toString());</span>
+			}
+			else
+			{
+<span class="fc" id="L142">				this.miscParameters.put(currentKey,</span>
+<span class="fc" id="L143">										((Integer) this.miscParameterIntegers.get(currentKey)).toString());</span>
+			}
+<span class="fc" id="L145">		}</span>
+<span class="fc" id="L146">	}</span>
+
+
+	/**
+	 * Simple get/set methods
+	 **/
+
+	public void setmakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L155">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L156">	}</span>
+
+	public boolean getMakeDefaults()
+	{
+<span class="fc" id="L160">		return makeDefaults;</span>
+	}
+
+	public void setWorkdaysPerMonth(String workdaysPM)
+	{
+<span class="fc" id="L165">		miscParameters.put(&quot;workdaysPerMonth&quot;, workdaysPM);</span>
+<span class="fc" id="L166">	}</span>
+
+	public String getWorkdaysPerMonth()
+	{
+<span class="fc" id="L170">		return (String) miscParameters.get(&quot;workdaysPerMonth&quot;);</span>
+	}
+
+	public void setStandardHoursPerDay(String standardHours)
+	{
+<span class="fc" id="L175">		miscParameters.put(&quot;standardHoursPerDay&quot;, standardHours);</span>
+<span class="fc" id="L176">	}</span>
+
+	public String getStandardHoursPerDay()
+	{
+<span class="fc" id="L180">		return (String) miscParameters.get(&quot;standardHoursPerDay&quot;);</span>
+	}
+
+	public void setOvertimeHoursPerDay(String overtimeHours)
+	{
+<span class="fc" id="L185">		miscParameters.put(&quot;overtimeHoursPerDay&quot;, overtimeHours);</span>
+<span class="fc" id="L186">	}</span>
+
+	public String getOvertimeHoursPerDay()
+	{
+<span class="fc" id="L190">		return (String) miscParameters.get(&quot;overtimeHoursPerDay&quot;);</span>
+	}
+
+	public void setBiddingPricePercentRequired(String percentRequired)
+	{
+<span class="fc" id="L195">		miscParameters.put(&quot;biddingPricePercentRequired&quot;, percentRequired);</span>
+<span class="fc" id="L196">	}</span>
+
+	public String getBiddingPricePercentRequired()
+	{
+<span class="fc" id="L200">		return (String) miscParameters.get(&quot;biddingPricePercentRequired&quot;);</span>
+	}
+
+	public void setBidExpensePercent(String bidExpense)
+	{
+<span class="nc" id="L205">		miscParameters.put(&quot;bidExpensePercent&quot;, bidExpense);</span>
+<span class="nc" id="L206">	}</span>
+
+	public String getBidExpensePercent()
+	{
+<span class="nc" id="L210">		return (String) miscParameters.get(&quot;bidExpensePercent&quot;);</span>
+	}
+
+	public void setLoanInterestPerYear(String loanInterest)
+	{
+<span class="fc" id="L215">		miscParameters.put(&quot;loanInterestPerYear&quot;, loanInterest);</span>
+<span class="fc" id="L216">	}</span>
+
+	public String getLoanInterestPerYear()
+	{
+<span class="fc" id="L220">		return (String) miscParameters.get(&quot;loanInterestPerYear&quot;);</span>
+	}
+
+	public void setMaxJobsPerTeam(String maxJobs)
+	{
+<span class="fc" id="L225">		miscParameters.put(&quot;maxJobsPerTeam&quot;, maxJobs);</span>
+<span class="fc" id="L226">	}</span>
+
+	public String getMaxJobsPerTeam()
+	{
+<span class="fc" id="L230">		return (String) miscParameters.get(&quot;maxJobsPerTeam&quot;);</span>
+	}
+
+	public void setMaxLoansPerTeam(String maxLoans)
+	{
+<span class="nc" id="L235">		miscParameters.put(&quot;maxLoansPerTeam&quot;, maxLoans);</span>
+<span class="nc" id="L236">	}</span>
+
+	public String getMaxLoansPerTeam()
+	{
+<span class="nc" id="L240">		return (String) miscParameters.get(&quot;maxLoansPerTeam&quot;);</span>
+	}
+
+	public void setMaxLoanAmount(String maxLoanAmt)
+	{
+<span class="fc" id="L245">		miscParameters.put(&quot;maxLoanAmount&quot;, maxLoanAmt);</span>
+<span class="fc" id="L246">	}</span>
+
+	public String getMaxLoanAmount()
+	{
+<span class="fc" id="L250">		return (String) miscParameters.get(&quot;maxLoanAmount&quot;);</span>
+	}
+
+	public void setFieldOverheadFixed(String fixedOverhead)
+	{
+<span class="nc" id="L255">		miscParameters.put(&quot;fieldOverheadFixed&quot;, fixedOverhead);</span>
+<span class="nc" id="L256">	}</span>
+
+	public String getFieldOverheadFixed()
+	{
+<span class="nc" id="L260">		return (String) miscParameters.get(&quot;fieldOverheadFixed&quot;);</span>
+	}
+
+	public void setFieldOverheadVariable(String variableOverhead)
+	{
+<span class="nc" id="L265">		miscParameters.put(&quot;fieldOverheadVariable&quot;, variableOverhead);</span>
+<span class="nc" id="L266">	}</span>
+
+	public String getFieldOverheadVariable()
+	{
+<span class="nc" id="L270">		return (String) miscParameters.get(&quot;fieldOverheadVariable&quot;);</span>
+	}
+
+	public void setOfficeOverheadFixed(String officeOverhead)
+	{
+<span class="nc" id="L275">		miscParameters.put(&quot;officeOverheadFixed&quot;, officeOverhead);</span>
+<span class="nc" id="L276">	}</span>
+
+	public String getOfficeOverheadFixed()
+	{
+<span class="nc" id="L280">		return (String) miscParameters.get(&quot;officeOverheadFixed&quot;);</span>
+	}
+
+	public void setLoanRepaymentPeriods(String loanRepaymentPeriods)
+	{
+<span class="nc" id="L285">		miscParameters.put(&quot;loanRepaymentPeriods&quot;, loanRepaymentPeriods);</span>
+<span class="nc" id="L286">	}</span>
+
+	public String getLoanRepaymentPeriods()
+	{
+<span class="nc" id="L290">		return (String) miscParameters.get(&quot;loanRepaymentPeriods&quot;);</span>
+	}
+
+	public void setOvertimeExpenseFactor(String overtimeExpenseFactor)
+	{
+<span class="fc" id="L295">		miscParameters.put(&quot;overtimeExpenseFactor&quot;, overtimeExpenseFactor);</span>
+<span class="fc" id="L296">	}</span>
+
+	public String getOvertimeExpenseFactor()
+	{
+<span class="fc" id="L300">		return (String) miscParameters.get(&quot;overtimeExpenseFactor&quot;);</span>
+	}
+
+    public void setMaxOverbilling(String maxOverbilling)
+    {
+<span class="nc" id="L305">		miscParameters.put(&quot;maxOverbillingPercent&quot;, maxOverbilling);</span>
+<span class="nc" id="L306">	}</span>
+
+	public String getMaxOverbilling()
+	{
+<span class="nc" id="L310">		return (String) miscParameters.get(&quot;maxOverbillingPercent&quot;);</span>
+	}
+
+    public void setIncomeTaxPercent(String incomeTaxPercent)
+    {
+<span class="nc" id="L315">		miscParameters.put(&quot;incomeTaxPercent&quot;, incomeTaxPercent);</span>
+<span class="nc" id="L316">	}</span>
+
+	public String getIncomeTaxPercent()
+	{
+<span class="nc" id="L320">		return (String) miscParameters.get(&quot;incomeTaxPercent&quot;);</span>
+	}
+
+	public void setOverbillingEffectingEthics(String overbillingEffectingEthics)
+	{
+<span class="nc" id="L325">		miscParameters.put(&quot;overbillingEffectingEthics&quot;, overbillingEffectingEthics);</span>
+<span class="nc" id="L326">	}</span>
+
+	public String getOverbillingEffectingEthics()
+	{
+
+<span class="nc" id="L331">		return (String) miscParameters.get(&quot;overbillingEffectingEthics&quot;);</span>
+	}
+
+	public void setBondLimitReevaluationFrequency(String bondLimitReevaluationFrequency)
+	{
+<span class="nc" id="L336">		miscParameters.put(&quot;bondLimitReevaluationFrequency&quot;, bondLimitReevaluationFrequency);</span>
+<span class="nc" id="L337">	}</span>
+
+	public String getBondLimitReevaluationFrequency()
+	{
+
+<span class="nc" id="L342">		return (String) miscParameters.get(&quot;bondLimitReevaluationFrequency&quot;);</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

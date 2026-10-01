@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RequestLoanAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">RequestLoanAction.java</span></div><h1>RequestLoanAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+//JDK imports
+import javax.sql.DataSource;
+import java.util.Vector;
+import java.util.Iterator;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Loan;
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Creates a new loan and stores it to the database.
+ * &lt;br&gt;&lt;br&gt;
+ * &lt;b&gt;Note:&lt;/b&gt; It is assumed the loan approved if it passes the RequestLoanForm.validate method.
+ * &lt;code&gt;RequestLoanAction&lt;/code&gt; does no further checking to see if this loan should be
+ * allowed to be in the database.  It does, however, check if a loan request for this period already exists and if so
+ * overwrites that request with the current request rather than adding a new one.
+ *
+ * @author Kevin Craig
+ * @version $Revision: 1.18 $ $Date: 2002/04/26 18:04:16 $
+ */
+<span class="fc" id="L54">public class RequestLoanAction extends Action</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+					     		 ActionForm form,
+					     		 HttpServletRequest request,
+				         		 HttpServletResponse response)
+	{
+<span class="fc" id="L62">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L65">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">	    if(!isCancelled(request))</span>
+	    {
+<span class="fc" id="L71">	        ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L73">            ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L74">            HttpSession session = request.getSession();</span>
+<span class="fc" id="L75">	        Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L77">            LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+            // If for any reason the company should not be allowed to login, route the
+            // company to an error message page.
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">	        if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L82">		      return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L84">			String forward = &quot;error&quot;;</span>
+
+<span class="nc" id="L86">            RequestLoanForm requestLoanForm = (RequestLoanForm) form;</span>
+<span class="nc" id="L87">			long amount = requestLoanForm.getAmount();</span>
+
+<span class="nc" id="L89">            Loan loan = new Loan(amount, requestLoanForm.getAPR(), requestLoanForm.getRepaymentPeriods());</span>
+
+<span class="nc" id="L91">            Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+<span class="nc" id="L93">            String retract = (String) request.getParameter(&quot;retract&quot;);</span>
+
+			//Get rid of the old form
+<span class="nc" id="L96">			session.removeAttribute(&quot;requestLoanForm&quot;);</span>
+
+<span class="nc" id="L98">			BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+<span class="nc bnc" id="L100" title="All 2 branches missed.">			if (retract != null)  //&quot;Retract&quot; submit button was pushed.  Remove loan for this period from database</span>
+			{
+	    		try
+	    		{
+<span class="nc" id="L104">					dbFacade.getLoanDBHandler().removeLoan(company.getCompanyID(), game.getCurrentPeriodNumber());</span>
+<span class="nc" id="L105">					dbFacade.close();</span>
+				}
+<span class="nc" id="L107">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+<span class="nc" id="L109">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L110">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+				finally
+				{
+					try
+					{
+<span class="nc" id="L116">        		 		dbFacade.close();</span>
+					}
+<span class="nc" id="L118">					catch (BIGDatabaseFacadeException e)</span>
+					{
+<span class="nc" id="L120">						log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L121"> 						errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L122">					}</span>
+				}
+
+<span class="nc" id="L125">				forward = &quot;retracted&quot;;</span>
+			}
+			else
+			{
+	    		try
+	    		{
+
+<span class="nc" id="L132">					boolean rerequest = false;</span>
+<span class="nc" id="L133">					Vector loans = dbFacade.getLoanDBHandler().getLoans(company, game.getCurrentPeriodNumber());</span>
+<span class="nc" id="L134">					Iterator i = loans.iterator();</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">					while(i.hasNext())</span>
+					{
+<span class="nc" id="L137">						Loan l = (Loan) i.next();</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">						if (!l.isApproved())</span>
+						{
+<span class="nc" id="L140">							rerequest = true;</span>
+<span class="nc" id="L141">							loan.setLoanID(l.getLoanID());</span>
+						}
+<span class="nc" id="L143">					}</span>
+
+<span class="nc bnc" id="L145" title="All 2 branches missed.">					if(rerequest)</span>
+					{
+<span class="nc" id="L147">						dbFacade.getLoanDBHandler().updateLoan(loan);</span>
+					}
+					else
+					{
+<span class="nc" id="L151">            	    	dbFacade.getLoanDBHandler().addLoan(company, game.getCurrentPeriodNumber(), loan);</span>
+					}
+
+<span class="nc" id="L154">                    dbFacade.close();</span>
+<span class="nc" id="L155">            	    session.setAttribute(&quot;amount&quot;, NumberConverter.stringValue(amount));</span>
+<span class="nc" id="L156">            	    session.setAttribute(&quot;rerequest&quot;, new Boolean(rerequest));</span>
+<span class="nc" id="L157">            	    session.setAttribute(&quot;totalAmount&quot;, NumberConverter.stringValue(loan.getTotalLoanValue()));</span>
+				}
+<span class="nc" id="L159">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+<span class="nc" id="L161">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L162">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L164">				catch(ObjectNotFoundException onfe)</span>
+				{
+<span class="nc" id="L166">					log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L167">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L168">				}</span>
+
+<span class="nc" id="L170">				forward = &quot;success&quot;;</span>
+			}
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L177">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L181">				saveErrors(request, errors);</span>
+<span class="nc" id="L182">	 	    	saveToken(request);</span>
+<span class="nc" id="L183">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L187" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L189">					log.debug(this.getClass() + &quot; request completed.  Forwarding to &quot; + forward);</span>
+				}
+<span class="nc" id="L191">				return (mapping.findForward(forward));</span>
+			}
+
+	    }
+	    else
+	    {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L199">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L201">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

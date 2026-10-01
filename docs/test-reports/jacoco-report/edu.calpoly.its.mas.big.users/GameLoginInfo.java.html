@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameLoginInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users</a> &gt; <span class="el_source">GameLoginInfo.java</span></div><h1>GameLoginInfo.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users;
+
+import edu.calpoly.its.mas.big.game.Game;
+
+/**
+ * &lt;code&gt;GameLoginInfo&lt;/code&gt; is used to determine whether or not companies should be
+ * allowed to login to a game, and how many companies are currently logged in to a game.
+ * One GameLoginInfo object for each game is stored in BIG's ServletContext.
+ * The ability of companies to log in is based on the loginAllowed=true property and
+ * the condition that the currentPeriod stored in the company's session matches the
+ * currentPeriod in this object.  The value of loginAllowed is set to true if the
+ * Administrator has started the game (period &gt; 0), and if the administrator is not
+ * in the process of advancing the period of a game.
+ *
+ * @author Dara Manker
+ *
+ * @version $Revision: 1.3 $ $Date: 2002/04/15 20:10:41 $
+ *
+ */
+ public class GameLoginInfo
+ {
+
+    private int gameID;
+    private int currentPeriod;
+    private boolean loginAllowed;
+    private int numberCurrentlyLoggedIn;
+
+       public GameLoginInfo(Game game)
+<span class="fc" id="L29">       {</span>
+<span class="fc" id="L30">	      this.gameID = game.getGameID();</span>
+<span class="fc" id="L31">	      this.currentPeriod = game.getCurrentPeriodNumber();</span>
+
+	      // Determine if users should be allowed to log in to this game
+<span class="fc bfc" id="L34" title="All 2 branches covered.">	      if(game.getCurrentPeriodNumber() == 0)</span>
+<span class="fc" id="L35">		     this.loginAllowed = false;</span>
+		  else
+<span class="fc" id="L37">		     this.loginAllowed = true;</span>
+
+<span class="fc" id="L39">	      this.numberCurrentlyLoggedIn = 0;</span>
+<span class="fc" id="L40">       }</span>
+
+
+       /**
+       * Returns the GameID number.
+       */
+       public synchronized int getGameID()
+       {
+<span class="fc" id="L48">		   return this.gameID;</span>
+	   }
+
+       /**
+       * Sets the GameID number.
+       */
+       public synchronized void setGameID(int i)
+       {
+<span class="fc" id="L56">		   this.gameID = i;</span>
+<span class="fc" id="L57">	   }</span>
+
+
+       /**
+       * Returns the current period.
+       */
+       public synchronized int getCurrentPeriod()
+       {
+<span class="fc" id="L65">		   return this.currentPeriod;</span>
+	   }
+
+       /**
+       * Sets the current period.
+       */
+       public synchronized void setCurrentPeriod(int i)
+       {
+<span class="fc" id="L73">		   this.currentPeriod = i;</span>
+<span class="fc" id="L74">	   }</span>
+
+       /**
+       * Increments the current period by one.
+       */
+       public synchronized void incrementCurrentPeriod()
+       {
+<span class="nc" id="L81">          this.currentPeriod++;</span>
+<span class="nc" id="L82">       }</span>
+
+
+
+       /**
+       * Returns status of loginAllowed.
+       */
+       public synchronized boolean getLoginAllowed()
+       {
+<span class="fc" id="L91">		   return this.loginAllowed;</span>
+	   }
+
+       /**
+       * Sets the value of loginAllowed.
+       */
+       public synchronized void setLoginAllowed(boolean loginValue)
+       {
+<span class="fc" id="L99">		   this.loginAllowed = loginValue;</span>
+<span class="fc" id="L100">	   }</span>
+
+
+       /**
+       * Enables ability of companies to login.
+       */
+       public synchronized void enableLogins()
+       {
+<span class="fc" id="L108">          this.loginAllowed = true;</span>
+<span class="fc" id="L109">       }</span>
+
+       /**
+       * Disables ability of companies to login.
+       */
+       public synchronized void disableLogins()
+       {
+<span class="fc" id="L116">          this.loginAllowed = false;</span>
+<span class="fc" id="L117">       }</span>
+
+
+       /**
+       * Returns the number of companies currently logged in.
+       */
+       public synchronized int getNumberCurrentlyLoggedIn()
+       {
+<span class="fc" id="L125">		   return this.numberCurrentlyLoggedIn;</span>
+	   }
+
+       /**
+       * Sets the number of companies currently logged in.
+       */
+       public synchronized void setNumberCurrentlyLoggedIn(int i)
+       {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		   if(i &lt; 0)</span>
+		   {
+<span class="fc" id="L135">		      this.numberCurrentlyLoggedIn = 0;</span>
+		   }
+		   else
+		   {
+<span class="fc" id="L139">		      this.numberCurrentlyLoggedIn = i;</span>
+		   }
+<span class="fc" id="L141">	   }</span>
+
+	   /**
+       * Increments the number of companies currently logged in by one.
+       */
+       public synchronized void incrementNumberCurrentlyLoggedIn()
+       {
+<span class="fc" id="L148">          this.numberCurrentlyLoggedIn++;</span>
+<span class="fc" id="L149">       }</span>
+
+       /**
+       * Decrements the number of companies currently logged in by one.
+       */
+       public synchronized void decrementNumberCurrentlyLoggedIn()
+       {
+<span class="fc" id="L156">          this.numberCurrentlyLoggedIn--;</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">          if(this.numberCurrentlyLoggedIn &lt; 0)</span>
+          {
+<span class="fc" id="L159">			  this.numberCurrentlyLoggedIn = 0;</span>
+		  }
+<span class="fc" id="L161">       }</span>
+
+       /**
+       * Increments the current period by one, sets the number of companies logged in to zero,
+       * and enables company logins for this game.
+       */
+       public synchronized void gameUpdated()
+       {
+<span class="fc" id="L169">          this.currentPeriod++;</span>
+<span class="fc" id="L170">	      this.numberCurrentlyLoggedIn = 0;</span>
+<span class="fc" id="L171">          this.loginAllowed = true;</span>
+<span class="fc" id="L172">       }</span>
+
+  }
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

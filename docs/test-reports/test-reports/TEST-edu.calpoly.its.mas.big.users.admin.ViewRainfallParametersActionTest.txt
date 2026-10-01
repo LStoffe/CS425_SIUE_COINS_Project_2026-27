@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.ViewRainfallParametersActionTest
+Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.619 sec
+
+Testcase: testExecuteSuccessPutsFormInSession took 0.609 sec
+	Caused an ERROR
+Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+	at edu.calpoly.its.mas.big.users.admin.RainfallParametersForm.setAllParameters(RainfallParametersForm.java:184)
+	at edu.calpoly.its.mas.big.users.admin.ViewRainfallParametersAction.execute(ViewRainfallParametersAction.java:83)
+	at edu.calpoly.its.mas.big.users.admin.ViewRainfallParametersActionTest.testExecuteSuccessPutsFormInSession(ViewRainfallParametersActionTest.java:86)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.005 sec

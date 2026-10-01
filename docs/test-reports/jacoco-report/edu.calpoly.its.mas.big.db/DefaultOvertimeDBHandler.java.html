@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultOvertimeDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultOvertimeDBHandler.java</span></div><h1>DefaultOvertimeDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Game;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;OvertimeDBHandler&lt;/code&gt;.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.3 $ $Date: 2002/03/14 19:08:41 $
+ */
+public class DefaultOvertimeDBHandler extends DefaultDBHandler implements OvertimeDBHandler
+{
+
+    public DefaultOvertimeDBHandler(Connection connection)
+    {
+<span class="fc" id="L24">		super(connection);</span>
+<span class="fc" id="L25">	}</span>
+
+    public int getOvertime(Game game, Job job, int activityType)
+		throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L30">        int overtimeDays = 0;</span>
+
+        // activity types must be 10-18 for Heavy jobs
+<span class="fc" id="L33">        int tempType = activityType;</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (job.getTypeModifier() == Job.HEAVY) tempType = tempType + 9;</span>
+
+<span class="fc" id="L36">        String query = &quot;SELECT overtime_days &quot; +</span>
+                       &quot;FROM overtime &quot; +
+			&quot;WHERE gameid = ? AND jobid = ? AND activity_type_id = ?&quot;;
+
+        try {
+<span class="fc" id="L41">            PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L42">            pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L43">            pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L44">            pstmt.setInt(3, tempType);</span>
+
+<span class="fc" id="L46">            ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            if(!rset.last()) {</span>
+                //Close the database connection if the parameters aren't found.
+<span class="fc" id="L50">                close();</span>
+<span class="fc" id="L51">                throw new ObjectNotFoundException();</span>
+            } else {
+<span class="fc" id="L53">                rset.first();</span>
+<span class="fc" id="L54">                overtimeDays = rset.getInt(&quot;overtime_days&quot;);</span>
+            }
+
+<span class="fc" id="L57">            rset.close();</span>
+<span class="fc" id="L58">            pstmt.close();</span>
+
+<span class="fc" id="L60">        } catch (SQLException sqle) {</span>
+            // close the connection
+<span class="fc" id="L62">            close();</span>
+<span class="fc" id="L63">            throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L64">        }</span>
+
+<span class="fc" id="L66">        return overtimeDays;</span>
+    }
+
+    public int[] getOvertimes(Game game, Job job) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L71">        int[] overtimeDays = new int[9];</span>
+
+<span class="fc" id="L73">        String query = &quot;SELECT overtime_days, activity_type_id &quot; +</span>
+                       &quot;FROM overtime &quot; +
+			&quot;WHERE gameid = ? AND jobid = ?&quot;;
+
+        try {
+<span class="fc" id="L78">            PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L79">            pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L80">            pstmt.setInt(2, job.getJobID());</span>
+
+<span class="fc" id="L82">            ResultSet rset = pstmt.executeQuery();</span>
+
+            // Is it safe to expect nine rows?
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            while(rset.next()) {</span>
+<span class="pc bpc" id="L86" title="3 of 4 branches missed.">				if(job.getTypeModifier() == Job.PUBLIC || job.getTypeModifier() == Job.PRIVATE)</span>
+				{
+<span class="fc" id="L88">                   overtimeDays[rset.getInt(&quot;activity_type_id&quot;) - 1] = rset.getInt(&quot;overtime_days&quot;);</span>
+			    }
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">			    if(job.getTypeModifier() == Job.HEAVY)</span>
+				{
+<span class="nc" id="L92">				   overtimeDays[rset.getInt(&quot;activity_type_id&quot;) - 10] = rset.getInt(&quot;overtime_days&quot;);</span>
+				}
+            }
+
+<span class="fc" id="L96">            rset.close();</span>
+<span class="fc" id="L97">            pstmt.close();</span>
+
+<span class="nc" id="L99">        } catch (SQLException sqle) {</span>
+            // close the connection
+<span class="nc" id="L101">            close();</span>
+<span class="nc" id="L102">            throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L103">        }</span>
+
+<span class="fc" id="L105">        return overtimeDays;</span>
+    }
+
+
+    public void addOvertime(Game game, Job job) throws BIGDatabaseFacadeException
+    {
+
+        //SQL statement to update overtime days
+<span class="fc" id="L113">        String update = &quot;INSERT INTO overtime (gameid, jobid, activity_type_id, overtime_days) VALUES (?, ?, ?, ?)&quot;;</span>
+
+<span class="fc" id="L115">        int tempIndex = -1;</span>
+        try
+			{
+<span class="fc bfc" id="L118" title="All 2 branches covered.">				for(int i = 0; i &lt; 9; i++)</span>
+					{
+						// activity types must be 10-18 for Heavy jobs
+<span class="fc" id="L121">						tempIndex = i;</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">						if (job.getTypeModifier() == Job.HEAVY) tempIndex = tempIndex + 9;</span>
+
+<span class="fc" id="L124">						PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L125">						pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L126">						pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L127">						pstmt.setInt(3, tempIndex + 1);</span>
+<span class="fc" id="L128">						pstmt.setInt(4, 0);</span>
+
+<span class="fc" id="L130">						int rowsChanged = pstmt.executeUpdate();</span>
+<span class="fc" id="L131">						pstmt.close();</span>
+					}
+			}
+<span class="nc" id="L134">        catch(SQLException sqle)</span>
+			{
+				//Close connection if an exception occurs
+<span class="nc" id="L137">				close();</span>
+<span class="nc" id="L138">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L139">			}</span>
+
+<span class="fc" id="L141">    }</span>
+
+
+    public void updateOvertime(Game game, Job job, int activityType, int overtimeDays)
+        throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+        // activity types must be 10-18 for Heavy jobs
+<span class="fc" id="L148">        int tempType = activityType;</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        if (job.getTypeModifier() == Job.HEAVY) tempType = tempType + 9;</span>
+
+        //SQL statement to update overtime days
+<span class="fc" id="L152">        String update = &quot;UPDATE overtime &quot; +</span>
+                        &quot;SET overtime_days = ? &quot; +
+			&quot;WHERE gameid = ? AND jobid = ? AND activity_type_id = ?&quot;;
+
+        try
+			{
+<span class="fc" id="L158">				PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L159">				pstmt.setInt(1, overtimeDays);</span>
+<span class="fc" id="L160">				pstmt.setInt(2, game.getGameID());</span>
+<span class="fc" id="L161">				pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L162">				pstmt.setInt(4, tempType);</span>
+
+<span class="fc" id="L164">				int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L166">				pstmt.close();</span>
+
+<span class="fc bfc" id="L168" title="All 2 branches covered.">				if (rowsChanged &lt; 1)</span>
+<span class="fc" id="L169">					throw new ObjectNotFoundException();</span>
+			}
+<span class="nc" id="L171">        catch(SQLException sqle)</span>
+			{
+				//Close connection if an exception occurs
+<span class="nc" id="L174">				close();</span>
+<span class="nc" id="L175">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L176">			}</span>
+
+<span class="fc" id="L178">    }</span>
+
+
+    public void updateOvertimes(Game game, Job job, int[] overtimeDays)
+        throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        for (int activityNumber = 1; activityNumber &lt;= 9; activityNumber++) {</span>
+<span class="nc" id="L185">            updateOvertime(game, job, activityNumber, overtimeDays[activityNumber - 1]);</span>
+        }
+
+<span class="nc" id="L188">    }</span>
+
+
+    public void removeOvertimeRequests(int gameID) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L193">		String delete = &quot;DELETE FROM overtime WHERE gameid = ?&quot;;</span>
+
+		try
+ 		{
+<span class="fc" id="L197">			PreparedStatement pstmt = connection.prepareStatement(delete);</span>
+<span class="fc" id="L198">			pstmt.setInt(1, gameID);</span>
+
+<span class="fc" id="L200">			pstmt.executeUpdate();</span>
+<span class="fc" id="L201">			connection.commit();</span>
+
+<span class="fc" id="L203">			pstmt.close();</span>
+		}
+<span class="nc" id="L205">		catch(SQLException sqle)</span>
+		{
+			//if an exception occurs close the connection
+<span class="nc" id="L208">			close();</span>
+<span class="nc" id="L209">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L210">		}</span>
+
+<span class="fc" id="L212">	}</span>
+
+
+    public void zeroOvertimeRequests(int gameID)  throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L217">		String update = &quot;UPDATE overtime SET overtime_days = 0 WHERE gameid = ?&quot;;</span>
+
+		try
+ 		{
+<span class="fc" id="L221">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L222">			pstmt.setInt(1, gameID);</span>
+
+<span class="fc" id="L224">			pstmt.executeUpdate();</span>
+<span class="fc" id="L225">			connection.commit();</span>
+
+<span class="fc" id="L227">			pstmt.close();</span>
+		}
+<span class="nc" id="L229">		catch(SQLException sqle)</span>
+		{
+			//if an exception occurs close the connection
+<span class="nc" id="L232">			close();</span>
+<span class="nc" id="L233">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L234">		}</span>
+
+<span class="fc" id="L236">	}</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

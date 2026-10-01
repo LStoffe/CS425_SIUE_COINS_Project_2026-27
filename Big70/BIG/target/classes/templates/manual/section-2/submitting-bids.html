@@ -1,0 +1,71 @@
+<!--
+  submitting-bids.html
+  Section 2.3 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>2.3 Submitting Bids</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            2.3 Submitting Bids
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Each company must input their bid offers into the computer. A company may, at any time before the end of the period, add additional bids or revise an existing bid by resubmitting it. 
+            A revised bid will replace an earlier one. If you decide to not to bid on a job you have already placed a bid on, use the "Retract Bid" button to cancel that bid.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Submitting a bid requires some expense to the company. This represents the cost to your company to have your estimators prepare Estimated Time and Cost Reports and to cover additional paperwork costs and fees. 
+            For every bid you submit, a small percentage of the bid amount will be charged to your company when the bid is evaluated. 
+            You must pay this expense even if you aren’t awarded the job. If you submit a bid but retract it before the period updates you will not be charged this expense.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To access the Bid On Job page, select "Bid on a Job" and then "Add/Modify Bid" beside the job on which you want to bid.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/bidding-form}" class="font-semibold hover:underline">
+        ← 2.2 Bidding Form
+    </a>
+    <a th:href="@{/manual/bond-limits}" class="font-semibold hover:underline">
+        Next → 2.4 Bond Limits
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

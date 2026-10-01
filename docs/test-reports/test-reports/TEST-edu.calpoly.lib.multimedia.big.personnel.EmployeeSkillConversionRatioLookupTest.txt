@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.lib.multimedia.big.personnel.EmployeeSkillConversionRatioLookupTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.085 sec
+
+Testcase: testGetConversionRatioReturnsZeroForUnknownEmployee took 0.077 sec
+Testcase: testMultipleEmployeeTypes took 0 sec
+Testcase: testAddAndGetConversionRatio took 0 sec
+Testcase: testGetEmployeeSkillGeneralizationMultipleSkills took 0 sec
+Testcase: testGetEmployeeSkillGeneralizationSingleSkill took 0.001 sec
+Testcase: testGetConversionRatioReturnsZeroForUnknownSkill took 0 sec
+Testcase: testGetEmployeeSkillGeneralizationUnknownEmployee took 0 sec

@@ -1,0 +1,12 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.PersonnelParametersIBatisImplDBHandlerTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.1 sec
+
+Testcase: testUpdatePersonnelParametersPassesCorrectMapToSqlMapUpdate took 0.086 sec
+Testcase: testGetJobRequiredMospParametersBuildsNestedMap took 0 sec
+Testcase: testGetPersonnelParametersBuildsMapFromResultList took 0.001 sec
+Testcase: testGetPersonnelTypesUsesSqlMapAndReturnsList took 0.001 sec
+Testcase: testGetEmployeeSkillConversionRatiosUsesLookup took 0.001 sec
+Testcase: testCopyPersonnelParametersCopiesAllSectionsForNewIds took 0.001 sec
+Testcase: testRemovePersonnelParametersCallsDeleteWithCorrectMap took 0.001 sec
+Testcase: testGetMospCostPenaltiesBuildsMap took 0.001 sec
+Testcase: testGetPersonnelTypesWrapsSQLException took 0.001 sec

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Company Appraisal Metrics</title>
+  <link rel="stylesheet" href="/css/tailwind.css">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Company Appraisal Metrics</h2>
+  </header>
+
+  <!-- Main Content -->
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <!-- Company Header -->
+      <div class="text-center mb-10">
+        <h3 class="text-2xl font-bold mb-2" th:text="${username}">Company Name</h3>
+        <p class="text-sm text-gray-600" th:text="'Report Date: ' + ${periodDate}">Period</p>
+        <p class="text-sm text-gray-500">Report Cost: $500</p>
+      </div>
+
+      <!-- Metrics Section -->
+      <div th:if="${metrics != null}" class="space-y-6">
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Financial Liquidity</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold"
+                  th:text="${metrics['financial_liquidity']}">0</span>
+          </div>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Financial Success</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold"
+                  th:text="${metrics['financial_success']}">0</span>
+          </div>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Bid Responsibility</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold"
+                  th:text="${metrics['bid_responsibility']}">0</span>
+          </div>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Pace</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold"
+                  th:text="${metrics.pace}">0</span>
+          </div>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Ethics</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold"
+                  th:text="${metrics.ethics}">0</span>
+          </div>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Name Recognition</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold"
+                  th:text="${metrics['name_recognition']}">0</span>
+          </div>
+        </div>
+
+        <!-- Job Types Section -->
+        <div class="mt-12">
+          <h4 class="text-xl font-semibold mb-4">Jobs Awarded by Type</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+            <div class="p-4 bg-gray-50 rounded-lg border"
+                th:text="'Apartments: ' + ${metrics.apartments}">Apartments: 0</div>
+            <div class="p-4 bg-gray-50 rounded-lg border"
+                th:text="'Schools: ' + ${metrics.schools}">Schools: 0</div>
+            <div class="p-4 bg-gray-50 rounded-lg border"
+                th:text="'Offices: ' + ${metrics.offices}">Offices: 0</div>
+            <div class="p-4 bg-gray-50 rounded-lg border"
+                th:text="'Hospitals: ' + ${metrics.hospitals}">Hospitals: 0</div>
+            <div class="p-4 bg-gray-50 rounded-lg border"
+                th:text="'Industrial: ' + ${metrics.industrial}">Industrial: 0</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- No metrics available -->
+      <div th:if="${metrics == null}" 
+          class="p-6 bg-gray-50 border border-gray-200 rounded-xl text-center">
+        <p class="text-gray-500 text-lg">No appraisal metrics available for this period yet.</p>
+        <p class="text-gray-400 text-sm mt-2">Metrics are generated as your company participates in the simulation.</p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/consulting-services-menu}"
+          class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Consulting Services
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

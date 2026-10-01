@@ -1,0 +1,16 @@
+Testsuite: edu.calpoly.its.mas.big.users.LoginBrokerTest
+Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.574 sec
+
+Testcase: testDecrementNumberOfLoggedInCompanies took 0.492 sec
+Testcase: testAddGameLoginInfoToServletContext took 0.001 sec
+Testcase: testIncrementNumberOfLoggedInCompanies took 0.002 sec
+Testcase: testVerifyGameLoginAllowedReturnsFalseWhenGameIsNull took 0.059 sec
+Testcase: testVerifyGameLoginAllowedReturnsFalseWhenNoGameLoginInfo took 0.001 sec
+Testcase: testVerifyGameLoginAllowedReturnsFalseWhenLoginsDisabled took 0.002 sec
+Testcase: testVerifyGameLoginAllowedReturnsFalseWhenGameNotStarted took 0.001 sec
+Testcase: testVerifyGameLoginAllowedReturnsFalseWhenPeriodMismatch took 0.001 sec
+Testcase: testVerifyGameLoginAllowedReturnsTrueWhenAllConditionsMet took 0.001 sec
+Testcase: testDisableGameLogins took 0 sec
+Testcase: testInitializePeriod took 0.001 sec
+Testcase: testGetNumberOfLoggedInCompanies took 0.001 sec
+Testcase: testDecrementNumberOfLoggedInCompaniesByGameId took 0.001 sec

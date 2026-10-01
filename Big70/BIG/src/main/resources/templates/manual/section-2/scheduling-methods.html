@@ -1,0 +1,145 @@
+<!--
+  scheduling-methods.html
+  Section 2.1 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>2.1 Scheduling Methods</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            2.1 Scheduling Methods
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            The tasks of determining how much a job will cost and what methods will get the job done on time belong to the company's Estimator.
+            Depending on the way your instructor has configured your game of BIG, you and your teammates may need to take on the role of estimators yourselves, or BIG may perform this function for you. 
+            If you must act as estimators yourselves, you will need to find a set of methods that will complete the job on time and determine the job cost using those methods.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            To figure out which methods to use on a job you will want to create a Critical Path Method (CPM) schedule for that job. 
+            A CPM schedule is a chart of some kind showing when work on activities may begin, when it must pause, and how long it will take. 
+            This kind of schedule will help you determine which are the least expensive methods that will get the job done on time.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To create a CPM schedule you will need three things: the required completion date for the job, the Estimated Time and Cost Report for the job, and the CPM (network) dependencies for the job type. 
+            Required completion dates can be found in the list of jobs, and activity durations can be found on the Estimated Time and Cost Report. Network dependencies are found in the Network Dependencies Report for each job type
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            In reality, dependencies occur when it is impossible to work on one activity until some amount of work has been done on another activity. 
+            For example, it would be impossible to paint the walls until the walls have been built. 
+            It would be impossible to start work on the roof until the structure is complete. Sometimes work can begin on an activity but must stop until sufficient work has been completed on another activity. 
+            For example, work on eletrical wiring may begin once the frame is complete but might not be able to finish until all other activities are complete. 
+            In reality, dependencies might cause activities to start and stop multiple times, however in BIG this is simplified to two kinds of CPM dependencies: start-to-start and finish-to-finish.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            A start-to-start dependency means work on a certain activity cannot start until work on a different activity exceeds a certain percent. For example, work on Roof might not be able to start until work on Closure is 80% complete.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            A finish-to-finish dependency means work on an activity cannot complete past a certain point until work on a different activity is 100% complete. 
+            For example, work on the Basement might not be able to complete past 30% until Excavation is 100% complete.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            An activity might have no dependencies, just a start-to-start, just a finish-to-finish, or both.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            To determine what percentage complete an activity should be after some number of days, divide that number of days by the total days for that activity. 
+            For example, if the Estimated Time and Cost Report said method 3 for activity 4 will take 76 days, then after 12 days the activity would be about 16% complete. 12/76 = 0.158
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            When you schedule, the number of days you can work each month is not the same as the number of days in that month. 
+            There are X* workdays each month ( 2X* workdays per period) with N* hours in each workday. If you use a real calendar when scheduling, it isn’t important which actual days of the month are workdays except in the month containing the job’s required completion date. 
+            Some of that month’s workdays may fall after the required completion date so you will need to make an estimate about how many days you will be able to work the job that month.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Example:</strong> The required completion date is October 16th. You want to estimate how many days you will be able to work in the final period before incurring liquidated damages. 
+            In BIG every two months is a period and the game begins on a January. So Jan/Feb is a period, Mar/Apr is a period and so on. All odd numbered months are the first month of a period and all even numbered months are the second month of a period. 
+            This means Oct is always going to be the second month of a period. Since the required completion date is not until October this means the entire month of September is available to be worked. 
+            Within October the required completion date falls halfway through the month, so approximately half the month may be worked. 
+            All of Sept and half of Oct means approximately one and a half months of the final period may be worked. If we use 20 as the number of workdays per period, we find that there should be about 30 workdays in the final period.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>BIG Does The Estimating:</strong><br>If your instructor is allowing you to have BIG fulfill the role of your company's estimator, you may access estimates by following the "Schedule Estimates" link from the bid menu in the navigation bar. 
+            After following the link you will see a list of all public jobs and all private jobs offered to you in the current period. 
+            Your Estimator can only complete so many estimates per period so it will still be your task to decide which jobs to concentrate his or her efforts on. You start with a number of available estimates each period.
+            Each time you create a new estimate you use up one of your available estimates. To create an estimate, click on a job to see the scheduled list of methods and estimated cost for that job. 
+            You may view estimates you have already created without giving up one of your available estimates.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Note that the list of methods your Estimator provides you may not be the most cost-efficient or quickest path to complete that job, however under optimal conditions, it is guaranteed to complete the job on time. 
+            Remember that the real world is far from optimal so even if you use the exact methods provided in the estimate, you may still experience unavoidable delays that will extend the job completion date past the due date. 
+            It is your responsibility, not the Estimator's, to keep your jobs on schedule. 
+            Also note that the cost estimate your Estimator provides will not include all factors you may want to take into account when you determine your bid amount (see Bidding Form manual page for more information).
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>TIP:</strong> If other player companies use their Estimator to get an estimate for the same job you do, both estimates will be identical. 
+            Even when using BIG's Estimator you may gain a competitive advantage by manually trying to improve the estimator's method schedule.
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/bidding}" class="font-semibold hover:underline">
+        ← Section 2 Summary
+    </a>
+    <a th:href="@{/manual/bidding-form}" class="font-semibold hover:underline">
+        Next → 2.2 Bidding Form
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

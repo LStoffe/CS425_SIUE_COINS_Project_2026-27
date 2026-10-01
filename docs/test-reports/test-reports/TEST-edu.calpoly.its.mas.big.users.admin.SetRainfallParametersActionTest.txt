@@ -1,0 +1,21 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.SetRainfallParametersActionTest
+Tests run: 3, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.62 sec
+
+Testcase: testExecuteSetParametersSuccess took 0.449 sec
+	Caused an ERROR
+Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+	at edu.calpoly.its.mas.big.users.admin.RainfallParametersForm.setAllParameters(RainfallParametersForm.java:184)
+	at edu.calpoly.its.mas.big.users.admin.SetRainfallParametersActionTest.testExecuteSetParametersSuccess(SetRainfallParametersActionTest.java:70)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testExecuteRestoreDefaultsSuccess took 0.161 sec
+	Caused an ERROR
+Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+	at edu.calpoly.its.mas.big.users.admin.RainfallParametersForm.setAllParameters(RainfallParametersForm.java:184)
+	at edu.calpoly.its.mas.big.users.admin.SetRainfallParametersAction.execute(SetRainfallParametersAction.java:105)
+	at edu.calpoly.its.mas.big.users.admin.SetRainfallParametersActionTest.testExecuteRestoreDefaultsSuccess(SetRainfallParametersActionTest.java:123)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.005 sec

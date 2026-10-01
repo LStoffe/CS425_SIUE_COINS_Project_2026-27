@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JobDescripPDFFileServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users</a> &gt; <span class="el_source">JobDescripPDFFileServlet.java</span></div><h1>JobDescripPDFFileServlet.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users;
+
+//Java imports
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.lang.String;
+
+//Servlet imports
+import javax.servlet.ServletOutputStream;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+<span class="fc" id="L26">public class JobDescripPDFFileServlet extends HttpServlet {</span>
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws IOException
+    {
+<span class="nc" id="L31">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">		if(log.isInfoEnabled())</span>
+		{
+<span class="nc" id="L34">			log.info(this.getClass() + &quot;: Starting doGet in JobDescripPDFFileServlet&quot;);</span>
+		}
+
+<span class="nc" id="L37">        HttpSession session = request.getSession();</span>
+
+<span class="nc" id="L39">		String jobDescrip = (String) session.getAttribute(&quot;currentEmployeeType&quot;);</span>
+
+<span class="nc" id="L41">		String theFilename = null;</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">		if(jobDescrip.equals(&quot;Administrative Assistant&quot;))</span>
+		{
+<span class="nc" id="L45">			theFilename = &quot;AdmProjasst.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Assistant Project Manager&quot;))</span>
+		{
+<span class="nc" id="L49">			theFilename = &quot;AsstPM.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Business Development Manager&quot;))</span>
+		{
+<span class="nc" id="L53">			theFilename = &quot;Busdevmngr.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Contracts Coordinator&quot;))</span>
+		{
+<span class="nc" id="L57">			theFilename = &quot;Contract-coor.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L59" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Estimator&quot;))</span>
+		{
+<span class="nc" id="L61">			theFilename = &quot;Estimator.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Estimating Coordinator&quot;))</span>
+		{
+<span class="nc" id="L65">			theFilename = &quot;EstimCoord.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Marketing Coordinator&quot;))</span>
+		{
+<span class="nc" id="L69">			theFilename = &quot;Mktgcoord.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Marketing Manager&quot;))</span>
+		{
+<span class="nc" id="L73">			theFilename = &quot;Mktgmngr.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L75" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Office Manager&quot;))</span>
+		{
+<span class="nc" id="L77">			theFilename = &quot;OfficeMngr.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Operations Manager&quot;))</span>
+		{
+<span class="nc" id="L81">			theFilename = &quot;OpsMngr.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Preconstruction Services Manager&quot;))</span>
+		{
+<span class="nc" id="L85">			theFilename = &quot;PreconSvcsMngr.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Project Accountant&quot;))</span>
+		{
+<span class="nc" id="L89">			theFilename = &quot;ProjAcct.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Project Executive&quot;))</span>
+		{
+<span class="nc" id="L93">			theFilename = &quot;ProjExec.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Project Manager&quot;))</span>
+		{
+<span class="nc" id="L97">			theFilename = &quot;ProjectManager.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Receptionist&quot;))</span>
+		{
+<span class="nc" id="L101">			theFilename = &quot;Recept.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Senior Project Manager&quot;))</span>
+		{
+<span class="nc" id="L105">			theFilename = &quot;SrPM.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Senior Project Coordinator&quot;))</span>
+		{
+<span class="nc" id="L109">			theFilename = &quot;SrPrAsst.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Staff Accountant&quot;))</span>
+		{
+<span class="nc" id="L113">			theFilename = &quot;Staffacc.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Takeoff Person&quot;))</span>
+		{
+<span class="nc" id="L117">			theFilename = &quot;JrEstimator.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Vice President&quot;))</span>
+		{
+<span class="nc" id="L121">			theFilename = &quot;DivMngr.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Senior Estimator&quot;))</span>
+		{
+<span class="nc" id="L125">			theFilename = &quot;ChiefEst.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Chief Accountant&quot;))</span>
+		{
+<span class="nc" id="L129">			theFilename = &quot;DivAcctgMngr.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Project Coordinator&quot;))</span>
+		{
+<span class="nc" id="L133">			theFilename = &quot;AdmProjasst.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L135" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Assistant Estimator&quot;))</span>
+		{
+<span class="nc" id="L137">			theFilename = &quot;AssistEstimator.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Comptroller&quot;))</span>
+		{
+<span class="nc" id="L141">			theFilename = &quot;Comptroller.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Accounts Payable Clerk&quot;))</span>
+		{
+<span class="nc" id="L145">			theFilename = &quot;AcctPayableClerk.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Accounts Receivable Clerk&quot;))</span>
+		{
+<span class="nc" id="L149">			theFilename = &quot;AcctRecClerk.pdf&quot;;</span>
+		}
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Blue Print Clerk&quot;))</span>
+		{
+<span class="nc" id="L154">			theFilename = &quot;blueprintclerk.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L156" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Cabinet Shop Manager&quot;))</span>
+		{
+<span class="nc" id="L158">			theFilename = &quot;cabinetshopmanager.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;CEO&quot;))</span>
+		{
+<span class="nc" id="L162">			theFilename = &quot;ceo.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L164" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Concrete Services Manager&quot;))</span>
+		{
+<span class="nc" id="L166">			theFilename = &quot;concreteservicesmanager.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L168" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Coop Student&quot;))</span>
+		{
+<span class="nc" id="L170">			theFilename = &quot;co-opstudent.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Human Resources Manager&quot;))</span>
+		{
+<span class="nc" id="L174">			theFilename = &quot;hrmanager.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Intern Student&quot;))</span>
+		{
+<span class="nc" id="L178">			theFilename = &quot;internstudent.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Office Engineer&quot;))</span>
+		{
+<span class="nc" id="L182">			theFilename = &quot;officeengineer.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Safety Manager&quot;))</span>
+		{
+<span class="nc" id="L186">			theFilename = &quot;safetymanager.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Secretary&quot;))</span>
+		{
+<span class="nc" id="L190">			theFilename = &quot;secretary.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L192" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Warehouse Assistant&quot;))</span>
+		{
+<span class="nc" id="L194">			theFilename = &quot;warehouseassistant.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L196" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Warehouse Manager&quot;))</span>
+		{
+<span class="nc" id="L198">			theFilename = &quot;warehousemanager.pdf&quot;;</span>
+		}
+<span class="nc bnc" id="L200" title="All 2 branches missed.">		else if(jobDescrip.equals(&quot;Warehouse Teamster&quot;))</span>
+		{
+<span class="nc" id="L202">			theFilename = &quot;warehouseteamster.pdf&quot;;</span>
+		}
+
+
+/*		else if(jobDescrip.equals(&quot;xxx&quot;))
+		{
+			theFilename = &quot;xxx&quot;;
+		}
+*/
+
+		else
+		{
+<span class="nc" id="L214">			theFilename = &quot;Sorry.pdf&quot;;</span>
+		}
+
+<span class="nc" id="L217">		String filePath = getServletContext().getRealPath(&quot;/personnel&quot;);</span>
+
+<span class="nc" id="L219">		File file = new File(filePath, theFilename);</span>
+
+        // Prepare streams.
+<span class="nc" id="L222">        BufferedInputStream input = null;</span>
+<span class="nc" id="L223">        BufferedOutputStream output = null;</span>
+
+        try {
+            // Open file
+<span class="nc" id="L227">            input = new BufferedInputStream(new FileInputStream(file));</span>
+<span class="nc" id="L228">            int contentLength = input.available();</span>
+
+            // Init servlet response.
+<span class="nc" id="L231">            response.reset();</span>
+<span class="nc" id="L232">            response.setContentLength(contentLength);</span>
+<span class="nc" id="L233">            response.setContentType(&quot;application/pdf&quot;);</span>
+<span class="nc" id="L234">            output = new BufferedOutputStream(response.getOutputStream());</span>
+
+            // Write file contents to response.
+<span class="nc bnc" id="L237" title="All 2 branches missed.">            while (contentLength-- &gt; 0) {</span>
+<span class="nc" id="L238">                output.write(input.read());</span>
+            }
+
+            // Finalize task.
+<span class="nc" id="L242">            output.flush();</span>
+<span class="nc" id="L243">        } catch (IOException e) {</span>
+            // Something went wrong?
+<span class="nc" id="L245">            e.printStackTrace();</span>
+<span class="nc" id="L246">            log.info(this.getClass() + &quot;: Error - try / catch failed&quot;);</span>
+        } finally {
+            // Gently close streams.
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            if (input != null) {</span>
+                try {
+<span class="nc" id="L251">                    input.close();</span>
+<span class="nc" id="L252">                } catch (IOException e) {</span>
+                    // Do your thing with the exception. Print it, log it or mail it.
+<span class="nc" id="L254">                    e.printStackTrace();</span>
+<span class="nc" id="L255">                    log.info(this.getClass() + &quot;: Error - closing of stream failed&quot;);</span>
+<span class="nc" id="L256">                }</span>
+            }
+<span class="nc bnc" id="L258" title="All 2 branches missed.">            if (output != null) {</span>
+                try {
+<span class="nc" id="L260">                    output.close();</span>
+<span class="nc" id="L261">                } catch (IOException e) {</span>
+                    // Do your thing with the exception. Print it, log it or mail it.
+<span class="nc" id="L263">                    e.printStackTrace();</span>
+<span class="nc" id="L264">                    log.info(this.getClass() + &quot;: Error - closing of output failed&quot;);</span>
+<span class="nc" id="L265">                }</span>
+            }
+        }
+<span class="nc" id="L268">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

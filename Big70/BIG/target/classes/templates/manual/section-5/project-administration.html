@@ -1,0 +1,137 @@
+<!--
+  project-administration.html
+  The fifth and final section of the COINS manual.
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>Section 5: Project Administration</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-6">
+        <h1 class="text-3xl font-bold text-black mb-2">
+            Section 5: Project Administration
+        </h1>
+        <p class="text-lg text-black leading-relaxed">
+            The last section of this manual deals with managing jobs and your company. 
+            Your overall goal in BIG is to increase your company's equity by as much as possible. Although your company is intended to be a corporation, as a simplification BIG does not deal with shareholders and payment of dividends. 
+            Since your equity is never reduced by payments of dividends, it should continue to grow over the course of the game (assuming your company is profitable). 
+            If you are not profitable, your equity will decrease. When you manage to keep your equity steadily growing over the course of the game, you will have demonstrated your mastery of BIG.
+        </p>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            This section of the manual deals with some of the issues you must face, and options you have available to manage both your jobs and your company. 
+        </p>
+    </section>
+
+    <!-- Topics List -->
+    <section>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+            Included in this section are the topics of:
+        </h2>
+    
+        <ol class="pl-4 space-y-2 text-lg text-black">
+            <li>
+                <a th:href="@{/manual/liquidated-damages}" class="hover:underline">
+                    <span class="font-bold">5.1</span> Liquidated Damages
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/change-orders}" class="hover:underline">
+                    <span class="font-bold">5.2</span> Change Orders
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/retention}" class="hover:underline">
+                    <span class="font-bold">5.3</span> Retention
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/subcontracting}" class="hover:underline">
+                    <span class="font-bold">5.4</span> Subcontracting
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/method-rescheduling}" class="hover:underline">
+                    <span class="font-bold">5.5</span> Method Rescheduling
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/overtime}" class="hover:underline">
+                    <span class="font-bold">5.6</span> Overtime
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/loans}" class="hover:underline">
+                    <span class="font-bold">5.7</span> Loans
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/billing}" class="hover:underline">
+                    <span class="font-bold">5.8</span> Billing
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/overbilling}" class="hover:underline">
+                    <span class="font-bold">5.9</span> Overbilling
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/income-tax}" class="hover:underline">
+                    <span class="font-bold">5.10</span> Income Tax
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/company-appraisal-metrics}" class="hover:underline">
+                    <span class="font-bold">5.11</span> Company Appraisal Metrics
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/main-office-personnel}" class="hover:underline">
+                    <span class="font-bold">5.12</span> Main Office Personnel
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/completing-big}" class="hover:underline">
+                    <span class="font-bold">5.13</span> Completing BIG
+                </a>
+            </li>
+        </ol>        
+    </section>    
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/market-analysis}" class="font-semibold hover:underline">
+        ← 4.4 Market Analysis
+    </a>
+    <a th:href="@{/manual/liquidated-damages}" class="font-semibold hover:underline">
+        Next → 5.1 Liquidated Damages
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

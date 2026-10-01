@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Statistics.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">Statistics.java</span></div><h1>Statistics.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.game;
+
+import java.util.Random;
+
+<span class="nc" id="L5">public class Statistics</span>
+{
+	/**
+	 * Returns a float from the normal curve, given the mean and stddev
+	 * of the range.  The value returned will be no less than min and no greater
+	 * than max.
+	 */
+	public static float normalFloat(float mean, float stddev, float min, float max)
+	{
+<span class="fc" id="L14">		Random r = new Random();</span>
+		float value;
+<span class="fc" id="L16">		float normal = (float) r.nextGaussian();</span>
+<span class="fc" id="L17">		value = (normal * stddev) + mean;</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">		if (value &gt; max)</span>
+<span class="fc" id="L19">		    value = max;</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">		if (value &lt; min)</span>
+<span class="fc" id="L21">		    value = min;</span>
+
+<span class="fc" id="L23">		return value;</span>
+	}
+
+	/**
+	 * Returns an int from the normal curve, given the mean and stddev
+	 * of the range.  The value returned will be no less than min and no greater
+	 * than max.
+	 */
+	public static int normalInt(int mean, float stddev, int min, int max)
+	{
+<span class="fc" id="L33">		return Math.round(normalFloat((float) mean, stddev, (float) min, (float) max));</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

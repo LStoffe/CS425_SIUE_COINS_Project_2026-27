@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportFromBidOpeningForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">ReportFromBidOpeningForm.java</span></div><h1>ReportFromBidOpeningForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.reports;
+import java.util.Vector;
+import java.util.TreeMap;
+import java.util.Iterator;
+
+import edu.calpoly.its.mas.big.game.*;
+import edu.calpoly.its.mas.big.users.company.Bid;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Job;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.Contractor;
+import edu.calpoly.lib.multimedia.big.game.ComputerControlledContractor;
+
+/**
+ * Holds the following information for a Report from Bid Opening:
+ * a list of Jobs, the winning bids on those jobs and a list of
+ * a game's companies (including Company X).  The information stored
+ * represents a single period in a single BIG game.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.4 $
+ */
+public class ReportFromBidOpeningForm extends ReportForm
+{
+	private TreeMap companies;
+	private TreeMap jobs;
+	private Vector jobsVector;
+	private TreeMap bids; 	// indexed by jobID
+
+	private String companyName;
+
+	/*
+	 * Creates empty containers for bids, jobs and companies.
+	 * Adds company X object to list of companies since CompanyX
+	 * is not stored as a company in the database
+	 */
+	public ReportFromBidOpeningForm()
+<span class="fc" id="L40">	{</span>
+<span class="fc" id="L41">		bids = new TreeMap();</span>
+<span class="fc" id="L42">		companies = new TreeMap();</span>
+<span class="fc" id="L43">		jobs = new TreeMap();</span>
+<span class="fc" id="L44">	}</span>
+
+	/**
+	 * Transforms a &lt;code&gt;Vector&lt;/code&gt; of jobs from the database
+	 * into a &lt;code&gt;TreeMap&lt;/code&gt; keyed by job ID.  This conversion
+	 * allows for simpler retrieval of &lt;code&gt;Job&lt;/code&gt; objects.
+	 *
+	 * @param jobs Vector of jobs from one period within one game.
+	 */
+	public void setJobs(Vector jobs)
+	{
+		// Transform the jobs Vector into a TreeMap keyed by jobID
+		// for easier access
+<span class="fc" id="L57">		Iterator jobsIter = jobs.iterator();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		while (jobsIter.hasNext()) {</span>
+<span class="nc" id="L59">			Job j = (Job) jobsIter.next();</span>
+<span class="nc" id="L60">			this.jobs.put(new Integer(j.getJobID()), j);</span>
+<span class="nc" id="L61">		}</span>
+<span class="fc" id="L62">		jobsVector = jobs;</span>
+<span class="fc" id="L63">	}</span>
+
+	/**
+	 * Transforms a &lt;code&gt;Vector&lt;/code&gt; of companies from the database
+	 * into a &lt;code&gt;TreeMap&lt;/code&gt; keyed by company ID.  This conversion
+	 * allows for simpler retrieval of specific &lt;code&gt;Contractor&lt;/code&gt; objects.
+	 *
+	 * @param companies Vector of companies involved in one BIG game
+	 */
+	public void setCompanies(Vector companies)
+	{
+		// Store the companies in a TreeMap for easier retrieval
+<span class="nc" id="L75">		Iterator cIter = companies.iterator();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		while (cIter.hasNext()) {</span>
+<span class="nc" id="L77">			Company c = (Company) cIter.next();</span>
+<span class="nc" id="L78">			this.companies.put(new Integer(c.getContractorID()), c);</span>
+<span class="nc" id="L79">		}</span>
+<span class="nc" id="L80">	}</span>
+
+	/**
+	 * Adds a &lt;code&gt;Vector&lt;/code&gt; of &lt;code&gt;ComputerControlledContractor&lt;/code&gt; from the database
+	 * to a &lt;code&gt;TreeMap&lt;/code&gt; keyed by company ID.  This conversion
+	 * allows for simpler retrieval of specific &lt;code&gt;Contractor&lt;/code&gt; objects.
+	 *
+	 * @param companies Vector of companies involved in one BIG game
+	 */
+	public void setCCCs(Vector companies)
+	{
+		// Store the companies in a TreeMap for easier retrieval
+<span class="nc" id="L92">		Iterator cIter = companies.iterator();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		while (cIter.hasNext()) {</span>
+<span class="nc" id="L94">			ComputerControlledContractor ccc = (ComputerControlledContractor) cIter.next();</span>
+<span class="nc" id="L95">			this.companies.put(new Integer(ccc.getContractorID()), ccc);</span>
+<span class="nc" id="L96">		}</span>
+<span class="nc" id="L97">	}</span>
+
+	/**
+	 * Adds a winning bid to this &lt;code&gt;Actionform&lt;/code&gt;'s
+	 * list or winning bids that will eventually be displayed
+	 * in the report
+	 *
+	 * @param bid the bid to be added
+	 */
+	public void addBid(Bid bid)
+	{
+<span class="fc" id="L108">		bids.put(new Integer(bid.getJobNumber()), bid);</span>
+<span class="fc" id="L109">	}</span>
+
+
+
+	public int getJobType(int jobID)
+	{
+<span class="fc" id="L115">		Job j = (Job) jobs.get(new Integer(jobID));</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">		if (null == j)</span>
+<span class="fc" id="L117">			return 1;</span>
+		else
+<span class="nc" id="L119">			return j.getJobType();</span>
+	}
+
+
+	public int getBidAmount(int jobID)
+	{
+<span class="fc" id="L125">		Bid bid = (Bid) bids.get(new Integer(jobID));</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">		if (null == bid)</span>
+<span class="fc" id="L127">			return 0;</span>
+		else
+<span class="fc" id="L129">			return (int) bid.getBidAmount();</span>
+	}
+
+
+	public String getCompanyTitle(int jobID)
+	{
+<span class="nc" id="L135">		Bid bid = (Bid) bids.get(new Integer(jobID));</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">		if (null == bid) {</span>
+<span class="nc" id="L137">			return &quot;&quot;;</span>
+		} else {
+<span class="nc" id="L139">			Contractor c = (Contractor) companies.get(new Integer(bid.getCompanyID()));</span>
+<span class="nc" id="L140">			return c.getTitle();</span>
+		}
+	}
+
+
+	public Vector getJobs()
+	{
+<span class="fc" id="L147">		return jobsVector;</span>
+	}
+
+	public void setCompanyName(String name)
+	{
+<span class="fc" id="L152">		companyName = name;</span>
+<span class="fc" id="L153">	}</span>
+
+	public String getCompanyName()
+	{
+<span class="fc" id="L157">		return companyName;</span>
+	}
+
+}
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

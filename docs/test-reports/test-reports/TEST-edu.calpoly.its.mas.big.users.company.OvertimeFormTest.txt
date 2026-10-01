@@ -1,0 +1,9 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.OvertimeFormTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+
+Testcase: testValidateDetectsNullParameters took 0.005 sec
+Testcase: testValidatePassesForValidOvertimeValues took 0 sec
+Testcase: testGetOvertimeArrayAfterSetOvertime took 0 sec
+Testcase: testSetAndGetOvertimeArrayAndSingleValues took 0 sec
+Testcase: testSetOvertimeWithZero took 0.001 sec
+Testcase: testValidateDetectsNonNumericAndNegativeValues took 0 sec

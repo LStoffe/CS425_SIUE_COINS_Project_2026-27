@@ -1,0 +1,12 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.company.NegotiationOfferFormTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.543 sec
+
+Testcase: testValidateValid took 0.528 sec
+Testcase: testValidateInvalidNumbers took 0.001 sec
+Testcase: testGetPercentProfit took 0 sec
+Testcase: testValidateNullParams took 0 sec
+Testcase: testSetPercentProfitString took 0 sec
+Testcase: testSetPercentProfitAndGetString took 0.005 sec
+Testcase: testSetCostStringAndGetCost took 0 sec
+Testcase: testSetCostAndGetCostString took 0 sec
+Testcase: testValidateNegativeNumbers took 0.001 sec

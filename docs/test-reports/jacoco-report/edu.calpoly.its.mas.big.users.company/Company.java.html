@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Company.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">Company.java</span></div><h1>Company.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.company;
+
+import java.util.StringTokenizer;
+
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.Contractor;
+
+
+/**
+ * Bean to store information about a company.
+ * A Company object can be put in the session to represent the current user, if the current user is a company,
+ * or the Company currently in question, if the user is an administrator.  Company objects can be retrieved from the session
+ * to obtain information from them about the current company.
+ *
+ * @version $Revision: 1.16 $ $Date: 2002/05/07 21:29:02 $
+ */
+public class Company extends edu.calpoly.its.mas.big.users.User implements Contractor
+{
+  private String title;
+  private long cashOnHand;
+  private int companyID;
+  private long equity;
+  private long wipLimit;
+  private int wipLimitPercent;
+  private long perJobLimit;
+  private int perJobLimitAsWIPPercent;
+  private int wip;
+  private int license;
+  private String grade;
+  private String grade1;
+  private String grade2;
+  private String grade3;
+  private String rankGrade;
+  private String rankGrade1;
+  private String rankGrade2;
+  private String rankGrade3;
+  private String missionStatement;
+  private String coreValues;
+  private String companyUrl;
+
+
+  public Company()
+  {
+<span class="fc" id="L47">     super();</span>
+<span class="fc" id="L48">  }</span>
+
+  public Company(String title,
+  				 String username,
+  				 String password,
+  				 long cashOnHand,
+  				 long wipLimit,
+  				 int wipLimitPercent,
+  				 long perJobLimit,
+  				 int perJobLimitAsWIPPercent,
+  				 int license,
+  				 String missionStatement,
+  				 String coreValues,
+  				 String companyUrl
+  				 )
+  {
+<span class="fc" id="L64">	 super(username, password);</span>
+<span class="fc" id="L65">	 this.title = title;</span>
+<span class="fc" id="L66">	 this.cashOnHand = cashOnHand;</span>
+<span class="fc" id="L67">	 equity = 0;</span>
+<span class="fc" id="L68">	 wip = 0;</span>
+<span class="fc" id="L69">	 this.wipLimit = wipLimit;</span>
+<span class="fc" id="L70">  	 this.wipLimitPercent = wipLimitPercent;</span>
+<span class="fc" id="L71">  	 this.perJobLimit = perJobLimit;</span>
+<span class="fc" id="L72">  	 this.perJobLimitAsWIPPercent = perJobLimitAsWIPPercent;</span>
+<span class="fc" id="L73">  	 this.license = license;</span>
+<span class="fc" id="L74">  	 this.missionStatement = missionStatement;</span>
+<span class="fc" id="L75">  	 this.coreValues = coreValues;</span>
+<span class="fc" id="L76">  	 this.companyUrl = companyUrl;</span>
+<span class="fc" id="L77">  }</span>
+
+  public Company(int companyID,
+  				 String title,
+  				 String username,
+  				 String password,
+  				 long cashOnHand,
+  				 long wipLimit,
+   				 int wipLimitPercent,
+   				 long perJobLimit,
+  				 int perJobLimitAsWIPPercent,
+  				 int license,
+  				 String missionStatement,
+  				 String coreValues,
+  				 String companyUrl
+  				 )
+  {
+<span class="fc" id="L94">  	 super(username, password);</span>
+
+<span class="fc" id="L96">     this.companyID = companyID;</span>
+<span class="fc" id="L97">  	 this.title = title;</span>
+<span class="fc" id="L98">  	 this.cashOnHand = cashOnHand;</span>
+<span class="fc" id="L99">  	 equity = 0;</span>
+<span class="fc" id="L100">  	 wip = 0;</span>
+<span class="fc" id="L101">  	 this.wipLimit = wipLimit;</span>
+<span class="fc" id="L102">  	 this.wipLimitPercent = wipLimitPercent;</span>
+<span class="fc" id="L103">  	 this.perJobLimit = perJobLimit;</span>
+<span class="fc" id="L104">  	 this.perJobLimitAsWIPPercent = perJobLimitAsWIPPercent;</span>
+<span class="fc" id="L105">  	 this.license = license;</span>
+<span class="fc" id="L106">  	 this.missionStatement = missionStatement;</span>
+<span class="fc" id="L107">  	 this.coreValues = coreValues;</span>
+<span class="fc" id="L108">  	 this.companyUrl = companyUrl;</span>
+<span class="fc" id="L109">  }</span>
+
+  public Company(int companyID,
+  				 String title,
+  				 String username,
+  				 String password,
+  				 long cashOnHand,
+  				 long equity,
+   				 int wip,
+  				 long wipLimit,
+  				 int wipLimitPercent,
+  				 long perJobLimit,
+  				 int perJobLimitAsWIPPercent,
+  				 int license,
+  				 String missionStatement,
+  				 String coreValues,
+  				 String companyUrl
+				)
+  {
+<span class="fc" id="L128">  	 super(username, password);</span>
+
+<span class="fc" id="L130">     this.companyID = companyID;</span>
+<span class="fc" id="L131">  	 this.title = title;</span>
+<span class="fc" id="L132">  	 this.cashOnHand = cashOnHand;</span>
+<span class="fc" id="L133">  	 this.equity = equity;</span>
+<span class="fc" id="L134">  	 this.wip=wip;</span>
+<span class="fc" id="L135">  	 this.wipLimit = wipLimit;</span>
+<span class="fc" id="L136">  	 this.wipLimitPercent = wipLimitPercent;</span>
+<span class="fc" id="L137">  	 this.perJobLimit = perJobLimit;</span>
+<span class="fc" id="L138">  	 this.perJobLimitAsWIPPercent = perJobLimitAsWIPPercent;</span>
+<span class="fc" id="L139">  	 this.license = license;</span>
+<span class="fc" id="L140">  	 this.missionStatement = missionStatement;</span>
+<span class="fc" id="L141">  	 this.coreValues = coreValues;</span>
+<span class="fc" id="L142">  	 this.companyUrl = companyUrl;</span>
+<span class="fc" id="L143">  }</span>
+
+
+  /**
+   * Adds amount to cash-on-hand
+   */
+  public void increaseCashOnHand(long amount)
+  {
+<span class="fc" id="L151">      cashOnHand = cashOnHand +  amount;</span>
+<span class="fc" id="L152">  }</span>
+
+  /**
+   * Subtracts amount from cash-on-hand.  Cash-on-hand can be negative
+   */
+  public void decreaseCashOnHand(long amount)
+  {
+<span class="fc" id="L159">	  cashOnHand = cashOnHand - amount;</span>
+<span class="fc" id="L160">  }</span>
+
+
+
+  //**************************************  Simple Set and Get Methods  ****************************************
+
+  public String getTitle()
+  {
+<span class="fc" id="L168">    return title;</span>
+  }
+
+  public void setTitle(String title)
+  {
+<span class="fc" id="L173">    this.title = title;</span>
+<span class="fc" id="L174">  }</span>
+
+  public long getCashOnHand()
+  {
+<span class="fc" id="L178">    return cashOnHand;</span>
+  }
+
+  public void setCashOnHand(long cashOnHand)
+  {
+<span class="fc" id="L183">    this.cashOnHand = cashOnHand;</span>
+<span class="fc" id="L184">  }</span>
+
+  public String getCashOnHandString()
+  {
+<span class="fc" id="L188">	  return NumberConverter.stringValue(cashOnHand);</span>
+  }
+
+  public int getCompanyID()
+  {
+<span class="fc" id="L193">    return companyID;</span>
+  }
+
+  public int getContractorID()
+  {
+<span class="fc" id="L198">    return companyID;</span>
+  }
+
+  public void setCompanyID(int companyID)
+  {
+<span class="fc" id="L203">	this.companyID = companyID;</span>
+<span class="fc" id="L204">  }</span>
+
+  public long getEquity()
+  {
+<span class="fc" id="L208">	  return equity;</span>
+  }
+
+  public void setEquity(long equity)
+  {
+<span class="fc" id="L213">	  this.equity = equity;</span>
+<span class="fc" id="L214">  }</span>
+
+  public int getWIP()
+  {
+<span class="fc" id="L218">	  return wip;</span>
+  }
+
+  public void setWIP(int wip)
+  {
+<span class="fc" id="L223">	  this.wip = wip;</span>
+<span class="fc" id="L224">  }</span>
+
+  public long getWIPLimit()
+  {
+<span class="fc" id="L228">	  return wipLimit;</span>
+  }
+
+  public void setWIPLimit(long wipLimit)
+  {
+<span class="fc" id="L233">	  this.wipLimit = wipLimit;</span>
+<span class="fc" id="L234">  }</span>
+
+  public int getWIPLimitPercent()
+  {
+<span class="fc" id="L238">	  return wipLimitPercent;</span>
+  }
+
+  public void setWIPLimitPercent(int wipLimitPercent)
+  {
+<span class="fc" id="L243">	  this.wipLimitPercent = wipLimitPercent;</span>
+<span class="fc" id="L244">  }</span>
+
+  public long getPerJobLimit()
+  {
+<span class="fc" id="L248">	  return perJobLimit;</span>
+  }
+
+  public void setPerJobLimit(long perJobLimit)
+  {
+<span class="fc" id="L253">	  this.perJobLimit = perJobLimit;</span>
+<span class="fc" id="L254">  }</span>
+
+  public int getPerJobLimitAsWIPPercent()
+  {
+<span class="fc" id="L258">  	  return perJobLimitAsWIPPercent;</span>
+  }
+
+  public void setPerJobLimitAsWIPPercent(int perJobLimitAsWIPPercent)
+  {
+<span class="fc" id="L263">	  this.perJobLimitAsWIPPercent = perJobLimitAsWIPPercent;</span>
+<span class="fc" id="L264">  }</span>
+
+  public int getLicense()
+  {
+<span class="fc" id="L268">	  return license;</span>
+  }
+
+  public void setLicense(int license)
+  {
+<span class="fc" id="L273">	  this.license = license;</span>
+<span class="fc" id="L274">  }</span>
+
+  public String getMissionStatement()
+  {
+<span class="fc" id="L278">    return missionStatement;</span>
+  }
+
+  public void setMissionStatement(String missionStatement)
+  {
+<span class="fc" id="L283">    this.missionStatement = missionStatement;</span>
+<span class="fc" id="L284">  }</span>
+
+  public String getCoreValues()
+  {
+<span class="fc" id="L288">    return coreValues;</span>
+  }
+
+  public void setCoreValues(String coreValues)
+  {
+<span class="fc" id="L293">    this.coreValues = coreValues;</span>
+<span class="fc" id="L294">  }</span>
+
+  public String getCompanyUrl()
+  {
+<span class="fc" id="L298">    return companyUrl;</span>
+  }
+
+  public void setCompanyUrl(String companyUrl)
+  {
+<span class="fc" id="L303">    this.companyUrl = companyUrl;</span>
+<span class="fc" id="L304">  }</span>
+
+
+  /**
+   * If a grade was set through the &lt;code&gt;setGrade&lt;/code&gt; method, that
+   * grade will be returned.  Otherwise, an empty &lt;code&gt;String&lt;/code&gt; will be
+   * returned.
+   */
+  public String getGrade()
+  {
+<span class="fc bfc" id="L314" title="All 2 branches covered.">	  if(this.grade != null)</span>
+	  {
+<span class="fc" id="L316">		  return grade;</span>
+	  }
+
+<span class="fc" id="L319">	  return &quot;&quot;;</span>
+  }
+
+  public String getGrade1()
+  {
+<span class="fc bfc" id="L324" title="All 2 branches covered.">	  if(this.grade1 != null)</span>
+	  {
+<span class="fc" id="L326">		  return grade1;</span>
+	  }
+
+<span class="fc" id="L329">	  return &quot;&quot;;</span>
+  }
+
+  public String getGrade2()
+  {
+<span class="fc bfc" id="L334" title="All 2 branches covered.">	  if(this.grade2 != null)</span>
+	  {
+<span class="fc" id="L336">		  return grade2;</span>
+	  }
+
+<span class="fc" id="L339">	  return &quot;&quot;;</span>
+  }
+
+  public String getGrade3()
+  {
+<span class="fc bfc" id="L344" title="All 2 branches covered.">	  if(this.grade3 != null)</span>
+	  {
+<span class="fc" id="L346">		  return grade3;</span>
+	  }
+
+<span class="fc" id="L349">	  return &quot;&quot;;</span>
+  }
+
+
+  public String getRankGrade()
+  {
+<span class="fc bfc" id="L355" title="All 2 branches covered.">	  if(this.rankGrade != null)</span>
+	  {
+<span class="fc" id="L357">		  return rankGrade;</span>
+	  }
+
+<span class="fc" id="L360">	  return &quot;&quot;;</span>
+  }
+
+  public String getRankGrade1()
+  {
+<span class="fc bfc" id="L365" title="All 2 branches covered.">	  if(this.rankGrade1 != null)</span>
+	  {
+<span class="fc" id="L367">		  return rankGrade1;</span>
+	  }
+
+<span class="fc" id="L370">	  return &quot;&quot;;</span>
+  }
+
+  public String getRankGrade2()
+  {
+<span class="fc bfc" id="L375" title="All 2 branches covered.">	  if(this.rankGrade2 != null)</span>
+	  {
+<span class="fc" id="L377">		  return rankGrade2;</span>
+	  }
+
+<span class="fc" id="L380">	  return &quot;&quot;;</span>
+  }
+
+  public String getRankGrade3()
+  {
+<span class="fc bfc" id="L385" title="All 2 branches covered.">	  if(this.rankGrade3 != null)</span>
+	  {
+<span class="fc" id="L387">		  return rankGrade3;</span>
+	  }
+
+<span class="fc" id="L390">	  return &quot;&quot;;</span>
+  }
+
+
+  /**
+   * Sets a &lt;code&gt;String&lt;/code&gt; to use as a grade.  This &lt;code&gt;String&lt;/code&gt;
+   * will be returned by the &lt;code&gt;getGrade&lt;/code&gt; method.
+   */
+  public void setGrade(String grade)
+  {
+<span class="fc" id="L400">      this.grade = grade;</span>
+<span class="fc" id="L401">  }</span>
+
+  public void setGrade1(String grade1)
+  {
+<span class="fc" id="L405">      this.grade1 = grade1;</span>
+<span class="fc" id="L406">  }</span>
+
+  public void setGrade2(String grade2)
+  {
+<span class="fc" id="L410">      this.grade2 = grade2;</span>
+<span class="fc" id="L411">  }</span>
+
+  public void setGrade3(String grade3)
+  {
+<span class="fc" id="L415">      this.grade3 = grade3;</span>
+<span class="fc" id="L416">  }</span>
+
+
+  public void setRankGrade(String rankGrade)
+  {
+<span class="fc" id="L421">      this.rankGrade = rankGrade;</span>
+<span class="fc" id="L422">  }</span>
+
+  public void setRankGrade1(String rankGrade1)
+  {
+<span class="fc" id="L426">      this.rankGrade1 = rankGrade1;</span>
+<span class="fc" id="L427">  }</span>
+
+  public void setRankGrade2(String rankGrade2)
+  {
+<span class="fc" id="L431">      this.rankGrade2 = rankGrade2;</span>
+<span class="fc" id="L432">  }</span>
+
+  public void setRankGrade3(String rankGrade3)
+  {
+<span class="fc" id="L436">      this.rankGrade3 = rankGrade3;</span>
+<span class="fc" id="L437">  }</span>
+
+
+  /**
+   * Used to sort &lt;code&gt;Company&lt;/code&gt; by title
+   */
+  public int compareTo(Object o)
+  {
+<span class="fc" id="L445">  	    Contractor c = (Contractor) o;</span>
+
+<span class="fc" id="L447">		String string1 = &quot;&quot;;</span>
+<span class="fc" id="L448">		String string2 = &quot;&quot;;</span>
+
+<span class="fc" id="L450">		StringTokenizer st1Tok = new StringTokenizer(c.getTitle(), &quot; &quot;);</span>
+
+<span class="fc bfc" id="L452" title="All 2 branches covered.">		while (st1Tok.hasMoreTokens())</span>
+		{
+<span class="fc" id="L454">			string1 += st1Tok.nextToken();</span>
+		}
+
+<span class="fc" id="L457">		StringTokenizer st2Tok = new StringTokenizer(title, &quot; &quot;);</span>
+
+<span class="fc bfc" id="L459" title="All 2 branches covered.">		while (st2Tok.hasMoreTokens())</span>
+		{
+<span class="fc" id="L461">			string2 += st2Tok.nextToken();</span>
+		}
+
+<span class="fc" id="L464">	    return string2.compareToIgnoreCase(string1);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

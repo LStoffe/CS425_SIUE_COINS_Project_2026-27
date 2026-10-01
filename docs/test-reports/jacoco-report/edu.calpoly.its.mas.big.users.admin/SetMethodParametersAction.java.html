@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetMethodParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">SetMethodParametersAction.java</span></div><h1>SetMethodParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+
+//JDK imports
+import java.util.Hashtable;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Determines whether the administrator wishes to set parameters or restore defaults for method parameters then performs the appropriate action.
+ * If the administrator wishes to store his current parameters settings to the database s/he would have pushed the set parameters button
+ * (which must have the name &quot;submit&quot;).  In this case the values currently in the MethodParametersForm in the session will be
+ * stored to the database.  These parameters will also be made the admin's defaults if the getMakeDefaults method of the form returns true.
+ * &lt;br&gt;&lt;br&gt;
+ * If the administrator pressed some other submit button (any name other than &quot;submit&quot; or &quot;cancel&quot;) the parameters in the MethodParametersForm
+ * will be overwritten with a copy of the admin's defaults for the current parameters.  These parameters will also be re-copied
+ * into the database overwriting the current game parameters.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.9 $ $Date: 2002/03/14 18:53:06 $
+ *
+ */
+<span class="fc" id="L54">public class SetMethodParametersAction extends BIGAction</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L61">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L64">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L70">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L72">			HttpSession session = request.getSession();</span>
+
+			//Retrieve the current game and admin from the session
+<span class="fc" id="L75">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+<span class="fc" id="L76">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+			//Get the game parameters from the action form
+<span class="fc" id="L79">			MethodParametersForm methodParametersForm = (MethodParametersForm) form;</span>
+
+            //Determine which submit button was pressed by the Administrator. If the SetParameters button is null the other RestoreDefaults button had to be pushed
+<span class="fc" id="L82">            String testSetParametersSubmitButton = (String) request.getParameter(&quot;submit&quot;);</span>
+
+			//The parameters are in arrays
+<span class="fc" id="L85">			String[] names = methodParametersForm.getMethodNames();</span>
+<span class="fc" id="L86">			int[] productivities = methodParametersForm.getProductivities();</span>
+<span class="fc" id="L87">			int[] laborCosts = methodParametersForm.getLaborCosts();</span>
+<span class="fc" id="L88">			int[] materialsCosts = methodParametersForm.getMaterialsCosts();</span>
+<span class="fc" id="L89">			int[] equipmentCosts = methodParametersForm.getEquipmentCosts();</span>
+<span class="fc" id="L90">			int[] subcontractorCosts = methodParametersForm.getSubcontractorCosts();</span>
+<span class="fc" id="L91">			int[] uncertaintyRanges = methodParametersForm.getUncertaintyRanges();</span>
+<span class="fc" id="L92">			int[] weatherSensitivities = methodParametersForm.getWeatherSensitivities();</span>
+<span class="fc" id="L93">			boolean[] subcontracted = methodParametersForm.getSubcontracted();</span>
+
+			//Create a database facade that will hold the connection since it will be used repeatedly
+<span class="fc" id="L96">			BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+			//Hashtable used to transfer the parameters to the database facade
+<span class="fc" id="L99">			Hashtable parameters = null;</span>
+
+<span class="fc bfc" id="L101" title="All 2 branches covered.">			if (testSetParametersSubmitButton != null)  //&quot;Set Parameters&quot; submit button was pushed.</span>
+			{
+				//Store the current parameters values from the form into the database
+				try
+				{
+<span class="fc bfc" id="L106" title="All 2 branches covered.">					for(int i = 0; i &lt; 5; i++)</span>
+					{
+<span class="fc" id="L108">						parameters = new Hashtable(9); //9 parameters to store</span>
+
+<span class="fc" id="L110">						parameters.put(&quot;Name&quot;, names[i]);</span>
+<span class="fc" id="L111">						parameters.put(&quot;Productivity&quot;, new Integer(productivities[i]));</span>
+<span class="fc" id="L112">						parameters.put(&quot;LaborCost&quot;, new Integer(laborCosts[i]));</span>
+<span class="fc" id="L113">						parameters.put(&quot;MaterialsCost&quot;, new Integer(materialsCosts[i]));</span>
+<span class="fc" id="L114">						parameters.put(&quot;EquipmentCost&quot;, new Integer(equipmentCosts[i]));</span>
+<span class="fc" id="L115">						parameters.put(&quot;SubcontractorCost&quot;, new Integer(subcontractorCosts[i]));</span>
+<span class="fc" id="L116">						parameters.put(&quot;ROU&quot;, new Integer(uncertaintyRanges[i]));</span>
+<span class="fc" id="L117">						parameters.put(&quot;WeatherSensitivity&quot;, new Integer(weatherSensitivities[i]));</span>
+<span class="fc" id="L118">						parameters.put(&quot;Subcontracted&quot;, new Boolean(subcontracted[i]));</span>
+
+<span class="fc" id="L120">						dbFacade.getGameParametersDBHandler().updateMethodParameters(game, methodParametersForm.getActivityTypeID(), i + 1, parameters);</span>
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">						if (methodParametersForm.getMakeDefaults())</span>
+						{
+							//Store these as default parameters for this admin as well
+<span class="fc" id="L125">							dbFacade.getGameParametersDBHandler().updateDefaultMethodParameters(admin, methodParametersForm.getActivityTypeID(), i + 1, parameters);</span>
+						}
+
+					}
+<span class="fc" id="L129">					dbFacade.close();</span>
+				}
+<span class="nc" id="L131">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+				   //Problem with the database
+<span class="nc" id="L134">				   log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L135">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L137">				catch(ParametersNotFoundException pnfe)</span>
+				{
+			       //All games should have parameters.  If there are no parameters found for a game it is an error.
+<span class="nc" id="L140">				   log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L141">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.notfound&quot;));</span>
+<span class="pc" id="L142">				}</span>
+			}
+			else //&quot;Restore defaults&quot; submit button was pushed
+			{
+				try
+				{
+<span class="fc bfc" id="L148" title="All 2 branches covered.">					for(int i = 0; i &lt; 5; i++)</span>
+					{
+					    //Retrieve this admins default parameters from the database and re-store them for the current game
+<span class="fc" id="L151">						parameters = dbFacade.getGameParametersDBHandler().getDefaultMethodParameters(admin, methodParametersForm.getActivityTypeID(), i+1);</span>
+<span class="fc" id="L152">						dbFacade.getGameParametersDBHandler().updateMethodParameters(game, methodParametersForm.getActivityTypeID(), i + 1, parameters);</span>
+
+						//Record the values in the arrays so they can be put in the Action Form
+<span class="fc" id="L155">						names[i] = (String) parameters.get(&quot;Name&quot;);</span>
+<span class="fc" id="L156">						productivities[i] = ( (Integer) parameters.get(&quot;Productivity&quot;)).intValue();</span>
+<span class="fc" id="L157">						laborCosts[i] = ( (Integer) parameters.get(&quot;LaborCost&quot;)).intValue();</span>
+<span class="fc" id="L158">						materialsCosts[i] = ( (Integer) parameters.get(&quot;MaterialsCost&quot;)).intValue();</span>
+<span class="fc" id="L159">						equipmentCosts[i] = ( (Integer) parameters.get(&quot;EquipmentCost&quot;)).intValue();</span>
+<span class="fc" id="L160">						subcontractorCosts[i] = ((Integer) parameters.get(&quot;SubcontractorCost&quot;)).intValue();</span>
+<span class="fc" id="L161">						uncertaintyRanges[i] = ( (Integer) parameters.get(&quot;ROU&quot;)).intValue();</span>
+<span class="fc" id="L162">						weatherSensitivities[i] = ( (Integer) parameters.get(&quot;WeatherSensitivity&quot;)).intValue();</span>
+<span class="fc" id="L163">						subcontracted[i] = ((Boolean) parameters.get(&quot;Subcontracted&quot;)).booleanValue();</span>
+
+					}
+<span class="fc" id="L166">					dbFacade.close();</span>
+
+					//The parameter vaules also need to be put in the Action Form so the user can see them
+<span class="fc" id="L169">					methodParametersForm.setMethodNames(names);</span>
+<span class="fc" id="L170">					methodParametersForm.setProductivities(productivities);</span>
+<span class="fc" id="L171">					methodParametersForm.setLaborCosts(laborCosts);</span>
+<span class="fc" id="L172">					methodParametersForm.setMaterialsCosts(materialsCosts);</span>
+<span class="fc" id="L173">					methodParametersForm.setEquipmentCosts(equipmentCosts);</span>
+<span class="fc" id="L174">					methodParametersForm.setSubcontractorCosts(subcontractorCosts);</span>
+<span class="fc" id="L175">					methodParametersForm.setUncertaintyRanges(uncertaintyRanges);</span>
+<span class="fc" id="L176">					methodParametersForm.setWeatherSensitivities(weatherSensitivities);</span>
+<span class="fc" id="L177">					methodParametersForm.setSubcontracted(subcontracted);</span>
+
+				}
+<span class="nc" id="L180">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+				   //Problem with the database
+<span class="nc" id="L183">				   log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L184">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L186">				catch(ParametersNotFoundException pnfe)</span>
+				{
+			       //All games should have parameters.  If there are no parameters found for a game it is an error.
+<span class="nc" id="L189">				   log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L190">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.notfound&quot;));</span>
+<span class="pc" id="L191">				}</span>
+
+
+			}
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L197" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L199">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L203">				saveErrors(request, errors);</span>
+<span class="nc" id="L204">	 	    	saveToken(request);</span>
+<span class="nc" id="L205">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+<span class="fc bfc" id="L207" title="All 2 branches covered.">			else if (testSetParametersSubmitButton != null)</span>
+			{
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L211">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;params_set\&quot;&quot;);</span>
+				}
+<span class="fc" id="L213">				return (mapping.findForward(&quot;params_set&quot;));</span>
+			}
+			else
+			{
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L219">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;defaults_restored\&quot;&quot;);</span>
+				}
+<span class="fc" id="L221">				return (mapping.findForward(&quot;defaults_restored&quot;));</span>
+			}
+
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L229">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L231">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

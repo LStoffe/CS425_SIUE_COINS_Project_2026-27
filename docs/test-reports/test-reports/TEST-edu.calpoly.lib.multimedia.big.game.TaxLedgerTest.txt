@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.lib.multimedia.big.game.TaxLedgerTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 sec
+
+Testcase: testGetTaxesEmptyArray took 0.003 sec
+Testcase: testGetTaxesAtThreshold took 0.001 sec
+Testcase: testGetTaxesZeroRate took 0 sec
+Testcase: testGetTaxesBelowThreshold took 0 sec
+Testcase: testGetTaxesSingleStatement took 0 sec
+Testcase: testGetTaxesRoundsCorrectly took 0 sec
+Testcase: testGetTaxesMultipleStatements took 0 sec

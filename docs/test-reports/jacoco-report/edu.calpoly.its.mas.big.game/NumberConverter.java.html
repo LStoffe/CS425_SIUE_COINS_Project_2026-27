@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NumberConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">NumberConverter.java</span></div><h1>NumberConverter.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.game;
+
+import java.lang.String;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Converts money amounts, in the form of ints/longs, into strings in the format
+ * used to display money amounts in BIG (and vice-versa).
+ *
+ * @author Kevin Craig
+ * @version $Revision: 1.5 $ $Date: 2002/02/07 00:43:09 $
+ */
+
+<span class="nc" id="L20">public class NumberConverter</span>
+{
+	private static NumberFormat nf;
+	private static Log log;
+
+	static
+	{
+<span class="fc" id="L27">		log = LogFactory.getLog(&quot;edu.calpoly.its.mas.big.game.NumberConverter&quot;);</span>
+<span class="fc" id="L28">	}</span>
+
+    /**
+     * Converts a float amount to a string with two decimal places
+     * added by me in November 2014
+     */
+	public static String stringFloatTo2Decimals(float number)
+	{
+<span class="fc" id="L36">        return String.format(&quot;%.2f&quot;, number);</span>
+    }
+
+    /**
+     * Converts an int money amount to a string in the format &quot;$1,234&quot;
+     */
+	public static String stringValue(int money)
+    {
+<span class="fc" id="L44">       	prepareNumberFormat();</span>
+<span class="fc" id="L45">		return nf.format(money);</span>
+    }
+
+	/**
+     * Converts a long money amount to a string in the format &quot;$1,234&quot;
+     */
+	public static String stringValue(long money)
+    {
+<span class="fc" id="L53">       	prepareNumberFormat();</span>
+<span class="fc" id="L54">		return nf.format(money);</span>
+    }
+
+    /**
+     * Converts a long number amount into a string with commas
+     */
+    public static String stringValueCommasOnly(long number)
+    {
+<span class="fc" id="L62">		boolean negative = false;</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		if(number &lt; 0)</span>
+<span class="fc" id="L65">		   negative = true;</span>
+
+<span class="fc" id="L67">		number = Math.abs(number);</span>
+
+<span class="fc" id="L69">	    nf = NumberFormat.getInstance();</span>
+<span class="fc" id="L70">		nf.setParseIntegerOnly(true);</span>
+<span class="fc" id="L71">        nf.setMaximumFractionDigits(0);</span>
+
+<span class="fc" id="L73">        String retValue = nf.format(number);</span>
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if(negative)</span>
+        {
+<span class="fc" id="L77">        	retValue = &quot;(&quot; + retValue + &quot;)&quot;;</span>
+		}
+
+<span class="fc" id="L80">        return retValue;</span>
+	}
+
+    /**
+     * Converts a String, in the money format used by BIG, into an int.
+     * The following String formats are considered valid: &quot;1234&quot;
+     * &quot;1,234&quot; &quot;$1234&quot; &quot;1,234&quot; &lt;br&gt;
+     * &lt;br&gt;Strings with decimal digits will be accepted but truncated to integers.
+     * &lt;br&gt;-1 is returned for invalid strings.
+     */
+    public static int intValue(String money)
+    {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L94">			log.debug(&quot;converting &quot; + money + &quot; to int&quot;);</span>
+		}
+
+<span class="fc" id="L97">		boolean negative = isNegative(money);</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">		if(negative)</span>
+<span class="fc" id="L99">		    money = removeNegatingCharacters(money);</span>
+
+
+        //Add a '$' to the start of the string is there isn't one
+<span class="fc" id="L103">        int k = money.indexOf('$');</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if(k != 0)</span>
+        {
+<span class="fc" id="L106">           	money = &quot;$&quot; + money;</span>
+        }
+<span class="fc" id="L108">		int value = -1;</span>
+<span class="fc" id="L109">		prepareNumberFormat();</span>
+		try
+		{
+<span class="fc" id="L112">			Long l = (Long) nf.parse(money);</span>
+<span class="fc" id="L113">                        value = l.intValue();</span>
+		}
+<span class="fc" id="L115">		catch(ParseException pe)</span>
+		{
+<span class="fc" id="L117">			value = -1;</span>
+<span class="fc" id="L118">		}</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">		if(negative)</span>
+		{
+<span class="fc" id="L122">			value = -value;</span>
+		}
+
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L127">			log.debug(&quot;int value &quot; + value);</span>
+		}
+<span class="fc" id="L129">		return value;</span>
+    }
+
+    /**
+     * Converts a String, in the money format used by BIG, into a long.
+     * The following String formats are considered valid: &quot;1234&quot;
+     * &quot;1,234&quot; &quot;$1234&quot; &quot;$1,234&quot; &lt;br&gt;
+     * &lt;br&gt;Strings with decimal digits will be accepted but truncated to integers.
+     * &lt;br&gt;-1 is returned for invalid strings.
+     */
+    public static long longValue(String money)
+    {
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L143">			log.debug(&quot;converting &quot; + money + &quot; to long&quot;);</span>
+		}
+
+<span class="fc" id="L146">		boolean negative = isNegative(money);</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">		if(negative)</span>
+<span class="fc" id="L148">		    money = removeNegatingCharacters(money);</span>
+
+        //Add a '$' to the start of the string is there isn't one
+<span class="fc" id="L151">        int k = money.indexOf('$');</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if(k != 0)</span>
+        {
+<span class="fc" id="L154">           	money = &quot;$&quot; + money;</span>
+        }
+<span class="fc" id="L156">		long value = -1;</span>
+<span class="fc" id="L157">		prepareNumberFormat();</span>
+		try
+		{
+<span class="fc" id="L160">			Long l = (Long) nf.parse(money);</span>
+<span class="fc" id="L161">                        value = l.longValue();</span>
+		}
+<span class="fc" id="L163">		catch(ParseException pe)</span>
+		{
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">			if (log.isDebugEnabled())</span>
+<span class="nc" id="L166">				log.debug(&quot;Unparseable number: &quot; + money, pe);</span>
+<span class="fc" id="L167">			value = -1;</span>
+<span class="fc" id="L168">		}</span>
+
+<span class="fc bfc" id="L170" title="All 2 branches covered.">		if(negative)</span>
+		{
+<span class="fc" id="L172">			value = -value;</span>
+		}
+
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L177">			log.debug(&quot;long value &quot; + value);</span>
+		}
+<span class="fc" id="L179">		return value;</span>
+    }
+
+    /**
+     * Returns true if the given String is in a money format known to
+     * BIG
+     */
+    public static boolean isValidMoneyString(String money)
+    {
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L190">			log.debug(&quot;checking if &quot; + money + &quot; is valid money string&quot;);</span>
+		}
+
+<span class="fc" id="L193">		boolean valid = true;</span>
+
+<span class="fc" id="L195">		money = removeNegatingCharacters(money);</span>
+
+        //Add a '$' to the start of the string is there isn't one
+<span class="fc" id="L198">        int k = money.indexOf('$');</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        if(k != 0)</span>
+        {
+<span class="fc" id="L201">           	money = &quot;$&quot; + money;</span>
+        }
+
+<span class="fc" id="L204">		prepareNumberFormat();</span>
+		try
+		{
+<span class="fc" id="L207">			Number n = nf.parse(money);</span>
+		}
+<span class="fc" id="L209">		catch(ParseException pe)</span>
+		{
+<span class="fc" id="L211">			valid = false;</span>
+<span class="fc" id="L212">		}</span>
+<span class="fc" id="L213">		return valid;</span>
+    }
+
+	private static void prepareNumberFormat()
+    {
+<span class="fc" id="L218">        Locale.setDefault(Locale.US);</span>
+<span class="fc" id="L219">       	nf = NumberFormat.getCurrencyInstance();</span>
+<span class="fc" id="L220">		nf.setParseIntegerOnly(true);</span>
+<span class="fc" id="L221">        nf.setMaximumFractionDigits(0);</span>
+<span class="fc" id="L222">	}</span>
+
+	//Determines whether or not the String parameter represents a
+	//negative amount of money (if the String represents a money amount at all).
+	//There are two possible indicators that an amount of money is negative.  The
+	//first is the first character in the String being a hypen ('-').
+	//The second indicator is the first character being a left parentheses ('(').
+	//If either of this characters is the first character the money amount is considered
+	//negative
+	//Return true if the string is negative, false if positive
+	private static boolean isNegative(String money)
+	{
+<span class="fc bfc" id="L234" title="All 2 branches covered.">		if(money.indexOf('-') == 0)</span>
+		{
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L238">				log.debug(money + &quot; is negative&quot;);</span>
+			}
+<span class="fc" id="L240">			return true;</span>
+	  	}
+<span class="fc bfc" id="L242" title="All 2 branches covered.">		if(money.indexOf('(') == 0)</span>
+		{
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L246">				log.debug(money + &quot; is negative&quot;);</span>
+			}
+<span class="fc" id="L248">		    return true;</span>
+		}
+
+<span class="fc" id="L251">		return false;</span>
+	}
+
+
+	//Returns a String where characters that indicate the amount of money is negative have been removed.
+	//If the first character is a '-' is it removed.
+
+	//If the first character is a '(' is it removed.
+	//If the first character is a '(' and the last character is a ')' they are both removed
+	private static String removeNegatingCharacters(String money)
+	{
+<span class="fc bfc" id="L262" title="All 2 branches covered.">		if(money.indexOf('-') == 0)</span>
+<span class="fc" id="L263">		  return money.substring(1, money.length());</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">		if(money.indexOf('(') == 0)</span>
+		{
+<span class="fc bfc" id="L266" title="All 2 branches covered.">			if(money.indexOf(')') == money.length()-1)</span>
+			{
+<span class="fc" id="L268">			  return money.substring(1, money.length()-1);</span>
+			}
+			else
+<span class="fc" id="L271">			  return money.substring(1, money.length());</span>
+		}
+
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L276">			log.debug(&quot;After removing negating characters, string is &quot; + money);</span>
+		}
+
+<span class="fc" id="L279">		return money;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

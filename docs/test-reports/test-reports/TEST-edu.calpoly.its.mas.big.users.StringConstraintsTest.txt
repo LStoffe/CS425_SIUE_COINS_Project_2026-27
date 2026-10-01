@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.its.mas.big.users.StringConstraintsTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 sec
+
+Testcase: testUsernameLimits took 0.002 sec
+Testcase: testPasswordLimits took 0 sec
+Testcase: testGameNameLimits took 0 sec
+Testcase: testPasswordWithinLimits took 0 sec
+Testcase: testUsernameWithinLimits took 0 sec
+Testcase: testCompanyTitleLimits took 0.001 sec
+Testcase: testGameNameWithinLimits took 0 sec

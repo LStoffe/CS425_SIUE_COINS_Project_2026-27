@@ -1,0 +1,6 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.BidOnJobFormTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.107 sec
+
+Testcase: testValidateNonHeavyBidAmountScenarios took 0.092 sec
+Testcase: testValidateHeavyJobRequiresUnitPrices took 0 sec
+Testcase: testGettersSettersAndTotals took 0.008 sec

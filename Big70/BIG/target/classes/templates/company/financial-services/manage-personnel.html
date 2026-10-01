@@ -1,0 +1,1015 @@
+<!--
+  manage-personnel.html
+  This page allows a company to manage personnel as part of its financial services.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Employee List</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Employee List</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-7xl">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">Current Employee Roster</h3>
+
+      <form method="post" th:action="@{/company/employee-list/update}">
+
+        <div class="overflow-x-auto border border-gray-300 rounded-lg">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-100 border-b border-gray-300">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold">Employee Type</th>
+                <th class="px-4 py-3 text-right font-semibold">Pay per Period</th>
+                <th class="px-4 py-3 text-center font-semibold"># Currently Employed</th>
+                <th class="px-4 py-3 text-right font-semibold">Total Cost</th>
+                <th class="px-4 py-3 text-center font-semibold">Hire / Layoff</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <!-- CEO -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/ceo.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    CEO
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$25,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_CEO" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Vice President -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/vp.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Vice President
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$20,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_VicePresident" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Operations Manager -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/om.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Operations Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$18,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_OperationsManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Comptroller -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/comptroller.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Comptroller
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$17,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_Comptroller" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Project Executive -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/project-executive.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Project Executive
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$17,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_ProjectExecutive" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Chief Accountant -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/chief-accountant.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Chief Accountant
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$15,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_ChiefAccountant" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Project Accountant -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/project-accountant.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Project Accountant
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$12,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_ProjectAccountant" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Staff Accountant -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/staff-accountant.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Staff Accountant
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$7,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_StaffAccountant" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Accounts Payable Clerk -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/accounts-payable-clerk.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Accounts Payable Clerk
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$5,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_AccountsPayableClerk" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Accounts Receivable Clerk -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/accounts-receivable-clerk.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Accounts Receivable Clerk
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$5,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_AccountsReceivableClerk" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Receptionist -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/receptionist.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Receptionist
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$3,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_Receptionist" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Secretary -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/secretary.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Secretary
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$4,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_Secretary" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Administrative Assistant -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/administrative-assistant.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Administrative Assistant
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$6,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_AdministrativeAssistant" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Office Engineer -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/office-engineer.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Office Engineer
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$9,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_OfficeEngineer" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Office Manager -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/office-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Office Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$10,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_OfficeManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Blue Print Clerk -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/blue-print-clerk.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Blue Print Clerk
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$3,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_BluePrintClerk" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Intern Student -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/intern-student.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Intern Student
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$4,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_InternStudent" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Coop Student -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/coop-student.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Coop Student
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$5,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_CoopStudent" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Contracts Coordinator -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/contracts-coordinator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Contracts Coordinator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$5,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_ContractsCoordinator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Project Coordinator -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/project-coordinator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Project Coordinator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$6,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_ProjectCoordinator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Senior Project Coordinator -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/senior-project-coordinator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Senior Project Coordinator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$7,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_SeniorProjectCoordinator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Assistant Project Manager -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/assistant-project-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Assistant Project Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$10,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_AssistantProjectManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Project Manager -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/project-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Project Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$12,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_ProjectManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Senior Project Manager -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/senior-project-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Senior Project Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$14,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_SeniorProjectManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Assistant Estimator -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/assistant-estimator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Assistant Estimator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$10,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_AssistantEstimator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Estimator -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/estimator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Estimator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$13,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_Estimator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Senior Estimator -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/senior-estimator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Senior Estimator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$15,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_SeniorEstimator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Estimating Coordinator -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/estimating-coordinator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Estimating Coordinator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$5,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_EstimatingCoordinator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Takeoff Person -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/takeoff-person.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Takeoff Person
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$8,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_TakeoffPerson" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Preconstruction Services Manager -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/preconstruction-services-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Preconstruction Services Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$13,500</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_PreconstructionServicesManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Warehouse Manager -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/warehouse-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Warehouse Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$9,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_WarehouseManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Warehouse Teamster -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/warehouse-teamster.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Warehouse Teamster
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$10,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_WarehouseTeamster" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Warehouse Assistant -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/warehouse-assistant.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Warehouse Assistant
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$4,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_WarehouseAssistant" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Cabinet Shop Manager -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/cabinet-shop-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Cabinet Shop Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$9,200</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_CabinetShopManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Concrete Services Manager -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/concrete-services-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Concrete Services Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$10,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_ConcreteServicesManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Human Resources Manager -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/human-resources-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Human Resources Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$10,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_HumanResourcesManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Safety Manager -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/safety-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Safety Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$10,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_SafetyManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Marketing Manager -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/marketing-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Marketing Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$15,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_MarketingManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Marketing Coordinator -->
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/marketing-coordinator.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Marketing Coordinator
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$5,800</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_MarketingCoordinator" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Business Development Manager -->
+              <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-2">
+                  <a href="/images/job-descriptions/business-development-manager.pdf" target="_blank"
+                    class="font-medium hover:text-amber-600 hover:underline transition">
+                    Business Development Manager
+                  </a>
+                </td>
+                <td class="px-4 py-2 text-right">$15,000</td>
+                <td class="px-4 py-2 text-center">0</td>
+                <td class="px-4 py-2 text-right">$0</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <button type="button" onclick="adjustCount(this, -1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">−</button>
+                    <input type="number" name="hire_BusinessDevelopmentManager" value="0" min="-99" max="99"
+                      class="w-16 text-center border border-gray-300 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="button" onclick="adjustCount(this, 1)"
+                      class="w-7 h-7 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg leading-none transition">+</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Total Row -->
+              <tr class="bg-gray-100 border-t-2 border-gray-400 font-bold">
+                <td class="px-4 py-3">Total:</td>
+                <td class="px-4 py-3"></td>
+                <td class="px-4 py-3 text-center">0</td>
+                <td class="px-4 py-3 text-right" colspan="2">$0 ($0 after hires/layoffs)</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-between mt-8">
+          <a th:href="@{/company/financial-services-menu}" 
+             class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block">
+            Cancel
+          </a>
+          <div class="space-x-3">
+            <button type="button" onclick="resetAll()"
+              class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+              Reset
+            </button>
+            <button type="submit"
+              class="px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+              Submit Changes
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+  <script>
+    function adjustCount(btn, delta) {
+      const input = btn.parentElement.querySelector('input[type="number"]');
+      input.value = parseInt(input.value || 0) + delta;
+    }
+
+    function resetAll() {
+      document.querySelectorAll('input[type="number"]').forEach(input => input.value = 0);
+    }
+  </script>
+
+</body>
+</html>

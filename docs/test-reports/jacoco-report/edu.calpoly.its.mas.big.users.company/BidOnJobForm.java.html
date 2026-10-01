@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BidOnJobForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">BidOnJobForm.java</span></div><h1>BidOnJobForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+import java.util.Vector;
+import java.util.ArrayList;
+import java.util.TreeMap;
+import java.lang.Integer;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.lang.NumberFormatException;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.NumberConverter;
+import edu.calpoly.its.mas.big.users.company.Bid;
+
+/**
+ * &lt;code&gt;ActionForm&lt;/code&gt; which holds a user's bid and the methods
+ * chosen as part of the bidding process.
+ *
+ * @author Andrew Von Dollen
+ * @version $Revision: 1.11 $ $Date: 2002/03/14 20:11:32 $
+ */
+<span class="fc" id="L29">public class BidOnJobForm extends ActionForm</span>
+{
+	private int jobID;
+
+	private long bidAmount;
+<span class="fc" id="L34">	private String bidAmountString = &quot;&quot;;</span>
+
+	/* IDs of methods to use for each Activity */
+<span class="fc" id="L37">	private int[] methods = new int[9];</span>
+
+	/* String[] of Method names for each Activity */
+<span class="fc" id="L40">	private String[][] methodNames = new String[18][5];</span>
+
+	/* The job on which we are bidding */
+	private Job job;
+
+	/* For &lt;logic:iterate&gt; */
+<span class="fc" id="L46">	private static final String[] activityIDs = {</span>
+		&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot; };
+
+	/* For Heavy Jobs &lt;logic:iterate&gt; */
+<span class="fc" id="L50">	private static final String[] activityHvyIDs = {</span>
+		&quot;10&quot;, &quot;11&quot;, &quot;12&quot;, &quot;13&quot;, &quot;14&quot;, &quot;15&quot;, &quot;16&quot;, &quot;17&quot;, &quot;18&quot; };
+
+	/* There's probably a better way to do this... */
+<span class="fc" id="L54">	private static final String[] methodIDs = {</span>
+		&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot; };
+
+<span class="fc" id="L57">    private int[] quantities = new int[9];</span>
+<span class="fc" id="L58">    private double[] unitPrices = new double[9];</span>
+<span class="fc" id="L59">    private double[] totals = new double[9];</span>
+    private double theTotalBid;
+
+<span class="fc" id="L62">    NumberFormat formatter2 = new DecimalFormat(&quot;#,##0.00&quot;);</span>
+<span class="fc" id="L63">    NumberFormat formatter3 = new DecimalFormat(&quot;#0.000&quot;);</span>
+
+
+	/**
+	 * Checks that a bid amount was entered and that it is a
+	 * valid amount of money.
+	 */
+    public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+    {
+<span class="fc" id="L72">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if(job.getTypeModifier() != Job.HEAVY)</span>
+        {
+<span class="fc" id="L76">           boolean nullParams = false;</span>
+<span class="fc" id="L77">           boolean integerParseError = false;</span>
+<span class="fc" id="L78">           boolean negativeFound = false;</span>
+
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">		   if ((bidAmountString == null) || (bidAmountString.trim().length() &lt; 1)) nullParams = true;</span>
+		   else
+		   {
+			  try
+			  {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">				 if (!NumberConverter.isValidMoneyString(bidAmountString)) integerParseError = true;</span>
+<span class="fc" id="L86">				 else bidAmount = NumberConverter.longValue(bidAmountString);</span>
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">				 if (bidAmount &lt; 0) negativeFound = true;</span>
+			  }
+<span class="nc" id="L90">			  catch (NumberFormatException nfe)</span>
+			  {
+<span class="nc" id="L92">				 integerParseError = true;</span>
+<span class="fc" id="L93">			  }</span>
+		   }
+
+<span class="fc bfc" id="L96" title="All 2 branches covered.">           if (nullParams == true) {</span>
+<span class="fc" id="L97">               errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+           }
+
+<span class="fc bfc" id="L100" title="All 2 branches covered.">           if (integerParseError == true) {</span>
+<span class="fc" id="L101">               errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+           }
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">           if (negativeFound == true) {</span>
+<span class="fc" id="L105">               errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+           }
+	    }
+
+<span class="fc bfc" id="L109" title="All 2 branches covered.">	    if(job.getTypeModifier() == Job.HEAVY)</span>
+        {
+<span class="fc" id="L111">			boolean nullParams = false;</span>
+
+<span class="fc bfc" id="L113" title="All 2 branches covered.">			for(int i = 0; i &lt; 9; i++)</span>
+			{
+<span class="pc bpc" id="L115" title="1 of 4 branches missed.">				if (quantities[i] != 0 &amp;&amp; unitPrices[i] == 0) nullParams = true;</span>
+			}
+<span class="fc bfc" id="L117" title="All 2 branches covered.">			if (nullParams == true) {</span>
+<span class="fc" id="L118">               errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.unitprice&quot;));</span>
+		    }
+        }
+<span class="fc" id="L121">		return errors;</span>
+	}
+
+
+	public int getJobID()
+	{
+<span class="fc" id="L127">		return this.jobID;</span>
+	}
+	public void setJobID(int jobID)
+	{
+<span class="fc" id="L131">		this.jobID = jobID;</span>
+<span class="fc" id="L132">	}</span>
+
+	public int getJobType()
+	{
+<span class="nc" id="L136">		return job.getJobType();</span>
+	}
+
+	public String getBidAmount()
+	{
+<span class="fc" id="L141">		return bidAmountString;</span>
+	}
+	public void setBidAmount(String bidAmount)
+	{
+<span class="fc" id="L145">		bidAmountString = bidAmount;</span>
+<span class="fc" id="L146">	}</span>
+
+	public long getBidAmountLong()
+	{
+<span class="fc" id="L150">		return bidAmount;</span>
+	}
+	public void setBidAmountLong(long bidAmount)
+	{
+<span class="fc" id="L154">		this.bidAmount = bidAmount;</span>
+<span class="fc" id="L155">	}</span>
+
+	public int getMethodForActivity(int activityNumber)
+	{
+<span class="fc" id="L159">		return methods[activityNumber - 1];</span>
+	}
+	public void setMethodForActivity(int activityNumber, int method)
+	{
+<span class="fc" id="L163">		methods[activityNumber - 1] = method;</span>
+<span class="fc" id="L164">	}</span>
+
+	public int getMethodForHeavyActivity(int activityNumber)
+	{
+<span class="fc" id="L168">		return methods[activityNumber - 10];</span>
+	}
+	public void setMethodForHeavyActivity(int activityNumber, int method)
+	{
+<span class="fc" id="L172">		methods[activityNumber - 10] = method;</span>
+<span class="fc" id="L173">	}</span>
+
+	public int[] getMethods()
+	{
+<span class="fc" id="L177">		return methods;</span>
+	}
+	public void setMethods(int[] methods)
+	{
+<span class="fc" id="L181">		this.methods = methods;</span>
+<span class="fc" id="L182">	}</span>
+
+	public String[] getMethodNames(int activityNumber)
+	{
+<span class="fc" id="L186">		return (String[]) methodNames[activityNumber - 1];</span>
+	}
+	public void setMethodNames(int activityNumber, String[] methodNames)
+	{
+<span class="fc" id="L190">		this.methodNames[activityNumber - 1]  = methodNames;</span>
+<span class="fc" id="L191">	}</span>
+
+	public Job getJob()
+	{
+<span class="nc" id="L195">		return job;</span>
+	}
+	public void setJob(Job job)
+	{
+<span class="fc" id="L199">		this.job = job;</span>
+<span class="fc" id="L200">	}</span>
+
+	/* For &lt;logic:iterate&gt; */
+	public String[] getActivityIDs()
+	{
+<span class="nc" id="L205">		return activityIDs;</span>
+	}
+
+	/* For Heavy Jobs &lt;logic:iterate&gt; */
+	public String[] getActivityHvyIDs()
+	{
+<span class="nc" id="L211">		return activityHvyIDs;</span>
+	}
+
+	public String[] getMethodIDs()
+	{
+<span class="nc" id="L216">		return methodIDs;</span>
+	}
+
+
+
+	public String getQuantityString(int activityNumber)
+	{
+<span class="fc" id="L223">		String quantity = Integer.toString(quantities[activityNumber - 10]);</span>
+<span class="fc" id="L224">		return quantity;</span>
+	}
+
+	public int[] getQuantities()
+	{
+<span class="nc" id="L229">		return quantities;</span>
+	}
+	public void setQuantities(int[] quantities)
+	{
+<span class="fc" id="L233">		this.quantities = quantities;</span>
+<span class="fc" id="L234">	}</span>
+
+	public String getTotalsString(int activityNumber)
+	{
+<span class="fc" id="L238">		return formatter2.format(totals[activityNumber - 10]);</span>
+	}
+
+	public double[] getTotals()
+	{
+<span class="nc" id="L243">		return totals;</span>
+	}
+	public void setTotals(double[] totals)
+	{
+<span class="fc" id="L247">		this.totals = totals;</span>
+<span class="fc" id="L248">	}</span>
+
+	public String getTheAllTotalBid()
+	{
+<span class="fc" id="L252">        theTotalBid = 0;</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">        for (int i = 0; i &lt; 9; i++)</span>
+        {
+<span class="fc" id="L255">			theTotalBid = theTotalBid + totals[i];</span>
+		}
+<span class="fc" id="L257">		return formatter2.format(theTotalBid);</span>
+	}
+
+	public double getTheTotalBid()
+	{
+<span class="fc" id="L262">        theTotalBid = 0;</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        for (int i = 0; i &lt; 9; i++)</span>
+        {
+<span class="fc" id="L265">			theTotalBid = theTotalBid + totals[i];</span>
+		}
+<span class="fc" id="L267">		return theTotalBid;</span>
+	}
+    public void setTheTotalBid(double theTotalBid)
+	{
+<span class="nc" id="L271">		this.theTotalBid = theTotalBid;</span>
+<span class="nc" id="L272">	}</span>
+
+
+
+	public void setUnitPrices(double[] unitPrices)
+	{
+<span class="fc" id="L278">		this.unitPrices = unitPrices;</span>
+<span class="fc" id="L279">	}</span>
+
+    public double[] getUnitPrices()
+    {
+<span class="fc" id="L283">		return unitPrices;</span>
+	}
+
+	//note: in the JSP, unitPrices10 is the first element in the array
+	public String getUnitPrices10()
+	{
+<span class="fc" id="L289">		return formatter2.format( unitPrices[0] );</span>
+	}
+	public void setUnitPrices10(String thePrice)
+	{
+<span class="fc" id="L293">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L296">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L298">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L301">		}</span>
+<span class="fc" id="L302">		this.unitPrices[0] = testme;</span>
+<span class="fc" id="L303">	}</span>
+
+	public String getUnitPrices11()
+	{
+<span class="fc" id="L307">		return formatter2.format( unitPrices[1] );</span>
+	}
+	public void setUnitPrices11(String thePrice)
+	{
+<span class="fc" id="L311">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L314">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L316">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L319">		}</span>
+<span class="fc" id="L320">		this.unitPrices[1] = testme;</span>
+<span class="fc" id="L321">	}</span>
+
+	public String getUnitPrices12()
+	{
+<span class="fc" id="L325">		return formatter2.format( unitPrices[2] );</span>
+	}
+	public void setUnitPrices12(String thePrice)
+	{
+<span class="fc" id="L329">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L332">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L334">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L337">		}</span>
+<span class="fc" id="L338">		this.unitPrices[2] = testme;</span>
+<span class="fc" id="L339">	}</span>
+
+	public String getUnitPrices13()
+	{
+<span class="fc" id="L343">		return formatter2.format( unitPrices[3] );</span>
+	}
+	public void setUnitPrices13(String thePrice)
+	{
+<span class="fc" id="L347">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L350">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L352">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L355">		}</span>
+<span class="fc" id="L356">		this.unitPrices[3] = testme;</span>
+<span class="fc" id="L357">	}</span>
+
+	public String getUnitPrices14()
+	{
+<span class="fc" id="L361">		return formatter2.format( unitPrices[4] );</span>
+	}
+	public void setUnitPrices14(String thePrice)
+	{
+<span class="fc" id="L365">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L368">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L370">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L373">		}</span>
+<span class="fc" id="L374">		this.unitPrices[4] = testme;</span>
+<span class="fc" id="L375">	}</span>
+
+	public String getUnitPrices15()
+	{
+<span class="fc" id="L379">		return formatter2.format( unitPrices[5] );</span>
+	}
+	public void setUnitPrices15(String thePrice)
+	{
+<span class="fc" id="L383">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L386">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L388">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L391">		}</span>
+<span class="fc" id="L392">		this.unitPrices[5] = testme;</span>
+<span class="fc" id="L393">	}</span>
+
+	public String getUnitPrices16()
+	{
+<span class="fc" id="L397">		return formatter2.format( unitPrices[6] );</span>
+	}
+	public void setUnitPrices16(String thePrice)
+	{
+<span class="fc" id="L401">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L404">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L406">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L409">		}</span>
+<span class="fc" id="L410">		this.unitPrices[6] = testme;</span>
+<span class="fc" id="L411">	}</span>
+
+	public String getUnitPrices17()
+	{
+<span class="fc" id="L415">		return formatter2.format( unitPrices[7] );</span>
+	}
+	public void setUnitPrices17(String thePrice)
+	{
+<span class="fc" id="L419">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L422">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L424">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L427">		}</span>
+<span class="fc" id="L428">		this.unitPrices[7] = testme;</span>
+<span class="fc" id="L429">	}</span>
+
+	public String getUnitPrices18()
+	{
+<span class="fc" id="L433">		return formatter2.format( unitPrices[8] );</span>
+	}
+	public void setUnitPrices18(String thePrice)
+	{
+<span class="fc" id="L437">		double testme = 0;</span>
+		try
+		{
+<span class="fc" id="L440">			testme = Double.parseDouble(thePrice);</span>
+		}
+<span class="nc" id="L442">		catch (NumberFormatException nfe)</span>
+		{
+
+<span class="fc" id="L445">		}</span>
+<span class="fc" id="L446">		this.unitPrices[8] = testme;</span>
+<span class="fc" id="L447">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

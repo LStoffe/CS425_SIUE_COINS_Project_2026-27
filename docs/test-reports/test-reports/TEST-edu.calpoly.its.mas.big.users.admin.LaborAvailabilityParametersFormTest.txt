@@ -1,0 +1,12 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.LaborAvailabilityParametersFormTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+
+Testcase: testValidatePassesForValidData took 0.004 sec
+Testcase: testValidateDetectsNegativeValues took 0.001 sec
+Testcase: testSetAndGetArraysRoundTrip took 0.001 sec
+Testcase: testResetClearsMakeDefaults took 0 sec
+Testcase: testGetSetLaborAvailMedianStringsForMultiplePeriods took 0 sec
+Testcase: testValidateDetectsInvalidNumberFormat took 0 sec
+Testcase: testSetAllParametersHashtableRoundTrip took 0.005 sec
+Testcase: testValidateDetectsNullOrEmptyParameters took 0 sec
+Testcase: testValidateDetectsMinGreaterThanMax took 0 sec

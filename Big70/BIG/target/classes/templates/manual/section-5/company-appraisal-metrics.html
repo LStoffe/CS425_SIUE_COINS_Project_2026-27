@@ -1,0 +1,90 @@
+<!--
+  company-appraisal-metrics.html.html
+  Section 5.11 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.11 Company Appraisal Metrics</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.11 Company Appraisal Metrics
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Most of your decisions in BIG will be internal to your company. Though these decisions are internal, they can contribute to the external image your company portrays in the world. 
+            Competitors, customers, potential customers and all other entities in the contruction market have an opinion of your company based on your successes and failures in various areas. 
+            Your successes and failures are based on the internal decisions of your company, so there will often be overlap between your internal image of your company and the external image others have of you.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Metrics are provided for each of the following areas:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li><strong>Financial Liquidity:</strong>
+                This is your ability to manage your cash on hand so that you have sufficient amounts to cover your work in progress.
+            </li>
+            <li><strong>Financial Success:</strong>
+                How fast your company is increasing (or decreasing) equity.
+            </li>
+            <li><strong>Responsibility:</strong>
+                Your ability to make thorough, well-planned decisions.
+            </li>
+            <li><strong>Pace:</strong>
+                Your ability to complete jobs on time.
+            </li>
+            <li><strong>Ethics:</strong>
+                Whether your company makes honest, ethical decisions.
+            </li>
+            <li><strong>Name Recognition:</strong>
+                How well your company is known to the construction world.
+            </li>
+        </ul>        
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The last area listed on the report is Job Type. Companies often chose to specialize in one type of job. This last aspect lists the types of jobs your company has worked on.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/income-tax}" class="font-semibold hover:underline">
+        ← 5.10 Income Tax
+    </a>
+    <a th:href="@{/manual/main-office-personnel}" class="font-semibold hover:underline">
+        Next → 5.12 Main Office Personnel
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

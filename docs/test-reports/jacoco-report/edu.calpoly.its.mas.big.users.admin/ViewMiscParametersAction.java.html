@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewMiscParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">ViewMiscParametersAction.java</span></div><h1>ViewMiscParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import javax.sql.DataSource;
+import java.util.Hashtable;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.MiscParametersForm;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Handles use case of viewing miscellaneous game parameters. Uses the
+ * session attribute &quot;user&quot;, which is an &lt;code&gt;Admin&lt;/code&gt;, and the
+ * session attribute &quot;game&quot; which is a &lt;code&gt;edu.calpoly.its.mas.big.Game&lt;/code&gt;,
+ * to determine the current administrator and game.
+ *
+ * @author Kevin Craig, Andrew Von Dollen
+ *
+ * @version $Revision: 1.7 $ $Date: 2002/03/14 18:53:06 $
+ **/
+
+<span class="fc" id="L49">public class ViewMiscParametersAction extends BIGAction</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+			   			         ActionForm form,
+	 				       		 HttpServletRequest request,
+		 			             HttpServletResponse response)
+	{
+<span class="fc" id="L56">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L59">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		// Process request if it was not cancelled
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L65">			ActionMessages errors = new ActionMessages();</span>
+<span class="fc" id="L66">			HttpSession session = request.getSession();</span>
+<span class="fc" id="L67">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L69">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+			// Create a new BIGDatabaseFacadeInterface which will hold connections
+<span class="fc" id="L72">			BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+<span class="fc" id="L74">			Hashtable miscParameters = null;</span>
+
+			try
+			{
+<span class="fc" id="L78">				miscParameters = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+
+<span class="fc" id="L80">				dbFacade.close();</span>
+			}
+<span class="nc" id="L82">			catch(ParametersNotFoundException pnfe)</span>
+			{
+				// All games should have parameters.  If there are no parameters
+				// found for a game it is an error.
+<span class="nc" id="L86">				log.fatal(pnfe);</span>
+
+<span class="nc" id="L88">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+			}
+<span class="nc" id="L90">			catch (BIGDatabaseFacadeException bigdbe)</span>
+			{
+				// Some problem with the database
+<span class="nc" id="L93">				log.fatal(bigdbe);</span>
+
+<span class="nc" id="L95">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="pc" id="L96">			}</span>
+
+<span class="fc" id="L98">			MiscParametersForm miscParamForm = new MiscParametersForm();</span>
+<span class="fc" id="L99">			miscParamForm.setMiscParameters(miscParameters);</span>
+<span class="fc" id="L100">			session.setAttribute(&quot;miscParams&quot;, miscParamForm);</span>
+
+
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L105" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L107">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L111">				saveErrors(request, errors);</span>
+<span class="nc" id="L112">	 	    	saveToken(request);</span>
+<span class="nc" id="L113">	 	    	return (new ActionForward(mapping.getInput()));</span>
+
+			}
+			else
+			{
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L120">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="fc" id="L122">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+
+	    }
+
+	    else
+	    {  // Request was cancelled
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L131">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L133">			return (new ActionForward(mapping.getInput()));</span>
+		}
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

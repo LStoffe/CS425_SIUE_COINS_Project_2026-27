@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultComponentsDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultComponentsDBHandler.java</span></div><h1>DefaultComponentsDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG v3 imports
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * @author Kevin Craig
+ *
+ */
+public class DefaultComponentsDBHandler extends DefaultDBHandler implements ComponentsDBHandler
+{
+	private Log log;
+
+    public DefaultComponentsDBHandler(Connection connection)
+    {
+<span class="fc" id="L38">		super(connection);</span>
+<span class="fc" id="L39">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L40">	}</span>
+
+    public boolean isEstimatingComponentOn(Game game) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L46">			log.debug(&quot;Starting method isEstimatingComponentOn(Game game)&quot;);</span>
+		}
+
+<span class="fc" id="L49">		boolean on = false;</span>
+		try
+		{
+<span class="fc" id="L52">			String query = &quot; SELECT estimating FROM component WHERE gameid = ?&quot;;</span>
+
+<span class="fc" id="L54">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L55">			pstmt.setInt(1, game.getGameID());</span>
+
+<span class="fc" id="L57">			ResultSet rset = pstmt.executeQuery();</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">			if(rset.next())</span>
+			{
+<span class="fc" id="L60">				int onInt = rset.getInt(&quot;estimating&quot;);</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">				if(onInt &gt; 0)</span>
+<span class="fc" id="L62">				on = true;</span>
+			}
+
+<span class="fc" id="L65">			rset.close();</span>
+<span class="fc" id="L66">			pstmt.close();</span>
+		}
+<span class="fc" id="L68">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L70">			close();</span>
+<span class="fc" id="L71">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L72">		}</span>
+
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L76">			log.debug(&quot;Estimating component is on: &quot; + on);</span>
+		}
+
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L81">			log.debug(&quot;Returning from method isEstimatingComponentOn(Game game)&quot;);</span>
+		}
+
+<span class="fc" id="L84">		return on;</span>
+	}
+
+    public boolean isAutoBillingComponentOn(Game game) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L91">			log.debug(&quot;Starting method isAutoBillingComponentOn(Game game)&quot;);</span>
+		}
+
+<span class="fc" id="L94">		boolean on = false;</span>
+		try
+		{
+<span class="fc" id="L97">			String query = &quot; SELECT autobilling FROM component WHERE gameid = ?&quot;;</span>
+
+<span class="fc" id="L99">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L100">			pstmt.setInt(1, game.getGameID());</span>
+
+<span class="fc" id="L102">			ResultSet rset = pstmt.executeQuery();</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">			if(rset.next())</span>
+			{
+<span class="fc" id="L105">				int onInt = rset.getInt(&quot;autobilling&quot;);</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">				if(onInt &gt; 0)</span>
+<span class="fc" id="L107">				on = true;</span>
+			}
+
+<span class="fc" id="L110">			rset.close();</span>
+<span class="fc" id="L111">			pstmt.close();</span>
+		}
+<span class="nc" id="L113">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L115">			close();</span>
+<span class="nc" id="L116">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L117">		}</span>
+
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L121">			log.debug(&quot;Auto Billing component is on: &quot; + on);</span>
+		}
+
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L126">			log.debug(&quot;Returning from method isAutoBillingComponentOn(Game game)&quot;);</span>
+		}
+
+<span class="fc" id="L129">		return on;</span>
+	}
+
+    public void setEstimatingComponentOn(Game game, boolean on) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L136">			log.debug(&quot;Starting method setEstimatingComponentOn(Game game, boolean on)&quot;);</span>
+		}
+
+<span class="fc" id="L139">		int onInt = 0;</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">		if(on) onInt=1;</span>
+		try
+		{
+<span class="fc" id="L143">			String update = &quot; UPDATE component SET estimating = ? WHERE gameid = ?&quot;;</span>
+
+<span class="fc" id="L145">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L146">			pstmt.setInt(1, onInt);</span>
+<span class="fc" id="L147">			pstmt.setInt(2, game.getGameID());</span>
+
+<span class="fc" id="L149">			pstmt.executeUpdate();</span>
+
+<span class="fc" id="L151">			pstmt.close();</span>
+		}
+<span class="nc" id="L153">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L155">			close();</span>
+<span class="nc" id="L156">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L157">		}</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L160">			log.debug(&quot;Returning from method setEstimatingComponentOn(Game game, boolean on)&quot;);</span>
+		}
+<span class="fc" id="L162">	}</span>
+
+    public void setAutoBillingComponentOn(Game game, boolean on) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L168">			log.debug(&quot;Starting method setAutoBillingComponentOn(Game game, boolean on)&quot;);</span>
+		}
+
+<span class="fc" id="L171">		int onInt = 0;</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">		if(on) onInt=1;</span>
+		try
+		{
+<span class="fc" id="L175">			String update = &quot; UPDATE component SET autobilling = ? WHERE gameid = ?&quot;;</span>
+
+<span class="fc" id="L177">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L178">			pstmt.setInt(1, onInt);</span>
+<span class="fc" id="L179">			pstmt.setInt(2, game.getGameID());</span>
+
+<span class="fc" id="L181">			pstmt.executeUpdate();</span>
+
+<span class="fc" id="L183">			pstmt.close();</span>
+		}
+<span class="nc" id="L185">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L187">			close();</span>
+<span class="nc" id="L188">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L189">		}</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L192">			log.debug(&quot;Returning from method setAutoBillingComponentOn(Game game, boolean on)&quot;);</span>
+		}
+<span class="fc" id="L194">	}</span>
+
+
+    //called when a new game is created.  Note: after this method was written, I added new column &quot;autobilling&quot; to table component.
+    //this method still works okay when new row inserted into table because &quot;autobilling&quot; has default value of zero.
+    public void newEstimatingComponentEntry(Game game) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L203">			log.debug(&quot;Starting method newEstimatingComponentEntry(Game game)&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L208">			String insert = &quot; INSERT INTO component (gameid, estimating) VALUES (?, ?)&quot;;</span>
+
+<span class="fc" id="L210">			PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L211">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L212">			pstmt.setInt(2, 0);</span>
+
+<span class="fc" id="L214">			pstmt.executeUpdate();</span>
+
+<span class="fc" id="L216">			pstmt.close();</span>
+		}
+<span class="nc" id="L218">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L220">			close();</span>
+<span class="nc" id="L221">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L222">		}</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L225">			log.debug(&quot;Returning from method newEstimatingComponentEntry(Game game)&quot;);</span>
+		}
+<span class="fc" id="L227">	}</span>
+
+    public void removeEstimatingComponentEntries(int gameID) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L233">			log.debug(&quot;Starting method removeEstimatingComponentEntries(int gameID)&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L238">			String delete = &quot; DELETE FROM component WHERE gameid = ?&quot;;</span>
+
+<span class="fc" id="L240">			PreparedStatement pstmt = connection.prepareStatement(delete);</span>
+<span class="fc" id="L241">			pstmt.setInt(1, gameID);</span>
+
+<span class="fc" id="L243">			pstmt.executeUpdate();</span>
+
+<span class="fc" id="L245">			pstmt.close();</span>
+		}
+<span class="nc" id="L247">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L249">			close();</span>
+<span class="nc" id="L250">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L251">		}</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L254">			log.debug(&quot;Returning from method removeEstimatingComponentEntries(int gameID)&quot;);</span>
+		}
+
+<span class="fc" id="L257">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

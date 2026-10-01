@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginAuthenticationAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users</a> &gt; <span class="el_source">LoginAuthenticationAction.java</span></div><h1>LoginAuthenticationAction.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users;
+
+//JDK imports
+import java.util.Hashtable;
+import java.util.Vector;
+
+//Servlet imports
+import javax.servlet.ServletContext;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.TimeoutCompanySession;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+//Logging imports
+import edu.calpoly.lib.multimedia.big.log.BIGLog;
+import edu.calpoly.lib.multimedia.big.log.BIGLogFactory;
+
+/**
+ * Logs a user in to BIG.
+ * If the username/password combination is recognized &lt;code&gt;LoginAuthenticationAction&lt;/code&gt; automatically determines if the user is an admin,
+ * company, or head admin, and authenticates them.  An &lt;code&gt;Admin&lt;/code&gt; or &lt;code&gt;Company&lt;/code&gt; is added to the
+ * session and the appropriate menu (admin or company) is displayed to the user.
+ * &lt;br&gt;&lt;br&gt;
+ *
+ * If the username/password combination is not recognized the user is returned to the login screen.
+ *
+ * @author Kevin Craig
+ *  Modified 4/17/02 Dara Manker
+ *
+ * @version $Revision: 1.2 $ $Date: 2002/04/19 16:35:57 $
+ *
+ */
+<span class="fc" id="L59">public class LoginAuthenticationAction extends BIGAction</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+		           				 ActionForm form,
+		           				 HttpServletRequest request,
+		           				 HttpServletResponse response)
+		{
+
+<span class="fc" id="L67">			BIGLog log =  BIGLogFactory.getLog();</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="fc" id="L70">				log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+			}
+
+<span class="fc" id="L73">            ActionMessages errors = new ActionMessages();</span>
+
+           //Get username and password from incoming ActionForm
+           //Convert username to lower case for case insensitivty.  All usernames in database are lower case.  Passwords are case sensitive.
+<span class="fc" id="L77">	       String username = ((LoginForm) form).getUsername().toLowerCase();</span>
+<span class="fc" id="L78">	       String password = ((LoginForm) form).getPassword();</span>
+
+<span class="fc" id="L80">	       User user = null;</span>
+<span class="fc" id="L81">	       ActionForward returnValue = mapping.findForward(&quot;failure&quot;);</span>
+
+<span class="fc" id="L83">		   BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+		   try
+		   {
+
+<span class="fc" id="L88">			   user = dbFacade.getAdminDBHandler().getAdmin(username);</span>
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">			   if (user == null)</span>
+			   {
+<span class="fc" id="L92">				   user = dbFacade.getCompanyDBHandler().getCompany(username);</span>
+			   }
+
+<span class="fc bfc" id="L95" title="All 4 branches covered.">	           if((user != null) &amp;&amp; (user.getPassword().equals(password)))</span>
+	           {
+			      //Set the user as logged in and add it to the session
+<span class="fc" id="L98">    		      user.setIsLoggedIn(true);</span>
+<span class="fc" id="L99">		          HttpSession session = request.getSession();</span>
+<span class="fc" id="L100">		 	      session.setAttribute(&quot;user&quot;, user);</span>
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">		 	      if (user instanceof Admin)</span>
+		 	      {
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">					  if(log.isInfoEnabled())</span>
+					  {
+<span class="fc" id="L106">						  log.info(&quot;Admin &quot; + username + &quot; logged in&quot;);</span>
+					  }
+
+				      //Return the admin menu
+<span class="fc" id="L110">				      returnValue = mapping.findForward(&quot;admin&quot;);</span>
+			      }
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">			      else if (user instanceof Company)</span>
+			      {
+					  //Add the game this company is in to the session
+<span class="fc" id="L115">					  Game game = dbFacade.getGameDBHandler().getGame((Company) user);</span>
+<span class="fc" id="L116">					  session.setAttribute(&quot;game&quot;, game);</span>
+
+                      //Prepare for display of Mission Statement and Core Values
+<span class="fc" id="L119">                      Company theCompany = (Company) user;</span>
+<span class="fc" id="L120">                      String missionStatement = theCompany.getMissionStatement();</span>
+<span class="fc" id="L121">                      String coreValues = theCompany.getCoreValues();</span>
+<span class="fc" id="L122">                      String companyUrl = theCompany.getCompanyUrl();</span>
+
+<span class="fc" id="L124">                      ((LoginForm) form).setMissionStatement(missionStatement);</span>
+<span class="fc" id="L125">                      ((LoginForm) form).setCoreValues(coreValues);</span>
+<span class="fc" id="L126">                      ((LoginForm) form).setCompanyUrl(companyUrl);</span>
+<span class="fc" id="L127">					  session.setAttribute(&quot;loginform&quot;, form );</span>
+<span class="fc" id="L128">					  session.setAttribute(&quot;company&quot;, theCompany);</span>
+<span class="fc" id="L129">					  session.setAttribute(&quot;isAdminAsCompany&quot;, new Integer(0));</span>
+
+					  //Adds to the session a list of current messages for this company
+					  //These will be used by the inbox page, immediately after login
+<span class="fc" id="L133">					  Vector messages = dbFacade.getInboxDBHandler().retrieveMessages(((Company) user), game.getCurrentPeriodNumber());</span>
+<span class="fc" id="L134">					  session.setAttribute(&quot;messages&quot;, messages);</span>
+
+                      // Put an object in the company's session for use if the company's session times out
+<span class="fc" id="L137">                      ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L138">                      TimeoutCompanySession timeoutSession = new TimeoutCompanySession(context, game.getGameID());</span>
+<span class="fc" id="L139">                      session.setAttribute(&quot;timeoutSession&quot;, timeoutSession);</span>
+
+				      //Set an attribute so that the company's main menu jsp page will know
+				      // to increment the number of companies logged in
+<span class="fc" id="L143">      		          request.setAttribute(&quot;newLogin&quot;, &quot;true&quot;);</span>
+
+				      //Return the company main menu page
+<span class="fc" id="L146">				      returnValue = mapping.findForward(&quot;company&quot;);</span>
+
+
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">					  if(BIGLogFactory.isInfoEnabled())</span>
+					  {
+<span class="fc" id="L151">						  log.info(&quot;Company &quot; + username + &quot; logged in to game &quot; + game.getGameID());</span>
+<span class="fc" id="L152">						  BIGLog gameLog = BIGLogFactory.getGameLog(game.getGameID());</span>
+
+<span class="fc" id="L154">						  gameLog.info(&quot;Company &quot; + username + &quot; logged in&quot;);</span>
+<span class="fc" id="L155">						  BIGLog companyLog = BIGLogFactory.getCompanyLog(((Company) user).getCompanyID());</span>
+<span class="fc" id="L156">						  companyLog.info(&quot;Company &quot; + username + &quot; logged in&quot;);</span>
+					  }
+			      }
+
+<span class="fc" id="L160">		       }</span>
+		       else
+		   	   {
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">				  if(log.isInfoEnabled())</span>
+				  {
+<span class="fc" id="L165">				  	 log.info(&quot;Login failure for username &quot; + username);</span>
+				  }
+<span class="fc" id="L167">		          errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.login.password.mismatch&quot;));</span>
+	           }
+
+<span class="fc" id="L170">               dbFacade.close();</span>
+
+		   }
+<span class="nc" id="L173">		   catch (BIGDatabaseFacadeException bdbe)</span>
+		   {
+<span class="nc" id="L175">			   log.fatal(&quot;&quot;, bdbe);</span>
+<span class="nc" id="L176">			   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		   }
+<span class="nc" id="L178">		   catch(ObjectNotFoundException onfe) //possibly thrown from call to dbFacade.getGame method</span>
+		   {
+<span class="nc" id="L180">			   log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L181">			   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.game.notFound&quot;));</span>
+<span class="pc" id="L182">		   }</span>
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">	       if (!errors.isEmpty())</span>
+		   {
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">			  if(log.isDebugEnabled())</span>
+			  {
+<span class="fc" id="L188">			      log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			  }
+
+		   	  // Report any errors we have discovered back to the original form
+<span class="fc" id="L192">		   	  saveErrors(request, errors);</span>
+<span class="fc" id="L193">		   	  saveToken(request);</span>
+<span class="fc" id="L194">		   	  return (new ActionForward(mapping.getInput()));</span>
+		   }
+		   else
+		   {
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">			  if(log.isDebugEnabled())</span>
+			  {
+<span class="fc" id="L200">			      log.debug(this.getClass() + &quot; request completed.  Forwarding to &quot; + returnValue);</span>
+			  }
+<span class="fc" id="L202"> 			  return (returnValue);</span>
+		   }
+
+	   } // end execute()
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

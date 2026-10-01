@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BIGAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users</a> &gt; <span class="el_source">BIGAction.java</span></div><h1>BIGAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.struts.Globals;
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessages;
+
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+
+/**
+ * Base class for BIG Actions that access the database.
+ * Supports dependency injection of BIGDatabaseFacadeInterface for unit testing.
+ * In production, dbFacade is null and getDbFacade() creates a real facade.
+ * In tests, setDbFacade(mock) before execute() to use a mock instead.
+ *
+ * When the ActionServlet is not set (e.g. in unit tests), isCancelled, saveErrors,
+ * and saveToken use test-friendly implementations that do not require Struts
+ * infrastructure.
+ */
+<span class="fc" id="L23">public abstract class BIGAction extends Action {</span>
+
+    /** Injected for tests; null in production. */
+    protected BIGDatabaseFacadeInterface dbFacade;
+
+    /**
+     * Set the database facade (for unit testing). When set, getDbFacade() returns this
+     * instead of creating a new BIGDatabaseFacade. Production code never calls this.
+     */
+    public void setDbFacade(BIGDatabaseFacadeInterface facade) {
+<span class="fc" id="L33">        this.dbFacade = facade;</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * Returns the database facade. If a facade was injected via setDbFacade(), returns it.
+     * Otherwise creates a new BIGDatabaseFacade using the request's DataSource.
+     */
+    protected BIGDatabaseFacadeInterface getDbFacade(HttpServletRequest request) {
+<span class="fc" id="L41">        return getDbFacade(request, false);</span>
+    }
+
+    /**
+     * Returns the database facade, optionally holding the connection.
+     * If a facade was injected via setDbFacade(), returns it (holdConnection ignored for mocks).
+     */
+    protected BIGDatabaseFacadeInterface getDbFacade(HttpServletRequest request, boolean holdConnection) {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (dbFacade != null) {</span>
+<span class="fc" id="L50">            return dbFacade;</span>
+        }
+<span class="nc" id="L52">        return new BIGDatabaseFacade(getDataSource(request), holdConnection);</span>
+    }
+
+    /**
+     * When servlet is null (unit tests), checks the cancel parameter directly.
+     * Otherwise delegates to Struts Action.
+     */
+    @Override
+    protected boolean isCancelled(HttpServletRequest request) {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (getServlet() == null) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">            return request.getParameter(&quot;org.apache.struts.taglib.html.CANCEL&quot;) != null;</span>
+        }
+<span class="nc" id="L64">        return super.isCancelled(request);</span>
+    }
+
+    /**
+     * When servlet is null (unit tests), stores errors in request attribute directly.
+     * Otherwise delegates to Struts Action.
+     */
+    @Override
+    protected void saveErrors(HttpServletRequest request, ActionMessages errors) {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (getServlet() == null) {</span>
+<span class="fc" id="L74">            request.setAttribute(Globals.ERROR_KEY, errors);</span>
+<span class="fc" id="L75">            return;</span>
+        }
+<span class="fc" id="L77">        super.saveErrors(request, errors);</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * When servlet is null (unit tests), stores a token in session so saveToken does not throw.
+     * Otherwise delegates to Struts Action.
+     */
+    @Override
+    protected void saveToken(HttpServletRequest request) {
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (getServlet() == null) {</span>
+<span class="fc" id="L87">            HttpSession session = request.getSession(false);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (session != null) {</span>
+<span class="fc" id="L89">                session.setAttribute(Globals.TRANSACTION_TOKEN_KEY, java.util.UUID.randomUUID().toString());</span>
+            }
+<span class="fc" id="L91">            return;</span>
+        }
+<span class="fc" id="L93">        super.saveToken(request);</span>
+<span class="fc" id="L94">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,32 @@
+Testsuite: edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParametersTest
+Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 sec
+
+Testcase: testIsPrimaryGetter took 0.004 sec
+Testcase: testModelMasterGetter took 0.002 sec
+Testcase: testDecommissionCost took 0.001 sec
+Testcase: testCalcProductivityHour took 0 sec
+Testcase: testProductivityHour took 0 sec
+Testcase: testCalcCostPerHour took 0 sec
+Testcase: testCondition took 0 sec
+Testcase: testSetYear took 0.001 sec
+Testcase: testDeploymentCost took 0 sec
+Testcase: testPercentCtHour took 0 sec
+Testcase: testPriceToBuy took 0 sec
+Testcase: testPriceToRent took 0 sec
+Testcase: testDescription took 0 sec
+Testcase: testSerialNumber took 0 sec
+Testcase: testSetEquip_numb took 0.001 sec
+Testcase: testRentalTerm took 0 sec
+Testcase: testCtRate took 0 sec
+Testcase: testIsInMarket took 0 sec
+Testcase: testBrandGetter took 0 sec
+Testcase: testProjectNumb took 0 sec
+Testcase: testLoanAmount took 0 sec
+Testcase: testCompanyId took 0 sec
+Testcase: testHrsOfUse took 0.001 sec
+Testcase: testIsOnProject took 0 sec
+Testcase: testModelGetter took 0.001 sec
+Testcase: testCtCodeGetter took 0 sec
+Testcase: testIsInFleet took 0 sec
+Testcase: testCategory took 0 sec
+Testcase: testCashPaid took 0 sec

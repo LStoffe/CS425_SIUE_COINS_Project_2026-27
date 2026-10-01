@@ -1,0 +1,70 @@
+<!--
+  estimated-time-and-cost-reports.html
+  section 1.10 of the COINS manual.
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.10 Estimated Time and Cost Reports</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.10 Estimated Time and Cost Reports
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            The Estimated Time and Cost Report gives an analysis of the five different methods of construction for each activity in a job. 
+            This report also shows each job's retention policy and gives the amount of liquidated damages that will be charged for each day the job progresses past the required completion date. 
+            This report will be your greatest aid in determining the schedule and cost to complete a job.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            To access the Estimated Time and Costs Report for a job, click on the "More Info" link on the "Choose Job for Bid" screen. 
+            To view the Estimated Time and Cost report for a job you are currently working on, click the "More Info" link on the Progress Report.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>TIP:</strong> The Estimated Time and Cost report is updated each period for jobs you are currently working on, so be sure to check it each period. 
+            It can help you determine if your job will go over budget or miss its required completion date.
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/available-jobs}" class="font-semibold hover:underline">
+        ← 1.9 Available Jobs
+    </a>
+    <a th:href="@{/manual/network-dependencies-reports}" class="font-semibold hover:underline">
+        Next → 1.11 Network Dependencies Reports
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

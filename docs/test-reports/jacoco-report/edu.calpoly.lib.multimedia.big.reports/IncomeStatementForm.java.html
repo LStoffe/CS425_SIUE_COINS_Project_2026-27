@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IncomeStatementForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">IncomeStatementForm.java</span></div><h1>IncomeStatementForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.reports;
+
+import edu.calpoly.its.mas.big.reports.ReportForm;
+import edu.calpoly.its.mas.big.reports.FinancialReportForm;
+
+/**
+ * Class representing income statement.  The data for this report
+ * is found or derived from the contract reports, the current and previous balance sheets, and
+ * the old BIG v2 financial report form.  This report acts as a wrapper around these four reports
+ * and does not contain any information that cannot be found in or derived from data contained in
+ * those reports.  Note that loading 5 other reports is ineffecient because many values from each of
+ * reports will not be used, but is simple and a simple way to insure the values in the income
+ * statement will be consist with values in the other reports.
+ * &lt;br&gt;&lt;br&gt;
+ * If the time to load an income statement becomes unacceptably long, this design will need to be
+ * redone to have the income statement pull the values it needs directly from the database rather
+ * than use the other reports as intermediaries.
+ * &lt;br&gt;&lt;br&gt;
+ * For a description of each field in the income statement please refer to the BIG v3 SRS.
+ *
+ * @author Kevin Craig
+ */
+public class IncomeStatementForm extends ReportForm
+{
+	private FinancialReportForm financialReport;
+	private BalanceSheetForm prevBalanceSheet;
+	private ContractsInProgressReportForm contractsInProgress;
+	private CompletedContractsReportForm completedContracts;
+
+	private String companyName;
+
+<span class="fc" id="L33">	float depreciationRate = 0f;</span>
+
+<span class="fc" id="L35">	int taxes = 0;</span>
+
+	public IncomeStatementForm(FinancialReportForm financialReport,
+							   BalanceSheetForm prevBalanceSheet,
+							   ContractsInProgressReportForm contractsInProgress,
+							   CompletedContractsReportForm completedContracts,
+							   float depreciationRate,
+							   int taxes)
+<span class="fc" id="L43">	{</span>
+<span class="fc" id="L44">		this.financialReport = financialReport;</span>
+<span class="fc" id="L45">		this.prevBalanceSheet = prevBalanceSheet;</span>
+<span class="fc" id="L46">		this.contractsInProgress = contractsInProgress;</span>
+<span class="fc" id="L47">		this.completedContracts = completedContracts;</span>
+<span class="fc" id="L48">		this.depreciationRate = depreciationRate;</span>
+<span class="fc" id="L49">		this.taxes = taxes;</span>
+
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if(contractsInProgress == null)</span>
+		{
+		    //System.out.println(&quot;IncomeStatementForm(Constructor): contractsInProgress is null&quot;);
+		}
+<span class="fc" id="L55">	}</span>
+
+
+
+	public IncomeStatementForm()
+<span class="fc" id="L60">	{</span>
+<span class="fc" id="L61">		financialReport = null;</span>
+<span class="fc" id="L62">		prevBalanceSheet = null;</span>
+<span class="fc" id="L63">		contractsInProgress = null;</span>
+<span class="fc" id="L64">		completedContracts = null;</span>
+<span class="fc" id="L65">	}</span>
+
+  //************************  Set and Get Methods  ***********************************
+
+    public String getCompanyName()
+    {
+<span class="fc" id="L71">	    return companyName;</span>
+    }
+
+    public void setCompanyName(String name)
+    {
+<span class="fc" id="L76">	    this.companyName = name;</span>
+<span class="fc" id="L77">    }</span>
+
+
+  	public int getConstructionRevenue()
+  	{
+<span class="fc" id="L82">		return contractsInProgress.getTotalCurrentRevenueRecorded() + completedContracts.getTotalCurrentRevenueRecordable();</span>
+  	}
+
+  	public int getCostOfConstruction()
+  	{
+<span class="fc" id="L87">	    return contractsInProgress.getTotalCurrentCostIncurred() + completedContracts.getTotalCurrentCostIncurred();</span>
+  	}
+
+  	public int getGrossProfit()
+  	{
+<span class="fc" id="L92">		return getConstructionRevenue() - getCostOfConstruction();</span>
+  	}
+
+  	public int getOfficeOverhead()
+  	{
+<span class="fc" id="L97">		return (int) financialReport.getOfficeOverhead();</span>
+  	}
+
+  	public int getBiddingExpense()
+  	{
+<span class="fc" id="L102">		return (int) financialReport.getBiddingExpenses();</span>
+  	}
+
+  	public int getConsultingExpense()
+  	{
+<span class="fc" id="L107">		return (int) financialReport.getConsultingExpenses();</span>
+  	}
+
+  	public int getSettlementExpense()
+  	{
+<span class="fc" id="L112">		return (int) financialReport.getSettlementExpenses();</span>
+  	}
+
+  	public int getTotalGAExpense()
+  	{
+<span class="fc" id="L117">		return getOfficeOverhead() + getBiddingExpense() + getConsultingExpense() + getSettlementExpense();</span>
+  	}
+
+  	public int getEarningsFromOperations()
+  	{
+<span class="fc" id="L122">		return getGrossProfit() - getTotalGAExpense();</span>
+  	}
+
+  	public int getInterestExpense()
+  	{
+<span class="fc" id="L127">		return 0 - (int) financialReport.getInterestPaidOnLoans();</span>
+  	}
+
+
+  	public int getDepreciation()
+  	{
+<span class="fc" id="L133">		return 0;</span>
+  	}
+
+  	public int getTotalOtherIncome()
+  	{
+<span class="fc" id="L138">		return   getInterestExpense() +</span>
+<span class="fc" id="L139">		  		 getDepreciation();</span>
+	}
+
+  	public int getPreTaxEarnings()
+  	{
+<span class="fc" id="L144">		return getEarningsFromOperations() + getTotalOtherIncome();</span>
+  	}
+
+  	public int getIncomeTaxes()
+  	{
+<span class="fc" id="L149">		return taxes;</span>
+  	}
+
+  	public void setIncomeTaxes(int taxes)
+  	{
+<span class="fc" id="L154">		this.taxes = taxes;</span>
+<span class="fc" id="L155">	}</span>
+
+  	public int getNetEarnings()
+  	{
+<span class="fc" id="L159">		return getPreTaxEarnings() - getIncomeTaxes();</span>
+  	}
+
+  	public int getStartRetainedEarnings()
+  	{
+<span class="fc" id="L164">		return prevBalanceSheet.getEquity();</span>
+  	}
+
+  	public int getEndRetainedEarnings()
+  	{
+<span class="fc" id="L169">		return getStartRetainedEarnings() + getNetEarnings();</span>
+  	}
+
+}
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

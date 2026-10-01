@@ -1,0 +1,80 @@
+<!--
+  completing-big.html
+  Section 5.13 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.13 Completing Big</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.13 Completing Big
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            A game of BIG will last for as many periods as your instructor chooses. When the administrator decides the game is over, the game simply ends. When the game ends there will be no further period updates, so there is no reason to enter in any more decisions.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            At the end of the game there are several ways to evaluate your success. One way is to see how much your equity has grown over the course of the game. 
+            Another way is to compare your final equity to that of other companies. 
+            The number of jobs you won through bidding and the number you successfully completed on time are also good measures of your success.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Your instructor will provide you with details on how you will actually be graded on your BIG performance. 
+            Keep in mind that your grade may include being able to explain why you made certain decisions, 
+            how you knew they were the right decision, 
+            and how much you understand of the bidding and management process as it works in BIG.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Remember that the most important thing in BIG is to learn. At the start of the game you will likely find yourself losing money quickly. 
+            This is okay because it takes some time to understand the BIG software and to start understanding what is going on. What is important is that you begin to be able to identify problems with your strategy and correct them. 
+            It can be more impressive to bring a company back from bankruptcy than it is to make an already stable company better.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/main-office-personnel}" class="font-semibold hover:underline">
+        ← 5.12 Main Office Personnel
+    </a>
+    <a th:href="@{/manual/manual-toc}" class="font-semibold hover:underline">
+        Next → Return to Table of Contents
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+Testsuite: edu.calpoly.its.mas.big.reports.CompleteListofBidsReportFormTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 sec
+
+Testcase: testSetBidsWithOneBid took 0.092 sec
+Testcase: testGetBidAmountWhenNoBid took 0 sec
+Testcase: testGetOutcomeCodeWhenNoBid took 0 sec

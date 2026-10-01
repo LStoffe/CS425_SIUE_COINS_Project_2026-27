@@ -1,0 +1,25 @@
+Testsuite: edu.calpoly.its.mas.big.game.JobFactoryTest
+Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.242 sec
+
+Testcase: testCreateJobWithAdminJobTypeAndSize took 0.104 sec
+Testcase: testCreateJobWithAdminJobTypeBuilding took 0.013 sec
+Testcase: testCreateJobLiquidatedDamagesPercentJobs0 took 0.009 sec
+Testcase: testCreateJobWithFasterJobsIncrease took 0.006 sec
+Testcase: testCreateJobWithLargerJobsIncrease took 0.014 sec
+Testcase: testCreateJobWithAdminJobTypeHeavyFamily took 0.02 sec
+Testcase: testCreateJobHeavyFamily took 0.002 sec
+Testcase: testCreateMultipleJobs took 0.008 sec
+Testcase: testCreateJobLiquidatedDamagesPercentJobs100 took 0.002 sec
+Testcase: testCreateJobWithBothLiquidatedDamagesIncrease took 0.003 sec
+Testcase: testCreateJobActivitiesHaveCorrectStructure took 0.003 sec
+Testcase: testCreateJobJobSizeWithinBounds took 0.015 sec
+Testcase: testCreateJobAdminJobType5Heavy took 0.004 sec
+Testcase: testCreateJobWithRandomTypeAndSize took 0.003 sec
+Testcase: testCreateJobWithAdminJobSizeHeavy took 0.004 sec
+Testcase: testCreateJobTypeModifierHeavy took 0.003 sec
+Testcase: testCreateJobAdminJobType4Building took 0.004 sec
+Testcase: testCreateJobWithAdminJobTypeHeavy took 0.002 sec
+Testcase: testCreateJobTypeModifierPublic took 0.004 sec
+Testcase: testConstructorStoresParameters took 0.001 sec
+Testcase: testCreateJobWithAdminJobSize took 0.003 sec
+Testcase: testCreateJobRetentionPolicyInRange took 0.003 sec

@@ -1,0 +1,113 @@
+<!--
+  bidding.html
+  The second section of the COINS manual.
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>Section 2: Bidding</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-6">
+        <h1 class="text-3xl font-bold text-black mb-2">
+            Section 2: Bidding
+        </h1>
+        <p class="text-lg text-black leading-relaxed">
+            The only way to earn money in BIG is through completing work on jobs. 
+            Therefore, to achieve your goals of maintaining your business and earning profit, you will need to bid on many jobs. Each period you will be charged office overhead, which is your cost of keeping your business running. 
+            If you are not able to earn enough income to both recover job costs and cover your office overhead expenses, you will start to lose capital and eventually go bankrupt.
+        </p>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Every period, each company must decide which jobs to bid on, the bid price, and which of the five methods to use for every activity. 
+            Work scheduling is very important in the selection of the methods so that projects can be completed by the contractual deadlines and the costs reduced as much as possible. 
+            Each bid price submitted should cover all the firm's direct job costs, all its overhead expenses, and the desired profit.
+        </p>
+    </section>
+
+    <!-- Topics List -->
+    <section>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+            The bidding process is described in the following pages:
+        </h2>
+    
+        <ol class="pl-4 space-y-2 text-lg text-black">
+            <li>
+                <a th:href="@{/manual/scheduling-methods}" class="hover:underline">
+                    <span class="font-bold">2.1</span> Scheduling Methods
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/bidding-form}" class="hover:underline">
+                    <span class="font-bold">2.2</span> Bidding Form
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/submitting-bids}" class="hover:underline">
+                    <span class="font-bold">2.3</span> Submitting Bids
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/bond-limits}" class="hover:underline">
+                    <span class="font-bold">2.4</span> Bond Limits
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/negotiation-offers}" class="hover:underline">
+                    <span class="font-bold">2.5</span> Negotiation Offers
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/bid-closing}" class="hover:underline">
+                    <span class="font-bold">2.6</span> Bid Closing
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/bidding-results}" class="hover:underline">
+                    <span class="font-bold">2.7</span> Bidding Results
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/progress-report}" class="hover:underline">
+                    <span class="font-bold">2.8</span> Progress Report
+                </a>
+            </li>
+        </ol>        
+    </section>    
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/network-dependencies-reports}" class="font-semibold hover:underline">
+        ← Network Dependencies Reports
+    </a>
+    <a th:href="@{/manual/scheduling-methods}" class="font-semibold hover:underline">
+        Next → 2.1 Scheduling Methods
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

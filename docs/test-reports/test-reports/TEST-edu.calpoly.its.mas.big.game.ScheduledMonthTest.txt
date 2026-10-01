@@ -1,0 +1,20 @@
+Testsuite: edu.calpoly.its.mas.big.game.ScheduledMonthTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.103 sec
+
+Testcase: testConstructorWithRaindaysExceedingWorkdaysDoesNotThrow took 0.084 sec
+Testcase: testRaindaysOnlyOnWorkdaysAndCountMatches took 0.002 sec
+Testcase: testSetScheduleOrderPreservesAllDays took 0.001 sec
+Testcase: testFebruaryDays took 0.001 sec
+Testcase: testGetRainday took 0.002 sec
+Testcase: testGetDateReturnsFirstDayAfterFirstDay took 0.001 sec
+Testcase: testConstructorAndGetters took 0.001 sec
+Testcase: testSetScheduleOrder took 0 sec
+Testcase: testDaysLeftExhausted took 0.001 sec
+Testcase: testFirstDayAndAdvanceDay took 0 sec
+Testcase: testDaysLeftBeforeFirstDay took 0 sec
+Testcase: testAdvanceDayIncrementsDate took 0 sec
+Testcase: testGetDateAdvancesWithAdvanceDay took 0 sec
+Testcase: testAdvanceDayThroughFullMonth took 0 sec
+Testcase: testGetWorkdayBeforeFirstDay took 0 sec
+Testcase: testScheduledMonthWithZeroRaindays took 0.001 sec
+Testcase: testGetScheduleOrderDefaultOrder took 0 sec

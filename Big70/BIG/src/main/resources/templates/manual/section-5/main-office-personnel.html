@@ -1,0 +1,94 @@
+<!--
+  main-office-personnelhtml
+  Section 5.12 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.12 Main Office Personnel</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.12 Main Office Personnel
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Your main office is responsible for all tasks that are not directly related to any one particular job. 
+            This includes leading and managing the company, finding new jobs, managing accounts, and financing projects. The size of your main office is related to the overall size of your company, 
+            which in BIG is measured by the number and size of jobs your company is currently working. In order for your company to complete all necessary main office business tasks, you must keep your company staffed with employees who have the necessary skills.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To manage your company's personnel, select the "Manage Personnel." When BIG starts, your company will have four employees: the CEO, a secretary, an assistant project manager, and an assistant estimator. 
+            You may keep these employees or change them as you choose. 
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            However, there are several things to keep in mind:
+        </p>
+
+        <ol class="list-decimal pl-6 space-y-2 text-lg text-black">
+            <li>
+                The amount and type of employees you will need depends on how many jobs you are currently working. As you start working more and more jobs at once (or larger jobs) you will need to think about hiring more main office personnel.
+            </li>
+            <li>
+                Try to keep a good mix of employee types. Employees can fill in for each other to some degree, but it is more efficient to have people who can specialize in different business functions.
+            </li>
+            <li>
+                All personnel changes take one period to complete. If you choose to hire or fire an employee, that employee will not start or stop performing any work until after the next period update.
+            </li>
+            <li>
+                BIG will never let main office work be unfinished. If you don't have enough people to complete all the necessary work, BIG will automatically hire consultants to get the work finished... usually at a premium. If your company has to hire consultants, their costs will show up in the "Consulting Expenses" portion of the Income Statement. Even if your company has many employees, BIG will still need to hire consultants if you lack people who are trained in a particular business area (e.g. estimating, accounting).
+            </li>
+            <li>
+                Each period BIG will prepare a Personnel Report for you which lets you know about any problems your company might have in getting its main office work done. You should read the report and, if you find your company spends a lot on consulting expenses each period, hire accordingly.
+            </li>
+            <li>
+                Each employee has a salary that must be paid every period. Therefore, it is best to avoid hiring people unless you really need them.
+            </li>
+        </ol>
+    </section>
+
+
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/company-appraisal-metrics}" class="font-semibold hover:underline">
+        ← 5.11 Company Appraisal Metrics
+    </a>
+    <a th:href="@{/manual/completing-big}" class="font-semibold hover:underline">
+        Next → 5.13 Completing Big
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

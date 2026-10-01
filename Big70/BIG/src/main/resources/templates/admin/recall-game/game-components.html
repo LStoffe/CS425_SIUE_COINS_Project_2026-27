@@ -1,0 +1,112 @@
+<!--
+  game-components.html
+  Allows admins to change game components of this specific game.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Game Components</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Game Components</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-2xl">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Component Settings
+      </h3>
+
+      <!-- Implementation Note -->
+      <div class="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+        <p class="text-amber-800 font-semibold mb-1">Implementation Note</p>
+        <p class="text-amber-700 text-sm">
+          Game component toggling is not active in this version of the simulation.
+          Both components below are preserved for reference and future implementation.
+        </p>
+        <ul class="mt-2 text-sm text-amber-700 list-disc ml-6 space-y-1">
+          <li><span class="font-semibold">Estimating Component</span> — Not implemented</li>
+          <li><span class="font-semibold">Automatic Billing</span> — Billing is handled automatically each period without a toggle</li>
+        </ul>
+      </div>
+
+      <!-- Component Toggles -->
+      <div class="space-y-6 mb-8">
+
+        <!-- Estimating Component -->
+        <div class="p-6 border border-gray-200 rounded-lg bg-gray-50">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h4 class="font-bold text-lg mb-2 text-gray-500">Estimating Component</h4>
+              <p class="text-gray-500">
+                Status: <span class="font-semibold">Not Available</span>
+              </p>
+              <p class="text-sm text-gray-400 mt-1">
+                COINS will <span class="font-semibold">not</span> provide companies with estimates.
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button
+              disabled
+              class="px-6 py-2 rounded-lg bg-gray-300 text-gray-500 font-semibold cursor-not-allowed"
+              title="Not available in this version">
+              Turn On
+            </button>
+          </div>
+        </div>
+
+        <!-- Automatic Billing Component -->
+        <div class="p-6 border border-gray-200 rounded-lg bg-gray-50">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h4 class="font-bold text-lg mb-2 text-gray-500">Automatic Billing Component</h4>
+              <p class="text-gray-500">
+                Status: <span class="font-semibold">Not Available</span>
+              </p>
+              <p class="text-sm text-gray-400 mt-1">
+                Billing is processed automatically each period advance.
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button
+              disabled
+              class="px-6 py-2 rounded-lg bg-gray-300 text-gray-500 font-semibold cursor-not-allowed"
+              title="Not available in this version">
+              Turn On
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Back Button -->
+      <div class="text-center">
+        <a th:href="@{/admin/recall-menu}"
+           class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block">
+          Back to Game Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

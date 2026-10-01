@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginBroker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users</a> &gt; <span class="el_source">LoginBroker.java</span></div><h1>LoginBroker.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users;
+
+//JDK imports
+import java.util.Enumeration;
+import java.util.Vector;
+
+//Servlet imports
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
+
+//Struts import
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.Globals;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.GameLoginInfo;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * &lt;code&gt;LoginBroker&lt;/code&gt; Determines whether or not a company may login to a game, and
+ * whether or not the company may continue to be logged in whenever the company accesses
+ * a BIG jsp page or attempts to submit a BIG form.
+ * Reasons why a company is not allowed to be logged in:
+ *   1.  Company's Game has not been updated from period 0 to period 1 (i.e. has not yet started).
+ *   2.  Game's administrator may be in the process of updating a game from one period to another.
+ *   3.  Game may have been updated from one period to another between the time the company made its
+ *       last request and the time it makes the current request.
+ *
+ * @author Dara Manker
+ *
+ * @version $Revision: 1.9 $ $Date: 2002/05/02 18:56:48 $
+ *
+ */
+<span class="fc" id="L48"> public class LoginBroker</span>
+ {
+   ServletContext context;
+
+  /**
+   * Puts a GameLoginInfo object in the ServletContext when a new game is created.  Also used by a
+   * servlet called upon from BIG's web.xml &lt;load-on-startup&gt; line to load GameLoginInfo objects
+   * into the ServletContext for all games in the database.
+   */
+  public void addGameLoginInfoToServletContext(Game game, ServletContext context)
+  {
+<span class="fc" id="L59">	  this.context = context;</span>
+<span class="fc" id="L60">	  GameLoginInfo gameLoginInfo = new GameLoginInfo(game);</span>
+<span class="fc" id="L61">	  context.setAttribute(Integer.toString(game.getGameID()), gameLoginInfo);</span>
+<span class="fc" id="L62">  }</span>
+
+
+  /**
+   * Used when an administrator starts a game, and just after an Administrator has updated a game's period.
+   * Updates a game's GameLoginInfo currentperiod count by one, sets the GameLoginInfo's allow logins value
+   * to &quot;true,&quot; and sets GameLoginInfo's number of companies currently logged in value to zero.
+   */
+  public synchronized void initializePeriod(Game game, ServletContext context)
+  {
+<span class="fc" id="L72">	  GameLoginInfo gameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+<span class="fc" id="L73">      gameLoginInfo.gameUpdated();</span>
+<span class="fc" id="L74">      GameLoginInfo testGameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+
+<span class="fc" id="L76">	  Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">	  if(log.isDebugEnabled())</span>
+	  {
+<span class="nc" id="L79">          log.debug(&quot;LoginBroker.initializePeriod(): Logins have been enabled, Period has been updated, numLoggedIn==0&quot;);</span>
+<span class="nc" id="L80">      	  log.debug(&quot;LoginBroker.initializePeriod(): testGameLoginInfo values are:  period=&quot; + testGameLoginInfo.getCurrentPeriod() + &quot;, numLoggedIn=&quot; + testGameLoginInfo.getNumberCurrentlyLoggedIn() + &quot;, loginAllowed=&quot; + testGameLoginInfo.getLoginAllowed());</span>
+	  }
+<span class="fc" id="L82">  }</span>
+
+
+  /**
+   * Disables a company's ability to log in to BIG, and to access its pages.
+   */
+  public synchronized void disableGameLogins(Game game, ServletContext context)
+  {
+<span class="fc" id="L90">	  GameLoginInfo gameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+<span class="fc" id="L91">	  gameLoginInfo.disableLogins();</span>
+<span class="fc" id="L92">	  GameLoginInfo testGameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+
+<span class="fc" id="L94">	  Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">	  if(log.isDebugEnabled())</span>
+	  {
+<span class="nc" id="L97">          log.debug(&quot;LoginBroker.disableGameLogins(): Logins have been disabled&quot;);</span>
+<span class="nc" id="L98">      	  log.debug(&quot;LoginBroker.disableGameLogins(): testGameLoginInfo values are:  period=&quot; + testGameLoginInfo.getCurrentPeriod() + &quot;, numLoggedIn=&quot; + testGameLoginInfo.getNumberCurrentlyLoggedIn() + &quot;, loginAllowed=&quot; + testGameLoginInfo.getLoginAllowed());</span>
+	  }
+<span class="fc" id="L100">  }</span>
+
+
+  /**
+   * Returns the number of companies currently logged in to the specified game.
+   */
+  public synchronized int getNumberOfLoggedInCompanies(Game game, ServletContext context)
+  {
+<span class="fc" id="L108">	  GameLoginInfo gameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+
+<span class="fc" id="L110">	  int i = -1;</span>
+<span class="fc" id="L111">	  i = gameLoginInfo.getNumberCurrentlyLoggedIn();</span>
+
+	  //System.out.println(&quot;LoginBroker: Number of companies logged in is &quot; + i);
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">	  if(i==-1)</span>
+<span class="nc" id="L115">	    context.log(&quot;LoginBroker: Error retrieving number of companies logged from the ServletContext for game# &quot; + game.getGameID());</span>
+<span class="fc" id="L116">      return i;</span>
+  }
+
+
+  /**
+   * Decrement the number of logged-in companies by one.
+   */
+  public synchronized void decrementNumberOfLoggedInCompanies(Game game, ServletContext context)
+  {
+<span class="fc" id="L125">	  GameLoginInfo gameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+<span class="fc" id="L126">	  gameLoginInfo.decrementNumberCurrentlyLoggedIn();</span>
+<span class="fc" id="L127">      GameLoginInfo testGameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+
+<span class="fc" id="L129">	  Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">	  if(log.isDebugEnabled())</span>
+	  {
+<span class="nc" id="L132">          log.debug(&quot;LoginBroker.decrementNumberOfLoggedInCompanies(): # companies = &quot; + gameLoginInfo.getNumberCurrentlyLoggedIn() + &quot; for game # &quot; + game.getGameID() );</span>
+<span class="nc" id="L133">      	  log.debug(&quot;LoginBroker.decrementNumberOfLoggedInCompanies(): game values are: period = &quot; + testGameLoginInfo.getCurrentPeriod() + &quot;, numLoggedIn = &quot; + testGameLoginInfo.getNumberCurrentlyLoggedIn() + &quot;, loginAllowed = &quot; + testGameLoginInfo.getLoginAllowed());</span>
+	  }
+<span class="fc" id="L135">  }</span>
+
+  /**
+   * Decrement the number of logged-in companies by one.  This method is specifically for
+   * decrementing the number of companies logged in when a company's session times out.  Since no session
+   * is available from which to obtain the gameID number for the company, the gameid for the company
+   * is used explicitly.
+   */
+  public synchronized void decrementNumberOfLoggedInCompanies(int gameid, ServletContext context)
+  {
+<span class="fc" id="L145">	  GameLoginInfo gameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(gameid));</span>
+<span class="fc" id="L146">	  gameLoginInfo.decrementNumberCurrentlyLoggedIn();</span>
+
+<span class="fc" id="L148">	  Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">	  if(log.isDebugEnabled())</span>
+	  {
+<span class="nc" id="L151">          log.debug(&quot;When by itself - company's session timed out - LoginBroker.decrementNumberOfLoggedInCompanies(): # companies = &quot; + gameLoginInfo.getNumberCurrentlyLoggedIn() + &quot; for game # &quot; + gameid );</span>
+<span class="nc" id="L152">          log.debug(&quot;Grand total number of companies logged in = &quot; + getTotalNumberOfLoggedInCompanies() );</span>
+	  }
+<span class="fc" id="L154">  }</span>
+
+  /**
+   * Increment the number of logged-in companies by one.
+   */
+  public synchronized void incrementNumberOfLoggedInCompanies(Game game, ServletContext context)
+  {
+<span class="fc" id="L161">	  GameLoginInfo gameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+<span class="fc" id="L162">	  gameLoginInfo.incrementNumberCurrentlyLoggedIn();</span>
+<span class="fc" id="L163">      GameLoginInfo testGameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+
+<span class="fc" id="L165"> 	  Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">	  if(log.isDebugEnabled())</span>
+	  {
+<span class="nc" id="L168">          log.debug(&quot;LoginBroker.incrementNumberOfLoggedInCompanies(): # companies = &quot; + gameLoginInfo.getNumberCurrentlyLoggedIn() + &quot; for game # &quot; + game.getGameID() );</span>
+<span class="nc" id="L169">      	  log.debug(&quot;LoginBroker.incrementNumberOfLoggedInCompanies(): game values are: period = &quot; + testGameLoginInfo.getCurrentPeriod() + &quot;, numLoggedIn = &quot; + testGameLoginInfo.getNumberCurrentlyLoggedIn() + &quot;, loginAllowed = &quot; + testGameLoginInfo.getLoginAllowed());</span>
+<span class="nc" id="L170">      	  log.debug(&quot;Grand total number of companies logged in = &quot; + getTotalNumberOfLoggedInCompanies() );</span>
+	  }
+<span class="fc" id="L172">  }</span>
+
+
+  /**
+   *  Verify if logins are allowed for a particular company for this game.  This method should be called at the
+   *  beginning of every JSP page, and at the beginning of every ActionServlet accessible by companies.
+   *  This method checks for the following:
+   *    1. Company has been authenticated based on username/password
+   *    2. Game for this company is available
+   *       A game will not be available if the game has not yet been created
+   *    3. Logins are currently allowed for this game
+   *       Logins will not be allowed if the admin is currently updating the game's period,
+   *       or the game has not yet been started (advanced to period 1).
+   *    4. Period number recorded in company's session matches the current game number.
+   *       These values may not be equal if the admin has updated the game's period in
+   *       between a company's access of the BIG web pages.
+   */
+  public synchronized boolean verifyGameLoginAllowed(Game game, ServletContext context, HttpServletRequest request)
+  {
+<span class="fc" id="L191">	 boolean loginAllowed = false;</span>
+<span class="fc" id="L192">	 ActionErrors errors = new ActionErrors();</span>
+<span class="fc" id="L193">	 HttpSession session= request.getSession();</span>
+
+<span class="fc" id="L195"> 	 Log log = LogFactory.getLog(this.getClass());</span>
+
+     // Verify that the user has been authenticated.  If the company has not been authenticated,
+     // there will be no game object in the company's session.
+<span class="fc bfc" id="L199" title="All 2 branches covered.">     if (game == null)</span>
+     {
+        //System.out.println(&quot;LoginBroker.verifyGameLoginAllowed(): No Game object in the user's session.&quot;);
+<span class="fc" id="L202">		errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;loginError.userNotLoggedIn&quot;));</span>
+<span class="fc" id="L203">		loginAllowed=false;</span>
+	 }
+
+	 else
+	 {
+	    // Retrieve the GameLoginInfo object for this game from the ServletContext
+<span class="fc" id="L209">		GameLoginInfo gameLoginInfo = (GameLoginInfo) context.getAttribute(Integer.toString(game.getGameID()));</span>
+
+
+        // If there is no gameLoginInfo in the ServletContext for this Game, the company is not allowed to log in or
+        // access BIG web pages. This means the game does not exist, or there was a problem in the LoginInitizationServlet
+        // in loading this information from the BIG database upon startup of BIG.
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (gameLoginInfo == null)  // Invalid Game</span>
+        {
+<span class="fc" id="L217">           loginAllowed = false;</span>
+
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">		   if(log.isDebugEnabled())</span>
+		   {
+<span class="nc" id="L221">		   	   log.debug(&quot;LoginBroker.verifyGameLoginAllowed(): No GameLoginInfo in ServletContext for this Game.&quot;);</span>
+		   }
+
+           // Add error message to be displayed on &quot;login alert&quot; page
+<span class="fc" id="L225">		   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;loginError.invalidGame&quot;));</span>
+	    }
+        else  // Game exists
+        {
+<span class="fc bfc" id="L229" title="All 2 branches covered.">           if (!gameLoginInfo.getLoginAllowed())  // Logins not allowed for this game at this time</span>
+           {
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">			   if(log.isDebugEnabled())</span>
+			   {
+<span class="nc" id="L233">				   log.debug(&quot;LoginBroker.verifyGameLoginAllowed(): Game Login not allowed for this game at this time&quot;);</span>
+			   }
+<span class="fc" id="L235">               loginAllowed = false;</span>
+
+
+               // Add error message to be displayed on &quot;login alert&quot; page
+<span class="fc bfc" id="L239" title="All 2 branches covered.">               switch (game.getCurrentPeriodNumber())</span>
+               {
+                  case 0: // Game period = 0: Game has not yet started
+<span class="fc" id="L242">				     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;loginError.gameNotStarted&quot;));</span>
+<span class="fc" id="L243">                  break;</span>
+                  default: // Administrator is updating the period
+<span class="fc" id="L245">				     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;loginError.gameBeingAdvanced&quot;));</span>
+		       }
+	       }
+           else // Game has started, and admin is not updating the period
+           {
+			   // Verify that the period recorded in the user's session equals the period of the game.
+<span class="fc bfc" id="L251" title="All 2 branches covered.">			   if (gameLoginInfo.getCurrentPeriod() != game.getCurrentPeriodNumber())  // Company and Game Periods are not equal</span>
+			   {
+<span class="fc" id="L253">			      loginAllowed = false;</span>
+
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">			      if(log.isDebugEnabled())</span>
+			   	  {
+<span class="nc" id="L257">				      log.debug(&quot;gameLoginInfoPeriod= &quot; + gameLoginInfo.getCurrentPeriod() + &quot; and Game.period= &quot; +game.getCurrentPeriodNumber());</span>
+<span class="nc" id="L258">				      log.debug(&quot;LoginBroker.verifyGameLoginAllowed(): Company and Game Periods are not equal&quot;);</span>
+			  	  }
+
+                  // Add error message to be displayed on &quot;login alert&quot; page
+<span class="fc" id="L262">				  errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;loginError.gameHasBeenAdvanced&quot;));</span>
+			   }
+
+			   else  // Company has passed all tests and is allowed to log in!
+			   {
+<span class="fc" id="L267">			      loginAllowed = true;</span>
+			   }
+	       }
+	    }
+     }
+
+<span class="fc bfc" id="L273" title="All 2 branches covered.">     if(errors.size() &gt; 0)</span>
+     {
+<span class="fc" id="L275">		 request.setAttribute(Globals.ERROR_KEY, errors);</span>
+	 }
+
+<span class="fc" id="L278">     return loginAllowed;</span>
+  }
+
+
+  /**
+   * Returns the Total number of companies currently logged in to all games.
+   */
+  private int getTotalNumberOfLoggedInCompanies()
+  {
+<span class="nc" id="L287">	 Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc" id="L288">	 BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade( (DataSource) context.getAttribute(Globals.DATA_SOURCE_KEY) );</span>
+<span class="nc" id="L289">	 int count = 0;</span>
+
+     try
+     {
+		 // Get all existing games from the database
+<span class="nc" id="L294">		 Vector gameidVector = dbFacade.getGameDBHandler().getAllGames();</span>
+
+         //If any games exist, check each to see how many companies are currently logged in
+<span class="nc bnc" id="L297" title="All 4 branches missed.">         if((gameidVector != null) &amp;&amp; (gameidVector.size() != 0))</span>
+         {
+<span class="nc bnc" id="L299" title="All 2 branches missed.">             for (Enumeration e = gameidVector.elements() ; e.hasMoreElements() ;)</span>
+             {
+		        //Game game = dbFacade.getGameDBHandler().getGame( (int) e );
+<span class="nc" id="L302">		        int numLogged = getNumberOfLoggedInCompanies( ( (Game) e.nextElement() ), context);</span>
+<span class="nc" id="L303">                count = count + numLogged;</span>
+<span class="nc" id="L304">             }</span>
+	      }
+	 }
+<span class="nc" id="L307">	 catch (BIGDatabaseFacadeException bdbe)</span>
+	 {
+<span class="nc" id="L309">  	    log.fatal(bdbe);</span>
+	 }
+	 finally
+	 {
+	    try
+		{
+<span class="nc" id="L315">			dbFacade.close();</span>
+		}
+<span class="nc" id="L317">	    catch (BIGDatabaseFacadeException bdbe)</span>
+	    {
+<span class="nc" id="L319">  	       	log.fatal(bdbe);</span>
+<span class="nc" id="L320">	    }</span>
+	 }
+<span class="nc" id="L322">	 return count;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

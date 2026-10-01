@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval.IntervalUpdatePolicySettingsTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+
+Testcase: testGetSetUpdateTime took 0.003 sec
+Testcase: testGetSetNextScheduledUpdate took 0 sec
+Testcase: testGetSetInterval took 0 sec
+Testcase: testPolicyType took 0 sec

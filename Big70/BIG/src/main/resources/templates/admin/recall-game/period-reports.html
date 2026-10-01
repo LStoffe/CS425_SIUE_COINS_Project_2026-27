@@ -1,0 +1,91 @@
+<!--
+  period-reports.html
+  This page shows Admins the reports for estimated time and costs of jobs during a specific period.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Period Reports</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Period Reports</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <!-- Implementation Note -->
+      <div class="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+        <p class="text-amber-800 font-semibold mb-1">Implementation Note</p>
+        <p class="text-amber-700 text-sm">
+          The following reports are not available in this version of the simulation:
+        </p>
+        <ul class="mt-2 text-sm text-amber-700 list-disc ml-6 space-y-1">
+          <li><span class="font-semibold">Productivity Report</span> — Requires full activity-based work simulation</li>
+          <li><span class="font-semibold">Complete List of Bids</span> — Available on the company side only</li>
+          <li><span class="font-semibold">Estimated Time and Cost Reports</span> — Requires full estimating component</li>
+        </ul>
+      </div>
+
+      <!-- Report Header -->
+      <div class="mb-8">
+        <h3 class="text-xl font-bold mb-2">Period Reports</h3>
+      </div>
+
+      <!-- Report Links Section -->
+      <div class="space-y-6">
+
+        <!-- Productivity Report -->
+        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <span class="text-gray-400 font-semibold text-lg cursor-not-allowed">
+            Productivity Report (Not Available)
+          </span>
+        </div>
+
+        <!-- Complete List of Bids -->
+        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <span class="text-gray-400 font-semibold text-lg cursor-not-allowed">
+            View Complete List of Bids Report (Not Available)
+          </span>
+        </div>
+
+        <!-- Estimated Time and Cost Reports -->
+        <div class="p-6 border border-gray-200 rounded-lg bg-gray-50">
+          <h4 class="font-bold text-lg mb-4 text-gray-500">
+            Estimated Time and Cost Reports for Jobs Created this Period
+          </h4>
+          <div class="text-center py-8 text-gray-400">
+            Not available in this version of the simulation.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/admin/recall-menu}"
+           class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block">
+          Back to Game Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

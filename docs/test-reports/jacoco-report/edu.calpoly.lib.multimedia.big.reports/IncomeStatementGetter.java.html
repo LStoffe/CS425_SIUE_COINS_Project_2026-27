@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IncomeStatementGetter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">IncomeStatementGetter.java</span></div><h1>IncomeStatementGetter.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.reports;
+
+
+//JDK imports
+import java.text.NumberFormat;
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Hashtable;
+import java.io.IOException;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.reports.FinancialReportForm;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.User;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.TaxLedger;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ *  Get an income statement, doing all the tax calculations needed.
+ *
+ *  @author Kevin Craig
+ */
+public class IncomeStatementGetter
+{
+	private Game game;
+	private Company company;
+	private BIGDatabaseFacadeInterface dbFacade;
+	private float taxRate;
+	private float depreciationRate;
+
+	private Log log;
+
+	public IncomeStatementGetter(Game game, Company company, BIGDatabaseFacadeInterface dbFacade) throws ParametersNotFoundException, BIGDatabaseFacadeException
+<span class="fc" id="L49">	{</span>
+<span class="fc" id="L50">		this.game = game;</span>
+<span class="fc" id="L51">		this.company = company;</span>
+<span class="fc" id="L52">		this.dbFacade = dbFacade;</span>
+
+<span class="fc" id="L54">		Hashtable misc = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+
+<span class="fc" id="L56">        this.taxRate = ((float) (((Integer) misc.get(&quot;incomeTaxPercent&quot;)).intValue())) / 100f; //divide by 100 to convert from % to decimal</span>
+
+<span class="fc" id="L58">        log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L59">	}</span>
+
+	/**
+	 * Retrieves an income statement.  In this method the amount of income tax recorded in the income statement
+	 * will be calculated based on the total revenue for the year.  Note that this method involves
+	 * many database accesses and calculations.
+	 */
+    public IncomeStatementForm getIncomeStatementComputeTaxes(int periodNum) throws BIGDatabaseFacadeException, ObjectNotFoundException
+    {
+
+<span class="fc" id="L69">		 FinancialReportForm financialReportForm = dbFacade.getFinancialReportDBHandler().getFinancialReport(game, periodNum, company);</span>
+<span class="fc" id="L70">         ContractsInProgressReportForm contractsInProgress = contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, periodNum, company);</span>
+<span class="fc" id="L71"> 		 CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, periodNum, company);</span>
+<span class="fc" id="L72"> 		 BalanceSheetForm prevBalanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, periodNum - 1, company);</span>
+
+<span class="fc" id="L74">		 IncomeStatementForm incomeStatement = new IncomeStatementForm(financialReportForm,</span>
+				  										    		   prevBalanceSheet,
+				  										    		   contractsInProgress,
+				  										    		   completedContracts,
+				  										    		   .10f, //FIX DEPRECIATION
+				  										    		   0);
+
+<span class="nc" id="L81">		 int taxes = handleTaxes(incomeStatement, periodNum);</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		 if(((periodNum - 1) % 6) == 0)</span>
+		 {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			 if(log.isDebugEnabled())</span>
+			 {
+<span class="nc" id="L87">			 	 log.debug(&quot;dont sub prev&quot;);</span>
+			 }
+<span class="nc" id="L89">			 incomeStatement.setIncomeTaxes(taxes);</span>
+		 }
+		 else
+		 {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">			 if(log.isDebugEnabled())</span>
+			 {
+<span class="nc" id="L95">			     log.debug(&quot;sub prev &quot; + taxes + &quot; &quot; + prevBalanceSheet.getTaxes());</span>
+		 	 }
+<span class="nc" id="L97">		 	 incomeStatement.setIncomeTaxes(taxes - prevBalanceSheet.getTaxes());</span>
+		 }
+
+<span class="nc" id="L100">		 return incomeStatement;</span>
+	}
+
+	/**
+	 * Retrieves an income statement.  The taxes recorded in this income statement will
+	 * be based on the taxes recorded in the current and previous balance sheets.  Note
+	 * that these values should have originally got into the balance sheets using
+	 * the income tax values computed in calls to getIncomeStatementComputeTaxes.
+	 *
+	 */
+    public IncomeStatementForm getIncomeStatement(int periodNum) throws BIGDatabaseFacadeException, ObjectNotFoundException
+    {
+
+<span class="nc" id="L113">	  FinancialReportForm financialReport = dbFacade.getFinancialReportDBHandler().getFinancialReport(game, periodNum, company);</span>
+<span class="nc" id="L114">      ContractsInProgressReportForm contractsInProgress = contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, periodNum, company);</span>
+<span class="nc" id="L115">      CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, periodNum, company);</span>
+<span class="nc" id="L116"> 	  BalanceSheetForm prevBalanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, periodNum - 1, company);</span>
+<span class="nc" id="L117"> 	  BalanceSheetForm balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, periodNum, company);</span>
+
+<span class="nc" id="L119">	  return new IncomeStatementForm(financialReport,</span>
+				  					 prevBalanceSheet,
+				  					 contractsInProgress,
+				  					 completedContracts,
+				  					 .10f, //FIX
+<span class="nc" id="L124">				  					 balanceSheet.getTaxes() - prevBalanceSheet.getTaxes()</span>
+				  					);
+	}
+
+  	//Calculates a new estimate for the
+  	//amount of taxes that must be paid for the current year
+  	private int handleTaxes(IncomeStatementForm currentIncomeStatement, int periodNum) throws BIGDatabaseFacadeException, ObjectNotFoundException
+  	{
+
+<span class="fc" id="L133">  		  int periodsToConsider = periodNum % 6;  //magic number... 6 periods per year</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">  		  if(log.isDebugEnabled())</span>
+  		  {
+<span class="nc" id="L136">		      log.debug(&quot;periods to consider: &quot;+ periodsToConsider);</span>
+		  }
+
+<span class="fc" id="L139">  		  boolean yearEnd = false;</span>
+
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">  		  if (periodsToConsider == 0)</span>
+  		  {
+<span class="nc" id="L143">			  periodsToConsider = 6;</span>
+		  }
+
+<span class="fc" id="L146">		  IncomeStatementForm[] previousStatements = new IncomeStatementForm[periodsToConsider];</span>
+
+		  //Load the current income statement into the array
+<span class="fc" id="L149">		  periodsToConsider--;</span>
+<span class="fc" id="L150">		  previousStatements[periodsToConsider] = currentIncomeStatement;</span>
+
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">		  while(periodsToConsider &gt; 0)</span>
+		  {
+<span class="fc" id="L154">			  periodsToConsider--;</span>
+<span class="nc" id="L155">			  previousStatements[periodsToConsider] = getIncomeStatement(periodNum, periodsToConsider+1);</span>
+		  }
+
+  	      //use the TaxLedger to computer the tax amount
+<span class="nc" id="L159">  	      TaxLedger taxLedger = new TaxLedger(taxRate, previousStatements);</span>
+<span class="nc" id="L160">  	      int taxes = taxLedger.getTaxes();</span>
+
+<span class="nc" id="L162">          return taxes;</span>
+  }
+
+  //Returns the income statement for a given number of period prior to the current period
+  //Pre: periodsAgo &gt; 0
+  //Pre: currentPeriod - periodsAgo &gt; 0
+  //Note: The taxes, net earnings, and equity fields of the incomeStatement will not necessarily be correct
+  private IncomeStatementForm getIncomeStatement(int periodNum, int periodsAgo) throws BIGDatabaseFacadeException, ObjectNotFoundException
+  {
+
+<span class="fc" id="L172">	  FinancialReportForm financialReport = dbFacade.getFinancialReportDBHandler().getFinancialReport(game, periodNum - periodsAgo, company);</span>
+<span class="fc" id="L173">      ContractsInProgressReportForm contractsInProgress = contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, periodNum - periodsAgo, company);</span>
+<span class="fc" id="L174">      CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, periodNum - periodsAgo, company);</span>
+<span class="fc" id="L175"> 	  BalanceSheetForm prevBalanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, (periodNum - periodsAgo) - 1, company);</span>
+<span class="fc" id="L176"> 	  BalanceSheetForm balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, (periodNum - periodsAgo) , company);</span>
+
+<span class="pc" id="L178">	  return new IncomeStatementForm(financialReport,</span>
+				  					 prevBalanceSheet,
+				  					 contractsInProgress,
+				  					 completedContracts,
+				  					.10f, //FIX
+<span class="nc" id="L183">				  					balanceSheet.getTaxes() - prevBalanceSheet.getTaxes()</span>
+				  					);
+  }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

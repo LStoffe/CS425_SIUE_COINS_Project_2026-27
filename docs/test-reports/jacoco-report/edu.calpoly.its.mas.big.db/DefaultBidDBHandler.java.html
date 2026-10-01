@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultBidDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultBidDBHandler.java</span></div><h1>DefaultBidDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.Bid;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+import java.util.Vector;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+
+/**
+ * Default implementation of &lt;code&gt;BidDBHandler&lt;/code&gt;.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.12 $ $Date: 2002/03/14 18:53:05 $
+ */
+public class DefaultBidDBHandler extends DefaultDBHandler implements BidDBHandler
+{
+	private SqlMapClient sqlMap;
+
+
+    public DefaultBidDBHandler(Connection connection, SqlMapClient sqlMap)
+    {
+<span class="fc" id="L33">		super(connection);</span>
+<span class="fc" id="L34">		this.sqlMap = sqlMap;</span>
+<span class="fc" id="L35">	}</span>
+
+	public Bid getBid(Game game, Job job, Company company)
+		throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L40">		Bid bid = null;</span>
+
+<span class="fc" id="L42">		String query = &quot;SELECT b.bid_amount, b.bid_amount_up, b.unitprice1, b.unitprice2, b.unitprice3, b.unitprice4, b.unitprice5, b.unitprice6, b.unitprice7, b.unitprice8, b.unitprice9, b.outcome_code &quot; +</span>
+			           &quot;FROM bid b &quot; +
+                       &quot;WHERE b.gameid = ? AND b.companyid = ? AND b.jobid = ?&quot;;
+		try
+		{
+<span class="fc" id="L47">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L48">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L49">			pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L50">			pstmt.setInt(3, job.getJobID());</span>
+
+<span class="fc" id="L52">			ResultSet rset = pstmt.executeQuery();</span>
+
+            //Check if no rows are returned
+            //(rset.last() returns false if there are no rows in the result set)
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            if(!rset.last())</span>
+            {
+<span class="fc" id="L58">				throw new ObjectNotFoundException();</span>
+			}
+			else
+			{           // We found a bid
+<span class="fc" id="L62">				rset.first();</span>
+
+<span class="fc" id="L64">				double[] unitPrices = new double[9];</span>
+<span class="fc" id="L65">				unitPrices[0] = rset.getDouble(&quot;unitprice1&quot;);</span>
+<span class="fc" id="L66">				unitPrices[1] = rset.getDouble(&quot;unitprice2&quot;);</span>
+<span class="fc" id="L67">				unitPrices[2] = rset.getDouble(&quot;unitprice3&quot;);</span>
+<span class="fc" id="L68">				unitPrices[3] = rset.getDouble(&quot;unitprice4&quot;);</span>
+<span class="fc" id="L69">				unitPrices[4] = rset.getDouble(&quot;unitprice5&quot;);</span>
+<span class="fc" id="L70">				unitPrices[5] = rset.getDouble(&quot;unitprice6&quot;);</span>
+<span class="fc" id="L71">				unitPrices[6] = rset.getDouble(&quot;unitprice7&quot;);</span>
+<span class="fc" id="L72">				unitPrices[7] = rset.getDouble(&quot;unitprice8&quot;);</span>
+<span class="fc" id="L73">				unitPrices[8] = rset.getDouble(&quot;unitprice9&quot;);</span>
+
+<span class="fc" id="L75">				bid = new Bid(game.getGameID(), company.getCompanyID(),</span>
+<span class="fc" id="L76">							  job.getJobID(),</span>
+<span class="fc" id="L77">							  rset.getLong(&quot;bid_amount&quot;),</span>
+<span class="fc" id="L78">							  rset.getDouble(&quot;bid_amount_up&quot;),</span>
+							  unitPrices,
+<span class="fc" id="L80">							  rset.getInt(&quot;outcome_code&quot;));</span>
+			}
+
+			// Retrieve bid methods
+<span class="fc" id="L84">			bid.setMethods( getBidMethods(bid) );</span>
+
+<span class="fc" id="L86">			rset.close();</span>
+<span class="fc" id="L87">			pstmt.close();</span>
+<span class="nc" id="L88">		} catch(SQLException sqle) {</span>
+			//if an exception occurs close the connection
+<span class="nc" id="L90">			close();</span>
+<span class="nc" id="L91">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L92">		}</span>
+
+<span class="fc" id="L94">		return bid;</span>
+	}
+
+	public Vector getBids(Game game, Job job)
+		throws BIGDatabaseFacadeException, ObjectNotFoundException
+	{
+<span class="fc" id="L100">		Vector bids = new Vector();</span>
+
+<span class="fc" id="L102">		String bidQuery = &quot;SELECT bid_amount, bid_amount_up, unitprice1, unitprice2, unitprice3, unitprice4, unitprice5, unitprice6, unitprice7, unitprice8, unitprice9, outcome_code, companyid &quot; +</span>
+			              &quot;FROM bid &quot; +
+                          &quot;WHERE gameid = ? AND jobid = ?&quot;;
+
+		try
+		{
+<span class="fc" id="L108">			PreparedStatement pstmt = connection.prepareStatement(bidQuery);</span>
+<span class="fc" id="L109">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L110">			pstmt.setInt(2, job.getJobID());</span>
+
+<span class="fc" id="L112">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc" id="L114">			int rowCount = 0;</span>
+
+<span class="fc" id="L116">			double[] unitPrices = new double[9];</span>
+
+<span class="fc bfc" id="L118" title="All 2 branches covered.">			while (rset.next())</span>
+			{
+<span class="fc" id="L120">				unitPrices[0] = rset.getDouble(&quot;unitprice1&quot;);</span>
+<span class="fc" id="L121">				unitPrices[1] = rset.getDouble(&quot;unitprice2&quot;);</span>
+<span class="fc" id="L122">				unitPrices[2] = rset.getDouble(&quot;unitprice3&quot;);</span>
+<span class="fc" id="L123">				unitPrices[3] = rset.getDouble(&quot;unitprice4&quot;);</span>
+<span class="fc" id="L124">				unitPrices[4] = rset.getDouble(&quot;unitprice5&quot;);</span>
+<span class="fc" id="L125">				unitPrices[5] = rset.getDouble(&quot;unitprice6&quot;);</span>
+<span class="fc" id="L126">				unitPrices[6] = rset.getDouble(&quot;unitprice7&quot;);</span>
+<span class="fc" id="L127">				unitPrices[7] = rset.getDouble(&quot;unitprice8&quot;);</span>
+<span class="fc" id="L128">				unitPrices[8] = rset.getDouble(&quot;unitprice9&quot;);</span>
+
+
+
+
+
+
+<span class="fc" id="L135">				Bid bid = new Bid(game.getGameID(), rset.getInt(&quot;companyid&quot;),</span>
+<span class="fc" id="L136">								  job.getJobID(),</span>
+<span class="fc" id="L137">								  rset.getLong(&quot;bid_amount&quot;),</span>
+<span class="fc" id="L138">								  rset.getDouble(&quot;bid_amount_up&quot;),</span>
+								  unitPrices,
+<span class="fc" id="L140">								  rset.getInt(&quot;outcome_code&quot;));</span>
+
+<span class="fc" id="L142">				bid.setMethods( getBidMethods(bid) );</span>
+
+<span class="fc" id="L144">				bids.add(bid);</span>
+<span class="fc" id="L145">				rowCount++;</span>
+<span class="fc" id="L146">			}</span>
+
+			/* Do all jobs necessarily have bids?  If so, this should
+			   be uncommented...
+			if (rowCount &lt; 1) {
+				throw new ObjectNotFoundException();
+			}
+			*/
+
+<span class="fc" id="L155">			rset.close();</span>
+<span class="fc" id="L156">			pstmt.close();</span>
+		}
+<span class="nc" id="L158">		catch(SQLException sqle)</span>
+		{
+			//if an exception occurs close the connection
+<span class="nc" id="L161">			close();</span>
+<span class="nc" id="L162">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L163">		}</span>
+
+<span class="fc" id="L165">		return bids;</span>
+	}
+
+
+	private int[] getBidMethods(Bid bid)
+		throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L172">		int[] methods = new int[9];</span>
+
+<span class="fc" id="L174">		String query = &quot;SELECT bid_method FROM bid_method &quot; +</span>
+                       &quot;WHERE gameid = ? AND companyid = ? AND &quot; +
+			           &quot;jobid = ? ORDER BY bid_activity&quot;;
+
+<span class="fc bfc" id="L178" title="All 2 branches covered.">		if (bid.getCompanyID() == -1) {</span>
+<span class="fc" id="L179">			return methods;</span>
+		}
+
+		try
+  		{
+<span class="fc" id="L184">			PreparedStatement pstmt = connection.prepareStatement(query);</span>
+<span class="fc" id="L185">			pstmt.setInt(1, bid.getGameID());</span>
+<span class="fc" id="L186">			pstmt.setInt(2, bid.getCompanyID());</span>
+<span class="fc" id="L187">			pstmt.setInt(3, bid.getJobNumber());</span>
+
+<span class="fc" id="L189">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc" id="L191">			int rowCount = 0;</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">			while (rset.next())</span>
+			{
+<span class="fc" id="L194">				methods[rowCount++] = rset.getInt(&quot;bid_method&quot;);</span>
+			}
+
+			// Each of the nine activities should have a method
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">			if (rowCount &lt; 9)</span>
+			{
+<span class="nc" id="L200">				throw new ObjectNotFoundException();</span>
+			}
+
+<span class="fc" id="L203">			rset.close();</span>
+<span class="fc" id="L204">			pstmt.close();</span>
+<span class="nc" id="L205">		} catch(SQLException sqle)</span>
+		{
+			//if an exception occurs close the connection
+<span class="nc" id="L208">			close();</span>
+<span class="nc" id="L209">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L210">		}</span>
+
+<span class="fc" id="L212">		return methods;</span>
+	}
+
+	public Vector getBids(Company company) throws BIGDatabaseFacadeException  //this may be unnecessary
+	{
+<span class="fc" id="L217">		return null;</span>
+	}
+
+	public void updateBid(Game game, Job job, Company company, Bid bid)
+		throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L223">		int[] methods = bid.getMethods();</span>
+<span class="fc" id="L224">		double[] unitPrices = new double[9];</span>
+
+<span class="fc" id="L226">		String update = &quot;UPDATE bid &quot; +</span>
+			            &quot;SET bid_amount = ?, bid_amount_up = ?, unitprice1 = ?, unitprice2 = ?, unitprice3 = ?, unitprice4 = ?, unitprice5 = ?, unitprice6 = ?, unitprice7 = ?, unitprice8 = ?, unitprice9 = ?, outcome_code = ? &quot; +
+			            &quot;WHERE jobid = ? AND companyid = ? AND gameid = ?&quot;;
+
+<span class="fc" id="L230">		String update2 = &quot;UPDATE bid_method &quot; +</span>
+			             &quot;SET bid_method = ? &quot; +
+                         &quot;WHERE gameid = ? AND jobid = ? &quot; +
+			             &quot;AND companyid = ? AND bid_activity = ? &quot;;
+
+		try
+		{
+<span class="fc" id="L237">			unitPrices = bid.getUnitPrices();</span>
+
+<span class="fc" id="L239">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L240">			pstmt.setLong(1, bid.getBidAmount());</span>
+<span class="fc" id="L241">			pstmt.setDouble(2, bid.getBidAmountUP());</span>
+<span class="fc" id="L242">			pstmt.setDouble(3, unitPrices[0]);</span>
+<span class="fc" id="L243">			pstmt.setDouble(4, unitPrices[1]);</span>
+<span class="fc" id="L244">			pstmt.setDouble(5, unitPrices[2]);</span>
+<span class="fc" id="L245">			pstmt.setDouble(6, unitPrices[3]);</span>
+<span class="fc" id="L246">			pstmt.setDouble(7, unitPrices[4]);</span>
+<span class="fc" id="L247">			pstmt.setDouble(8, unitPrices[5]);</span>
+<span class="fc" id="L248">			pstmt.setDouble(9, unitPrices[6]);</span>
+<span class="fc" id="L249">			pstmt.setDouble(10, unitPrices[7]);</span>
+<span class="fc" id="L250">			pstmt.setDouble(11, unitPrices[8]);</span>
+<span class="fc" id="L251">			pstmt.setInt(12, bid.getOutcomeCode());</span>
+<span class="fc" id="L252">			pstmt.setInt(13, job.getJobID());</span>
+<span class="fc" id="L253">			pstmt.setInt(14, company.getCompanyID());</span>
+<span class="fc" id="L254">			pstmt.setInt(15, game.getGameID());</span>
+
+<span class="fc" id="L256">			int rows = pstmt.executeUpdate();</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">			if (rows &lt; 1) {</span>
+<span class="nc" id="L258">				throw new ObjectNotFoundException();</span>
+			}
+
+<span class="fc" id="L261">			connection.commit();</span>
+
+<span class="fc" id="L263">			pstmt.close();</span>
+<span class="nc" id="L264">		} catch(SQLException sqle) {</span>
+			//if an exception occurs close the connection
+<span class="nc" id="L266">			close();</span>
+<span class="nc" id="L267">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L268">		}</span>
+
+		// Bid methods are not stored for CompanyX
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">		if (company.getCompanyID() != -1) {</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">			for (int i = 0; i &lt; 9; i++)</span>
+				{
+					try
+						{
+<span class="fc" id="L276">							PreparedStatement pstmt = connection.prepareStatement(update2);</span>
+<span class="fc" id="L277">							pstmt.setInt(1, methods[i]);</span>
+<span class="fc" id="L278">							pstmt.setInt(2, game.getGameID());</span>
+<span class="fc" id="L279">							pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L280">							pstmt.setInt(4, company.getCompanyID());</span>
+<span class="fc" id="L281">							pstmt.setInt(5, i+1);</span>
+
+<span class="fc" id="L283">							int rows = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L285">							connection.commit();</span>
+
+<span class="fc" id="L287">							pstmt.close();</span>
+						}
+<span class="nc" id="L289">					catch(SQLException sqle)</span>
+						{
+							//if an exception occurs close the connection
+<span class="nc" id="L292">							close();</span>
+<span class="nc" id="L293">							throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L294">						}</span>
+				}
+		}
+
+
+<span class="fc" id="L299">	}</span>
+
+	public void addBid(Game game, Job job, Company company, Bid theBid) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L303">		int[] methods = theBid.getMethods();</span>
+<span class="fc" id="L304">		double[] unitPrices = new double[9];</span>
+
+<span class="fc" id="L306">		String insert = &quot;INSERT INTO bid (gameid, jobid, companyid, bid_amount, bid_amount_up, unitprice1, unitprice2, unitprice3, unitprice4, unitprice5, unitprice6, unitprice7, unitprice8, unitprice9, outcome_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;</span>
+
+<span class="fc" id="L308">		String insert2 = &quot;INSERT INTO bid_method (gameid, jobid, companyid, bid_activity, bid_method) VALUES (?, ?, ?, ?, ?)&quot;;</span>
+
+		try {
+<span class="fc" id="L311">			unitPrices = theBid.getUnitPrices();</span>
+
+<span class="fc" id="L313">			PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L314">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L315">			pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L316">			pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L317">			pstmt.setLong(4, theBid.getBidAmount());</span>
+<span class="fc" id="L318">			pstmt.setDouble(5, theBid.getBidAmountUP());</span>
+<span class="fc" id="L319">			pstmt.setDouble(6, unitPrices[0]);</span>
+<span class="fc" id="L320">			pstmt.setDouble(7, unitPrices[1]);</span>
+<span class="fc" id="L321">			pstmt.setDouble(8, unitPrices[2]);</span>
+<span class="fc" id="L322">			pstmt.setDouble(9, unitPrices[3]);</span>
+<span class="fc" id="L323">			pstmt.setDouble(10, unitPrices[4]);</span>
+<span class="fc" id="L324">			pstmt.setDouble(11, unitPrices[5]);</span>
+<span class="fc" id="L325">			pstmt.setDouble(12, unitPrices[6]);</span>
+<span class="fc" id="L326">			pstmt.setDouble(13, unitPrices[7]);</span>
+<span class="fc" id="L327">			pstmt.setDouble(14, unitPrices[8]);</span>
+<span class="fc" id="L328">			pstmt.setInt(15, theBid.getOutcomeCode());</span>
+
+<span class="fc" id="L330">			int rows = pstmt.executeUpdate();</span>
+<span class="fc" id="L331">			connection.commit();</span>
+
+<span class="fc" id="L333">			pstmt.close();</span>
+<span class="nc" id="L334">		} catch(SQLException sqle) {</span>
+			//if an exception occurs close the connection
+<span class="nc" id="L336">			close();</span>
+<span class="nc" id="L337">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L338">		}</span>
+
+		// Don't store CompanyX bid methods
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">		if (company.getCompanyID() != -1) {</span>
+<span class="fc bfc" id="L342" title="All 2 branches covered.">			for (int i = 0; i &lt; 9; i++)	{</span>
+				try	{
+<span class="fc" id="L344">					PreparedStatement pstmt = connection.prepareStatement(insert2);</span>
+<span class="fc" id="L345">					pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L346">					pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L347">					pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L348">					pstmt.setInt(4, i+1);</span>
+<span class="fc" id="L349">					pstmt.setInt(5, methods[i]);</span>
+
+<span class="fc" id="L351">					int rows = pstmt.executeUpdate();</span>
+<span class="fc" id="L352">					connection.commit();</span>
+
+<span class="fc" id="L354">					pstmt.close();</span>
+<span class="nc" id="L355">				} catch(SQLException sqle) {</span>
+					// if an exception occurs close the connection
+<span class="nc" id="L357">					close();</span>
+<span class="nc" id="L358">					throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L359">				}</span>
+			}
+		}
+
+<span class="fc" id="L363">	}</span>
+
+
+	public void removeBids(int gameID, int jobID) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L368">		String remove = &quot;DELETE FROM bid WHERE gameid = ? AND jobid = ?&quot;;</span>
+<span class="fc" id="L369">		String remove2 = &quot;DELETE FROM bid_method WHERE gameid = ? AND jobid = ?&quot;;</span>
+
+		try {
+<span class="fc" id="L372">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L373">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L374">			pstmt.setInt(2, jobID);</span>
+<span class="fc" id="L375">			int rows = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L377">			pstmt = connection.prepareStatement(remove2);</span>
+<span class="fc" id="L378">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L379">			pstmt.setInt(2, jobID);</span>
+<span class="fc" id="L380">			rows = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L382">			connection.commit();</span>
+<span class="nc" id="L383">		} catch(SQLException sqle) {</span>
+			//if an exception occurs close the connection
+<span class="nc" id="L385">			close();</span>
+<span class="nc" id="L386">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L387">		}</span>
+
+<span class="fc" id="L389">	}</span>
+
+	public void removeBids(int companyID) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L393">		String remove = &quot;DELETE FROM bid WHERE companyid = ?&quot;;</span>
+<span class="fc" id="L394">		String remove2 = &quot;DELETE FROM bid_method WHERE companyid = ?&quot;;</span>
+
+		try {
+<span class="fc" id="L397">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L398">			pstmt.setInt(1, companyID);</span>
+<span class="fc" id="L399">			int rows = pstmt.executeUpdate();</span>
+
+			// CompanyX has no bid methods
+<span class="pc bpc" id="L402" title="1 of 2 branches missed.">			if (companyID != -1) {</span>
+<span class="fc" id="L403">				pstmt = connection.prepareStatement(remove2);</span>
+<span class="fc" id="L404">				pstmt.setInt(1, companyID);</span>
+<span class="fc" id="L405">				rows = pstmt.executeUpdate();</span>
+			}
+
+<span class="fc" id="L408">			connection.commit();</span>
+<span class="nc" id="L409">		} catch(SQLException sqle) {</span>
+			//if an exception occurs close the connection
+<span class="nc" id="L411">			close();</span>
+<span class="nc" id="L412">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L413">		}</span>
+
+<span class="fc" id="L415">	}</span>
+
+	public void removeBids(int gameID, boolean overload) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L419">		String remove = &quot;DELETE FROM bid WHERE gameid = ?&quot;;</span>
+<span class="fc" id="L420">		String remove2 = &quot;DELETE FROM bid_method WHERE gameid = ?&quot;;</span>
+
+		try {
+<span class="fc" id="L423">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L424">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L425">			int rows = pstmt.executeUpdate();</span>
+
+			// CompanyX has no bid methods
+<span class="fc" id="L428">			pstmt = connection.prepareStatement(remove2);</span>
+<span class="fc" id="L429">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L430">			rows = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L432">			connection.commit();</span>
+<span class="nc" id="L433">		} catch(SQLException sqle) {</span>
+			//if an exception occurs close the connection
+<span class="nc" id="L435">			close();</span>
+<span class="nc" id="L436">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L437">		}</span>
+
+<span class="fc" id="L439">	}</span>
+
+
+	public void removeBid(int gameID, int jobID, int companyID) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L444">		String remove = &quot;DELETE FROM bid WHERE gameid = ? AND jobid = ? AND companyid = ?&quot;;</span>
+<span class="fc" id="L445">		String remove2 = &quot;DELETE FROM bid_method WHERE gameid = ? AND jobid = ? AND companyid = ?&quot;;</span>
+
+		try {
+<span class="fc" id="L448">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L449">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L450">			pstmt.setInt(2, jobID);</span>
+<span class="fc" id="L451">			pstmt.setInt(3, companyID);</span>
+<span class="fc" id="L452">			int rows = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L454">			pstmt = connection.prepareStatement(remove2);</span>
+<span class="fc" id="L455">			pstmt.setInt(1, gameID);</span>
+<span class="fc" id="L456">			pstmt.setInt(2, jobID);</span>
+<span class="fc" id="L457">			pstmt.setInt(3, companyID);</span>
+<span class="fc" id="L458">			rows = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L460">			connection.commit();</span>
+<span class="nc" id="L461">		} catch(SQLException sqle) {</span>
+			//if an exception occurs close the connection
+<span class="nc" id="L463">			close();</span>
+<span class="nc" id="L464">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L465">		}</span>
+
+<span class="fc" id="L467">	}</span>
+
+	public int getBidCountForCompany(int companyID) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L471">		int count = 0;</span>
+
+		try
+		{
+<span class="nc" id="L475">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalCompanyBids&quot;, companyID)).intValue();</span>
+		}
+<span class="nc" id="L477">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L479">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L480">		}</span>
+
+<span class="nc" id="L482">		return count;</span>
+	}
+
+
+	public int getDismissedBidCountForCompany(int companyID) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L488">		int count = 0;</span>
+
+		try
+		{
+<span class="nc" id="L492">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalDismissedCompanyBids&quot;, companyID)).intValue();</span>
+		}
+<span class="nc" id="L494">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L496">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L497">		}</span>
+
+<span class="nc" id="L499">		return count;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,5 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.DeleteGameConfirmActionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.578 sec
+
+Testcase: testExecuteNoGameFoundWhenGamesNull took 0.569 sec
+Testcase: testExecuteSuccess took 0.003 sec

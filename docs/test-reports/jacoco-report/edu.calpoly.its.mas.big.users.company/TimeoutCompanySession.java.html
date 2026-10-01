@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TimeoutCompanySession.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">TimeoutCompanySession.java</span></div><h1>TimeoutCompanySession.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
+
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+/**
+ * When a company's session times out due to inactivity, this class will be notified
+ * via an HttpSessionBindingEvent.  The valueUnbound method will decrement the number of
+ * companies logged in, and will invalidate the user's session.
+ *
+ * @author Dara Manker
+ * @version $Revision: 1.1 $ $Date: 2002/04/16 00:37:28 $
+ * @param context The servlet context in which this company's session was running
+ * @param gameID  The BIG Game ID for this company.
+ */
+
+public class TimeoutCompanySession implements HttpSessionBindingListener
+{
+
+    private ServletContext context;
+    private int gameID;
+
+    public TimeoutCompanySession(ServletContext sc, int gameid)
+<span class="fc" id="L27">    {</span>
+<span class="fc" id="L28">		this.gameID = gameid;</span>
+<span class="fc" id="L29">		this.context = sc;</span>
+<span class="fc" id="L30">	}</span>
+
+    /**
+     * This method is run when a company's session is timed out.  This method will
+     * decrement the number of companies logged in, remove the game and user objects
+     * from the company's session, and then kill the session.
+     */
+    public void valueUnbound(HttpSessionBindingEvent event)
+    {
+<span class="nc" id="L39">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+<span class="nc" id="L40">        loginBroker.decrementNumberOfLoggedInCompanies(gameID, context);</span>
+<span class="nc" id="L41">    }</span>
+
+    /**
+     * This method is empty: no processing is necessary by this object when
+     * it is bound to the company's session.
+     */
+    public void valueBound(HttpSessionBindingEvent event)
+    {
+<span class="fc" id="L49">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

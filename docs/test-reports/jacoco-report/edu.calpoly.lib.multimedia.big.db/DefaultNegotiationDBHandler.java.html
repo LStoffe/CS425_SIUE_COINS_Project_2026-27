@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultNegotiationDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultNegotiationDBHandler.java</span></div><h1>DefaultNegotiationDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+
+//JDK imports
+import java.util.Hashtable;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;NegotiationDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultNegotiationDBHandler extends DefaultDBHandler implements NegotiationDBHandler
+{
+
+    public DefaultNegotiationDBHandler(Connection connection)
+    {
+<span class="fc" id="L31">		super(connection);</span>
+<span class="fc" id="L32">	}</span>
+
+	public Hashtable getNegotiationValues(Game game, int jobID)
+		throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L37">		Hashtable values = new Hashtable();</span>
+
+
+		try
+		{
+<span class="fc" id="L42">			String select = &quot;SELECT agreed_cost, agreed_percent_profit, state, customer_target_profit, customer_haggling &quot; +</span>
+							&quot;FROM negotiated_job &quot; +
+							&quot;WHERE gameid = ? AND jobid = ? &quot;;
+
+<span class="fc" id="L46">			PreparedStatement pstatement = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L47">			pstatement.setInt(1, game.getGameID());</span>
+<span class="fc" id="L48">			pstatement.setInt(2, jobID);</span>
+
+<span class="fc" id="L50">			ResultSet rset = pstatement.executeQuery();</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">			if(rset.next())</span>
+			{
+<span class="fc" id="L53">				values.put(&quot;agreedCost&quot;, new Long(rset.getLong(&quot;agreed_cost&quot;)));</span>
+<span class="fc" id="L54">				values.put(&quot;agreedProfit&quot;, new Integer(rset.getInt(&quot;agreed_percent_profit&quot;)));</span>
+<span class="fc" id="L55">				values.put(&quot;state&quot;, new Integer(rset.getInt(&quot;state&quot;)));</span>
+<span class="fc" id="L56">				values.put(&quot;customerTargetProfit&quot;, new Integer(rset.getInt(&quot;customer_target_profit&quot;)));</span>
+<span class="fc" id="L57">				values.put(&quot;customerHaggling&quot;, new Integer(rset.getInt(&quot;customer_haggling&quot;)));</span>
+			}
+			else
+			{
+<span class="fc" id="L61">				throw new ObjectNotFoundException();</span>
+			}
+<span class="fc" id="L63">			rset.close();</span>
+<span class="fc" id="L64">			pstatement.close();</span>
+		}
+<span class="fc" id="L66">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="fc" id="L69">			close();</span>
+<span class="fc" id="L70">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L71">		}</span>
+
+<span class="fc" id="L73">		return values;</span>
+	}
+
+
+	public void setNegotationValues(Game game, int jobID, Hashtable values)
+		throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L80">		Long agreedCost = (Long) values.get(&quot;agreedCost&quot;);</span>
+<span class="fc" id="L81">		Integer agreedProfit = (Integer) values.get(&quot;agreedProfit&quot;);</span>
+<span class="fc" id="L82">		Integer state = (Integer) values.get(&quot;state&quot;);</span>
+<span class="fc" id="L83">		Integer customerTargetProfit = (Integer) values.get(&quot;customerTargetProfit&quot;);</span>
+<span class="fc" id="L84">		Integer customerHaggling = (Integer) values.get(&quot;customerHaggling&quot;);</span>
+
+		try
+		{
+<span class="fc" id="L88">			String update = &quot;UPDATE negotiated_job SET agreed_cost = ?, agreed_percent_profit = ?, state =?, customer_target_profit = ?, customer_haggling = ? &quot; +</span>
+							&quot;WHERE gameid = ? AND jobid = ? &quot;;
+
+<span class="fc" id="L91">			PreparedStatement pstatement = connection.prepareStatement(update);</span>
+<span class="fc" id="L92">			pstatement.setLong(1, agreedCost.longValue());</span>
+<span class="fc" id="L93">			pstatement.setInt(2, agreedProfit.intValue());</span>
+<span class="fc" id="L94">			pstatement.setInt(3, state.intValue());</span>
+<span class="fc" id="L95">			pstatement.setInt(4, customerTargetProfit.intValue());</span>
+<span class="fc" id="L96">			pstatement.setInt(5, customerHaggling.intValue());</span>
+<span class="fc" id="L97">			pstatement.setInt(6, game.getGameID());</span>
+<span class="fc" id="L98">			pstatement.setInt(7, jobID);</span>
+
+<span class="fc" id="L100">			pstatement.executeUpdate();</span>
+<span class="fc" id="L101">			pstatement.close();</span>
+		}
+<span class="fc" id="L103">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="fc" id="L106">			close();</span>
+<span class="fc" id="L107">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L108">		}</span>
+
+<span class="fc" id="L110">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

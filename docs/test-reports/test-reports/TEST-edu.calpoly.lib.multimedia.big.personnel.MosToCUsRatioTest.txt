@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.lib.multimedia.big.personnel.MosToCUsRatioTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 sec
+
+Testcase: testConstructorWithValues took 0.003 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testGetRatioWhenCusZero took 0 sec
+Testcase: testSetters took 0 sec

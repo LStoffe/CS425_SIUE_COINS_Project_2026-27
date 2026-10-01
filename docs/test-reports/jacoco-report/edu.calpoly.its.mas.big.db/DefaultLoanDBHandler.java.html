@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultLoanDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultLoanDBHandler.java</span></div><h1>DefaultLoanDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import java.util.Vector;
+
+import edu.calpoly.its.mas.big.game.Loan;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;LoanDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.4 $ $Date: 2002/03/14 18:53:05 $
+ */
+public class DefaultLoanDBHandler extends DefaultDBHandler implements LoanDBHandler
+{
+
+    public DefaultLoanDBHandler(Connection connection)
+    {
+<span class="fc" id="L26">		super(connection);</span>
+<span class="fc" id="L27">	}</span>
+
+    public Vector getLoans(Company company, int periodNum) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L31">		Vector loans = new Vector();</span>
+		try
+		{
+<span class="fc" id="L34">		   String query = &quot;SELECT loanid, amount, balance, payment_amount, payments_remaining, interest_paid, is_approved, loan_interest_per_year, repay_immediately &quot; +</span>
+		                  &quot; FROM loan, game_params_misc WHERE companyid = ? AND periodid = ? AND loan.gameid=game_params_misc.gameid ORDER BY loanid&quot;;
+
+<span class="fc" id="L37">		   PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L38">		   pstmt.setInt(1, company.getCompanyID());</span>
+<span class="fc" id="L39">		   pstmt.setInt(2, periodNum);</span>
+
+<span class="fc" id="L41">		   ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">           while(rset.next())</span>
+           {
+<span class="fc" id="L45">		      Loan l = new Loan(rset.getInt(&quot;loanid&quot;), rset.getInt(&quot;amount&quot;), rset.getInt(&quot;balance&quot;), rset.getInt(&quot;loan_interest_per_year&quot;),</span>
+<span class="fc" id="L46">		                        rset.getInt(&quot;payment_amount&quot;), rset.getInt(&quot;payments_remaining&quot;), rset.getInt(&quot;interest_paid&quot;),</span>
+<span class="fc" id="L47">		                        rset.getBoolean(&quot;is_approved&quot;), rset.getBoolean(&quot;repay_immediately&quot;));</span>
+<span class="fc" id="L48">		      loans.add(l);</span>
+<span class="fc" id="L49">		   }</span>
+
+<span class="fc" id="L51">		   rset.close();</span>
+<span class="fc" id="L52">		   pstmt.close();</span>
+		}
+<span class="fc" id="L54">		catch(SQLException sqle)</span>
+		{
+		   //close the connection if an exception occurs
+<span class="fc" id="L57">		   close();</span>
+<span class="fc" id="L58">		   throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L59">    	}</span>
+
+<span class="fc" id="L61">    	return loans;</span>
+    }
+
+    public void updateLoan(Loan theLoan) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+		//SQL statement to update a loan
+<span class="fc" id="L67">		String update = &quot;UPDATE loan SET amount = ?, balance = ?, payments_remaining = ?, payment_amount = ?, interest_paid = ?, repay_immediately = ? WHERE loanid = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L71">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L72">			pstmt.setLong(1, theLoan.getAmount());</span>
+<span class="fc" id="L73">			pstmt.setLong(2, theLoan.getBalance());</span>
+<span class="fc" id="L74">			pstmt.setInt(3, theLoan.getPaymentsRemaining());</span>
+<span class="fc" id="L75">			pstmt.setLong(4, theLoan.getPaymentAmount());</span>
+<span class="fc" id="L76">			pstmt.setLong(5, theLoan.getInterestPaid());</span>
+<span class="fc" id="L77">			pstmt.setBoolean(6, theLoan.repayImmediately());</span>
+<span class="fc" id="L78">			pstmt.setInt(7, theLoan.getLoanID());</span>
+
+<span class="fc" id="L80">			int rowsChanged = pstmt.executeUpdate();</span>
+<span class="fc" id="L81">			connection.commit();</span>
+
+<span class="fc" id="L83">			pstmt.close();</span>
+
+<span class="fc bfc" id="L85" title="All 2 branches covered.">			if (rowsChanged &lt; 1)</span>
+<span class="fc" id="L86">				throw new ObjectNotFoundException();</span>
+		}
+<span class="fc" id="L88">		catch(SQLException sqle)</span>
+		{
+			//Close connection if an exception occurs
+<span class="fc" id="L91">			close();</span>
+<span class="fc" id="L92">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L93">		}</span>
+
+<span class="fc" id="L95">	}</span>
+
+
+    public void addLoan(Company company, int periodNum, Loan theLoan) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L100">		int loanid = 0;</span>
+<span class="fc" id="L101">		int gameid = 0;</span>
+
+		try
+		{
+			//Get the next loanID in the sequence
+<span class="fc" id="L106">			String sequenceName = &quot;big_loanid_sequence&quot;;</span>
+<span class="fc" id="L107">            String query = &quot;SELECT nextval ('&quot; + sequenceName + &quot;')&quot;;</span>
+
+<span class="fc" id="L109">            PreparedStatement stmt = connection.prepareStatement(query);</span>
+
+<span class="fc" id="L111">			ResultSet rset = stmt.executeQuery();</span>
+
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">			if(rset.next()) //A loanID value was returned from the database</span>
+			{
+<span class="fc" id="L115">				loanid = rset.getInt(1);</span>
+		    }
+
+<span class="fc" id="L118">			rset.close();</span>
+<span class="fc" id="L119">			stmt.close();</span>
+
+            //Get the gameid matching this company
+<span class="fc" id="L122">            query = &quot;SELECT gameid FROM company WHERE companyid = ?&quot;;</span>
+
+<span class="fc" id="L124">			stmt = connection.prepareStatement(query);</span>
+<span class="fc" id="L125">			stmt.setInt(1, company.getCompanyID());</span>
+<span class="fc" id="L126">            rset = stmt.executeQuery();</span>
+
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">            if(rset.next()) //A gameid was found</span>
+            {
+<span class="fc" id="L130">				gameid = rset.getInt(1);</span>
+			}
+
+<span class="fc" id="L133">			rset.close();</span>
+<span class="fc" id="L134">			stmt.close();</span>
+
+<span class="pc bpc" id="L136" title="2 of 4 branches missed.">            if((loanid &gt; 0) &amp;&amp; (gameid &gt; 0))</span>
+            {
+
+				//Assign the new loanID to the Loan to be stored
+<span class="fc" id="L140">				theLoan.setLoanID(loanid);</span>
+
+				//Create the SQL statement used to insert the new loan into the database.
+<span class="fc" id="L143">				String insert = &quot;INSERT INTO loan (loanid, periodid, companyid, gameid, amount, balance, payment_amount, interest_paid, payments_remaining, is_approved, repay_immediately) &quot;;</span>
+<span class="fc" id="L144">				insert = insert + &quot;VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;</span>
+
+				//Perform the insert
+<span class="fc" id="L147">				PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L148">				pstmt.setInt(1, loanid);</span>
+<span class="fc" id="L149">				pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L150">				pstmt.setInt(3, company.getCompanyID());</span>
+<span class="fc" id="L151">                pstmt.setInt(4, gameid);</span>
+<span class="fc" id="L152">                pstmt.setLong(5, theLoan.getAmount());</span>
+<span class="fc" id="L153">                pstmt.setLong(6, theLoan.getBalance());</span>
+<span class="fc" id="L154">                pstmt.setLong(7, theLoan.getPaymentAmount());</span>
+<span class="fc" id="L155">                pstmt.setLong(8, theLoan.getInterestPaid());</span>
+<span class="fc" id="L156">                pstmt.setInt(9, theLoan.getPaymentsRemaining());</span>
+<span class="fc" id="L157">                pstmt.setBoolean(10, theLoan.isApproved());</span>
+<span class="fc" id="L158">                pstmt.setBoolean(11, false);</span>
+
+<span class="fc" id="L160">				int rowsAdded = pstmt.executeUpdate();</span>
+<span class="fc" id="L161">				connection.commit();</span>
+
+<span class="fc" id="L163">				pstmt.close();</span>
+
+<span class="fc" id="L165">			}</span>
+			else  //A loanID was not returned from the database
+			{
+<span class="nc" id="L168">				rset.close();</span>
+<span class="nc" id="L169">				close();</span>
+<span class="nc" id="L170">				throw new BIGDatabaseFacadeException(&quot;Couldn't retrieve necessary data values&quot; );</span>
+			}
+
+		}
+<span class="nc" id="L174">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L177">			close();</span>
+<span class="nc" id="L178">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L179">		}</span>
+<span class="fc" id="L180">	}</span>
+
+
+    public void removeLoan(int companyID, int periodID) throws BIGDatabaseFacadeException
+    {
+		//String to remove the loans for this period that aren't approved
+<span class="fc" id="L186">		String update = &quot;DELETE FROM loan WHERE companyID = ? AND  is_approved = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L190">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L191">			pstmt.setInt(1, companyID);</span>
+<span class="fc" id="L192">			pstmt.setBoolean(2, false);</span>
+
+<span class="fc" id="L194">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc bfc" id="L196" title="All 2 branches covered.">			if (rowsChanged &gt; 1)   //Exactly 0 or 1 loans should have been removed.  Anymore is an error.</span>
+			{
+<span class="fc" id="L198">				connection.rollback();</span>
+<span class="fc" id="L199">				throw new BIGDatabaseFacadeException(&quot;removeLoan: \n &quot; + rowsChanged + &quot; loans were attempted to be removed from the database.  Only 0 or 1 loans can be removed.&quot;);</span>
+			}
+
+<span class="fc" id="L202">			connection.commit();</span>
+
+<span class="fc" id="L204">			pstmt.close();</span>
+		}
+<span class="nc" id="L206">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L209">			close();</span>
+<span class="nc" id="L210">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L211">		}</span>
+<span class="fc" id="L212">	}</span>
+
+
+    public void removeLoans(int companyID) throws BIGDatabaseFacadeException
+    {
+		//String to remove the loans owned by the company passed in
+<span class="fc" id="L218">		String update = &quot;DELETE FROM loan WHERE companyID = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L222">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L223">			pstmt.setInt(1, companyID);</span>
+
+<span class="fc" id="L225">			int rowsChanged = pstmt.executeUpdate();</span>
+<span class="fc" id="L226">			connection.commit();</span>
+
+<span class="fc" id="L228">			pstmt.close();</span>
+		}
+<span class="nc" id="L230">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L233">			close();</span>
+<span class="nc" id="L234">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L235">		}</span>
+<span class="fc" id="L236">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

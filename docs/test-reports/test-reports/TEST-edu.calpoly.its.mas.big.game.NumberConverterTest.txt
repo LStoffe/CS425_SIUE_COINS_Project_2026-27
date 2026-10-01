@@ -1,0 +1,43 @@
+Testsuite: edu.calpoly.its.mas.big.game.NumberConverterTest
+Tests run: 34, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.116 sec
+
+Testcase: testIsValidMoneyStringWithOpenParenAndCommas took 0.084 sec
+Testcase: testStringValueCommasOnlyZero took 0 sec
+Testcase: testLongValueWithDecimalTruncation took 0.001 sec
+Testcase: testStringValueCommasOnlyLong took 0 sec
+Testcase: testIsValidMoneyStringWithDollar took 0 sec
+Testcase: testStringFloatTo2DecimalsNegative took 0.001 sec
+Testcase: testLongValueWithDollarSign took 0 sec
+Testcase: testIntValueWithDollarAndCommas took 0.001 sec
+Testcase: testIntValueWithLeadingZero took 0.001 sec
+Testcase: testIntValueWithDecimalTruncation took 0 sec
+Testcase: testIsValidMoneyStringRejectsInvalid took 0.002 sec
+	FAILED
+null
+junit.framework.AssertionFailedError
+	at edu.calpoly.its.mas.big.game.NumberConverterTest.testIsValidMoneyStringRejectsInvalid(NumberConverterTest.java:161)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testStringValueCommasOnlyLargeNumber took 0 sec
+Testcase: testIntValueInvalidReturnsNegativeOne took 0.001 sec
+Testcase: testIntValueWithParenthesesOnlyOpen took 0 sec
+Testcase: testIsValidMoneyStringWithParentheses took 0.001 sec
+Testcase: testIntValueNegativeWithParentheses took 0 sec
+Testcase: testLongValueInvalidReturnsNegativeOne took 0 sec
+Testcase: testStringValueCommasOnlyNegativeLarge took 0.005 sec
+Testcase: testLongValueNegativeWithParentheses took 0 sec
+Testcase: testIsValidMoneyStringWithOpenParenOnly took 0 sec
+Testcase: testLongValueWithParenthesesOnlyOpen took 0.001 sec
+Testcase: testIntValueZero took 0 sec
+Testcase: testStringValueInt took 0.001 sec
+Testcase: testLongValueZero took 0 sec
+Testcase: testStringValueCommasOnly took 0 sec
+Testcase: testIntValueValidFormats took 0.001 sec
+Testcase: testStringValueLong took 0 sec
+Testcase: testStringFloatTo2Decimals took 0 sec
+Testcase: testLongValueWithCommas took 0.001 sec
+Testcase: testStringValueNegativeInt took 0 sec
+Testcase: testIsValidMoneyString took 0.001 sec
+Testcase: testLongValueValidFormats took 0.001 sec
+Testcase: testIntValueWithSpaces took 0 sec
+Testcase: testStringValueZero took 0 sec

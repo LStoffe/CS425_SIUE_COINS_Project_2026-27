@@ -1,0 +1,81 @@
+<!--
+  main-menu.html
+  Main Menu page for COINS project
+  This page serves as the entry point for users to navigate the application.
+  Fragments for navbar and footer are included for consistency across pages.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="COINS - Main Menu">
+  <title>COINS - Main Menu</title>
+  
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Secret invisible button in top right corner -->
+  <a th:href="@{/unused}" 
+     class="fixed top-4 right-4 opacity-0 hover:opacity-10 bg-gray-200 rounded-full transition-opacity cursor-pointer z-50"
+     style="width: 5vh; height: 5vh;"
+     title="...">
+  </a>
+
+  <!-- Include navigation bar fragment -->
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <!-- Page Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold text-black mb-4">COINS</h1>
+    <h2 class="text-3xl text-black mb-6">Construction Industry Simulation</h2>
+  </header>
+  
+  <!-- Main Content Area -->
+  <main class="flex items-center justify-center px-6 pb-20 bg-white">
+    <div class="bg-white backdrop-blur-sm p-10 rounded-2xl shadow-lg w-full max-w-md text-center">
+      <!-- PostgreSQL connection status (data from your database) -->
+      <div class="mb-6 text-sm text-left bg-gray-100 rounded-lg p-3">
+        <p class="font-semibold text-black">
+          Database: <span th:if="${dbConnected}" class="text-green-600">Connected</span>
+                   <span th:unless="${dbConnected}" class="text-red-600">Disconnected</span>
+        </p>
+        <p th:if="${dbConnected and companyCount >= 0}" class="text-black mt-1">
+          Companies in database: <span th:text="${companyCount}">0</span>
+        </p>
+        <p th:if="${username}" class="text-black mt-1">Logged in as: <span th:text="${username}">user</span></p>
+      </div>
+
+      <h3 class="text-2xl font-bold mb-6 text-black">Please select:</h3>
+
+      <!-- Navigation Buttons -->
+      <div class="flex flex-col space-y-4">
+
+        <a th:href="@{/overview}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Overview
+        </a>
+
+        <a th:href="@{/manual/manual-toc}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Manual
+        </a>
+
+        <a th:href="@{/login}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Login
+        </a>
+      </div>
+      
+    </div>
+  </main>
+  
+  <!-- Include footer fragment -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

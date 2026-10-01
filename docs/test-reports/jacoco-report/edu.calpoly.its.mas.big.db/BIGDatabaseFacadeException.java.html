@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BIGDatabaseFacadeException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">BIGDatabaseFacadeException.java</span></div><h1>BIGDatabaseFacadeException.java</h1><pre class="source lang-java linenums">
+
+package edu.calpoly.its.mas.big.db;
+
+
+
+import java.sql.SQLException;
+
+
+
+/**
+
+ * Exception thrown when the &lt;code&gt;BIGDatabaseFacadeInterface&lt;/code&gt; cannot run the requested query or update.
+
+ * Can signify a problem connecting to the database.
+
+ *
+
+ * @author Kevin Craig
+
+ *
+
+ * @version $Revision: 1.1 $ $Date: 2002/03/14 18:53:05 $
+
+ */
+
+public class BIGDatabaseFacadeException extends Exception
+
+{
+
+
+
+   String message;
+
+   SQLException sqle;
+
+
+
+   public BIGDatabaseFacadeException()
+
+<span class="fc" id="L41">   {</span>
+
+<span class="fc" id="L43">   }</span>
+
+
+
+   public BIGDatabaseFacadeException(String message)
+
+<span class="fc" id="L49">   {</span>
+
+<span class="fc" id="L51">	   this.message = message;</span>
+
+<span class="fc" id="L53">   }</span>
+
+
+
+
+
+   public BIGDatabaseFacadeException(SQLException sqle)
+
+<span class="fc" id="L61">   {</span>
+
+<span class="fc" id="L63">	   this.sqle = sqle;</span>
+
+<span class="fc" id="L65">   }</span>
+
+
+
+
+
+
+
+
+
+   /**
+
+    * @return SQLException A &lt;code&gt;SQLException&lt;/code&gt; that may provide more information about the error.
+
+    * Null if there was no &lt;code&gt;SQLException&lt;/code&gt;.
+
+    *
+
+    */
+
+   public SQLException getSQLException()
+
+   {
+
+<span class="fc" id="L89">	   return sqle;</span>
+
+   }
+
+
+
+   /**
+
+    * @return String This exception as a String.
+
+    *
+
+    */
+
+   public String toString()
+
+   {
+
+<span class="fc" id="L107">	   String exceptionString = &quot;edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException&quot;;</span>
+
+
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">	   if(message != null)</span>
+
+	   {
+
+<span class="fc" id="L115">		   exceptionString = exceptionString + &quot;\n&quot; + message;</span>
+
+	   }
+
+
+
+<span class="fc bfc" id="L121" title="All 2 branches covered.">	   if (sqle != null)</span>
+
+	   {
+
+<span class="fc" id="L125">		   exceptionString = exceptionString + &quot;\n &quot; + sqle.toString();</span>
+
+	   }
+
+
+
+<span class="fc" id="L131">	   return exceptionString;</span>
+
+   }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

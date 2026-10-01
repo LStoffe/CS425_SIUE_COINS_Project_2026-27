@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.DefaultCCCDBHandlerTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 sec
+
+Testcase: testGetCCCsReturnsVector took 0.042 sec
+Testcase: testRemoveCCCsSucceeds took 0 sec
+Testcase: testSetCCCsSucceedsWithNewCCC took 0.001 sec
+Testcase: testGetAllCCCsReturnsVector took 0 sec
+Testcase: testGetCCCsReturnsEmptyWhenNoRows took 0 sec
+Testcase: testSetCCCsSucceedsWithExistingCCC took 0 sec
+Testcase: testGetCCCsWrapsSQLExceptionAndClosesConnection took 0.001 sec

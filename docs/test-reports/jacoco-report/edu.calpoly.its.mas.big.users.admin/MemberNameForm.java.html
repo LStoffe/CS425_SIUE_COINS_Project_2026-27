@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MemberNameForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">MemberNameForm.java</span></div><h1>MemberNameForm.java</h1><pre class="source lang-java linenums">
+/**
+ * Contains a member name to be added to the database.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.1 $ $Date: 2001/07/25 17:07:30 $
+ */
+package edu.calpoly.its.mas.big.users.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+<span class="fc" id="L18">public class MemberNameForm extends ActionForm</span>
+{
+
+  private String first;
+  private String last;
+  private String email;
+
+  public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+  {
+<span class="fc" id="L27">    ActionErrors errors = new ActionErrors();</span>
+
+    //Make sure there is either a first or last name
+<span class="pc bpc" id="L30" title="2 of 8 branches missed.">    if( ((last == null) || (last.length() &lt; 1)) &amp;&amp;  ((first == null) || (first.length() &lt; 1)) )</span>
+<span class="fc" id="L31">    	errors.add(&quot;name_required&quot;, new ActionMessage(&quot;error.editCompany.name.required&quot;));</span>
+
+<span class="fc" id="L33">    return errors;</span>
+  }
+
+  //*********************************  Simple Set and Get Methods  **************************
+
+  public String getFirst()
+  {
+<span class="fc" id="L40">	  return first;</span>
+  }
+
+  public void setFirst(String first)
+  {
+<span class="fc" id="L45">	  this.first = first;</span>
+<span class="fc" id="L46">  }</span>
+
+  public String getLast()
+  {
+<span class="fc" id="L50">	  return last;</span>
+  }
+
+  public void setLast(String last)
+  {
+<span class="fc" id="L55">	  this.last = last;</span>
+<span class="fc" id="L56">  }</span>
+
+  public String getEmail()
+  {
+<span class="fc" id="L60">	  return email;</span>
+  }
+
+  public void setEmail(String email)
+  {
+<span class="fc" id="L65">	  this.email = email;</span>
+<span class="fc" id="L66">  }</span>
+
+
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

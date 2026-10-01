@@ -1,0 +1,21 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.SetLaborAvailabilityParametersActionTest
+Tests run: 3, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.612 sec
+
+Testcase: testExecuteSetParametersSuccess took 0.436 sec
+	Caused an ERROR
+Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+	at edu.calpoly.its.mas.big.users.admin.LaborAvailabilityParametersForm.setAllParameters(LaborAvailabilityParametersForm.java:178)
+	at edu.calpoly.its.mas.big.users.admin.SetLaborAvailabilityParametersActionTest.testExecuteSetParametersSuccess(SetLaborAvailabilityParametersActionTest.java:67)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testExecuteRestoreDefaultsSuccess took 0.165 sec
+	Caused an ERROR
+Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Hashtable.get(Object)" is null
+	at edu.calpoly.its.mas.big.users.admin.LaborAvailabilityParametersForm.setAllParameters(LaborAvailabilityParametersForm.java:178)
+	at edu.calpoly.its.mas.big.users.admin.SetLaborAvailabilityParametersAction.execute(SetLaborAvailabilityParametersAction.java:107)
+	at edu.calpoly.its.mas.big.users.admin.SetLaborAvailabilityParametersActionTest.testExecuteRestoreDefaultsSuccess(SetLaborAvailabilityParametersActionTest.java:125)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.005 sec

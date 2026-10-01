@@ -1,0 +1,5 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.CompletedContractsReportActionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.697 sec
+
+Testcase: testLoginFailureWhenNoGame took 0.651 sec
+Testcase: testSuccessWithMockedDb took 0.04 sec

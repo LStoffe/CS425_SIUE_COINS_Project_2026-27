@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.JobCostReportFormTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+
+Testcase: testConstructorWithFinancialReportForm took 0.003 sec
+Testcase: testConstructorWithNull took 0.001 sec
+Testcase: testGetSetCompanyName took 0 sec
+Testcase: testWithJobFinancialInfo took 0.001 sec
+Testcase: testWithMultipleJobs took 0 sec
+Testcase: testGetTotalCostsWithZeroCosts took 0 sec
+Testcase: testGetTotalCosts took 0 sec

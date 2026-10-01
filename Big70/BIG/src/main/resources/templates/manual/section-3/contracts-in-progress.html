@@ -1,0 +1,226 @@
+<!--
+  contracts-in-progress.html
+  Section 3.3 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>3.3 Contracts In Progress Report</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            3.3 Contracts In Progress Report
+        </h1>
+    </header>
+    
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            The Contracts in Progress Report shows the state of each job you are currently working on from an accounting perspective. The purpose of this report is to help you determine
+            the percentage complete of each job, how much revenue is earned on each job during a period, and what your expected profit margin will be for the job. This is the largest report in
+            BIG and contains a lot of information. To make things more confusing, the report is broken into three sections: values for the current period, values for all previous period, and total values.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Each row in the report, except for the last one, represents a contract for a job in progress. The last row is column totals for some values. The values in most columns are calculated
+            from the values in other columns. The following table shows the equation for each column. Columns that are not calculated, but start with values, have the word "input" instead of an
+            equation. The header for each column states the column name as it appears on the actual report as well as a bold face letter. The bold face letter will signify that column in an equation.
+            For example, if the equation for a column is A+B, that means the value for that column (in a given row) should be the sum of the values in columns A and B (in the same row).
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <a th:href="@{/images/contracts-in-progress-report.png}" target="_blank" class="text-lg text-black leading-relaxed hover:underline font-bold">
+            Click Here to View the Progress Report
+        </a>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Knowing how the values are calculated helps you understand the relationship of the columns to each other. What follows is a brief description of what each column actually means:
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+        <strong>Columns A - R</strong> are total values for all periods between the start of the job and the current period.
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>
+                <strong>Project (A):</strong> Job number for the contract.
+            </li>
+            <li>
+                <strong>Original Contract (B):</strong> Bid price on the original bid for the job.
+            </li>
+            <li>
+                <strong>Change Orders (C):</strong> Total price of all change orders added to the job.
+            </li>
+            <li>
+                <strong>Adjusted Contract (D):</strong> Total price of the contract including change orders. This is the amount of money you will receive for the job.
+            </li>
+            <li>
+                <strong>Cost Incurred (E):</strong> Total amount the job has cost you so far.
+            </li>
+            <li>
+                <strong>Estimated Cost to Complete (F):</strong> This is the amount you estimate it will cost to complete the job. This estimation can be done for you by BIG or you may enter your own value for each job. BIG calculates a value by assuming the job will finish on its required completion date and that you will use the currently selected methods until job completion. If the current date is already past the required completion date, BIG will assume the job will finish at the end of the current period. Note that this amount will change whenever you change job methods, and because many other values in the report use this value, they will change too. If you think BIG's estimates do not accurately reflect the remaining cost of your jobs, then you may enter your own values. Keep in mind these values drive many of the other values on this report, and in other reports, so you may end up with a misleading view of your company if your estimates are too inaccurate.
+            </li>
+            <li>
+                <strong>Estimated Total Job Cost (G):</strong> The cost already incurred plus the estimated cost to complete the job. Note that this value is an estimate and will change each period. It may change drastically if you change methods, so to make the estimate as close to reality as possible you will want to schedule your methods well and not change them during the course of the job. (It is possible to come up with a complicated method schedule that includes method changes at certain predetermined points. In this case keep in mind the Contracts in Progress Report will not accurately reflect these changes).
+            </li>
+            <li>
+                <strong>Estimated Total Gross Margin (H):</strong> Total dollar amount you expect to have kept in profit by the time the job completes.
+            </li>
+            <li>
+                <strong>Estimated Total Gross Margin % (I):</strong> Percentage of the contract price you expect to have kept as profit by the time the job completes. If columns H and I are negative it means you expect to lose money on the job. Remember these values are estimates based on the estimated cost to complete. If missing the required completion date or a change of methods causes drastic changes to the estimated cost to complete, these values will change too, possibly going from positive to negative.
+            </li>
+            <li>
+                <strong>Percent Work Complete (J):</strong> This is an estimate for the percentage of work completed using the cost-to-cost method. Using this method, the percent complete is taken to be the cost already incurred divided by the total estimated job cost. This is a more conservative method of calculating percent work complete, so this value should usually be lower than the architect's estimate for percent work complete. The only time it may be higher is during the first few periods if the overhead costs are large in relation to the direct costs for the period. It is important to realize this estimate for percent work complete will change whenever the estimate for total cost to complete changes. Since the estimated total cost will change continuously, the value for amount of work complete for any given period will change until the job is actually finished. When the job is complete the estimated cost to complete becomes 0 and the total cost to complete is equal to the cost incurred.
+            </li>
+            <li>
+                <strong>Billed to Date (K):</strong> Total amount billed on the job so far. This value will change each period as soon as you submit a bill.
+            </li>
+            <li>
+                <strong>Unbilled Portion of Contract (L):</strong> Total contract price less what you've already billed for.
+            </li>
+            <li>
+                <strong>Revenue Earned (M):</strong> The amount of revenue earned for work on a job is a percentage of the contract price equal to the percent work complete (e.g. If percent work complete is 10%, then revenue earned is equal to 10% of the contract price). The value in column M is the total revenue earned.
+            </li>
+            <li>
+                <strong>Revenue To Be Earned (N):</strong> Contract price less revenue already earned.
+            </li>
+            <li>
+                <strong>Billings in Excess of Earnings (O):</strong> This is also referred to as the amount "overbilled". In BIG you are allowed to bill for more than the amount of revenue earned. Overbilling is described in more detail later in the section on Overbilling. Note that because you cannot both have overbilled and underbilled at the same time, only one of column O or P will have a value and the other will be zero.
+            </li>
+            <li>
+                <strong>Earnings in Excess of Billings (P):</strong> This is also referred to as the amount "underbilled". If you have earned revenue and not yet billed for it, it is considered to be an underbilled amount. At the start of each period you will not have billed for the previous period's revenue, so this column will contain a value. If you fail to submit a bill in a period the underbilled amount will carry over to the next period and you may bill for it then. However, it is irresponsible for a company to fail to keep up to date with billing, so a good company will always make sure this value is zero before the end of the period. Note that because you cannot both have overbilled and underbilled at the same time, only one of column O or P will have a value and the other will be zero.
+            </li>
+            <li>
+                <strong>Gross Margin Earned (Q):</strong> Gross amount of profit earned so far. This is calculated by subtracting the costs incurred so far from the revenue earned so far.
+            </li>
+            <li>
+                <strong>Gross Margin Earned % (R):</strong> Profit earned as a percentage of revenue. Note that this value and the previous one are both estimates and will change each period. Warning: Do not be misled by this column in assuming that because all jobs have a positive margin (even assuming the estimates are accurate) that you are making money for your company. Having a positive value here only means that the job is bringing in more money than it is costing. In order to make money for your company, your total job profit must exceed all company costs. So, not only must the values in this column be positive, they must be suitably high to offset G&A costs.
+            </li>
+        </ul>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+        <strong>Columns S - X</strong> are the values for the period of the report only. The totals in cols A - R include these values.
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>
+                <strong>Percent Work Complete (S):</strong> Percent work completed in the report period using the same cost-to-cost method as in column J, but using only the cost incurred during the report period. As described in the discussion above, this value will change in each subsequent period, so the value listed may turn out not to be the actual percentage amount of work that completed in the report period.
+            </li>
+            <li>
+                <strong>Cost Incurred (T):</strong> Total of a job's costs this period. This value comes straight off the current job cost report.
+            </li>
+            <li>
+                <strong>Revenue Earned (U):</strong> Amount of revenue earned for the report period. This figure is based on the percent work complete in column S.
+            </li>
+            <li>
+                <strong>Revenue Recordable (V):</strong> Every period that work is completed on a job the percentages of work completed during previous periods will change (see description of column J above). One purpose of the Contracts in Progress Report is to determine how much revenue is earned by your company each period. Since the revenue earned each period is based on the percent complete, and the percent complete is an estimate that will change, it is impossible to accurately record how much revenue was earned by your company in a given period. If you simply used the number in column U as your revenue each period, you would need to continuously change past reports and make adjustments to your equity each period to account for the changes. BIG takes a different approach in that it allows your company to record the difference between total revenue earned and total revenue previously recorded. This way, if you record too much revenue in one period, you will need to correct by recording less than you earned in the next period (and vice versa). Column V contains this value, the actual amount of revenue you are recording this period, and this is the value that will feed into the statement of earnings.
+            </li>
+            <li>
+                <strong>Gross Margin Earned (W):</strong> Gross margin earned this period.
+            </li>
+            <li>
+                <strong>Gross Margin Earned % (X):</strong> Gross margin this period as a percentage of revenue.
+            </li>
+        </ul>        
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+        <strong>Columns Y - AD</strong> are the values for all periods previous to the period of the report. The totals in cols A - R include these values.
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>
+                <strong>Percent Work Complete (Y):</strong> Total percent work completed in all periods previous to the report period.
+            </li>
+            <li>
+                <strong>Cost Incurred (Z):</strong> Total cost incurred in all previous periods.
+            </li>
+            <li>
+                <strong>Revenue Earned (AA):</strong> Total amount of revenue earned on the job in previous periods.
+            </li>
+            <li>
+                <strong>Revenue Recorded (AB):</strong> Total revenue that has been recorded so far on the job. This amount is equal to the sum of the Revenue Recordable field (column V) for the job of all previous Contracts in Progress Reports.
+            </li>
+            <li>
+                <strong>Gross Margin Earned (AC):</strong> Gross margin earned previously.
+            </li>
+            <li>
+                <strong>Gross Margin Earned % (AD):</strong> Gross margin previously as a percentage of revenue.
+            </li>
+        </ul> 
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Example:</strong> <br>Say your company is working on a job. In period 1 you incurred $50,000 in total job costs and you estimate the job will cost $950,000 to complete.
+            In period 1 the estimated total job cost will be 50,000 + 950,000 = 1,000,000.
+            The percent of work complete is 50,000 / 1,000,000 = .05 * 100 = 5%
+            Now say in period 2 and the total job cost incurred is $80,000 and the estimated cost to complete is $920,000.
+            In period 2 the estimated total job cost is 50,000 + 80,000 + 920,000 = 1,050,000.
+            The percent of work complete is 50,000 + 80,000 / 1,050,000 = .124 * 100 = 12.4%
+            So far everything looks okay, but look at what happens when we calculate how much work was completed during period 1 using our (hopefully) more accurate values from period 2:
+            50,000 / 1,050,000 = .048 * 100 = 4.8%
+            In period 1 we thought we had completed 5% of the job, but using our new numbers we find we really only completed 4.8%. This will happen each period until the job is complete.
+            In period 3 we may find we only completed 4.5%, or maybe we'll find that our estimated costs to complete in periods 1 & 2 were wrong and we had actually completed 6%.
+        </p>
+    </section>
+
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Tip:</strong> If the Estimated Total Gross Margin % (column I) is unusually high, it may be a sign that the methods you have chosen will not complete the job on time.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Tip:</strong> You may view the Contracts in Progress Report for previous periods by clicking on the period number at the top of the page (the same as with any other report).
+            For the Contracts in Progress Report, remember that if you view a previous period's report, that report will appear exactly as it did at the end of the period it became available.
+            New information is not taken into account when viewing old reports.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/cash-flow-report}" class="font-semibold hover:underline">
+        ← 3.2 Cash Flow Report
+    </a>
+    <a th:href="@{/manual/completed-contracts}" class="font-semibold hover:underline">
+        Next → 3.4 Completed Contracts
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

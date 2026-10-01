@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.DefaultEstimatingComponentDBHandlerTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.12 sec
+
+Testcase: testAddScheduleMethodSucceeds took 0.094 sec
+Testcase: testSetEstimatesPerPeriodSucceeds took 0.001 sec
+Testcase: testGetScheduleMethodsReturnsArray took 0.012 sec
+Testcase: testFinalizeEstimatingComponentDatabaseSucceeds took 0 sec
+Testcase: testMakeEstimateAvailableForCompanySucceeds took 0.002 sec
+Testcase: testGetScheduleMethodsReturnsEmptyWhenNoRows took 0 sec
+Testcase: testInitializeEstimatingComponentDatabaseSucceeds took 0 sec
+Testcase: testEstimatesAvailableForCompanyReturnsArray took 0 sec
+Testcase: testGetEstimatesPerPeriodWrapsSQLExceptionAndClosesConnection took 0.001 sec
+Testcase: testGetEstimatesPerPeriodReturnsValue took 0.001 sec

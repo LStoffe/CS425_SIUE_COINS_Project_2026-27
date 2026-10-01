@@ -1,0 +1,61 @@
+<!--
+  financial-services-menu.html
+  This page is the menu for all financial services pages such as requesting a loan or managing personnel.
+-->
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="COINS - Financial Reports">
+  <title>COINS - Financial Services</title>
+  
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Include navigation bar fragment -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Page Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold text-black mb-4">COINS</h1>
+    <h2 class="text-3xl text-black mb-6">Financial Services</h2>
+  </header>
+  
+  <!-- Main Content Area -->
+  <main class="flex items-center justify-center px-6 pb-20 bg-white">
+    <div class="bg-white backdrop-blur-sm p-10 rounded-2xl shadow-lg w-full max-w-md text-center">
+      <h3 class="text-2xl font-bold mb-6 text-black">Please select:</h3>
+
+      <!-- Navigation Buttons -->
+      <div class="flex flex-col space-y-4">
+
+        <a th:href="@{/company/financial-services/request-a-loan}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Request a Loan
+        </a>
+
+        <a th:href="@{/company/financial-services/manage-personnel}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Manage Personnel
+        </a>
+
+        <a th:href="@{/company/financial-services/view-personnel-report}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          View Personnel Report
+        </a>
+      </div>
+      
+    </div>
+  </main>
+  
+  <!-- Include footer fragment -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

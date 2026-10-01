@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Method.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">Method.java</span></div><h1>Method.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import java.util.Random;
+
+/**
+ * Contains information about a method of doing an activity
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.18 $ $Date: 2002/03/05 19:19:27 $
+ */
+public class Method
+{
+
+  private String methodName;
+  private int methodNumber; //1,2,3,4 or 5
+  private float productivity;
+  private float laborCost;
+  private float materialsCost;
+  private float equipmentCost;
+  private float subcontractorCost;
+  private int uncertaintyRange;
+  private int weatherSensitivity;
+<span class="fc" id="L25">  private boolean subcontracted = false;</span>
+
+  private float adjustmentAmount;
+
+  private int gameID;
+
+  private float uncertaintyPercent;
+  private float laborCostAdjustmentPercent;
+  private float materialsCostAdjustmentPercent;
+
+  Random random;
+
+  public Method(int methodNumber, String methodName, int productivity, int laborCost, int materialsCost, int equipmentCost, int subcontractorCost, int uncertaintyRange, int weatherSensitivity, boolean subcontracted)
+<span class="fc" id="L38">  {</span>
+<span class="fc" id="L39">	  this.methodNumber = methodNumber;</span>
+<span class="fc" id="L40">	  this.methodName = methodName;</span>
+<span class="fc" id="L41">	  this.productivity = productivity;</span>
+<span class="fc" id="L42">	  this.laborCost = laborCost;</span>
+<span class="fc" id="L43">	  this.materialsCost = materialsCost;</span>
+<span class="fc" id="L44">	  this.equipmentCost = equipmentCost;</span>
+<span class="fc" id="L45">	  this.subcontractorCost = subcontractorCost;</span>
+<span class="fc" id="L46">	  this.uncertaintyRange = uncertaintyRange;</span>
+<span class="fc" id="L47">	  this.weatherSensitivity = weatherSensitivity;</span>
+<span class="fc" id="L48"> 	  this.subcontracted = subcontracted;</span>
+
+<span class="fc" id="L50">	  random = new Random();</span>
+
+<span class="fc" id="L52">	  reRollCosts();</span>
+<span class="fc" id="L53">  }</span>
+
+  /**
+   * Adjusts labor, materials and equipment costs by some percentage from the uncertainty range.
+   * Each time this method is called the base labor, materials and equipment costs will be adjusted by a different amount.
+   */
+  public void reRollCosts()
+  {
+
+<span class="fc" id="L62">	  uncertaintyPercent = (uncertaintyRange * (2 * random.nextFloat() - 0.5f)) / 100f;</span>
+<span class="fc" id="L63">  }</span>
+
+
+  /**
+   * Adjusts productivity by the given percentage if this method is sensitive to temperature.
+   * If this method is not sensitive to temperature a call to this method will do nothing.
+   */
+  public void setProductivityAdjustment(int adjustmentPercent)
+  {
+	  //If this method is affected by temperature then add this amount, otherwise ignore it
+<span class="fc bfc" id="L73" title="All 4 branches covered.">	  if((weatherSensitivity == 1) || (weatherSensitivity == 3)) //Weather sensitivites 1 &amp; 3 imply sensitivity to temperature</span>
+	  {
+<span class="fc" id="L75">	      float adjustmentAmount =  productivity * (adjustmentPercent / 100f);</span>
+<span class="fc" id="L76">	      productivity += adjustmentAmount;</span>
+  	  }
+<span class="fc" id="L78">  }</span>
+
+  /**
+   * Increases (or decreases) this method's labor cost by adjustmentPercent.
+   */
+  public void adjustLaborCost(int adjustmentPercent)
+  {
+<span class="fc" id="L85">	  laborCostAdjustmentPercent = adjustmentPercent;</span>
+<span class="fc" id="L86">  }</span>
+
+  /**
+   * Increases (or decreases) this method's materials cost by adjustmentPercent.
+   */
+  public void adjustMaterialsCost(int adjustmentPercent)
+  {
+<span class="fc" id="L93">	  materialsCostAdjustmentPercent = adjustmentPercent;</span>
+<span class="fc" id="L94">  }</span>
+
+  /**
+   * Get the productivity of this method
+   */
+  public int getProductivity()
+  {
+<span class="fc" id="L101">      return (int) Math.round(productivity);</span>
+  }
+
+
+  /**
+   * Get the labor cost per hour of this method taking the uncertainty range and adjustments into account.
+   */
+  public int getLaborCost()
+  {
+	  //Adjust for period effects
+<span class="fc" id="L111">	  float adjustmentAmount = laborCost * (laborCostAdjustmentPercent / 100f);</span>
+
+	  //Adjust for uncertainty
+<span class="fc" id="L114">	  adjustmentAmount = laborCost * uncertaintyPercent + adjustmentAmount;</span>
+<span class="fc" id="L115">      return (int) Math.round(laborCost + adjustmentAmount);</span>
+  }
+
+  /**
+   * Get the materials cost per hour of this method taking the uncertainty range and adjustments into account.
+   */
+  public int getMaterialsCost()
+  {
+	  //Adjust for period effects
+<span class="fc" id="L124">	  float adjustmentAmount = materialsCost * (materialsCostAdjustmentPercent / 100f);</span>
+
+	  //Adjust for uncertainty
+<span class="fc" id="L127">	  adjustmentAmount = materialsCost * uncertaintyPercent + adjustmentAmount;</span>
+<span class="fc" id="L128">      return (int) Math.round(materialsCost + adjustmentAmount);</span>
+  }
+
+  /**
+   * Get the equipment cost per hour of this method taking the uncertainty range and adjustments into account.
+   * Use the same &quot;materialsCostAdjustmentPercent&quot; as for MaterialsCost.
+   */
+  public int getEquipmentCost()
+  {
+	  //Adjust for period effects
+<span class="fc" id="L138">	  float adjustmentAmount = equipmentCost * (materialsCostAdjustmentPercent / 100f);</span>
+
+	  //Adjust for uncertainty
+<span class="fc" id="L141">	  adjustmentAmount = equipmentCost * uncertaintyPercent + adjustmentAmount;</span>
+<span class="fc" id="L142">      return (int) Math.round(equipmentCost + adjustmentAmount);</span>
+  }
+
+  /**
+   * Get the subcontractor cost per hour of this method.  there is no uncertainty using subcontracted
+   * methods.
+   */
+  public int getSubcontractorCost()
+  {
+<span class="fc" id="L151">      return (int) Math.round(subcontractorCost);</span>
+  }
+
+
+  /**
+   * Returns true if this methods is subcontracted, false o/w
+   */
+  public boolean subcontracted()
+  {
+<span class="fc" id="L160">	  return subcontracted;</span>
+  }
+
+  //**********************************  Simple Set and Get Methods  ***********************************
+
+  public int getMethodNumber()
+  {
+<span class="fc" id="L167">	  return methodNumber;</span>
+  }
+
+  public void setMethodNumber(int methodNumber)
+  {
+<span class="fc" id="L172">	  this.methodNumber = methodNumber;</span>
+<span class="fc" id="L173">  }</span>
+
+  public String getMethodName()
+  {
+<span class="fc" id="L177">      return methodName;</span>
+  }
+
+  public void setMethodName(String methodName)
+  {
+<span class="fc" id="L182">      this.methodName = methodName;</span>
+<span class="fc" id="L183">  }</span>
+
+  public int getWeatherSensitivity()
+  {
+<span class="fc" id="L187">      return weatherSensitivity;</span>
+  }
+
+  public int getGameID()
+  {
+<span class="fc" id="L192">      return gameID;</span>
+  }
+
+  public void setGameID(int gameID)
+  {
+<span class="fc" id="L197">      this.gameID = gameID;</span>
+<span class="fc" id="L198">  }</span>
+
+  public int getUncertaintyRange()
+  {
+<span class="fc" id="L202">	  return uncertaintyRange;</span>
+  }
+
+  public void setUncertaintyRange(int uncertaintyRange)
+  {
+<span class="fc" id="L207">	  this.uncertaintyRange = uncertaintyRange;</span>
+<span class="fc" id="L208">  }</span>
+
+
+  /**
+   * Get the labor cost per hour of this method
+   */
+  public int getBaseLaborCost()
+  {
+<span class="fc" id="L216">      return (int) Math.round(laborCost);</span>
+  }
+
+  /**
+   * Get the materials cost per hour of this method
+   */
+  public int getBaseMaterialsCost()
+  {
+<span class="fc" id="L224">      return (int) Math.round(materialsCost);</span>
+  }
+
+  /**
+   * Get the equipment cost per hour of this method
+   */
+  public int getBaseEquipmentCost()
+  {
+<span class="fc" id="L232">      return (int) Math.round(equipmentCost);</span>
+  }
+
+
+  //Unit Test
+  public static void main(String args[])
+  {
+<span class="nc" id="L239">	  int prod = 11;</span>
+<span class="nc" id="L240">	  int lab = 20;</span>
+<span class="nc" id="L241">	  int mat = 15;</span>
+<span class="nc" id="L242">	  int sub = 0;</span>
+<span class="nc" id="L243">	  int uncertainty = 10;</span>
+<span class="nc" id="L244">	  int weather = (new java.util.Random()).nextInt(4);</span>
+<span class="nc" id="L245">	  boolean subd = false;</span>
+<span class="nc" id="L246">	  System.out.println(&quot;Weather sensitivity: &quot; + weather);</span>
+<span class="nc" id="L247">	  Method method = new Method(1, &quot;Method&quot;, prod, lab, mat, 1, sub, uncertainty, weather, subd);</span>
+<span class="nc" id="L248">	  System.out.println(&quot;Original productivity: &quot; + prod);</span>
+<span class="nc" id="L249">	  System.out.println(&quot;Productivity plus uncertainty: &quot; + method.getProductivity());</span>
+<span class="nc" id="L250">	  method.setProductivityAdjustment(15);</span>
+<span class="nc" id="L251">	  System.out.println(&quot;Productivity plus temperature adjustment: &quot; + method.getProductivity());</span>
+
+<span class="nc" id="L253">	  System.out.println(&quot;Original labor cost: &quot; + lab);</span>
+<span class="nc" id="L254">	  System.out.println(&quot;Labor cost plus uncertainty: &quot; + method.getLaborCost());</span>
+<span class="nc" id="L255">	  method.adjustLaborCost(-10);</span>
+<span class="nc" id="L256">	  System.out.println(&quot;Labor cost after 10% decrease: &quot; + method.getLaborCost());</span>
+
+<span class="nc" id="L258">	  System.out.println(&quot;Original materials cost: &quot; + mat);</span>
+<span class="nc" id="L259">	  System.out.println(&quot;Materials cost plus uncertainty: &quot; + method.getMaterialsCost());</span>
+<span class="nc" id="L260">	  method.adjustMaterialsCost(3);</span>
+<span class="nc" id="L261">	  System.out.println(&quot;Materials cost after 3% increase: &quot; + method.getMaterialsCost());</span>
+
+<span class="nc" id="L263">  }</span>
+
+}
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

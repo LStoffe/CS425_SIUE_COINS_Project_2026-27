@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="GradingTemplate">
+
+  <insert id="createGradingTemplate" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO grading_template (adminid, gameid, template_string)
+    VALUES (#adminid#, #gameid#, #template#)
+    
+    ]]>		               
+  </insert>
+  
+  <select id="getGradingTemplate" resultClass="java.lang.String" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT template_string
+    FROM grading_template
+    WHERE gameid=#value#
+    
+    ]]>		               
+  </select>  
+  
+  <update id="updateGradingTemplate" parameterClass="map">
+    <![CDATA[
+ 
+    UPDATE grading_template
+    SET template_string = #template#
+    WHERE adminid = #adminid#
+    AND gameid = #gameid#
+    
+    ]]>		               
+  </update>    
+
+</sqlMap>

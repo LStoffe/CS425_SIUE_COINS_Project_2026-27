@@ -1,0 +1,796 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BillingForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.company</a> &gt; <span class="el_source">BillingForm.java</span></div><h1>BillingForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.users.company;
+
+//JDK
+import java.util.Vector;
+import java.util.Iterator;
+import java.text.NumberFormat;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+//Servlet imports
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionMapping;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportForm;
+import edu.calpoly.lib.multimedia.big.reports.CompletedContractsReportForm;
+import edu.calpoly.lib.multimedia.big.reports.Contract;
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Holds data for a job billings.  The info associated with a billing is
+ * the amount billed on each activity, and the total amount to bill.  The amount
+ * billed on each activity is not used by BIG, but is stored as a convenience to companies
+ * so they can recall the amounts they planned to bill on each activity.  The total billing
+ * amount is used by BIG as the amount to attempt to bill.  If this number is not
+ * outrageously high (as defined by game parameters) this amount will be paid to the company
+ * as cash in the next period.
+ * &lt;br&gt;&lt;br&gt;
+ * The billing form also makes use of the &lt;code&gt;Job&lt;/code&gt; object and the Contracts in Progress Report
+ * so values contained in these reports that relates to billing can be displayed in the
+ * billing form.
+ *
+ * @author Kevin Craig
+ */
+public class BillingForm extends ActionForm
+{
+	private int jobID;
+    private int[] activityAmounts;
+    private String[] activityAmountStrings;
+    private int billingAmount;
+    private int oldAmountBilled;
+    private String billingAmountString;
+    private String oldBillingAmountString;
+
+    private Job currentJob;  //Current job
+    private Contract contract; //Contract for this job
+
+    //Setup NumberFormat to format number to 2 decimal places
+    private NumberFormat percentFormatter;
+
+    private int amountPaid;
+    private boolean rejected;
+
+    private Log log;
+
+
+    /**
+     * Creates a dummy billing form
+     */
+    public BillingForm()
+<span class="fc" id="L74">    {</span>
+<span class="fc" id="L75">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L76">	}</span>
+
+
+	public BillingForm(int jobID, int[] activityAmounts, int billingAmount, int amountPaid, boolean rejected, int oldAmountBilled )
+<span class="fc" id="L80">	{</span>
+<span class="fc" id="L81">		this.jobID = jobID;</span>
+<span class="fc" id="L82">		this.activityAmounts = activityAmounts;</span>
+<span class="fc" id="L83">		this.billingAmount = billingAmount;</span>
+<span class="fc" id="L84">		this.oldAmountBilled = oldAmountBilled;</span>
+
+<span class="fc" id="L86">		activityAmountStrings = new String[9];</span>
+<span class="fc" id="L87">		intsToStrings();</span>
+
+<span class="fc" id="L89">		percentFormatter = NumberFormat.getPercentInstance();</span>
+<span class="fc" id="L90">        percentFormatter.setMaximumFractionDigits(2);</span>
+<span class="fc" id="L91">    	percentFormatter.setMinimumFractionDigits(2);</span>
+
+<span class="fc" id="L93">    	this.amountPaid = amountPaid;</span>
+<span class="fc" id="L94">    	this.rejected = rejected;</span>
+
+<span class="fc" id="L96">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L97">	}</span>
+
+	public int getJobID()
+	{
+<span class="fc" id="L101">		return jobID;</span>
+	}
+
+
+    public void setJob(Job job)
+    {
+<span class="fc" id="L107">		currentJob = job;</span>
+<span class="fc" id="L108">	}</span>
+
+
+    public Job getJob()
+    {
+<span class="fc" id="L113">		return currentJob;</span>
+	}
+
+	public void setContractsInProgressReport(ContractsInProgressReportForm contractsInProgress)
+	{
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">		if(contractsInProgress != null)</span>
+		{
+<span class="fc" id="L120">			boolean correctContract = false;</span>
+<span class="pc bpc" id="L121" title="1 of 4 branches missed.">			while(contractsInProgress.moreContracts() &amp;&amp; !correctContract)</span>
+			{
+<span class="fc" id="L123">				contractsInProgress.nextContract();</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">				if(contractsInProgress.getJobID() == jobID)</span>
+				{
+<span class="fc" id="L126">					correctContract = true;</span>
+<span class="fc" id="L127">					contract = contractsInProgress.getCurrentContract();</span>
+				}
+			}
+		}
+<span class="fc" id="L131">	}</span>
+
+	public void setCompletedContractsReport(CompletedContractsReportForm completedContracts)
+	{
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">		if(completedContracts != null)</span>
+		{
+<span class="fc" id="L137">			boolean correctContract = false;</span>
+<span class="pc bpc" id="L138" title="1 of 4 branches missed.">			while(completedContracts.moreContracts() &amp;&amp; !correctContract)</span>
+			{
+<span class="fc" id="L140">				completedContracts.nextContract();</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">				if(completedContracts.getJobID() == jobID)</span>
+				{
+<span class="fc" id="L143">					correctContract = true;</span>
+<span class="fc" id="L144">					contract = completedContracts.getCurrentContract();</span>
+				}
+			}
+		}
+<span class="fc" id="L148">	}</span>
+
+	public void setContract(Contract contract)
+	{
+<span class="fc" id="L152">		this.contract = contract;</span>
+<span class="fc" id="L153">	}</span>
+
+
+	public String getContractsInProgressPercentComplete()
+	{
+<span class="fc" id="L158">		return percentFormatter.format(contract.getPercentWorkComplete());</span>
+	}
+
+	public String getProgressReportPercentComplete()
+	{
+<span class="fc" id="L163">		return percentFormatter.format(((float) (currentJob.getJobSize() + currentJob.getChangeOrderLus() - currentJob.getLusRemaining())) / ((float) (currentJob.getJobSize() + currentJob.getChangeOrderLus())));</span>
+	}
+
+	public String getContractPrice()
+	{
+<span class="fc" id="L168">		return NumberConverter.stringValue(currentJob.getBidAmount() + currentJob.getChangeOrderPrice());</span>
+	}
+
+	public String getProgressReportRevenueEarned()
+	{
+<span class="fc" id="L173">		return NumberConverter.stringValue(Math.round(((float) (currentJob.getJobSize() + currentJob.getChangeOrderLus() - currentJob.getLusRemaining())) / ((float) (currentJob.getJobSize() + currentJob.getChangeOrderLus())) * (currentJob.getBidAmount() + currentJob.getChangeOrderPrice())));</span>
+	}
+
+	public String getContractsInProgressReportRevenueEarned()
+	{
+<span class="fc" id="L178">		return NumberConverter.stringValue(contract.getRevenueEarned());</span>
+	}
+
+	public String getAmountPreviouslyBilled()
+	{
+<span class="fc" id="L183">		return NumberConverter.stringValue(contract.getBilledToDate());</span>
+	}
+
+	public String getProgressReportBillingEstimate()
+	{
+<span class="fc" id="L188">		return NumberConverter.stringValue(Math.round(((float) (currentJob.getJobSize() + currentJob.getChangeOrderLus() - currentJob.getLusRemaining())) / ((float) (currentJob.getJobSize() + currentJob.getChangeOrderLus())) * (currentJob.getBidAmount() + currentJob.getChangeOrderPrice())) - contract.getBilledToDate());</span>
+	}
+
+	public String getContractsInProgressReportBillingEstimate()
+	{
+<span class="fc" id="L193">		return NumberConverter.stringValue(contract.getRevenueEarned() - contract.getBilledToDate());</span>
+	}
+
+	public String getCostIncurred()
+	{
+<span class="fc" id="L198">		return NumberConverter.stringValue(contract.getCostIncurred());</span>
+	}
+
+	/**
+	 * If the underlying Job object is an instance of NegotiatedJob,
+	 * this method returns the cost spend on the job so far
+	 * plus the percent profit on the job, or if the
+	 * cost spend so far is greater than the agreed cost
+	 * of the job, returns the maximum amount the company may earn on this
+	 * job.  If the Job is not
+	 * a NegotiatedJob, this method returns &quot;N/A&quot;.
+	 */
+	public String getNegotiatedJobAmountEarnedSoFar()
+	{
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">		if(!negotiatedJob())</span>
+		{
+<span class="nc" id="L214">			return &quot;N/A&quot;;</span>
+		}
+		else
+		{
+<span class="fc" id="L218">			NegotiatedJob nj = (NegotiatedJob) currentJob;</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">			if(contract.getCostIncurred() &gt; nj.getAgreedCost())</span>
+			{
+<span class="fc" id="L221">				return NumberConverter.stringValue(nj.getMaxPrice());</span>
+			}
+			else
+			{
+<span class="fc" id="L225">				return NumberConverter.stringValue(nj.getCostPlusProfit(contract.getCostIncurred()));</span>
+			}
+		}
+	}
+
+	/**
+	 * If the underlying Job object is an instance of NegotiatedJob,
+	 * and the job is complete,
+	 * this method returns maximum amount that the company
+	 * can bill for.  If the Job is not
+	 * a NegotiatedJob, this method returns &quot;N/A&quot;.
+	 */
+	public String getNegotiatedJobCompleteAmount()
+	{
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">		if(!negotiatedJob())</span>
+		{
+<span class="nc" id="L241">			return &quot;N/A&quot;;</span>
+		}
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">		else if(!isJobComplete())</span>
+		{
+<span class="nc" id="L245">		    return &quot;N/A&quot;;</span>
+		}
+		else
+		{
+<span class="fc" id="L249">			NegotiatedJob nj = (NegotiatedJob) currentJob;</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">			if(contract.getCostIncurred() &gt; nj.getAgreedCost())</span>
+			{
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L254">					log.debug(&quot;BillingForm.getNegotiatedJobCompleteAmount: &quot; + contract.getCostIncurred() + &quot; &quot; + nj.getAgreedCost() + &quot; (max price)&quot;);</span>
+				}
+<span class="fc" id="L256">				return NumberConverter.stringValue(nj.getMaxPrice() + getShareOfSavings());</span>
+			}
+			else
+			{
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L262">					log.debug(&quot;BillingForm.getNegotiatedJobCompleteAmount: &quot; + contract.getCostIncurred() + &quot; &quot; + nj.getAgreedCost() + &quot; (current price)&quot;);</span>
+				}
+<span class="fc" id="L264">				return NumberConverter.stringValue(nj.getCostPlusProfit(contract.getCostIncurred()) + getShareOfSavings());</span>
+			}
+		}
+	}
+
+	public String getNegotiatedJobEstimatedBillingAmount()
+	{
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">		if(!negotiatedJob())</span>
+		{
+<span class="nc" id="L273">			return &quot;N/A&quot;;</span>
+		}
+<span class="fc bfc" id="L275" title="All 2 branches covered.">		else if(!isJobComplete())</span>
+		{
+<span class="fc" id="L277">			NegotiatedJob nj = (NegotiatedJob) currentJob;</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">			if(contract.getCostIncurred() &gt; nj.getAgreedCost())</span>
+			{
+<span class="fc" id="L280">				return NumberConverter.stringValue(nj.getMaxPrice() - contract.getBilledToDate());</span>
+			}
+			else
+			{
+<span class="nc" id="L284">				return NumberConverter.stringValue(nj.getCostPlusProfit(contract.getCostIncurred()) - contract.getBilledToDate());</span>
+			}
+		}
+		else
+		{
+<span class="fc" id="L289">			NegotiatedJob nj = (NegotiatedJob) currentJob;</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">			if(contract.getCostIncurred() &gt; nj.getAgreedCost())</span>
+			{
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L294">					log.debug(&quot;BillingForm.getNegotiatedJobEstimatedBillingAmount: &quot; + contract.getCostIncurred() + &quot; &quot; + nj.getAgreedCost() + &quot; (max price)&quot;);</span>
+				}
+<span class="fc" id="L296">				return NumberConverter.stringValue(nj.getMaxPrice() - contract.getBilledToDate() + getShareOfSavings());</span>
+			}
+			else
+			{
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L302">					log.debug(&quot;BillingForm.getNegotiatedJobEstimatedBillingAmount: &quot; + contract.getCostIncurred() + &quot; &quot; + nj.getAgreedCost() + &quot; (current cost)&quot;);</span>
+				}
+<span class="fc" id="L304">				return NumberConverter.stringValue(nj.getCostPlusProfit(contract.getCostIncurred()) + getShareOfSavings() - contract.getBilledToDate());</span>
+			}
+		}
+	}
+
+	/**
+	 * If the underlying Job object is an instance of NegotiatedJob,
+	 * and the job is complete, this method returns the savings on the job.
+	 * If the Job is not
+	 * a NegotiatedJob, this method returns 0.
+	 */
+	public long getSavings()
+	{
+<span class="fc bfc" id="L317" title="All 2 branches covered.">		if(!negotiatedJob())</span>
+		{
+<span class="fc" id="L319">			return 0;</span>
+		}
+<span class="fc bfc" id="L321" title="All 2 branches covered.">		else if (!isJobComplete())</span>
+		{
+<span class="fc" id="L323">			return 0;</span>
+		}
+		else
+		{
+<span class="fc" id="L327">			NegotiatedJob nj = (NegotiatedJob) currentJob;</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">			if(contract.getCostIncurred() &lt; nj.getAgreedCost())</span>
+			{
+<span class="fc" id="L330">				return nj.getAgreedCost() - contract.getCostIncurred();</span>
+			}
+			else
+			{
+<span class="fc" id="L334">				return 0;</span>
+			}
+		}
+	}
+
+	/**
+	 * Same as &lt;code&gt;getSavings&lt;/code&gt; method but returns a string
+	 */
+	public String getSavingsString()
+	{
+<span class="fc" id="L344">		return NumberConverter.stringValue(getSavings());</span>
+	}
+
+    /**
+     * If the underlying Job object is an instance of NegotiatedJob,
+	 * and the job is complete, returns the company's share of the savings.
+	 * (Currently share of savings is hardcoded to 25%)
+     */
+    public long getShareOfSavings()
+    {
+<span class="fc" id="L354">		return Math.round( .25d * ((double) getSavings()));</span>
+	}
+
+	/**
+	 * Same as &lt;code&gt;getShareOfSavings&lt;/code&gt; method but returns a string
+	 */
+	public String getShareOfSavingsString()
+	{
+<span class="fc" id="L362">		return NumberConverter.stringValue(getShareOfSavings());</span>
+	}
+
+	/**
+	 * Returns true if the job is a negotiated job
+	 */
+	public boolean negotiatedJob()
+	{
+<span class="fc" id="L370">		return (currentJob instanceof NegotiatedJob);</span>
+	}
+
+	/**
+	 * Returns true if the job is complete
+	 */
+	public boolean isJobComplete()
+	{
+<span class="fc" id="L378">		return currentJob.isComplete();</span>
+	}
+
+	public int[] getActivityAmounts()
+	{
+<span class="fc" id="L383">		stringsToInts();</span>
+<span class="fc" id="L384">		return activityAmounts;</span>
+	}
+
+	public int getBillingAmount()
+	{
+<span class="fc bfc" id="L389" title="All 2 branches covered.">		if(billingAmountString != null)</span>
+<span class="fc" id="L390">		   billingAmount = NumberConverter.intValue(billingAmountString);</span>
+<span class="fc" id="L391">		return billingAmount;</span>
+	}
+
+	public String getBillingAmountString()
+	{
+<span class="fc" id="L396">	    billingAmountString = NumberConverter.stringValueCommasOnly(billingAmount);</span>
+<span class="fc" id="L397">		return billingAmountString;</span>
+	}
+
+	public void setBillingAmountString(String billingAmount)
+	{
+<span class="fc" id="L402">		this.billingAmountString = billingAmount;</span>
+
+<span class="fc" id="L404">	}</span>
+
+	public String getOldBillingAmountString()
+	{
+<span class="fc" id="L408">	    oldBillingAmountString = NumberConverter.stringValueCommasOnly(oldAmountBilled);</span>
+<span class="fc" id="L409">		return oldBillingAmountString;</span>
+	}
+
+	public void setBillingAmount(int billingAmount)
+	{
+<span class="fc" id="L414">		this.billingAmount = billingAmount;</span>
+<span class="fc" id="L415">	    billingAmountString = NumberConverter.stringValueCommasOnly(billingAmount);</span>
+<span class="fc" id="L416">	}</span>
+
+    public void setActivity1Amount(String activity1Amount)
+    {
+<span class="fc" id="L420">		activityAmountStrings[0] = activity1Amount;</span>
+<span class="fc" id="L421">	}</span>
+
+    public void setActivity2Amount(String activity2Amount)
+    {
+<span class="fc" id="L425">		activityAmountStrings[1] = activity2Amount;</span>
+<span class="fc" id="L426">	}</span>
+
+    public void setActivity3Amount(String activity3Amount)
+    {
+<span class="nc" id="L430">		activityAmountStrings[2] = activity3Amount;</span>
+<span class="nc" id="L431">	}</span>
+
+    public void setActivity4Amount(String activity4Amount)
+    {
+<span class="nc" id="L435">		activityAmountStrings[3] = activity4Amount;</span>
+<span class="nc" id="L436">	}</span>
+
+    public void setActivity5Amount(String activity5Amount)
+    {
+<span class="nc" id="L440">		activityAmountStrings[4] = activity5Amount;</span>
+<span class="nc" id="L441">	}</span>
+
+    public void setActivity6Amount(String activity6Amount)
+    {
+<span class="nc" id="L445">		activityAmountStrings[5] = activity6Amount;</span>
+<span class="nc" id="L446">	}</span>
+
+    public void setActivity7Amount(String activity7Amount)
+    {
+<span class="nc" id="L450">		activityAmountStrings[6] = activity7Amount;</span>
+<span class="nc" id="L451">	}</span>
+
+    public void setActivity8Amount(String activity8Amount)
+    {
+<span class="nc" id="L455">		activityAmountStrings[7] = activity8Amount;</span>
+<span class="nc" id="L456">	}</span>
+
+    public void setActivity9Amount(String activity9Amount)
+    {
+<span class="fc" id="L460">		activityAmountStrings[8] = activity9Amount;</span>
+<span class="fc" id="L461">	}</span>
+
+
+    public String getActivity1Amount()
+    {
+<span class="fc" id="L466">		return activityAmountStrings[0];</span>
+	}
+
+    public String getActivity2Amount()
+    {
+<span class="fc" id="L471">		return activityAmountStrings[1];</span>
+	}
+
+    public String getActivity3Amount()
+    {
+<span class="nc" id="L476">		return activityAmountStrings[2];</span>
+	}
+
+    public String getActivity4Amount()
+    {
+<span class="nc" id="L481">		return activityAmountStrings[3];</span>
+	}
+
+    public String getActivity5Amount()
+    {
+<span class="nc" id="L486">		return activityAmountStrings[4];</span>
+	}
+
+    public String getActivity6Amount()
+    {
+<span class="nc" id="L491">		return activityAmountStrings[5];</span>
+	}
+
+    public String getActivity7Amount()
+    {
+<span class="nc" id="L496">		return activityAmountStrings[6];</span>
+	}
+
+    public String getActivity8Amount()
+    {
+<span class="nc" id="L501">		return activityAmountStrings[7];</span>
+	}
+
+    public String getActivity9Amount()
+    {
+<span class="fc" id="L506">		return activityAmountStrings[8];</span>
+	}
+
+
+    public String getActivity1Cost()
+    {
+<span class="fc" id="L512">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[0].getCurrentLaborCost() + currentJob.getActivities()[0].getCurrentMaterialCost() + currentJob.getActivities()[0].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity2Cost()
+    {
+<span class="fc" id="L517">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[1].getCurrentLaborCost() + currentJob.getActivities()[1].getCurrentMaterialCost() + currentJob.getActivities()[1].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity3Cost()
+    {
+<span class="fc" id="L522">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[2].getCurrentLaborCost() + currentJob.getActivities()[2].getCurrentMaterialCost() + currentJob.getActivities()[2].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity4Cost()
+    {
+<span class="fc" id="L527">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[3].getCurrentLaborCost() + currentJob.getActivities()[3].getCurrentMaterialCost() + currentJob.getActivities()[3].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity5Cost()
+    {
+<span class="fc" id="L532">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[4].getCurrentLaborCost() + currentJob.getActivities()[4].getCurrentMaterialCost() + currentJob.getActivities()[4].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity6Cost()
+    {
+<span class="fc" id="L537">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[5].getCurrentLaborCost() + currentJob.getActivities()[5].getCurrentMaterialCost() + currentJob.getActivities()[5].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity7Cost()
+    {
+<span class="fc" id="L542">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[6].getCurrentLaborCost() + currentJob.getActivities()[6].getCurrentMaterialCost() + currentJob.getActivities()[6].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity8Cost()
+    {
+<span class="fc" id="L547">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[7].getCurrentLaborCost() + currentJob.getActivities()[7].getCurrentMaterialCost() + currentJob.getActivities()[7].getCurrentSubcontractorCost());</span>
+	}
+
+    public String getActivity9Cost()
+    {
+<span class="fc" id="L552">		return NumberConverter.stringValueCommasOnly(currentJob.getActivities()[8].getCurrentLaborCost() + currentJob.getActivities()[8].getCurrentMaterialCost() + currentJob.getActivities()[8].getCurrentSubcontractorCost());</span>
+	}
+
+
+    public String getActivity1PercentComplete()
+    {
+<span class="fc bfc" id="L558" title="All 2 branches covered.">        if(currentJob.getActivities()[0].getLusTotal() == 0)</span>
+        {
+<span class="fc" id="L560">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="fc" id="L564">        	return percentFormatter.format(((float) currentJob.getActivities()[0].getLusCompleted()) / ((float) currentJob.getActivities()[0].getLusTotal()));</span>
+        }
+
+	}
+
+    public String getActivity2PercentComplete()
+    {
+<span class="nc bnc" id="L571" title="All 2 branches missed.">        if(currentJob.getActivities()[1].getLusTotal() == 0)</span>
+        {
+<span class="nc" id="L573">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="nc" id="L577">        	return percentFormatter.format(((float) currentJob.getActivities()[1].getLusCompleted()) / ((float) currentJob.getActivities()[1].getLusTotal()));</span>
+        }
+    }
+
+    public String getActivity3PercentComplete()
+    {
+<span class="nc bnc" id="L583" title="All 2 branches missed.">        if(currentJob.getActivities()[2].getLusTotal() == 0)</span>
+        {
+<span class="nc" id="L585">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="nc" id="L589">        	return percentFormatter.format(((float) currentJob.getActivities()[2].getLusCompleted()) / ((float) currentJob.getActivities()[2].getLusTotal()));</span>
+        }
+	}
+
+    public String getActivity4PercentComplete()
+    {
+<span class="nc bnc" id="L595" title="All 2 branches missed.">        if(currentJob.getActivities()[3].getLusTotal() == 0)</span>
+        {
+<span class="nc" id="L597">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="nc" id="L601">        	return percentFormatter.format(((float) currentJob.getActivities()[3].getLusCompleted()) / ((float) currentJob.getActivities()[3].getLusTotal()));</span>
+        }
+	}
+
+    public String getActivity5PercentComplete()
+    {
+<span class="pc bpc" id="L607" title="1 of 2 branches missed.">        if(currentJob.getActivities()[4].getLusTotal() == 0)</span>
+        {
+<span class="fc" id="L609">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="nc" id="L613">        	return percentFormatter.format(((float) currentJob.getActivities()[4].getLusCompleted()) / ((float) currentJob.getActivities()[4].getLusTotal()));</span>
+        }
+	}
+
+    public String getActivity6PercentComplete()
+    {
+<span class="nc bnc" id="L619" title="All 2 branches missed.">        if(currentJob.getActivities()[5].getLusTotal() == 0)</span>
+        {
+<span class="nc" id="L621">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="nc" id="L625">        	return percentFormatter.format(((float) currentJob.getActivities()[5].getLusCompleted()) / ((float) currentJob.getActivities()[5].getLusTotal()));</span>
+        }
+	}
+
+    public String getActivity7PercentComplete()
+    {
+<span class="nc bnc" id="L631" title="All 2 branches missed.">        if(currentJob.getActivities()[6].getLusTotal() == 0)</span>
+        {
+<span class="nc" id="L633">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="nc" id="L637">        	return percentFormatter.format(((float) currentJob.getActivities()[6].getLusCompleted()) / ((float) currentJob.getActivities()[6].getLusTotal()));</span>
+        }
+	}
+
+    public String getActivity8PercentComplete()
+    {
+<span class="nc bnc" id="L643" title="All 2 branches missed.">        if(currentJob.getActivities()[7].getLusTotal() == 0)</span>
+        {
+<span class="nc" id="L645">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="nc" id="L649">        	return percentFormatter.format(((float) currentJob.getActivities()[7].getLusCompleted()) / ((float) currentJob.getActivities()[7].getLusTotal()));</span>
+        }
+	}
+
+    public String getActivity9PercentComplete()
+    {
+<span class="fc bfc" id="L655" title="All 2 branches covered.">        if(currentJob.getActivities()[8].getLusTotal() == 0)</span>
+        {
+<span class="fc" id="L657">            return percentFormatter.format(1);</span>
+        }
+        else
+        {
+<span class="fc" id="L661">        	return percentFormatter.format(((float) currentJob.getActivities()[8].getLusCompleted()) / ((float) currentJob.getActivities()[8].getLusTotal()));</span>
+        }
+	}
+
+
+	private void intsToStrings()
+	{
+<span class="fc bfc" id="L668" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="fc" id="L670">			activityAmountStrings[i] = NumberConverter.stringValueCommasOnly(activityAmounts[i]);</span>
+		}
+<span class="fc" id="L672">	}</span>
+
+	private void stringsToInts()
+	{
+<span class="fc bfc" id="L676" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="pc bpc" id="L678" title="1 of 2 branches missed.">			if(!NumberConverter.isValidMoneyString(activityAmountStrings[i]))</span>
+			{
+<span class="nc" id="L680">				throw new NumberFormatException();</span>
+			}
+<span class="fc" id="L682">			activityAmounts[i] = NumberConverter.intValue(activityAmountStrings[i]);</span>
+		}
+<span class="fc" id="L684">	}</span>
+
+	public int getAmountPaid()
+	{
+<span class="fc" id="L688">		return amountPaid;</span>
+	}
+
+	public boolean rejected()
+	{
+<span class="fc" id="L693">		return rejected;</span>
+	}
+
+    public void setRejected(boolean rejected)
+    {
+<span class="fc" id="L698">		this.rejected = rejected;</span>
+<span class="fc" id="L699">	}</span>
+
+	public void setAmountPaid(int amountPaid)
+	{
+<span class="fc" id="L703">		this.amountPaid = amountPaid;</span>
+<span class="fc" id="L704">	}</span>
+
+	public int getOldAmountBilled()
+	{
+<span class="fc" id="L708">		return oldAmountBilled;</span>
+	}
+
+	public void setOldAmountBilled(int oldAmountBilled)
+	{
+<span class="fc" id="L713">		this.oldAmountBilled = oldAmountBilled;</span>
+<span class="fc" id="L714">	}</span>
+
+
+	/**
+	 * Ensures all values are non-null, all number strings contain only numeric characters,
+     * all number are greater than or equal to zero, and that for each period the mins are less than or equal to the max.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+
+<span class="fc" id="L724">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L726">        boolean nullParams = false;</span>
+<span class="fc" id="L727">        boolean validNumbers = true;</span>
+<span class="fc" id="L728">        boolean positiveNumbers = true;</span>
+
+        //First make sure none of the Strings are null
+<span class="fc bfc" id="L731" title="All 2 branches covered.">        for(int i = 0; i &lt; 9; i++)</span>
+        {
+<span class="pc bpc" id="L733" title="1 of 4 branches missed.">			if((activityAmountStrings[i] == null) || (activityAmountStrings[i].trim().length() &lt; 1))</span>
+<span class="fc" id="L734">				nullParams = true;</span>
+<span class="pc bpc" id="L735" title="1 of 4 branches missed.">			if((billingAmountString == null ) || (billingAmountString.trim().length() &lt; 1))</span>
+<span class="fc" id="L736">			    nullParams = true;</span>
+		}
+
+<span class="fc bfc" id="L739" title="All 2 branches covered.">		if (nullParams) //nullParams == true</span>
+		{
+<span class="fc" id="L741">			errors.add(&quot;nullParameters&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+		else           //nullParams == false
+		{
+			//Next make sure all of the Strings contain only numeric characters.
+<span class="fc bfc" id="L746" title="All 2 branches covered.">			for(int i = 0; i &lt; 9; i++)</span>
+			{
+				//Check that the strings are valid numbers by trying to convert them to ints and checking for a NumberFormatException
+				//Note that this also populated the int arrays
+				try
+				{
+<span class="fc" id="L752">					activityAmounts[i] = NumberConverter.intValue(activityAmountStrings[i]);</span>
+				}
+<span class="nc" id="L754">				catch(NumberFormatException nfe)</span>
+				{
+<span class="nc" id="L756">					validNumbers = false;</span>
+<span class="fc" id="L757">				}</span>
+
+			}
+			try
+			{
+<span class="fc" id="L762">				billingAmount = NumberConverter.intValue(billingAmountString);</span>
+			}
+<span class="nc" id="L764">			catch(NumberFormatException nfe)</span>
+			{
+<span class="nc" id="L766">				validNumbers = false;</span>
+<span class="fc" id="L767">			}</span>
+		}
+
+<span class="pc bpc" id="L770" title="3 of 4 branches missed.">		if(!validNumbers &amp;&amp; !nullParams) //validNumbers == false AND nullParams == false</span>
+		{
+<span class="nc" id="L772">			errors.add(&quot;numberFormat&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+<span class="fc bfc" id="L774" title="All 2 branches covered.">		else if(!nullParams)				//validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all the numbers are positive or zero
+<span class="fc bfc" id="L777" title="All 2 branches covered.">			for(int i = 0; i &lt; 9; i++)</span>
+			{
+<span class="fc bfc" id="L779" title="All 2 branches covered.">				if(activityAmounts[i] &lt; 0)</span>
+<span class="fc" id="L780">					positiveNumbers = false;</span>
+			}
+<span class="fc bfc" id="L782" title="All 2 branches covered.">			if(billingAmount &lt; 0)</span>
+			{
+<span class="fc" id="L784">				positiveNumbers = false;</span>
+			}
+		}
+
+<span class="pc bpc" id="L788" title="2 of 6 branches missed.">		if(!positiveNumbers &amp;&amp; validNumbers &amp;&amp; !nullParams) //positiveNumbers = false AND nullParams == false AND validNumbers == true</span>
+		{
+<span class="fc" id="L790">			errors.add(&quot;negativeValue&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+<span class="fc" id="L793">		return errors;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

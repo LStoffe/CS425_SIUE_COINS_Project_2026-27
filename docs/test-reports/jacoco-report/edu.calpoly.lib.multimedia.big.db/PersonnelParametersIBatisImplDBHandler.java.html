@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersonnelParametersIBatisImplDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">PersonnelParametersIBatisImplDBHandler.java</span></div><h1>PersonnelParametersIBatisImplDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//JDK imports
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.TreeMap;
+
+//JDBC imports
+import java.sql.SQLException;
+
+//BIG Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+
+//BIG v4 imports
+import edu.calpoly.lib.multimedia.big.personnel.MosToCUsRatio;
+import edu.calpoly.lib.multimedia.big.personnel.EmployeeSkillConversionRatioLookup;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Implementation of &lt;code&gt;PersonnelParametersDBHandler&lt;/code&gt; using iBatis to access the database.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.6 $ $Date: 2002/05/07 21:27:42 $
+ */
+public class PersonnelParametersIBatisImplDBHandler implements PersonnelParametersDBHandler
+{
+	private Log log;
+	private SqlMapClient sqlMap;
+
+
+    public PersonnelParametersIBatisImplDBHandler(SqlMapClient sqlMap)
+<span class="fc" id="L47">    {</span>
+<span class="fc" id="L48">		this.sqlMap = sqlMap;</span>
+<span class="fc" id="L49">		this.log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L50">	}</span>
+
+	public List getPersonnelTypes(Game game) throws ParametersNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L56">			log.debug(this.getClass() + &quot;: Starting method getPersonnelTypes&quot;);</span>
+		}
+
+<span class="fc" id="L59">		List list = new ArrayList();</span>
+
+		try
+		{
+<span class="fc" id="L63">			sqlMap.startTransaction();</span>
+<span class="fc" id="L64">			Map m = new HashMap();</span>
+<span class="fc" id="L65">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L66">			m.put(&quot;adminid&quot; , game.getAdminID());</span>
+<span class="fc" id="L67">			list = (List) sqlMap.queryForList(&quot;getPersonnelTypes&quot;, m);</span>
+<span class="fc" id="L68">			sqlMap.commitTransaction();</span>
+		}
+<span class="fc" id="L70">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L72">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L78">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L80">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L82">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L83">			}</span>
+		}
+
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L88">			log.debug(this.getClass() + &quot;: Returning from method getPersonnelTypes&quot;);</span>
+		}
+
+<span class="fc" id="L91">		return list;</span>
+	}
+
+    public Map getPersonnelParameters(Game game)
+    	throws ParametersNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L99">			log.debug(this.getClass() + &quot;: Starting method getPersonnelParameters&quot;);</span>
+		}
+
+<span class="fc" id="L102">		Map parameters = new TreeMap();</span>
+
+	    try
+	    {
+<span class="fc" id="L106">			sqlMap.startTransaction();</span>
+<span class="fc" id="L107">			Map m = new HashMap();</span>
+<span class="fc" id="L108">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L109">			m.put(&quot;adminid&quot; , game.getAdminID());</span>
+
+<span class="fc" id="L111">			List list = (List) sqlMap.queryForList(&quot;getPersonnelParameters&quot;, m);</span>
+
+<span class="fc bfc" id="L113" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L115">				Map mm = (Map) o;</span>
+<span class="fc" id="L116">				parameters.put(mm.get(&quot;employeeTitle&quot;), mm.get(&quot;employeeCost&quot;));</span>
+<span class="fc" id="L117">				parameters.put(mm.get(&quot;employeeTitle&quot;), mm.get(&quot;employeeHiringCost&quot;));</span>
+<span class="fc" id="L118">				parameters.put(mm.get(&quot;employeeTitle&quot;), mm.get(&quot;employeeFiringCost&quot;));</span>
+			/*	if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot;: Returning personnel parameters employeeType=&quot; + mm.get(&quot;employeeTitle&quot;) + &quot; employeeCost=&quot; + mm.get(&quot;employeeCost&quot;) );
+				} */
+<span class="fc" id="L123">			}</span>
+<span class="fc" id="L124">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L126">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L128">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L134">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L136">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L138">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L139">			}</span>
+		}
+
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L144">			log.debug(this.getClass() + &quot;: Returning from method getPersonnelParameters&quot;);</span>
+		}
+
+<span class="fc" id="L147">	    return parameters;</span>
+    }
+
+    public Map getDefaultPersonnelParameters(Admin admin)
+        throws ParametersNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="nc bnc" id="L153" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L155">			log.debug(this.getClass() + &quot;: Starting method getDefaultPersonnelParameters&quot;);</span>
+		}
+<span class="nc" id="L157">	  	Game dummyGame = new Game(0, admin.getAdminID(), null, null, 0, false, 0, 0);</span>
+
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L161">			log.debug(this.getClass() + &quot;: Returning from method getDefaultPersonnelParameters&quot;);</span>
+		}
+<span class="nc" id="L163">	  	return getPersonnelParameters(dummyGame);</span>
+	}
+
+ 	public void updatePersonnelParameters(Game game, Map parameters)
+	    throws ParametersNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L171">			log.debug(this.getClass() + &quot;: Starting method updatePersonnelParameters&quot;);</span>
+		}
+
+	    try
+	    {
+<span class="fc" id="L176">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L178">			Map m = new HashMap();</span>
+<span class="fc" id="L179">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L180">			m.put(&quot;adminid&quot; , game.getAdminID());</span>
+<span class="fc" id="L181">			m.put(&quot;employeeType&quot;, parameters.get(&quot;employeeType&quot;));</span>
+<span class="fc" id="L182">			m.put(&quot;employeeCost&quot;, parameters.get(&quot;employeeCost&quot;));</span>
+
+<span class="fc" id="L184">			sqlMap.update(&quot;updatePersonnelParameters&quot;, m);</span>
+<span class="fc" id="L185">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L187">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L189">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L195">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L197">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L199">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L200">			}</span>
+		}
+
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L205">			log.debug(this.getClass() + &quot;: Returning from method updatePersonnelParameters&quot;);</span>
+		}
+
+<span class="fc" id="L208">	}</span>
+
+	public void updateDefaultPersonnelParameters(Admin admin, Map parameters)
+	    throws ParametersNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L215">			log.debug(this.getClass() + &quot;: Starting method updateDefaultPersonnelParameters&quot;);</span>
+		}
+
+<span class="nc" id="L218">		Game dummyGame = new Game(0, admin.getAdminID(), null, null, 0, false, 0, 0);</span>
+
+<span class="nc" id="L220">		updatePersonnelParameters(dummyGame, parameters);</span>
+
+<span class="nc bnc" id="L222" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L224">			log.debug(this.getClass() + &quot;: Returning from method updateDefaultPersonnelParameters&quot;);</span>
+		}
+<span class="nc" id="L226">	}</span>
+
+    public void removePersonnelParameters(int adminID, int gameID) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L232">			log.debug(this.getClass() + &quot;: Starting method removePersonnelParameters&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L237">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L239">			Map m = new HashMap();</span>
+<span class="fc" id="L240">			m.put(&quot;gameid&quot; , gameID);</span>
+<span class="fc" id="L241">			m.put(&quot;adminid&quot; , adminID);</span>
+
+<span class="fc" id="L243">			sqlMap.delete(&quot;deletePersonnelParameters&quot;,  m);</span>
+
+<span class="fc" id="L245">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L247">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L249">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L255">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L257">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L259">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L260">			}</span>
+		}
+
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L265">			log.debug(this.getClass() + &quot;: Returning from method removePersonnelParameters&quot;);</span>
+		}
+<span class="fc" id="L267">    }</span>
+
+
+    public void copyPersonnelParameters(int oldAdminID, int oldGameID, int newAdminID, int newGameID) throws BIGDatabaseFacadeException
+    {
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L274">			log.debug(this.getClass() + &quot;: Starting method copyPersonnelParameters from adminid=&quot; + oldAdminID + &quot;, gameid=&quot; + oldGameID + &quot; to adminid=&quot; + newAdminID + &quot; , gameid=&quot; + newGameID);</span>
+		}
+
+<span class="fc" id="L277">		copyAvailablePersonnel(oldAdminID, oldGameID, newAdminID, newGameID);</span>
+<span class="fc" id="L278">		copyMainOfficeSkills(oldAdminID, oldGameID, newAdminID, newGameID);</span>
+<span class="fc" id="L279">		copyMosPointConversion(oldAdminID, oldGameID, newAdminID, newGameID);</span>
+<span class="fc" id="L280">		copyJobTypeRequiredMos(oldAdminID, oldGameID, newAdminID, newGameID);</span>
+<span class="fc" id="L281">		copyMospCost(oldAdminID, oldGameID, newAdminID, newGameID);</span>
+
+
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L286">			log.debug(this.getClass() + &quot;: Returning from method copyPersonnelParameters&quot;);</span>
+		}
+<span class="fc" id="L288">	}</span>
+
+	private void copyAvailablePersonnel(int oldAdminID, int oldGameID, int newAdminID, int newGameID) throws BIGDatabaseFacadeException
+	{
+	    try
+	    {
+<span class="fc" id="L294">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L296">			Map m = new HashMap();</span>
+<span class="fc" id="L297">			m.put(&quot;gameid&quot; , oldGameID);</span>
+<span class="fc" id="L298">			m.put(&quot;adminid&quot; , oldAdminID);</span>
+
+<span class="fc" id="L300">			List list = (List) sqlMap.queryForList(&quot;getPersonnelParameters&quot;, m);</span>
+
+<span class="fc bfc" id="L302" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L304">				Map mm = (Map) o;</span>
+
+			/*	if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot;: Returning personnel parameters employeeType=&quot; + mm.get(&quot;employeeTitle&quot;) + &quot; employeeCost=&quot; + mm.get(&quot;employeeCost&quot;) );
+				} */
+
+<span class="fc" id="L311">				Map toAdd = new HashMap();</span>
+<span class="fc" id="L312">				toAdd.put(&quot;gameid&quot;, newGameID);</span>
+<span class="fc" id="L313">				toAdd.put(&quot;adminid&quot;, newAdminID);</span>
+<span class="fc" id="L314">				toAdd.put(&quot;employeeTitle&quot;, mm.get(&quot;employeeTitle&quot;));</span>
+<span class="fc" id="L315">				toAdd.put(&quot;employeeCost&quot;, mm.get(&quot;employeeCost&quot;));</span>
+<span class="fc" id="L316">				toAdd.put(&quot;employeeHiringCost&quot;, mm.get(&quot;employeeHiringCost&quot;));</span>
+<span class="fc" id="L317">				toAdd.put(&quot;employeeFiringCost&quot;, mm.get(&quot;employeeFiringCost&quot;));</span>
+<span class="fc" id="L318">				toAdd.put(&quot;employeePercentRaise&quot;, mm.get(&quot;employeePercentRaise&quot;));</span>
+<span class="fc" id="L319">				toAdd.put(&quot;employeeBasePoints&quot;, mm.get(&quot;employeeBasePoints&quot;));</span>
+<span class="fc" id="L320">				toAdd.put(&quot;category&quot;, mm.get(&quot;category&quot;));</span>
+
+<span class="fc" id="L322">				sqlMap.insert(&quot;addPersonnelParameters&quot;, toAdd);</span>
+<span class="fc" id="L323">			}</span>
+
+<span class="fc" id="L325">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L327">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L329">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L335">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L337">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L339">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L340">			}</span>
+		}
+<span class="fc" id="L342">	}</span>
+
+	private void copyMainOfficeSkills(int oldAdminID, int oldGameID, int newAdminID, int newGameID) throws BIGDatabaseFacadeException
+	{
+	    try
+	    {
+<span class="fc" id="L348">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L350">			Map m = new HashMap();</span>
+<span class="fc" id="L351">			m.put(&quot;gameid&quot; , oldGameID);</span>
+<span class="fc" id="L352">			m.put(&quot;adminid&quot; , oldAdminID);</span>
+
+<span class="fc" id="L354">			List list = (List) sqlMap.queryForList(&quot;getMainOfficeSkillParameters&quot;, m);</span>
+
+<span class="fc bfc" id="L356" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L358">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L360">				Map toAdd = new HashMap();</span>
+<span class="fc" id="L361">				toAdd.put(&quot;gameid&quot;, newGameID);</span>
+<span class="fc" id="L362">				toAdd.put(&quot;adminid&quot;, newAdminID);</span>
+<span class="fc" id="L363">				toAdd.put(&quot;skillName&quot;, mm.get(&quot;skillName&quot;));</span>
+<span class="fc" id="L364">				toAdd.put(&quot;skillCode&quot;, mm.get(&quot;skillCode&quot;));</span>
+
+<span class="fc" id="L366">				sqlMap.insert(&quot;addMainOfficeSkillsParameters&quot;, toAdd);</span>
+<span class="fc" id="L367">			}</span>
+<span class="fc" id="L368">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L370">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L372">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L378">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L380">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L382">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L383">			}</span>
+		}
+<span class="fc" id="L385">	}</span>
+
+	private void copyMosPointConversion(int oldAdminID, int oldGameID, int newAdminID, int newGameID) throws BIGDatabaseFacadeException
+	{
+	    try
+	    {
+<span class="fc" id="L391">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L393">			Map m = new HashMap();</span>
+<span class="fc" id="L394">			m.put(&quot;gameid&quot; , oldGameID);</span>
+<span class="fc" id="L395">			m.put(&quot;adminid&quot; , oldAdminID);</span>
+
+<span class="fc" id="L397">			List list = (List) sqlMap.queryForList(&quot;getMosPointConversionParameters&quot;, m);</span>
+
+<span class="fc bfc" id="L399" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L401">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L403">				Map toAdd = new HashMap();</span>
+<span class="fc" id="L404">				toAdd.put(&quot;gameid&quot;, newGameID);</span>
+<span class="fc" id="L405">				toAdd.put(&quot;adminid&quot;, newAdminID);</span>
+<span class="fc" id="L406">				toAdd.put(&quot;employeeTitle&quot;, mm.get(&quot;employeeTitle&quot;));</span>
+<span class="fc" id="L407">				toAdd.put(&quot;skillCode&quot;, mm.get(&quot;skillCode&quot;));</span>
+<span class="fc" id="L408">				toAdd.put(&quot;baseToMospRatio&quot;, mm.get(&quot;baseToMospRatio&quot;));</span>
+
+<span class="fc" id="L410">				sqlMap.insert(&quot;addMosPointConversionParameters&quot;, toAdd);</span>
+<span class="fc" id="L411">			}</span>
+
+<span class="fc" id="L413">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L415">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L417">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L423">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L425">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L427">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L428">			}</span>
+		}
+<span class="fc" id="L430">	}</span>
+
+	private void copyJobTypeRequiredMos(int oldAdminID, int oldGameID, int newAdminID, int newGameID) throws BIGDatabaseFacadeException
+	{
+	    try
+	    {
+<span class="fc" id="L436">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L438">			Map m = new HashMap();</span>
+<span class="fc" id="L439">			m.put(&quot;gameid&quot; , oldGameID);</span>
+<span class="fc" id="L440">			m.put(&quot;adminid&quot; , oldAdminID);</span>
+
+<span class="fc" id="L442">			List list = (List) sqlMap.queryForList(&quot;getJobTypeReqMosParameters&quot;, m);</span>
+
+<span class="fc bfc" id="L444" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L446">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L448">				Map toAdd = new HashMap();</span>
+<span class="fc" id="L449">				toAdd.put(&quot;gameid&quot;, newGameID);</span>
+<span class="fc" id="L450">				toAdd.put(&quot;adminid&quot;, newAdminID);</span>
+<span class="fc" id="L451">				toAdd.put(&quot;jobType&quot;, mm.get(&quot;jobType&quot;));</span>
+<span class="fc" id="L452">				toAdd.put(&quot;skillCode&quot;, mm.get(&quot;skillCode&quot;));</span>
+<span class="fc" id="L453">				toAdd.put(&quot;cuAmount&quot;, mm.get(&quot;cuAmount&quot;));</span>
+<span class="fc" id="L454">				toAdd.put(&quot;mosAmount&quot;, mm.get(&quot;mosAmount&quot;));</span>
+
+<span class="fc" id="L456">				sqlMap.insert(&quot;addJobTypeReqMosParameters&quot;, toAdd);</span>
+<span class="fc" id="L457">			}</span>
+
+<span class="fc" id="L459">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L461">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L463">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L469">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L471">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L473">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L474">			}</span>
+		}
+<span class="fc" id="L476">	}</span>
+
+	private void copyMospCost(int oldAdminID, int oldGameID, int newAdminID, int newGameID) throws BIGDatabaseFacadeException
+	{
+	    try
+	    {
+<span class="fc" id="L482">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L484">			Map m = new HashMap();</span>
+<span class="fc" id="L485">			m.put(&quot;gameid&quot; , oldGameID);</span>
+<span class="fc" id="L486">			m.put(&quot;adminid&quot; , oldAdminID);</span>
+
+<span class="fc" id="L488">			List list = (List) sqlMap.queryForList(&quot;getMospCostParameters&quot;, m);</span>
+
+<span class="fc bfc" id="L490" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L492">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L494">				Map toAdd = new HashMap();</span>
+<span class="fc" id="L495">				toAdd.put(&quot;gameid&quot;, newGameID);</span>
+<span class="fc" id="L496">				toAdd.put(&quot;adminid&quot;, newAdminID);</span>
+<span class="fc" id="L497">				toAdd.put(&quot;skillCode&quot;, mm.get(&quot;skillCode&quot;));</span>
+<span class="fc" id="L498">				toAdd.put(&quot;price&quot;, mm.get(&quot;price&quot;));</span>
+
+<span class="fc" id="L500">				sqlMap.insert(&quot;addMospCostParameters&quot;, toAdd);</span>
+<span class="fc" id="L501">			}</span>
+
+<span class="fc" id="L503">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L505">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L507">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L513">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L515">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L517">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L518">			}</span>
+		}
+<span class="fc" id="L520">	}</span>
+
+    /**
+     * see interface
+     */
+    public Map&lt;String, Map&lt;String, MosToCUsRatio&gt;&gt; getJobRequiredMospParameters(Game game) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L527">		Map&lt;String, Map&lt;String, MosToCUsRatio&gt;&gt; results = new HashMap&lt;String, Map&lt;String, MosToCUsRatio&gt;&gt;();</span>
+
+	    try
+	    {
+<span class="fc" id="L531">			sqlMap.startTransaction();</span>
+<span class="fc" id="L532">			List list = (List) sqlMap.queryForList(&quot;getJobTypeReqMosParametersForGame&quot;, game.getGameID());</span>
+
+<span class="fc bfc" id="L534" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L536">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L538">				String jobType = mm.get(&quot;jobType&quot;).toString();</span>
+<span class="fc" id="L539">				String skillCode = (String) mm.get(&quot;skillCode&quot;);</span>
+<span class="fc" id="L540">				Integer cuAmount = (Integer) mm.get(&quot;cuAmount&quot;);</span>
+<span class="fc" id="L541">				Integer mosAmount = (Integer) mm.get(&quot;mosAmount&quot;);</span>
+
+				//Get a reference to the Map for the current job type.
+<span class="fc" id="L544">				Map&lt;String, MosToCUsRatio&gt; jobTypeMap = (Map&lt;String, MosToCUsRatio&gt;) results.get(jobType);</span>
+
+				//If no existing Map was found, create one and start using it as the Map
+				//for the job type.
+<span class="fc bfc" id="L548" title="All 2 branches covered.">				if(jobTypeMap == null)</span>
+				{
+<span class="fc" id="L550">					jobTypeMap = new HashMap&lt;String, MosToCUsRatio&gt;();</span>
+<span class="fc" id="L551">					results.put(jobType, jobTypeMap);</span>
+				}
+
+<span class="fc" id="L554">				jobTypeMap.put(skillCode, new MosToCUsRatio(cuAmount, mosAmount));</span>
+
+<span class="fc" id="L556">			}</span>
+<span class="fc" id="L557">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L559">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L561">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L567">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L569">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L571">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L572">			}</span>
+		}
+
+<span class="fc" id="L575">		return results;</span>
+	}
+
+    /**
+     * see interface
+     */
+    public Map&lt;String, Integer&gt; getMospCostPenalties(Game game) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L583">		Map&lt;String, Integer&gt; results = new HashMap&lt;String, Integer&gt;();</span>
+
+	    try
+	    {
+
+<span class="fc" id="L588">			sqlMap.startTransaction();</span>
+<span class="fc" id="L589">			List list = (List) sqlMap.queryForList(&quot;getMospCostParametersForGame&quot;, game.getGameID());</span>
+
+<span class="fc bfc" id="L591" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L593">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L595">				String skillCode = (String) mm.get(&quot;skillCode&quot;);</span>
+<span class="fc" id="L596">				Integer price = (Integer) mm.get(&quot;price&quot;);</span>
+
+<span class="fc" id="L598">				results.put(skillCode, price);</span>
+
+<span class="fc" id="L600">			}</span>
+<span class="fc" id="L601">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L603">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L605">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L611">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L613">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L615">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L616">			}</span>
+		}
+
+<span class="fc" id="L619">		return results;</span>
+	}
+
+	/**
+	 * see interface
+     */
+    public EmployeeSkillConversionRatioLookup getEmployeeSkillConversionRatios(Game game) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L627">		EmployeeSkillConversionRatioLookup lookup = new EmployeeSkillConversionRatioLookup();</span>
+
+	    try
+	    {
+<span class="fc" id="L631">			sqlMap.startTransaction();</span>
+<span class="fc" id="L632">			List list = (List) sqlMap.queryForList(&quot;getMosPointConversionParametersForGame&quot;, game.getGameID());</span>
+
+<span class="fc bfc" id="L634" title="All 2 branches covered.">			for (Object o : list)</span>
+			{
+<span class="fc" id="L636">				Map mm = (Map) o;</span>
+
+<span class="fc" id="L638">				String employeeTitle = (String) mm.get(&quot;employeeTitle&quot;);</span>
+<span class="fc" id="L639">				String skillCode = (String) mm.get(&quot;skillCode&quot;);</span>
+<span class="fc" id="L640">				Float ratio = (Float) mm.get(&quot;baseToMospRatio&quot;);</span>
+
+<span class="fc" id="L642">				lookup.addConversionRatio(employeeTitle, skillCode, ratio.floatValue());</span>
+<span class="fc" id="L643">			}</span>
+<span class="fc" id="L644">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L646">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L648">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L654">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L656">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L658">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L659">			}</span>
+		}
+
+<span class="fc" id="L662">		return lookup;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

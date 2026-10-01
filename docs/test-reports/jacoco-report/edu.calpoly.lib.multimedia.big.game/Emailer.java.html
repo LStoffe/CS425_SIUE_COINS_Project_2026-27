@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Emailer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">Emailer.java</span></div><h1>Emailer.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.game;
+
+import java.net.Socket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Used to send e-mails.
+ * Once an instance of this class has been created it will
+ * use a socket to connect to an SMTP server.  The connection will remain
+ * until the &lt;code&gt;finalize()&lt;/code&gt; method is called.
+ * After instanciation the &lt;code&gt;send&lt;/code&gt; method can be used to send e-mails.
+ * &lt;br&gt;&lt;br&gt;
+ * This class does not currently support attachments or CCs.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class Emailer
+{
+	private String SMTPhost;
+<span class="nc" id="L32">	private String SMTPport = &quot;25&quot;;</span>
+	private Socket SMTPServer;
+	private PrintWriter out;
+	private BufferedReader in;
+	private Log log;
+
+
+    /**
+     * Creates a new instance using a given SMTP host and connecting on the default
+     * SMTP port of 25.
+     *
+     */
+	public Emailer(String SMTPhost)
+<span class="nc" id="L45">	{</span>
+<span class="nc" id="L46">	    log = LogFactory.getLog(this.getClass());</span>
+<span class="nc" id="L47">		this.SMTPhost = SMTPhost;</span>
+<span class="nc" id="L48">		setupConnection();</span>
+<span class="nc" id="L49">	}</span>
+
+    /**
+     * Creates a new instance using a given SMTP host
+     * and port
+     *
+     */
+	public Emailer(String SMTPhost, String SMTPport)
+<span class="nc" id="L57">	{</span>
+<span class="nc" id="L58">	    log = LogFactory.getLog(this.getClass());</span>
+<span class="nc" id="L59">		this.SMTPhost = SMTPhost;</span>
+<span class="nc" id="L60">		this.SMTPport = SMTPport;</span>
+<span class="nc" id="L61">	    setupConnection();</span>
+<span class="nc" id="L62">	}</span>
+
+
+
+    //Sets up the connection to SMTP server
+    private void setupConnection()
+    {
+		try
+		{
+<span class="nc bnc" id="L71" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L73">				log.debug(&quot;Attempting to connect to SMTP server &quot; + SMTPhost + &quot; on port &quot; + SMTPport);</span>
+			}
+<span class="nc" id="L75">			SMTPServer = new Socket(InetAddress.getByName(SMTPhost), Integer.parseInt(SMTPport));</span>
+<span class="nc" id="L76">			out = new PrintWriter((new OutputStreamWriter(SMTPServer.getOutputStream())), true);</span>
+<span class="nc" id="L77">			in = new BufferedReader((new InputStreamReader(SMTPServer.getInputStream())));</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L81">				log.debug(&quot;Connection established to SMTP server &quot; + SMTPhost + &quot; on port &quot; + SMTPport);</span>
+			}
+			//System.out.println(in.readLine());
+<span class="nc" id="L84">			out.println(&quot;helo &quot; + SMTPhost);</span>
+			//System.out.println(in.readLine());
+		}
+<span class="nc" id="L87">		catch(Exception e)</span>
+		{
+<span class="nc" id="L89">			log.error(&quot;&quot;, e);</span>
+<span class="nc" id="L90">		}</span>
+<span class="nc" id="L91">	}</span>
+
+
+	/**
+	 * Sends out an e-mail message to all given addresses
+	 * @param toAddrs A &lt;code&gt;String&lt;/code&gt; array of e-mail addresses.  The
+	 *                message will be send to all addresses in this list.
+	 * @param fromAddr The e-mail address the e-mail messages will be sent from
+	 * @param subject The Subject line of the e-mail message
+	 * @param message The content of the e-mail
+	 */
+	public void send(String[] toAddrs, String fromAddr, String subject, String message)
+	{
+		try
+		{
+<span class="nc bnc" id="L106" title="All 2 branches missed.">			for(int i = 0; i &lt; toAddrs.length; i++)</span>
+			{
+<span class="nc bnc" id="L108" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L110">					log.debug(&quot;Sending email to &quot; + toAddrs[i]);</span>
+				}
+
+<span class="nc" id="L113">				out.println(&quot;mail from: &quot; + fromAddr);</span>
+				//System.out.println(in.readLine());
+<span class="nc" id="L115">				out.println(&quot;rcpt to: &quot; + toAddrs[i]);</span>
+				//System.out.println(in.readLine());
+<span class="nc" id="L117">				out.println(&quot;data&quot;);</span>
+				//System.out.println(in.readLine());
+<span class="nc" id="L119">				out.println(&quot;To: &quot; + toAddrs[i]);</span>
+<span class="nc" id="L120">				out.println(&quot;Subject: &quot; + subject);</span>
+<span class="nc" id="L121">				out.println(message);</span>
+<span class="nc" id="L122">				out.println(&quot;.&quot;);</span>
+				//System.out.println(in.readLine());
+			}
+		}
+<span class="nc" id="L126">		catch (Exception e)</span>
+		{
+<span class="nc" id="L128">			log.error(&quot;&quot;, e);</span>
+<span class="nc" id="L129">		}</span>
+<span class="nc" id="L130">	}</span>
+
+    /**
+     *  Kills the connection to the SMTP server.  This object now becomes useless.
+     */
+    public void finalize()
+    {
+		try
+		{
+<span class="nc" id="L139">			out.println(&quot;quit&quot;);</span>
+			//System.out.println(in.readLine());
+<span class="nc" id="L141">			SMTPServer.close();</span>
+		}
+<span class="nc" id="L143">		catch(Exception e)</span>
+		{
+<span class="nc" id="L145">			log.error(&quot;&quot;, e);</span>
+<span class="nc" id="L146">		}</span>
+<span class="nc" id="L147">	}</span>
+
+
+    /**
+     * Unit test.  Send e-mails to yourself and see if they got there okay.
+     */
+	public static void main(String args[])
+	{
+//		String host = &quot;cmweb.caed.calpoly.edu&quot;;
+<span class="nc" id="L156">        String host = &quot;smtp.att.yahoo.com&quot;;</span>
+//		String port = &quot;25&quot;;
+<span class="nc" id="L158">		String port = &quot;465&quot;;</span>
+//		String from = &quot;big@cmweb.caed.calpoly.edu&quot;;
+<span class="nc" id="L160">		String from = &quot;jborland77@gmail.com&quot;;</span>
+<span class="nc" id="L161">		String subject= &quot;BIG Email Test&quot;;</span>
+<span class="nc" id="L162">		String message = &quot;This is a test message&quot;;</span>
+<span class="nc" id="L163">		String[] to = { &quot;jborland77@gmail.com&quot;};</span>
+<span class="nc" id="L164">		Emailer emailer = new Emailer(host, port);</span>
+<span class="nc" id="L165">		emailer.send(to, from, subject, message);</span>
+<span class="nc" id="L166">		emailer.finalize();</span>
+<span class="nc" id="L167">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

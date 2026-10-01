@@ -1,0 +1,79 @@
+<!--
+  login.html
+  Login page for COINS project
+  This page serves as the login form that allows users to login as a game administrator (faculty) or company owner (student)
+-->
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="COINS - Login Page">
+  <title>COINS - Login</title>
+
+   <!-- Tailwind CSS -->
+   <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+ <!-- Include navigation bar fragment -->
+ <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Header -->
+<header class="text-center py-8">
+  <h1 class="text-6xl font-bold mb-2">COINS</h1>
+  <h2 class="text-3xl mb-6">Construction Industry Simulation User Login</h2>
+</header>
+
+<!-- Login Card -->
+<main class="flex items-center justify-center px-6 pb-20">
+  <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md">
+    <h3 class="text-2xl font-bold text-center mb-6">Login to COINS</h3>
+
+    <!-- Login Form -->
+    <form th:action="@{/login}" method="post" class="space-y-4">
+
+      <div>
+        <label for="username" class="block text-sm font-semibold mb-1">Username</label>
+        <input id="username"
+               name="username"
+               type="text"
+               required
+               maxlength="32"
+               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-semibold mb-1">Password</label>
+        <input id="password"
+               name="password"
+               type="password"
+               required
+               maxlength="64"
+               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+      </div>
+
+      <!-- Error message for now (shown if login fails) -->
+      <p th:if="${loginError}" class="text-red-600 text-sm text-center">
+        Invalid username or password
+      </p>
+
+      <div class="pt-4">
+        <button type="submit"
+                class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 rounded-lg transition-colors">
+          Login
+        </button>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<!-- Include footer fragment -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

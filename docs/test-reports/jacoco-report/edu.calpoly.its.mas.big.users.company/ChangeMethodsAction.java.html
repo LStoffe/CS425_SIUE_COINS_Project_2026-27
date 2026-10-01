@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangeMethodsAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">ChangeMethodsAction.java</span></div><h1>ChangeMethodsAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+//JDK imports
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Activity;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.reports.JobCostEstimator;
+import edu.calpoly.lib.multimedia.big.reports.IncomeStatementGetter;
+import edu.calpoly.lib.multimedia.big.reports.IncomeStatementForm;
+import edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+<span class="fc" id="L50">public class ChangeMethodsAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+					     		 ActionForm form,
+					     		 HttpServletRequest request,
+				         	     HttpServletResponse response)
+	{
+<span class="fc" id="L57">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L60">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">	    if(!isCancelled(request))</span>
+	    {
+
+<span class="fc" id="L67">	        ActionMessages errors = new ActionMessages();</span>
+
+	        // Check for existance of Game object in user's session
+<span class="fc" id="L70">            ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L71">            HttpSession session = request.getSession();</span>
+<span class="fc" id="L72">	        Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="fc" id="L73">	        Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+<span class="fc" id="L75">            LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+            // If for any reason the company should not be allowed to login, route the
+            // company to an error message page.
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">	        if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L80">		      return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L82">			Job job = (Job) session.getAttribute(&quot;job&quot;);</span>
+
+<span class="nc" id="L84">	        int[] methods = new int[9];</span>
+
+<span class="nc" id="L86">	        ChangeMethodsForm changeMethodsForm = (ChangeMethodsForm) form;</span>
+
+<span class="nc" id="L88">            methods[0] = Integer.parseInt(changeMethodsForm.getActivity1());</span>
+<span class="nc" id="L89">            methods[1] = Integer.parseInt(changeMethodsForm.getActivity2());</span>
+<span class="nc" id="L90">            methods[2] = Integer.parseInt(changeMethodsForm.getActivity3());</span>
+<span class="nc" id="L91">            methods[3] = Integer.parseInt(changeMethodsForm.getActivity4());</span>
+<span class="nc" id="L92">            methods[4] = Integer.parseInt(changeMethodsForm.getActivity5());</span>
+<span class="nc" id="L93">            methods[5] = Integer.parseInt(changeMethodsForm.getActivity6());</span>
+<span class="nc" id="L94">            methods[6] = Integer.parseInt(changeMethodsForm.getActivity7());</span>
+<span class="nc" id="L95">            methods[7] = Integer.parseInt(changeMethodsForm.getActivity8());</span>
+<span class="nc" id="L96">            methods[8] = Integer.parseInt(changeMethodsForm.getActivity9());</span>
+
+<span class="nc" id="L98">            BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+            try
+            {
+<span class="nc" id="L101">				dbFacade.getCurrentMethodDBHandler().updateCurrentMethods(game, job, methods);</span>
+
+                //************************************************************************
+				//********************* NEW FOR BIG v3 ***********************************
+				//************************************************************************
+				//Refigure the estimated cost to complete based on the new methods
+
+				//Get workdays per month parameter
+<span class="nc" id="L109">				Hashtable misc = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+<span class="nc" id="L110">				int workdaysPerMonth = ((Integer) misc.get(&quot;workdaysPerMonth&quot;)).intValue();</span>
+
+				//Create an estimate for cost to complete
+<span class="nc" id="L113">				int estCostToComplete = 0;</span>
+<span class="nc" id="L114">				estCostToComplete = JobCostEstimator.getEstimatedCost(game.getCurrentPeriodNumber(),</span>
+<span class="nc" id="L115">																	  game.convertDateToPeriod(job.getCompletionDeadline()),</span>
+<span class="nc" id="L116">				  													  game.getEstimatedPercentageOfLastPeriodWorked(job.getCompletionDeadline()),</span>
+<span class="nc" id="L117">																	  activitySetupLite(game, job, getDataSource(request)),</span>
+																	  workdaysPerMonth * 2,
+<span class="nc" id="L119">																	  job.getFixedFieldOverhead(),</span>
+<span class="nc" id="L120">																	  job.getVariableFieldCharge(),</span>
+<span class="nc" id="L121">																	  job.getLiquidatedDamages()</span>
+						  											 );
+
+<span class="nc" id="L124">				dbFacade.getContractsReportsDBHandler().updateEstimatedCostToComplete(game,</span>
+						  														company,
+						  														job,
+						  														estCostToComplete);
+
+				//Change the taxes and equity based on the change in revenue that will
+				//result from costs being changed (using cost-based method of % complete)
+<span class="nc" id="L131">				IncomeStatementGetter getter = new IncomeStatementGetter(game, company, dbFacade);</span>
+
+<span class="nc" id="L133">				IncomeStatementForm incomeStatement = getter.getIncomeStatementComputeTaxes(game.getCurrentPeriodNumber() - 1);</span>
+
+<span class="nc" id="L135">				BalanceSheetForm balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, game.getCurrentPeriodNumber() - 1, company);</span>
+<span class="nc" id="L136">				balanceSheet.setEquity(incomeStatement.getEndRetainedEarnings());</span>
+
+<span class="nc" id="L138">				BalanceSheetForm prevBalanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, game.getCurrentPeriodNumber() - 2, company);</span>
+<span class="nc" id="L139">				balanceSheet.setPeriod(game.getCurrentPeriodNumber() - 1); //update gets the period number from the report</span>
+
+
+				//This checks if taxes were paid in the period the report is for.
+				//Taxes are paid at the start of a year.  Each year contains 6 periods,
+				//(this is hardcoded for now).  Reports for a period are
+				//shown the subsequent period.  But to determine if a report
+				//should contains taxes the report previous to the report
+				//period must be examined to determine if it is a year end.
+				//The minus 2 is one period back for the report, then another period back
+				//to check for year end.
+
+				//Example: If this is period 8 then the current reports are for period 7.
+				//Since period 7 is a year taxes should be paid at the start of the
+				//period.  This means the only taxes at the end of period 7 should be those
+				//incurred during period 7.  However if this were the report for a period
+				//not at the start of a year, then the current balance sheet taxes should
+				//be the running total of taxes for the current year.  To achieve this
+				//the previous total for taxes must be added to the current tax adjustment.
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		 		if(((game.getCurrentPeriodNumber() - 2) % 6) == 0)</span>
+		 		{
+<span class="nc" id="L160">         			balanceSheet.setTaxes(incomeStatement.getIncomeTaxes());</span>
+		 		}
+		 		else
+		 		{
+<span class="nc" id="L164">         			balanceSheet.setTaxes(prevBalanceSheet.getTaxes() + incomeStatement.getIncomeTaxes());</span>
+		 		}
+
+<span class="nc" id="L167">				dbFacade.getBalanceSheetDBHandler().updateBalanceSheet(game, company, balanceSheet);</span>
+
+
+				//************************************************************************
+				//************************************************************************
+				//************************************************************************
+
+<span class="nc" id="L174">				dbFacade.close();</span>
+			}
+<span class="nc" id="L176">			catch (BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L178">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L179">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+			}
+<span class="nc" id="L181">			catch (ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L183">				log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L184">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+			}
+<span class="nc" id="L186">			catch(ParametersNotFoundException pnfe)</span>
+			{
+<span class="nc" id="L188">				log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L189">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+  	  		}
+			finally
+			{
+				try
+				{
+<span class="nc" id="L195">        		 	dbFacade.close();</span>
+				}
+<span class="nc" id="L197">				catch (BIGDatabaseFacadeException e)</span>
+				{
+<span class="nc" id="L199">					log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L200"> 					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L201">				}</span>
+			}
+
+<span class="nc bnc" id="L204" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L206" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L208">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L212">				saveErrors(request, errors);</span>
+<span class="nc" id="L213">	 	    	saveToken(request);</span>
+<span class="nc" id="L214">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L218" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L220">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L222">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+
+	    }
+	    else
+	    {
+<span class="nc bnc" id="L228" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L230">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L232">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+
+
+	/**
+	 * Returns Job j's activities as an array of Activity objects.
+	 * This methods will load activity data and the current methods for each
+	 * activity so this information can be accessed, however it does
+	 * not setup network dependencies, so activities can not be worked.
+	 *
+	 * &lt;br&gt;&lt;br&gt;
+	 * New for BIG v3
+	 */
+	private Activity[] activitySetupLite(Game game, Job job, DataSource dataSource) throws BIGDatabaseFacadeException, ObjectNotFoundException
+	{
+<span class="nc" id="L249">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L252">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="nc" id="L255">    	Activity[] activities = null;</span>
+<span class="nc" id="L256">		int[] currentMethods = null;</span>
+
+<span class="nc" id="L258">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(dataSource);</span>
+
+<span class="nc" id="L260">		activities = dbFacade.getActivityDBHandler().getActivities(game, job, game.getCurrentPeriodNumber() - 1);</span>
+
+	    //Retrieve the current method id's to be used on the activities
+<span class="nc" id="L263">		currentMethods = dbFacade.getCurrentMethodDBHandler().getCurrentMethods(game, job);</span>
+
+<span class="nc" id="L265">		Method[][] methods = new Method[9][5];</span>
+
+<span class="nc bnc" id="L267" title="All 2 branches missed.">        if (job.getTypeModifier() == Job.HEAVY)</span>
+        {
+<span class="nc" id="L269">		   methods[0] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 10);</span>
+<span class="nc" id="L270">		   methods[1] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 11);</span>
+<span class="nc" id="L271">		   methods[2] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 12);</span>
+<span class="nc" id="L272">		   methods[3] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 13);</span>
+<span class="nc" id="L273">		   methods[4] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 14);</span>
+<span class="nc" id="L274">		   methods[5] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 15);</span>
+<span class="nc" id="L275">		   methods[6] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 16);</span>
+<span class="nc" id="L276">		   methods[7] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 17);</span>
+<span class="nc" id="L277">		   methods[8] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 18);</span>
+		}
+		else
+		{
+<span class="nc" id="L281">		   methods[0] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 1);</span>
+<span class="nc" id="L282">		   methods[1] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 2);</span>
+<span class="nc" id="L283">		   methods[2] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 3);</span>
+<span class="nc" id="L284">		   methods[3] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 4);</span>
+<span class="nc" id="L285">		   methods[4] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 5);</span>
+<span class="nc" id="L286">		   methods[5] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 6);</span>
+<span class="nc" id="L287">		   methods[6] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 7);</span>
+<span class="nc" id="L288">		   methods[7] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 8);</span>
+<span class="nc" id="L289">		   methods[8] = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, 9);</span>
+		}
+
+<span class="nc bnc" id="L292" title="All 2 branches missed.">		for(int j = 0; j &lt; 9; j++)</span>
+      	{
+<span class="nc" id="L294">		    activities[j].setMethod(methods[j][currentMethods[j]-1]);</span>
+		}
+
+<span class="nc" id="L297">		dbFacade.close();</span>
+
+<span class="nc" id="L299">	    return activities;</span>
+	}
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

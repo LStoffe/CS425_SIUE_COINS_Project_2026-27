@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tailwind Base, Components, Utilities */
+
+/* Main Navigation Bar Styling */
+.main-navbar {
+  background-image: url('/images/coins-background.png');  /* Background image for the nav bar */
+  background-size: cover;                                 /* Ensure image covers the entire nav area */
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  z-index: 1;
+}
+.main-navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.6);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Manual Navigation Bar Styling */
+.manual-nav {
+  background-color: #ffffff; 
+  border-bottom: 1px solid #e5e7eb; 
+  position: relative;
+  z-index: 10;
+}
+
+.manual-nav a {
+  color: #d97706;                
+  font-weight: 500;               
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.manual-nav a:hover {
+  text-decoration: underline;
+  color: #b45309;               
+}
+

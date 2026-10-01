@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LiqdamParametersForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">LiqdamParametersForm.java</span></div><h1>LiqdamParametersForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+/**
+ * ActionForm used to hold the liquidated damages parameters.
+ *
+ *
+ * @author Kevin Craig
+ *
+ */
+<span class="fc" id="L17">public final class LiqdamParametersForm  extends ActionForm</span>
+{
+<span class="fc" id="L19">	private boolean makeDefaults = false;</span>
+
+    //Int variables are stored twice, ints to work with and String for the html form
+    //Conversions are done when a get method is called.  For example if the int is set
+    //for a variable and a get String method is called, the int will be converted to a
+    //String by the getter.
+    //If a String is defined for a variable it will be converted to an int
+    //when the get methods is called.  All get methods that can return ints
+    //might throw &lt;code&gt;NumberFormatException&lt;/code&gt;s if the user entered an invalid value.
+    //This can be avoided by calling the validate method before any get methods that return ints.
+    private float median;
+    private float stddev;
+    private float min;
+    private float max;
+    private int percentJobs;
+<span class="fc" id="L34">    private boolean fasterJobsIncrease = false;</span>
+<span class="fc" id="L35">    private boolean largerJobsIncrease = false;</span>
+
+
+<span class="fc" id="L38">    private String medianString = null;</span>
+<span class="fc" id="L39">    private String stddevString = null;</span>
+<span class="fc" id="L40">    private String minString = null;</span>
+<span class="fc" id="L41">    private String maxString = null;</span>
+<span class="fc" id="L42">    private String percentJobsString = null;</span>
+
+
+    //**************** Public Methods ******************
+
+
+
+	/**
+	 * Ensures that all values are non-null, that all number strings contain only numeric characters,
+     * that all numbers are greater than or equal to zero, and that for each period the mins are less than or equal to the max.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L55">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L57">        boolean nullParams = false;</span>
+<span class="fc" id="L58">        boolean validNumbers = true;</span>
+<span class="fc" id="L59">        boolean positiveNumbers = true;</span>
+<span class="fc" id="L60">        boolean minsValid = true;</span>
+
+
+<span class="pc bpc" id="L63" title="2 of 4 branches missed.">		if((medianString.trim() == null) || (medianString.trim().length() &lt; 1))</span>
+<span class="nc" id="L64">			nullParams = true;</span>
+<span class="pc bpc" id="L65" title="2 of 4 branches missed.">		if((stddevString.trim() == null) || (stddevString.trim().length() &lt; 1))</span>
+<span class="nc" id="L66">		    nullParams = true;</span>
+<span class="pc bpc" id="L67" title="2 of 4 branches missed.">		if((minString.trim() == null) || (minString.trim().length() &lt; 1))</span>
+<span class="nc" id="L68">			nullParams = true;</span>
+<span class="pc bpc" id="L69" title="2 of 4 branches missed.">		if((maxString.trim() == null) || (maxString.trim().length() &lt; 1))</span>
+<span class="nc" id="L70">			nullParams = true;</span>
+<span class="pc bpc" id="L71" title="2 of 4 branches missed.">		if((percentJobsString.trim() == null) || (percentJobsString.trim().length() &lt; 1))</span>
+<span class="nc" id="L72">			nullParams = true;</span>
+
+
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">		if (nullParams) //nullParams == true</span>
+		{
+<span class="nc" id="L77">			errors.add(&quot;nullParameters&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+		else           //nullParams == false
+		{
+			//Next make sure all of the number Strings contain only numeric characters.
+
+			//Check that the strings are valid numbers by trying to convert them to ints and checking for a NumberFormatException
+			try
+			{
+<span class="fc" id="L86">				median = Float.parseFloat(medianString);</span>
+<span class="fc" id="L87">				stddev = Float.parseFloat(stddevString);</span>
+<span class="fc" id="L88">				min = Float.parseFloat(minString);</span>
+<span class="fc" id="L89">				max = Float.parseFloat(maxString);</span>
+<span class="fc" id="L90">				percentJobs = Integer.parseInt(percentJobsString);</span>
+			}
+<span class="nc" id="L92">			catch(NumberFormatException nfe)</span>
+			{
+<span class="nc" id="L94">				validNumbers = false;</span>
+<span class="fc" id="L95">			}</span>
+		}
+
+<span class="pc bpc" id="L98" title="3 of 4 branches missed.">		if(!validNumbers &amp;&amp; !nullParams) //validNumbers == false AND nullParams == false</span>
+		{
+<span class="nc" id="L100">			errors.add(&quot;numberFormat&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		else if(!nullParams)				//validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all the numbers are positive or zero
+<span class="fc bfc" id="L105" title="All 2 branches covered.">			if(median &lt; 0)</span>
+<span class="fc" id="L106">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">			if(stddev &lt; 0)</span>
+<span class="nc" id="L108">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">			if(min &lt; 0)</span>
+<span class="nc" id="L110">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">			if(max &lt; 0)</span>
+<span class="nc" id="L112">				positiveNumbers = false;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">			if(percentJobs &lt; 0)</span>
+<span class="fc" id="L114">				positiveNumbers = false;</span>
+
+		}
+
+<span class="pc bpc" id="L118" title="2 of 6 branches missed.">		if(!positiveNumbers &amp;&amp; validNumbers &amp;&amp; !nullParams) //positiveNumbers = false AND nullParams == false AND validNumbers == true</span>
+		{
+<span class="fc" id="L120">			errors.add(&quot;negativeValue&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+		//Check that all min values are greater than or equal to their corresponding max value
+<span class="pc bpc" id="L124" title="2 of 4 branches missed.">		if(validNumbers &amp;&amp; !nullParams)  //validNumbers == true AND nullParams == false</span>
+		{
+<span class="fc bfc" id="L126" title="All 2 branches covered.">			if(min &gt; max)</span>
+<span class="fc" id="L127">				minsValid = false;</span>
+		}
+
+<span class="pc bpc" id="L130" title="2 of 6 branches missed.">		if(!minsValid &amp;&amp; validNumbers &amp;&amp; !nullParams)  //minsValid == false AND validNumbers == true AND nullParams == false</span>
+		{
+<span class="fc" id="L132">			errors.add(&quot;minmax&quot;, new ActionMessage(&quot;error.parameters.minmax&quot;));</span>
+		}
+
+<span class="fc" id="L135">		return errors;</span>
+	}
+
+
+
+//**************************** Set &amp; Get Methods ************************
+
+    public boolean getMakeDefaults()
+    {
+<span class="fc" id="L144">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L149">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L150">	}</span>
+
+    /**
+     * Pre: setMedian has been called since this object was created
+     */
+	public String getMedianString()
+	{
+<span class="fc" id="L157">		return (new Float(median)).toString();</span>
+	}
+
+    /**
+     * Pre: setStddev has been called since this object was created
+     */
+	public String getStddevString()
+	{
+<span class="fc" id="L165">		return (new Float(stddev)).toString();</span>
+	}
+
+    /**
+     * Pre: setMin has been called since this object was created
+     */
+	public String getMinString()
+	{
+<span class="fc" id="L173">		return (new Float(min)).toString();</span>
+	}
+
+    /**
+     * Pre: setMax has been called since this object was created
+     */
+	public String getMaxString()
+	{
+<span class="fc" id="L181">		return (new Float(max)).toString();</span>
+	}
+
+    /**
+     * Pre: setPercentJobs has been called since this object was created
+     */
+	public String getPercentJobsString()
+	{
+<span class="fc" id="L189">		return (new Integer(percentJobs)).toString();</span>
+	}
+
+    /**
+     * Pre: setMedianString has been called since this object was created
+     */
+	public float getMedian()
+	{
+<span class="fc" id="L197">		return Float.parseFloat(medianString);</span>
+	}
+
+    /**
+     * Pre: setStddevString has been called since this object was created
+     */
+	public float getStddev()
+	{
+<span class="fc" id="L205">		return Float.parseFloat(stddevString);</span>
+	}
+
+    /**
+     * Pre: setMinString has been called since this object was created
+     */
+	public float  getMin()
+	{
+<span class="fc" id="L213">		return Float.parseFloat(minString);</span>
+	}
+
+    /**
+     * Pre: setMaxString has been called since this object was created
+     */
+	public float getMax()
+	{
+<span class="fc" id="L221">		return Float.parseFloat(maxString);</span>
+	}
+
+    /**
+     * Pre: setPercentJobsString has been called since this object was created
+     */
+	public int getPercentJobs()
+	{
+<span class="fc" id="L229">		return Integer.parseInt(percentJobsString);</span>
+	}
+
+
+	public void setMedianString(String medianString)
+	{
+<span class="fc" id="L235">		this.medianString = medianString;</span>
+<span class="fc" id="L236">	}</span>
+
+	public void setStddevString(String stddevString)
+	{
+<span class="fc" id="L240">		this.stddevString = stddevString;</span>
+<span class="fc" id="L241">	}</span>
+
+	public void setMinString(String minString)
+	{
+<span class="fc" id="L245">		this.minString = minString;</span>
+<span class="fc" id="L246">	}</span>
+
+	public void setMaxString(String maxString)
+	{
+<span class="fc" id="L250">		this.maxString = maxString;</span>
+<span class="fc" id="L251">	}</span>
+
+	public void setPercentJobsString(String percentJobsString)
+	{
+<span class="fc" id="L255">		this.percentJobsString = percentJobsString;</span>
+<span class="fc" id="L256">	}</span>
+
+	public void setMedian(float median)
+	{
+<span class="fc" id="L260">		this.median = median;</span>
+<span class="fc" id="L261">	}</span>
+
+	public void setStddev(float stddev)
+	{
+<span class="fc" id="L265">		this.stddev = stddev;</span>
+<span class="fc" id="L266">	}</span>
+
+	public void setMin(float min)
+	{
+<span class="fc" id="L270">		this.min = min;</span>
+<span class="fc" id="L271">	}</span>
+
+	public void setMax(float max)
+	{
+<span class="fc" id="L275">		this.max = max;</span>
+<span class="fc" id="L276">	}</span>
+
+	public void setPercentJobs(int percentJobs)
+	{
+<span class="fc" id="L280">		this.percentJobs = percentJobs;</span>
+<span class="fc" id="L281">	}</span>
+
+    public boolean getFasterJobsIncrease()
+    {
+<span class="nc" id="L285">		return fasterJobsIncrease;</span>
+	}
+
+	public void setFasterJobsIncrease(boolean fasterJobsIncrease)
+	{
+<span class="fc" id="L290">		this.fasterJobsIncrease = fasterJobsIncrease;</span>
+<span class="fc" id="L291">	}</span>
+
+	public boolean getLargerJobsIncrease()
+	{
+<span class="nc" id="L295">		return largerJobsIncrease;</span>
+	}
+
+	public void setLargerJobsIncrease(boolean largerJobsIncrease)
+	{
+<span class="fc" id="L300">		this.largerJobsIncrease = largerJobsIncrease;</span>
+<span class="fc" id="L301">	}</span>
+
+	public void reset(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="nc" id="L305">		largerJobsIncrease = false;</span>
+<span class="nc" id="L306">		fasterJobsIncrease = false;</span>
+<span class="nc" id="L307">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">GameForm.java</span></div><h1>GameForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+import edu.calpoly.its.mas.big.users.StringConstraints;
+
+/**
+ * ActionForm containing data needed to create a new game.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.5 $ $Date: 2001/08/14 19:58:45 $
+ */
+<span class="fc" id="L20">public class GameForm extends ActionForm</span>
+{
+
+	private String gameName;
+	private String startYear;
+<span class="fc" id="L25">	private boolean building = false;</span>
+<span class="fc" id="L26">	private boolean heavy = false;</span>
+	int gameType;
+
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L31">    	ActionErrors errors = new ActionErrors();</span>
+
+        //Check that game name is not null and is of acceptable length
+<span class="fc bfc" id="L34" title="All 4 branches covered.">    	if ((gameName == null) || (gameName.length() &lt; 1))</span>
+    	{
+<span class="fc" id="L36">    	    errors.add(&quot;gameName&quot;, new ActionMessage(&quot;error.game.name.required&quot;));</span>
+		}
+<span class="pc bpc" id="L38" title="1 of 4 branches missed.">		else if ((gameName.length() &lt; StringConstraints.GAMENAME_LOWER_LIMIT) || (gameName.length() &gt; StringConstraints.GAMENAME_UPPER_LIMIT))</span>
+		{
+<span class="fc" id="L40">			errors.add(&quot;gameName_length&quot;, new ActionMessage(&quot;error.game.name.length&quot;));</span>
+		}
+
+    	//Check that game start year is not null and that it is in the form YYYY
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">    	if ((startYear == null) || (startYear.length() &lt; 1))</span>
+    	{
+<span class="fc" id="L46">    	    errors.add(&quot;startYear&quot;, new ActionMessage(&quot;error.game.startyear.required&quot;));</span>
+		}
+		else
+		{
+<span class="fc" id="L50">            boolean validYear = true;</span>
+
+            try
+            {
+<span class="fc" id="L54">		    	int year = Integer.parseInt(startYear, 10); //10 for decimal base</span>
+<span class="pc bpc" id="L55" title="1 of 4 branches missed.">                if ((year &lt; 1000) || (year &gt; 9999)) //make sure number is 4 digits long</span>
+<span class="fc" id="L56">                  validYear = false;</span>
+		    }
+<span class="fc" id="L58">		    catch(NumberFormatException nfe)</span>
+		    {
+<span class="fc" id="L60">		    	validYear = false;</span>
+<span class="fc" id="L61">		    }</span>
+
+<span class="fc bfc" id="L63" title="All 2 branches covered.">		    if(!validYear)</span>
+<span class="fc" id="L64">		    	errors.add(&quot;validYear&quot;, new ActionMessage(&quot;error.game.startyear.format&quot;));</span>
+		}
+
+		//Make sure one of the two checkboxes has been checked
+<span class="pc bpc" id="L68" title="1 of 4 branches missed.">		if( !building &amp;&amp; !heavy )</span>
+    	{
+<span class="fc" id="L70">    	    errors.add(&quot;noGameType&quot;, new ActionMessage(&quot;error.game.gametype.required&quot;));</span>
+		}
+
+		//Make sure user did not check both boxes
+<span class="fc bfc" id="L74" title="All 4 branches covered.">		if( building &amp;&amp; heavy )</span>
+    	{
+<span class="fc" id="L76">    	    errors.add(&quot;twoGameTypes&quot;, new ActionMessage(&quot;error.game.gametype.onlyone&quot;));</span>
+		}
+
+
+<span class="fc" id="L80">    	return errors;</span>
+  	}
+
+    //**************************************  Simple Set &amp; Get Methods  ************************************
+
+  	public String getGameName()
+  	{
+<span class="fc" id="L87">  	    return gameName;</span>
+  	}
+
+  	public void setGameName(String gameName)
+  	{
+<span class="fc" id="L92">  	    this.gameName = gameName;</span>
+<span class="fc" id="L93">    }</span>
+
+  	public String getStartYear()
+  	{
+<span class="fc" id="L97">  	    return startYear;</span>
+  	}
+
+  	public void setStartYear(String startYear)
+  	{
+<span class="fc" id="L102">  	    this.startYear = startYear;</span>
+<span class="fc" id="L103">  	}</span>
+
+  	public int getGameType()
+  	{
+<span class="fc" id="L107">  	    return gameType;</span>
+  	}
+
+  	public void setGameType(int gameType)
+  	{
+<span class="fc" id="L112">  	    this.gameType = gameType;</span>
+<span class="fc" id="L113">  	}</span>
+
+public boolean getBuilding()
+    {
+<span class="fc" id="L117">		return building;</span>
+	}
+
+public void setBuilding(boolean building)
+	{
+<span class="fc" id="L122">		this.building = building;</span>
+<span class="fc" id="L123">	}</span>
+
+public boolean getHeavy()
+    {
+<span class="fc" id="L127">		return heavy;</span>
+	}
+
+public void setHeavy(boolean heavy)
+	{
+<span class="fc" id="L132">		this.heavy = heavy;</span>
+<span class="fc" id="L133">	}</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

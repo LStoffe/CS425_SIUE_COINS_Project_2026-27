@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewNetworkDependenciesAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">ViewNetworkDependenciesAction.java</span></div><h1>ViewNetworkDependenciesAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Handles use case of viewing network dependency parameters.
+ * Uses the session attribute &quot;user&quot;, which is an &lt;code&gt;Admin&lt;/code&gt;, and the session attribute &quot;game&quot;
+ * which is a &lt;code&gt;edu.calpoly.its.mas.big.Game&lt;/code&gt;, to determine the current administrator
+ * and game.  The job type for which network dependency parameters were requested is determined by the &quot;jobtype&quot; attribute in the query string
+ * The network dependency parameters that go with this admin, game, and job type are retrieved from the database and placed them in a
+ * &lt;code&gt;NetworkDependenciesForm&lt;/code&gt; in the session under the name &quot;networkDependenciesForm&quot;.
+ * The game parameters in this form can be displayed to the user using jsp.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.13 $ $Date: 2002/03/14 18:53:06 $
+ *
+ */
+<span class="fc" id="L53">public class ViewNetworkDependenciesAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+
+<span class="fc" id="L62">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L65">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L71">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L73">			HttpSession session = request.getSession();</span>
+<span class="fc" id="L74">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="fc" id="L75">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+			//Pull the job type id off the query string -- NOTE: Url for calling this action includes &quot;?jobtype=x&quot;
+<span class="fc" id="L78">			int jobType = (new Integer((String) request.getParameter(&quot;jobtype&quot;))).intValue();</span>
+
+			//Create a new BIGDatabaseFacadeInterface which will hold connections
+<span class="fc" id="L81">			BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+			//Create array of hashtables to hold the parameters we receive from the database
+<span class="fc" id="L84">			Hashtable[] parameters = new Hashtable[9];</span>
+
+			//this Action is called when admin clicks on one of the ten choices for job type.  Therefore, the job type
+			//is known and parameters will hold info for the nine activities of that job type
+			try
+			{
+				//Get the parameters for each activity
+<span class="fc bfc" id="L91" title="All 2 branches covered.">				for (int i=0; i &lt; 9; i++)</span>
+				{
+<span class="fc" id="L93">					parameters[i] = dbFacade.getGameParametersDBHandler().getNetworkDependencyParameters(game, jobType, i+1);</span>
+				}
+<span class="fc" id="L95">				dbFacade.close();</span>
+
+			}
+<span class="nc" id="L98">			catch(ParametersNotFoundException pnfe)</span>
+			{
+				// All games should have parameters.  If there are no parameters
+				// found for a game it is an error.
+<span class="nc" id="L102">				log.fatal(pnfe);</span>
+
+<span class="nc" id="L104">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+			}
+<span class="nc" id="L106">			catch (BIGDatabaseFacadeException bigdbe)</span>
+			{
+				//Some problem with the database
+<span class="nc" id="L109">				log.fatal(bigdbe);</span>
+
+<span class="nc" id="L111">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="pc" id="L112">			}</span>
+
+			//Determine the activity name in the resource bundle associated with the activity type number
+<span class="fc" id="L115">			MessageResources resources = getResources(request);</span>
+<span class="fc" id="L116">			String jobTypeName = resources.getMessage(&quot;jobType.jobType&quot; + jobType);</span>
+
+<span class="fc" id="L118">			NetworkDependenciesForm networkDependenciesForm = new NetworkDependenciesForm();</span>
+
+<span class="fc" id="L120">			networkDependenciesForm.setJobTypeName(jobTypeName);</span>
+<span class="fc" id="L121">			networkDependenciesForm.setJobTypeID(jobType);</span>
+
+			//determine the activity type name and number in the resource bundle associated with the activity type number
+			//Note: this refers to content of the &quot;html:select&quot; tags that have a drop-down list for choices
+<span class="fc" id="L125">			ArrayList[] allOptions = new ArrayList[18];</span>
+<span class="fc" id="L126">            String activityTypeName = null;</span>
+
+<span class="fc bfc" id="L128" title="All 2 branches covered.">			for (int i=0; i&lt;18; i++)</span>
+			{
+<span class="fc" id="L130">				allOptions[i] = new ArrayList();</span>
+				//Every list of options contains the &quot;none&quot; option.
+<span class="fc" id="L132">				activityTypeName = resources.getMessage(&quot;networkDependencies.none&quot;);</span>
+<span class="fc" id="L133">				allOptions[i].add(new LabelValueBean(activityTypeName, &quot;0&quot;));</span>
+
+				//Each list of options will be missing the option equal to its own index number. ie ArrayList #1 won't have an option 1
+				//This is so an activity can never depend on itself
+
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                if (i &lt; 9)</span>
+                {
+                    //first nine times through - use names for activities 1-9
+<span class="fc bfc" id="L141" title="All 2 branches covered.">				    for (int j = 1; j &lt; 10; j++)</span>
+				    {
+<span class="fc bfc" id="L143" title="All 2 branches covered.">				  	    if(j != (i+1))</span>
+					    {
+<span class="fc" id="L145">						    activityTypeName = resources.getMessage(&quot;activity.activity&quot; + j + &quot;short&quot;);</span>
+<span class="fc" id="L146">						    allOptions[i].add(new LabelValueBean(activityTypeName, Integer.toString(j)));</span>
+					    }
+				    }
+                }
+                else
+                {
+                    //next nine times through - use names for activities 10-18
+<span class="fc bfc" id="L153" title="All 2 branches covered.">				    for (int j = 1; j &lt; 10; j++)</span>
+				    {
+<span class="fc bfc" id="L155" title="All 2 branches covered.">					    if(j != (i-8))</span>
+					    {
+<span class="fc" id="L157">						    activityTypeName = resources.getMessage(&quot;activity.activity&quot; + (j+9) + &quot;short&quot;);</span>
+<span class="fc" id="L158">						    allOptions[i].add(new LabelValueBean(activityTypeName, Integer.toString(j)));</span>
+					    }
+				    }
+                }
+			}
+
+<span class="fc" id="L164">			networkDependenciesForm.setActivity1TypeArray(allOptions[0]);</span>
+<span class="fc" id="L165">			networkDependenciesForm.setActivity2TypeArray(allOptions[1]);</span>
+<span class="fc" id="L166">			networkDependenciesForm.setActivity3TypeArray(allOptions[2]);</span>
+<span class="fc" id="L167">			networkDependenciesForm.setActivity4TypeArray(allOptions[3]);</span>
+<span class="fc" id="L168">			networkDependenciesForm.setActivity5TypeArray(allOptions[4]);</span>
+<span class="fc" id="L169">			networkDependenciesForm.setActivity6TypeArray(allOptions[5]);</span>
+<span class="fc" id="L170">			networkDependenciesForm.setActivity7TypeArray(allOptions[6]);</span>
+<span class="fc" id="L171">			networkDependenciesForm.setActivity8TypeArray(allOptions[7]);</span>
+<span class="fc" id="L172">			networkDependenciesForm.setActivity9TypeArray(allOptions[8]);</span>
+<span class="fc" id="L173">			networkDependenciesForm.setActivity10TypeArray(allOptions[9]);</span>
+<span class="fc" id="L174">			networkDependenciesForm.setActivity11TypeArray(allOptions[10]);</span>
+<span class="fc" id="L175">			networkDependenciesForm.setActivity12TypeArray(allOptions[11]);</span>
+<span class="fc" id="L176">			networkDependenciesForm.setActivity13TypeArray(allOptions[12]);</span>
+<span class="fc" id="L177">			networkDependenciesForm.setActivity14TypeArray(allOptions[13]);</span>
+<span class="fc" id="L178">			networkDependenciesForm.setActivity15TypeArray(allOptions[14]);</span>
+<span class="fc" id="L179">			networkDependenciesForm.setActivity16TypeArray(allOptions[15]);</span>
+<span class="fc" id="L180">			networkDependenciesForm.setActivity17TypeArray(allOptions[16]);</span>
+<span class="fc" id="L181">			networkDependenciesForm.setActivity18TypeArray(allOptions[17]);</span>
+
+<span class="fc" id="L183">            networkDependenciesForm.setNetworkDependencies(parameters);</span>
+<span class="fc" id="L184">			session.setAttribute(&quot;networkDependenciesForm&quot;, networkDependenciesForm);</span>
+
+			//create a list of all the equipment in the database
+<span class="fc" id="L187">			List listOfAllEquip = null;</span>
+			try
+			{
+<span class="fc" id="L190">				listOfAllEquip = dbFacade.getEquipmentParametersDBHandler().getListOfAllEquipment(game);</span>
+
+			}
+<span class="nc" id="L193">			catch(ParametersNotFoundException pnfe)</span>
+			{
+				//All games should have parameters.  If there are no parameters found for a game it is an error.
+<span class="nc" id="L196">				log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L197">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+			}
+<span class="nc" id="L199">			catch (BIGDatabaseFacadeException bigdbe)</span>
+			{
+				//Some problem with the database
+<span class="nc" id="L202">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L203">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="pc" id="L204">			}</span>
+
+            //add &quot;none&quot; at top of list
+<span class="fc" id="L207">            EquipmentList addNone = new EquipmentList();</span>
+<span class="fc" id="L208">            addNone.setEquipmentTitle(&quot;none&quot;);</span>
+<span class="fc" id="L209">            addNone.setEquipmentId(0);</span>
+<span class="fc" id="L210">            listOfAllEquip.add(0, addNone);</span>
+
+<span class="fc" id="L212">			session.setAttribute(&quot;listOfAllEquip&quot;, listOfAllEquip);</span>
+
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L216" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L218">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L221">				saveErrors(request, errors);</span>
+<span class="nc" id="L222">	 	    	saveToken(request);</span>
+<span class="nc" id="L223">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L229">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="fc" id="L231">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L238">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L240">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

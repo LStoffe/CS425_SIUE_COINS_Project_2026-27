@@ -1,0 +1,104 @@
+<!--
+  progress-report.html
+  Section 2.8 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>2.8 Progress Report</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            2.8 Progress Report
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The current completion status of each job you are working on can be found in the Progress Report. 
+            Each period the superintendent and foremen for each job prepare a summary of the estimated amount of work completed during the period and the costs incurred by performing that work. 
+            The job costs coming from this report are given to your accountants and will appear also in the Accounting Reports (Section 3). 
+            The estimates for work complete for each job are verified by the job's architect and can be thought of as the actual, physical amount of work complete. 
+            These amounts are listed in CUs completed for each activity and as total percent complete for each activity.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            The progress report will help you determine if the job is on schedule. 
+            Each period, for each job you are working on, you should compare the actual amount of work complete to the amount you expected to have completed on the schedule you created at bid time. 
+            If you are over or under schedule by too much, you may want change methods or add overtime to put yourself back on schedule. You could also choose to update your schedule to match the pace at which the work is completing. 
+            Of course remember to add in Liquidated Damages (Section 5.1) if your new schedule completes the job after the required completion date. The required completion date is displayed near the job title for each job in the progress report.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            If you want to view the Estimated Time and Cost Report to help you estimate, you may do so by clicking the "More Info" link located just below the title of each job in each section of the progress report. 
+            This report is updated each period so that it only shows the estimated time and cost for the work left to be completed.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            At the bottom of the section for each job you will find some more useful information such as totals for CUs and percent complete. Also, if there is a change order it will show up here..
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            At the very top of the report you will see the values for rainfall, temperature, labor availability, and materials cost index. These values modify your costs and number of workdays as described in the Consulting Reports (Section 4) section of this manual.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Tip:</strong> You can view the Progress Report for any previous period by selecting the number for that period at the top of the report.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Tip:</strong> The new report created each period is for the period just completed. So, in period 2 you will receive the report for period 1, in period 3 the report for period 2, and so on. There is no progress report available in period 1.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            <strong>Tip:</strong> Work on jobs starts one month after they are awarded to a company. This means if you successfully bid on a job during period N, the next period when you receive the Progress Report for period N you will already see one month of work completed on your job.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/bidding-results}" class="font-semibold hover:underline">
+        ← 2.7 Bidding Results
+    </a>
+    <a th:href="@{/manual/accounting-reports}" class="font-semibold hover:underline">
+        Next → Section 3 Summary
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

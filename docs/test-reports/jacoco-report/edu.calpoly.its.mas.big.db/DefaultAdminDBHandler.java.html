@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultAdminDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultAdminDBHandler.java</span></div><h1>DefaultAdminDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//JDK imports
+import java.util.Vector;
+
+//JDBC imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Default implementation of &lt;code&gt;AdminDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.2 $ $Date: 2002/03/14 18:53:05 $
+ */
+public class DefaultAdminDBHandler extends DefaultDBHandler implements AdminDBHandler
+{
+	private Log log;
+	private SqlMapClient sqlMap;
+
+    public DefaultAdminDBHandler(Connection connection, SqlMapClient sqlMap)
+    {
+<span class="fc" id="L38">		super(connection);</span>
+<span class="fc" id="L39">		this.sqlMap = sqlMap;</span>
+<span class="fc" id="L40">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L41">	}</span>
+
+  	public Admin getAdmin(String adminName) throws BIGDatabaseFacadeException
+  	{
+<span class="fc" id="L45">		Admin theAdmin = null;</span>
+
+		try
+		{
+<span class="fc" id="L49">			String query = &quot;SELECT adminID, password, email, is_head_admin FROM admin WHERE username = ?&quot;;</span>
+
+<span class="fc" id="L51">		    PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L52">		    pstmt.setString(1, adminName);</span>
+
+<span class="fc" id="L54">		    ResultSet rset = pstmt.executeQuery();</span>
+
+		  	// Check if no rows are returned
+		   	// (rset.last() returns false if there are no rows in the result set)
+<span class="fc bfc" id="L58" title="All 2 branches covered.">		   	if(!rset.last())</span>
+		   	{
+		   	}
+  	     	// A record exists for this admin username
+		   	else
+		   	{
+<span class="fc" id="L64">		   		  rset.first();</span>
+<span class="fc" id="L65">		   		  theAdmin = new Admin(rset.getInt(&quot;adminID&quot;), adminName, rset.getString(&quot;password&quot;).trim(), rset.getString(&quot;email&quot;), rset.getBoolean(&quot;is_head_admin&quot;));</span>
+		   	}
+       		//done with the result set
+<span class="fc" id="L68">	   		rset.close();</span>
+<span class="fc" id="L69">	   		pstmt.close();</span>
+		}
+<span class="fc" id="L71">		catch(SQLException sqle)</span>
+		{
+		   //close the connection if an exception occurs
+<span class="fc" id="L74">		   close();</span>
+<span class="fc" id="L75">		   throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L76">  		}</span>
+<span class="fc" id="L77">    	return theAdmin;</span>
+    }
+
+    public Vector getAdmins() throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L82">	  	Vector admins = new Vector();</span>
+
+	  	try
+	    {
+		  	  //The head admin should not be included in the search results
+<span class="fc" id="L87">		  	  String query = &quot;SELECT adminID, username, email FROM admin WHERE is_head_admin = FALSE ORDER BY username&quot;;</span>
+
+<span class="fc" id="L89">		  	  PreparedStatement pstmt = connection.prepareStatement(query);</span>
+
+<span class="fc" id="L91">			  ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">			  while(rset.next())</span>
+			  {
+				  //Create a new admin and store it in the Vector
+<span class="fc" id="L96">				  Admin tempAdmin =  new Admin(rset.getInt(&quot;adminID&quot;), rset.getString(&quot;username&quot;), null, rset.getString(&quot;email&quot;), false);</span>
+<span class="fc" id="L97">				  admins.add(tempAdmin);</span>
+<span class="fc" id="L98">			  }</span>
+<span class="fc" id="L99">			  rset.close();</span>
+<span class="fc" id="L100">			  pstmt.close();</span>
+	  	}
+<span class="nc" id="L102">	  	catch(SQLException sqle)</span>
+	  	{
+			  //close the connection if an exception occurs
+<span class="nc" id="L105">			  close();</span>
+<span class="nc" id="L106">			  throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L107">	  	}</span>
+<span class="fc" id="L108">		return admins;</span>
+  	}
+
+    public void updateAdmin(Admin theAdmin) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+		//SQL statement to update password field of admin
+<span class="fc" id="L114">		String update = &quot;UPDATE admin SET password = ?, email = ? WHERE adminid = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L118">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L119">			pstmt.setString(1, theAdmin.getPassword());</span>
+<span class="fc" id="L120">			pstmt.setString(2, theAdmin.getEmail());</span>
+<span class="fc" id="L121">			pstmt.setInt(3, theAdmin.getAdminID());</span>
+
+<span class="fc" id="L123">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L125">			pstmt.close();</span>
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">			if (rowsChanged &lt; 1)</span>
+<span class="fc" id="L128">				throw new ObjectNotFoundException();</span>
+		}
+<span class="nc" id="L130">		catch(SQLException sqle)</span>
+		{
+			//Close connection if an exception occurs
+<span class="nc" id="L133">			close();</span>
+<span class="nc" id="L134">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L135">		}</span>
+<span class="fc" id="L136">	}</span>
+
+    public void addAdmin(Admin theAdmin) throws BIGDatabaseFacadeException
+    {
+		int adminID;
+
+		try
+		{
+			//Get the next adminID in the sequence
+<span class="fc" id="L145">			String sequenceName = &quot;big_adminid_sequence&quot;;</span>
+<span class="fc" id="L146">            String query = &quot;SELECT nextval ('&quot; + sequenceName + &quot;')&quot;;</span>
+
+<span class="fc" id="L148">			PreparedStatement stmt = connection.prepareStatement(query);</span>
+<span class="fc" id="L149">			ResultSet rset = stmt.executeQuery();</span>
+
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">			if(rset.next()) //An adminID value was returned from the database</span>
+			{
+<span class="fc" id="L153">				adminID = rset.getInt(1);</span>
+
+<span class="fc" id="L155">				rset.close();</span>
+
+				//Assign the new adminID to the Admin to be stored
+<span class="fc" id="L158">				theAdmin.setAdminID(adminID);</span>
+
+				//Create the SQL statement used to insert the new admin into the database.
+				//The value for is_head_admin is hardcoded to false because only normal admins can be added using this method
+<span class="fc" id="L162">				String insert = &quot;INSERT INTO admin (adminID, username, password, email, is_head_admin) &quot;;</span>
+<span class="fc" id="L163">				insert = insert + &quot;VALUES (?, ?, ?, ?, FALSE)&quot;;</span>
+
+				//Perform the insert
+<span class="fc" id="L166">				PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L167">				pstmt.setInt(1, adminID);</span>
+<span class="fc" id="L168">				pstmt.setString(2, theAdmin.getUsername());</span>
+<span class="fc" id="L169">				pstmt.setString(3, theAdmin.getPassword());</span>
+<span class="fc" id="L170">				pstmt.setString(4, &quot;&quot;);</span>
+
+<span class="fc" id="L172">				int rowsAdded = pstmt.executeUpdate();</span>
+<span class="fc" id="L173">				connection.commit();</span>
+
+<span class="fc" id="L175">				pstmt.close();</span>
+
+<span class="fc" id="L177">			}</span>
+			else  //An adminID was not returned from the database
+			{
+<span class="nc" id="L180">				rset.close();</span>
+<span class="nc" id="L181">				close();</span>
+<span class="nc" id="L182">				throw new BIGDatabaseFacadeException(&quot;Couldn't retrieve next value from &quot; + sequenceName );</span>
+			}
+
+		}
+<span class="nc" id="L186">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L189">			close();</span>
+<span class="nc" id="L190">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L191">		}</span>
+<span class="fc" id="L192">	}</span>
+
+
+    public void removeAdmin(int adminID) throws BIGDatabaseFacadeException
+    {
+		//Remove all games belonging to this admin
+<span class="nc" id="L198">		(new DefaultGameDBHandler(connection, sqlMap)).removeGames(adminID);</span>
+
+		//Remove this admin's set of default parameters
+<span class="nc" id="L201">		(new DefaultGameParametersDBHandler(connection, sqlMap)).removeAdminDefaultParameters(adminID);</span>
+
+		//String to remove the admin matching the ID number passed in
+<span class="nc" id="L204">		String update = &quot;DELETE FROM admin WHERE adminID = ?&quot;;</span>
+
+		try
+		{
+<span class="nc" id="L208">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="nc" id="L209">			pstmt.setInt(1, adminID);</span>
+
+<span class="nc" id="L211">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="nc" id="L213">			pstmt.close();</span>
+		}
+<span class="nc" id="L215">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L218">			close();</span>
+<span class="nc" id="L219">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L220">		}</span>
+<span class="nc" id="L221">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

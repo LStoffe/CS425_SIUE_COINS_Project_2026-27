@@ -1,0 +1,184 @@
+<!--
+  income-statement.html
+  This poge shows the user incomes earnings for a specific period
+-->
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Income Statement</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Consolidated Statement of Earnings and Retained Earnings</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <!-- Period Selector -->
+      <div class="mb-6">
+        <p class="text-gray-700">
+          <span class="font-semibold">View Report for Period:</span> 1
+        </p>
+      </div>
+
+      <hr class="mb-8 border-gray-300">
+
+      <!-- Report Header -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2">J's Testing Company</h3>
+        <h4 class="text-xl font-semibold mb-2">Consolidated Statement of Earnings and Retained Earnings</h4>
+        <p class="text-sm text-gray-600">Period: 1, January & February 1999</p>
+      </div>
+
+      <!-- Financial Statement -->
+      <div class="max-w-2xl mx-auto">
+
+        <!-- Earnings from Construction -->
+        <div class="mb-6">
+          <h5 class="font-bold mb-3">Earnings from Construction</h5>
+          
+          <div class="space-y-2 ml-4">
+            <div class="flex justify-between">
+              <span>Construction Revenue</span>
+              <span>$ 0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Cost of Construction</span>
+              <span>0</span>
+            </div>
+          </div>
+
+          <hr class="my-3 border-gray-400">
+
+          <div class="flex justify-between font-bold ml-4">
+            <span>Gross Profit</span>
+            <span>0</span>
+          </div>
+        </div>
+
+        <!-- General & Administrative Expenses -->
+        <div class="mb-6 mt-8">
+          <h5 class="font-bold mb-3">General & Administrative Expenses</h5>
+          
+          <div class="space-y-2 ml-4">
+            <div class="flex justify-between">
+              <span>Office Overhead</span>
+              <span>0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Bidding Expense</span>
+              <span>0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Consulting Expense</span>
+              <span>0</span>
+            </div>
+          </div>
+
+          <hr class="my-3 border-gray-400">
+
+          <div class="flex justify-between font-bold ml-4">
+            <span>Total G&A Expense</span>
+            <span>0</span>
+          </div>
+
+          <hr class="my-3 border-gray-400">
+
+          <div class="flex justify-between font-bold ml-4">
+            <span>Earnings from Operations</span>
+            <span>0</span>
+          </div>
+        </div>
+
+        <!-- Other Income (Expenses) -->
+        <div class="mb-6 mt-8">
+          <h5 class="font-bold mb-3">Other Income (Expenses)</h5>
+          
+          <div class="space-y-2 ml-4">
+            <div class="flex justify-between">
+              <span>Interest Expense</span>
+              <span>0</span>
+            </div>
+          </div>
+
+          <hr class="my-3 border-gray-400">
+
+          <div class="flex justify-between ml-4">
+            <span></span>
+            <span>0</span>
+          </div>
+        </div>
+
+        <!-- Earnings before Taxes -->
+        <div class="mb-6 mt-8">
+          <div class="flex justify-between font-bold">
+            <span>Earnings before Taxes</span>
+            <span>0</span>
+          </div>
+        </div>
+
+        <!-- Income Tax -->
+        <div class="mb-6 mt-6">
+          <div class="flex justify-between font-bold">
+            <span>Income Tax Estimate Adjustment</span>
+            <span>0</span>
+          </div>
+        </div>
+
+        <!-- Net Earnings -->
+        <div class="mb-6 mt-6">
+          <div class="flex justify-between font-bold text-lg">
+            <span>NET EARNINGS</span>
+            <span>0</span>
+          </div>
+          <hr class="my-3 border-gray-800 border-t-2">
+        </div>
+
+        <!-- Retained Earnings -->
+        <div class="mb-6 mt-8">
+          <div class="flex justify-between font-bold">
+            <span>Retained Earnings, beginning of period</span>
+            <span>1,122,000</span>
+          </div>
+
+          <hr class="my-3 border-gray-400">
+
+          <div class="flex justify-between font-bold text-lg">
+            <span>Retained Earnings, end of period</span>
+            <span>1,122,000</span>
+          </div>
+
+          <hr class="my-3 border-gray-800 border-t-2">
+        </div>
+
+      </div>
+
+     <!-- Back Button -->
+     <div class="mt-10 text-center">
+      <a th:href="@{/company/financial-reports-menu}"
+         class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+        Back to Financial Reports
+      </a>
+    </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

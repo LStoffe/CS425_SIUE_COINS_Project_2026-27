@@ -1,0 +1,72 @@
+<!--
+  change-orders.html
+  Section 5.2 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.2 Change Orders</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.2 Change Orders
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Job customers sometimes want make changes to a job's blueprint after work has already begun on the job. 
+            These changes, called "change orders," can be very beneficial to your company because they are negotiated rather than bid on, 
+            and since they are not part of the original contract you have the bargaining power. Your profit margin on change orders will usually be much higher than on the contract as a whole.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Change orders will occur in BIG, but as a simplification they will only occur in the first period work is done on a job, and they will be automatically negotiated for you. 
+            The required completion date for a job will not change, but the negotiated change order price takes this into account and your contact price will increase by enough money to use faster methods and possibly some overtime. 
+            You will also receive plenty of profit on the change order. Change orders will increase the total CU size of a job and your total contract price, 
+            so the size and price you see on the Progress Report already takes the change order into account. The CUs added by the change order are randomly distributed among the activities in that job
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Change order information for a job is available in the Progress Report for the first period that work was done on that job.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/liquidated-damages}" class="font-semibold hover:underline">
+        ← 5.1 Liquidated Damages
+    </a>
+    <a th:href="@{/manual/retention}" class="font-semibold hover:underline">
+        Next → 5.3 Retention
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

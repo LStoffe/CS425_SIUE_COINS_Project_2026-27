@@ -1,0 +1,161 @@
+<!--
+  weather-forecast.html
+  Section 4.3 of the COINS manual.
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 4">
+    <title>4.3 Weather Forecast</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-6">
+        <h1 class="text-3xl font-bold text-black mb-2">
+            4.3 Weather Forecast
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Each period precipitation and the temperature can have a profound effect on the amount of work you are able to complete.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Rainfall:</strong><br>
+            Many methods cannot be performed in the rain and if you have chosen such a method for an activity, that activity cannot be worked on a day that it is raining. Each workday that it rains is called a "rainday," 
+            and on a rainday only activities that have rain-insensitive methods may be worked on. The Productivity Report tells whether or not each method is sensitive to rain.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The amount of raindays is a function of the number of inches of rain expected during a period. If there are less than 2 inches of rain, there will be no raindays. 
+            If there are at least 2 inches of rain but less than 3 then three workdays during the period will be raindays. If there are 3 or more inches of rain, six days during the period will be raindays.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            There is no way to know which specific days of each month are raindays, but this information is not extremely useful anyway. Rain occuring on a day other than a workday is ignored by BIG.
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Temperature:</strong><br>
+            Laborers work less quickly if they are too cold or too hot. On the other hand, if the temperature conditions are mild laborers may work a little bit faster. 
+            The temperature during a period affects the productivity of methods worked during that period. Some methods are insensitive to temperature, 
+            and in this case the productivity is unchanged. The following table shows the effect to productivity (CU/hour) of each temperature sensitive method based on the temperature (T).
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <table class="min-w-full text-lg text-black">
+            <thead>
+                <tr>
+                    <th class="text-left font-bold pb-2">
+                        Range of Temperature (°F)
+                    </th>
+                    <th class="text-left font-bold pb-2">
+                        Change in Productivity
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="pr-6">T ≤ 14</td>
+                    <td>decreased by 30%</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">15 ≤ T ≤ 23</td>
+                    <td>decreased by 20%</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">24 ≤ T ≤ 32</td>
+                    <td>decreased by 15%</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">33 ≤ T ≤ 41</td>
+                    <td>decreased by 10%</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">42 ≤ T ≤ 59</td>
+                    <td>unchanged</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">60 ≤ T ≤ 72</td>
+                    <td>increased by 5%</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">73 ≤ T ≤ 80</td>
+                    <td>decreased by 5%</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">81 ≤ T ≤ 90</td>
+                    <td>decreased by 10%</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">T ≥ 91</td>
+                    <td>decreased by 20%</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To view the weather forecast, select "Weather Forecast". If you do not want to view the report you may select the back button. You must agree to pay the price by selecting 'Yes' before you may view the report.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Tip:</strong><br>
+            Of all the period effects listed in the consulting reports, weather is the most potentially damaging. Both rainfall and temperature reduce the amount of work you can do each period. 
+            If a job gets too far behind schedule, you may need to add overtime hours to get it back on track. 
+            When you bid, be sure that you not ignore the effects of weather. If you are unsure, increase your contingency allowance.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Tip:</strong><br>
+            You may be able to make some predictions about the weather based on the time of year. For example, during the winter months it will be colder and have the most rain.
+            Summer will have little rain and have the highest temperatures. Spring and fall will have moderate amounts of rain and may have optimal temperatures.
+        </p>
+    </section>
+   
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/materials-cost-index}" class="font-semibold hover:underline">
+        ← 4.2 Material Cost Index
+    </a>
+    <a th:href="@{/manual/market-analysis}" class="font-semibold hover:underline">
+        Next → 4.4 Market Analysis
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

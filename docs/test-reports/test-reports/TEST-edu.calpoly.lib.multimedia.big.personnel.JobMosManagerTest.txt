@@ -1,0 +1,15 @@
+Testsuite: edu.calpoly.lib.multimedia.big.personnel.JobMosManagerTest
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.546 sec
+
+Testcase: testGetFailedMospAfterFailMospIncludesFailedSkill took 0.531 sec
+Testcase: testEmptyJobsGetTotalMospPenaltyReturnsZero took 0 sec
+Testcase: testWithJobReduceRequiredMOSPAndStillMOSPRequired took 0.001 sec
+Testcase: testEmptyJobsGetMostDamagingMOSReturnsEmpty took 0.001 sec
+Testcase: testEmptyJobsStillMOSPRequiredReturnsFalse took 0 sec
+Testcase: testEmptyJobsGetFailedMospReturnsEmptyMap took 0 sec
+Testcase: testGetTotalMospPenaltyWithRemainingSkills took 0.002 sec
+Testcase: testGetFailedMospReturnsRemainingAndFailed took 0.001 sec
+Testcase: testReduceRequiredMOSPForNonexistentSkill took 0 sec
+Testcase: testFailMospForNonexistentSkill took 0 sec
+Testcase: testMultipleJobsAccumulateMosp took 0.001 sec
+Testcase: testFailMosp took 0 sec

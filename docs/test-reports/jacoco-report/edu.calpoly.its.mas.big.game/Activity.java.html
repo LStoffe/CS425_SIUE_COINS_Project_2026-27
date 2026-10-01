@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Activity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">Activity.java</span></div><h1>Activity.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import edu.calpoly.lib.multimedia.big.equipment.AdjustProductivity;
+import edu.calpoly.its.mas.big.users.company.ExpandedCompany;
+import edu.calpoly.its.mas.big.game.ExpandedGame;
+import java.lang.Exception;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import java.io.PrintWriter;
+
+
+/**
+ * Contains information about the current state of an activity of a job.
+ * The &lt;code&gt;Activity&lt;/code&gt; class represents the state of an activity
+ * during a particular period rather than the activity itself.
+ * &lt;code&gt;Activity&lt;/code&gt; objects use their own period count that is not tied into the
+ * main period count in &lt;code&gt;Game&lt;/code&gt; so it is up to BIG to keep the two in sychronization (if sychronization is desired).
+ * There are period sensitive values in each &lt;code&gt;Activity&lt;/code&gt; (such as current LU's completed)
+ * that are cleared everytime the &lt;code&gt;Activity&lt;/code&gt;'s period is incremented.  By incrementing each &lt;code&gt;Activity&lt;/code&gt;'s
+ * period each time the game period is incremented each &lt;code&gt;Activity&lt;/code&gt; will contain
+ * work/cost values for each particular period for only work done during that period.
+ * Each &lt;code&gt;Activity&lt;/code&gt; also keeps a running total of all work/costs ever done on the activity.
+ * The update method will do one days work on an activity with the work counting as beening done in the period the &lt;code&gt;Activity&lt;/code&gt;
+ * thinks is the current period.
+ * &lt;br&gt;&lt;br&gt;
+ * The constructor for &lt;code&gt;Activity&lt;/code&gt; does not create &lt;code&gt;Activity&lt;/code&gt; objects that
+ * contain all the values they need to perform updates because some values may not be available at
+ * the time the &lt;code&gt;Activity&lt;/code&gt; is created.  Before the update method can be called the &lt;code&gt;Activity&lt;/code&gt;
+ * object must be provided with network dependency values, and a method.
+ * &lt;br&gt;&lt;br&gt;
+ * &lt;b&gt;How &lt;code&gt;Activity&lt;/code&gt; fits into the update process&lt;/b&gt;&lt;br&gt;
+ * Whe &lt;code&gt;Job&lt;/code&gt;s are created a set of empty activities is saved to that database for that &lt;code&gt;Job&lt;/code&gt;.
+ * If the &lt;code&gt;Job&lt;/code&gt; is never assigned then no more activites are ever added to the database for that &lt;code&gt;Job&lt;/code&gt;.
+ * If a &lt;code&gt;Job&lt;/code&gt; is being worked on then each period the &lt;code&gt;Job&lt;/code&gt; will be loaded with its activities as they were
+ * at the end of the last period (or with its set of empty activities if this is the first time work is being done
+ * on this &lt;code&gt;Job&lt;/code&gt;).  The &lt;code&gt;Job&lt;/code&gt; will then have to tell each &lt;code&gt;Activity&lt;/code&gt; to increment its period
+ * and clear out its period sensitive values from last period.
+ * As work is done each &lt;code&gt;Activity&lt;/code&gt; object will develop a new values for the current period that must be stored to the database
+ * as a new &lt;code&gt;Activity&lt;/code&gt;.  This is because each &lt;code&gt;Activity&lt;/code&gt; is the &lt;i&gt;state&lt;/i&gt; of an activity for a period
+ * so all the saved activies in the database are actually saved states of how &lt;code&gt;Activity&lt;/code&gt;'s were at different periods.
+ * &lt;br&gt;When the game is being finalized one &lt;code&gt;Activity&lt;/code&gt; is used without updating the period for that &lt;code&gt;Activity&lt;/code&gt;
+ * so that work done during multiple periods is all counted as being done at the same time for &lt;code&gt;Activity&lt;/code&gt;'s.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.29 $ $Date: 2002/04/24 17:45:37 $
+ */
+public class Activity
+{
+
+  //Number of hours in a standard day.  Game parameter.
+  private int stdHours;
+
+  //Number of extra hours per day overtime adds.  Game parameter.
+  private int overtimeHours;
+
+  private int activityType;
+  private int lusTotal;                //total LUs to complete activity
+  private int lusCompleted;            //total number of LUs already completed in activity
+  private long currentLaborCost;
+  private long currentMaterialCost;
+  private long currentEquipmentCost;
+  private long currentSubcontractorCost;
+  private boolean isActive;
+  private int lusCompletedThisPeriod;
+  private long accumulatedCosts;
+
+  private Method currentMethod;
+  private int currentMethodUsed; //Method number of current method
+  private int startToStartActivity;
+  private int startToStartPercent;
+  private int finishToFinishActivity;
+  private int finishToFinishPercent;
+  private int currentPeriod;
+  private Job job;                     //reference back to the Job that contains this Activity
+
+  private int overtimeDays;
+
+  private float methodScalingFactor;
+
+  //Total lus completed before this period
+  private int lusCompletedBeforeUpdates;
+
+<span class="fc" id="L85">  private float overtimeModifier = 2f;  //Multiplied by labor cost to get overtime labor cost</span>
+
+  private Log log;
+
+//***************************  Constructor  *****************************
+
+  /**
+   * Constructor for &lt;code&gt;Activity&lt;/code&gt;.
+   * @param activityType int [1...9] representing the type this &lt;code&gt;Activity&lt;/code&gt; is.
+   * @param lusTotal The total number of LUs that must be completed before this &lt;code&gt;Activity&lt;/code&gt; is considered complete
+   * @param lusCompleted The total number of LUs that have been done on this &lt;code&gt;Activity&lt;/code&gt; since it was created
+   * @param currentLaborCost The dollar amount of cost of labor accrued from work done on this &lt;code&gt;Activity&lt;/code&gt; &lt;i&gt;in the current period only&lt;/i&gt;
+   * @param currentMaterialCost The dollar amount of cost of materials accrued from work done on this &lt;code&gt;Activity&lt;/code&gt; &lt;i&gt;in the current period only&lt;/i&gt;
+   * @param isActive true if this &lt;code&gt;Activity&lt;/code&gt; is active
+   * @param lusCompletedThisPeriod The number of lus done on this &lt;code&gt;Activity&lt;/code&gt; &lt;i&gt;in the current period only &lt;/i&gt;
+   * @param accumulatedCosts All costs accumulated (both labor and materials) since this &lt;code&gt;Activity&lt;/code&gt; was created
+   * @param currentPeriod The period number of this &lt;code&gt;Activity&lt;/code&gt;.
+   * @param currentMethodUsed Int representing the method number of the method being used on this &lt;code&gt;Activity&lt;/code&gt;
+   * @param overtimeDays The number of days that should be worked as overtime days on this &lt;code&gt;Activity&lt;/code&gt;.
+   * @param stdHours Number of hours in a standard workday
+   * @param overtimeHours Number of hours that will be worked, in addition to the hours in a standard day, on an overtime day.
+   */
+  public Activity(int activityType, int lusTotal, int lusCompleted,
+				  long currentLaborCost, long currentMaterialCost, long currentEquipmentCost, long currentSubcontractorCost,
+				  boolean isActive, int lusCompletedThisPeriod,
+				  long accumulatedCosts, int currentPeriod, int currentMethodUsed,
+				  int overtimeDays, int stdHours, int overtimeHours)
+<span class="fc" id="L112">  {</span>
+<span class="fc" id="L113">	  this.activityType = activityType;</span>
+<span class="fc" id="L114">	  this.lusTotal = lusTotal;</span>
+<span class="fc" id="L115">	  this.lusCompleted = lusCompleted;</span>
+<span class="fc" id="L116">	  this.currentLaborCost = currentLaborCost;</span>
+<span class="fc" id="L117">	  this.currentMaterialCost = currentMaterialCost;</span>
+<span class="fc" id="L118">	  this.currentEquipmentCost = currentEquipmentCost;</span>
+<span class="fc" id="L119">	  this.currentSubcontractorCost = currentSubcontractorCost;</span>
+<span class="fc" id="L120">	  this.isActive = isActive;</span>
+<span class="fc" id="L121">	  this.lusCompletedThisPeriod = lusCompletedThisPeriod;</span>
+<span class="fc" id="L122">	  this.accumulatedCosts = accumulatedCosts;</span>
+<span class="fc" id="L123">	  this.currentPeriod = currentPeriod;</span>
+<span class="fc" id="L124">	  this.currentMethodUsed = currentMethodUsed;</span>
+<span class="fc" id="L125">	  this.overtimeDays = overtimeDays;</span>
+<span class="fc" id="L126">	  this.stdHours = stdHours;</span>
+<span class="fc" id="L127">	  this.overtimeHours = overtimeHours;</span>
+<span class="fc" id="L128">	  this.lusCompletedBeforeUpdates = lusCompleted;</span>
+<span class="fc" id="L129">  }</span>
+
+
+//***************************  Public Methods  *****************************
+
+  /**
+   * Advances the period number of this activity so that it represents the initial state of the activity for the next period.
+   * Values such as lusCompletedThisPeriod are reset to 0, while persistent values such as lusCompleted are left the same.
+   */
+  public void incrementPeriodNumber()
+  {
+<span class="fc" id="L140">	  currentLaborCost = 0;</span>
+<span class="fc" id="L141">	  currentMaterialCost = 0;</span>
+<span class="fc" id="L142">	  currentEquipmentCost = 0;</span>
+<span class="fc" id="L143">	  currentSubcontractorCost = 0;</span>
+<span class="fc" id="L144">	  lusCompletedThisPeriod = 0;</span>
+<span class="fc" id="L145">	  lusCompletedBeforeUpdates = lusCompleted;</span>
+<span class="fc" id="L146">	  currentPeriod++;</span>
+<span class="fc" id="L147">  }</span>
+
+
+
+  /**
+   * Sets the current method
+   */
+  public void setMethod(Method method)
+  {
+<span class="fc" id="L156">	  this.currentMethod = method;</span>
+<span class="fc" id="L157">	  currentMethodUsed = method.getMethodNumber();</span>
+<span class="fc" id="L158">  }</span>
+
+
+  /**
+   * Does one days work on the activity.  If there are overtime days left on the activity the day will be
+   * an overtime day.  If the activity cannot proceed due to a network dependency no work will be done.
+   * &lt;br&gt;&lt;br&gt;
+   * &lt;b&gt;Precondtion: &lt;/b&gt;The method to use and network dependency values have been set
+   * via the appropiate set methods.
+   * &lt;br&gt;&lt;br&gt;
+   * @param rainday Set to true if the current day is a rainday.  If true work will only be done on the job
+   * if the current method used is not affected by rain;
+   */
+  public void update(boolean rainday, int jobType, int jobID, ExpandedCompany company, ExpandedGame game, PrintWriter out)
+  {
+<span class="fc" id="L173">	  int lusCompletedSoFar = lusCompleted;</span>
+
+<span class="fc" id="L175">	  int productivityReduced = 0;</span>
+
+<span class="fc bfc" id="L177" title="All 2 branches covered.">	  if(isActive)  // set in NetworkDependencies.java (see Job.java line # 768) -- determines whether or not work can be performed on an</span>
+	                // activity based on its Network Dependences. If not, the activity is skipped. Completed activities are also skipped.
+	  {
+<span class="fc" id="L180">          AdjustProductivity adjustMe = new AdjustProductivity();</span>
+
+<span class="fc" id="L182">	      int productivity = currentMethod.getProductivity();</span>
+<span class="fc" id="L183">	      int laborCost = currentMethod.getLaborCost();</span>
+<span class="fc" id="L184">	      int materialsCost = currentMethod.getMaterialsCost();</span>
+<span class="fc" id="L185">	      int equipmentCost = currentMethod.getEquipmentCost();</span>
+<span class="fc" id="L186">	      int subcontractorCost = currentMethod.getSubcontractorCost();</span>
+<span class="fc" id="L187">	      int weatherSensitivity = currentMethod.getWeatherSensitivity();</span>
+
+	      //Scale the method values based on the scaling factor
+<span class="fc" id="L190">	      productivity = (int) Math.round(productivity * methodScalingFactor);</span>
+
+	      //For Heavy jobs, adjust productivity and unit cost depending on what equipment a company has in its fleet
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">	      if(jobType &gt; 5)</span>
+	      {
+	         try
+	         {
+<span class="nc" id="L197">	            productivityReduced = adjustMe.adjustProductivity(productivity, jobID, activityType, currentMethodUsed, currentPeriod, game, company, currentMethod, out);</span>
+	            // log = LogFactory.getLog(this.getClass());
+				// log.debug(&quot;entered adjustProductivity&quot;);
+	         }
+<span class="nc" id="L201">	         catch(Exception e)</span>
+	         {
+<span class="nc" id="L203">                e.printStackTrace();</span>
+<span class="nc" id="L204">                throw new RuntimeException (&quot;Error executing adjustProductivity. Cause: &quot; + e);</span>
+<span class="nc" id="L205">             }</span>
+
+             // if productivity was reduced because some equipment is missing
+<span class="nc bnc" id="L208" title="All 2 branches missed.">             if(productivityReduced &lt; productivity) {</span>
+
+<span class="nc" id="L210">                 productivity = productivityReduced;</span>
+
+                 // when productivity is reduced we increase the unit cost of equipment
+<span class="nc" id="L213">                 equipmentCost = equipmentCost * 2;</span>
+
+			 }
+
+          }
+	      //Do work if it's not raining or the current method's is not affected by rain (weather sensitivity 0 or 1)
+<span class="fc bfc" id="L219" title="All 6 branches covered.">	      if(!rainday || (weatherSensitivity == 0) || (weatherSensitivity == 1) )</span>
+	      {
+			  //Do work for each standard hour in the day
+<span class="fc" id="L222">			  int i = 0;</span>
+<span class="fc bfc" id="L223" title="All 4 branches covered.">			  while((i &lt; stdHours) &amp;&amp; (lusCompleted &lt; lusTotal))</span>
+			  {
+<span class="fc" id="L225">				  lusCompleted += productivity;</span>
+<span class="fc" id="L226">				  currentLaborCost += laborCost * productivity;</span>
+<span class="fc" id="L227">				  currentMaterialCost += materialsCost * productivity;</span>
+<span class="fc" id="L228">				  currentEquipmentCost += equipmentCost * productivity;</span>
+<span class="fc" id="L229">				  currentSubcontractorCost += subcontractorCost * productivity;</span>
+<span class="fc" id="L230">				  lusCompletedThisPeriod += productivity;</span>
+<span class="fc" id="L231">				  accumulatedCosts += laborCost * productivity;</span>
+<span class="fc" id="L232">				  accumulatedCosts += materialsCost * productivity;</span>
+<span class="fc" id="L233">				  accumulatedCosts += equipmentCost * productivity;</span>
+<span class="fc" id="L234">				  accumulatedCosts += subcontractorCost * productivity;</span>
+<span class="fc" id="L235">				  i++;</span>
+			  } //end while
+
+			  //If there are still overtime days left, then work them
+<span class="fc bfc" id="L239" title="All 2 branches covered.">			  if(overtimeDays &gt; 0)</span>
+			  {
+<span class="fc" id="L241">				  i = 0;</span>
+<span class="fc" id="L242">				  overtimeDays--;</span>
+<span class="fc bfc" id="L243" title="All 4 branches covered.">				  while((i &lt; overtimeHours) &amp;&amp; (lusCompleted &lt; lusTotal) )</span>
+				  {
+<span class="fc" id="L245">					  lusCompleted += productivity;</span>
+<span class="fc" id="L246">				      currentLaborCost += Math.round(laborCost * productivity * overtimeModifier);</span>
+<span class="fc" id="L247">				      currentMaterialCost += materialsCost * productivity;</span>
+<span class="fc" id="L248">				      currentEquipmentCost += equipmentCost * productivity;</span>
+<span class="fc" id="L249">				      currentSubcontractorCost += Math.round(subcontractorCost * productivity * overtimeModifier);</span>
+<span class="fc" id="L250">				      lusCompletedThisPeriod += productivity;</span>
+<span class="fc" id="L251">				      accumulatedCosts += Math.round(laborCost * productivity * overtimeModifier);</span>
+<span class="fc" id="L252">				      accumulatedCosts += materialsCost * productivity;</span>
+<span class="fc" id="L253">				      accumulatedCosts += equipmentCost * productivity;</span>
+<span class="fc" id="L254">				      accumulatedCosts += Math.round(subcontractorCost * productivity * overtimeModifier);</span>
+<span class="fc" id="L255">				  	  i++;</span>
+				  } // end while
+			  } //end if
+
+              //Check to make sure extra lus weren't completed.  This can happen because a full hour of lus is done on the final hour,
+              //even if there weren't that many lus left to be completed
+
+			  //Make sure the lus completed doesn't read higher than the amount possible
+<span class="fc bfc" id="L263" title="All 2 branches covered.">		      if(lusCompleted &gt; lusTotal) lusCompleted = lusTotal;</span>
+
+			  //Make sure more lus weren't completed this period than were left to do
+<span class="fc bfc" id="L266" title="All 2 branches covered.">			  if(lusCompletedThisPeriod &gt; lusTotal - lusCompletedBeforeUpdates) lusCompletedThisPeriod = lusTotal - lusCompletedBeforeUpdates;</span>
+		  } // end if
+	  } //end if
+
+<span class="fc" id="L270">  }</span>
+
+
+  //*********************  Simple Get methods  *****************************
+
+  /**
+   * @return int [1...9] representing the type this &lt;code&gt;Activity&lt;/code&gt; is.
+   */
+  public int getActivityType()
+  {
+<span class="fc" id="L280">   	  return activityType;</span>
+  }
+
+  public int getLusTotal()
+  {
+<span class="fc" id="L285">	  return lusTotal;</span>
+  }
+
+  public int getLusCompleted()
+  {
+<span class="fc" id="L290">	  return lusCompleted;</span>
+  }
+
+  public int getLusRemaining()
+  {
+<span class="fc" id="L295">	  return lusTotal - lusCompleted;</span>
+  }
+
+  public boolean isComplete()
+  {
+<span class="fc bfc" id="L300" title="All 2 branches covered.">	  return lusCompleted &gt;= lusTotal;</span>
+  }
+
+  public long getCurrentLaborCost()
+  {
+<span class="fc" id="L305">	  return currentLaborCost;</span>
+  }
+
+  public long getCurrentMaterialCost()
+  {
+<span class="fc" id="L310">	  return currentMaterialCost;</span>
+  }
+
+  public long getCurrentEquipmentCost()
+  {
+<span class="fc" id="L315">	  return currentEquipmentCost;</span>
+  }
+
+  public long getCurrentSubcontractorCost()
+  {
+<span class="fc" id="L320">	  return currentSubcontractorCost;</span>
+  }
+
+  public boolean getIsActive()
+  {
+<span class="fc" id="L325">	  return isActive;</span>
+  }
+
+  public int getLusCompletedThisPeriod()
+  {
+<span class="fc" id="L330">	  return lusCompletedThisPeriod;</span>
+  }
+
+  public long getAccumulatedCosts()
+  {
+<span class="fc" id="L335">	  return accumulatedCosts;</span>
+  }
+
+  public int getStartToStartActivity()
+  {
+<span class="fc" id="L340">	  return startToStartActivity;</span>
+  }
+
+  public int getStartToStartPercent()
+  {
+<span class="fc" id="L345">	  return startToStartPercent;</span>
+  }
+
+  public int getFinishToFinishActivity()
+  {
+<span class="fc" id="L350">	  return finishToFinishActivity;</span>
+  }
+
+  public int getFinishToFinishPercent()
+  {
+<span class="fc" id="L355">	  return finishToFinishPercent;</span>
+  }
+
+  public int getCurrentPeriod()
+  {
+<span class="fc" id="L360">	  return currentPeriod;</span>
+  }
+
+  public Method getCurrentMethod()
+  {
+<span class="fc" id="L365">	  return currentMethod;</span>
+  }
+
+  public int getCurrentMethodUsed()
+  {
+<span class="fc" id="L370">	  return currentMethodUsed;</span>
+  }
+
+  public int getOvertimeDays()
+  {
+<span class="fc" id="L375">	  return overtimeDays;</span>
+  }
+
+  public float getOvertimeModifier()
+  {
+<span class="fc" id="L380">	  return overtimeModifier;</span>
+  }
+
+  public int getStandardHours()
+  {
+<span class="fc" id="L385">	  return stdHours;</span>
+  }
+
+  public int getOvertimeHours()
+  {
+<span class="fc" id="L390">	  return overtimeHours;</span>
+  }
+
+  //*********************  Simple Set methods  *****************************
+
+  /**
+   * @param activityType int [1...9] representing the type this &lt;code&gt;Activity&lt;/code&gt; is.
+   */
+  public void setActivityType(int activityType)
+  {
+<span class="fc" id="L400">	  this.activityType = activityType;</span>
+<span class="fc" id="L401">  }</span>
+
+  public void setLusTotal(int lusTotal)
+  {
+<span class="fc" id="L405">	  this.lusTotal = lusTotal;</span>
+<span class="fc" id="L406">  }</span>
+
+  public void setLusCompleted(int lusCompleted)
+  {
+<span class="fc" id="L410">	  this.lusCompleted = lusCompleted;</span>
+<span class="fc" id="L411">  }</span>
+
+  public void setCurrentLaborCost(long currentLaborCost)
+  {
+<span class="fc" id="L415">	  this.currentLaborCost = currentLaborCost;</span>
+<span class="fc" id="L416">  }</span>
+
+  public void setCurrentMaterialCost(long currentMaterialCost)
+  {
+<span class="fc" id="L420">	  this.currentMaterialCost = currentMaterialCost;</span>
+<span class="fc" id="L421">  }</span>
+
+  public void setCurrentEquipmentCost(long currentEquipmentCost)
+  {
+<span class="fc" id="L425">	  this.currentEquipmentCost = currentEquipmentCost;</span>
+<span class="fc" id="L426">  }</span>
+
+  public void setIsActive(boolean isActive)
+  {
+<span class="fc" id="L430">	  this.isActive = isActive;</span>
+<span class="fc" id="L431">  }</span>
+
+  public void setLusCompletedThisPeriod(int lusCompletedThisPeriod)
+  {
+<span class="fc" id="L435">	  this.lusCompletedThisPeriod = lusCompletedThisPeriod;</span>
+<span class="fc" id="L436">  }</span>
+
+  public void setAccumulatedCosts(long accumulatedCosts)
+  {
+<span class="fc" id="L440">	  this.accumulatedCosts = accumulatedCosts;</span>
+<span class="fc" id="L441">  }</span>
+
+  public void setStartToStartActivity(int startToStartActivity)
+  {
+<span class="fc" id="L445">	  this.startToStartActivity = startToStartActivity;</span>
+<span class="fc" id="L446">  }</span>
+
+  public void setStartToStartPercent(int startToStartPercent)
+  {
+<span class="fc" id="L450">	  this.startToStartPercent = startToStartPercent;</span>
+<span class="fc" id="L451">  }</span>
+
+  public void setFinishToFinishActivity(int finishToFinishActivity)
+  {
+<span class="fc" id="L455">	  this.finishToFinishActivity = finishToFinishActivity;</span>
+<span class="fc" id="L456">  }</span>
+
+  public void setFinishToFinishPercent(int finishToFinishPercent)
+  {
+<span class="fc" id="L460">	  this.finishToFinishPercent = finishToFinishPercent;</span>
+<span class="fc" id="L461">  }</span>
+
+  public void setCurrentPeriod(int currentPeriod)
+  {
+<span class="fc" id="L465">	  this.currentPeriod = currentPeriod;</span>
+<span class="fc" id="L466">  }</span>
+
+  public void setOvertimeDays(int overtimeDays)
+  {
+<span class="fc" id="L470">	  this.overtimeDays = overtimeDays;</span>
+<span class="fc" id="L471">  }</span>
+
+  public void setMethodScalingFactor(float factor)
+  {
+<span class="fc" id="L475">	  this.methodScalingFactor = factor;</span>
+<span class="fc" id="L476">  }</span>
+
+  public void setStandardHours(int stdHours)
+  {
+<span class="fc" id="L480">	  this.stdHours = stdHours;</span>
+<span class="fc" id="L481">  }</span>
+
+  public void setOvertimeHours(int overtimeHours)
+  {
+<span class="fc" id="L485">	  this.overtimeHours = overtimeHours;</span>
+<span class="fc" id="L486">  }</span>
+
+  public void setOvertimeModifier(float overtimeModifier)
+  {
+<span class="fc" id="L490">	  this.overtimeModifier = overtimeModifier;</span>
+<span class="fc" id="L491">  }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

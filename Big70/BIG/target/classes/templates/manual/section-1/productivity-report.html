@@ -1,0 +1,166 @@
+<!--
+  productivity-report.html
+  Section 1.8 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.8 Productivity Report</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+   <!-- Section Header -->
+<header class="mb-8">
+    <h1 class="text-3xl font-bold text-black mb-4">
+        1.8 Productivity Report
+    </h1>
+</header>
+
+<section class="mb-6">
+    <p class="text-lg text-black leading-relaxed mb-2">
+        The Productivity Report gives information about each of the five possible methods for each of BIG's nine activities.
+        The following is given for each activity:
+    </p>
+
+    <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+        <li>
+            <strong>Method Name:</strong> Name of the method.
+        </li>
+
+        <li>
+            <strong>Productivity:</strong> Method's productivity rate in construction units per hour (CU/hr).
+            <br>
+            Each hour this method is used, the specified number of CUs will be completed.
+        </li>
+
+        <li>
+            <strong>Labor Cost:</strong> The cost of the labor needed to complete one CU ($/CU).
+        </li>
+
+        <li>
+            <strong>Materials Cost:</strong> The cost of the materials needed to complete one CU ($/CU).
+        </li>
+
+        <li>
+            <strong>Subcontractor Cost:</strong> The agreed upon cost per CU if this method is subcontracted.
+            <br>
+            Typically, self-performed methods will have a labor and material cost associated with each CU and subcontracted methods will have a subcontractor cost associated with each CU.
+            <br>
+            Methods normally will not have both a subcontractor cost and labor & materials costs.
+        </li>
+
+        <li>
+            <strong>Uncertainty Range:</strong> The range of uncertainty affects the cost of labor and materials for every job in every period.
+            <br>
+            When jobs are worked, the labor and materials costs for the method you choose will be the amount listed in the report (possibly modified by labor or materials indices) plus or minus some percentage from the uncertainty range.
+            <br>
+            For example, for "Excavation1" in the sample Productivity Report shown below, the actual labor cost per CU when the method is used will be $11 plus or minus 5%.
+            <br>
+            So, the actual labor cost per CU could be $10, $11, or $12.
+            <br>
+            There is no uncertainty to subcontractor costs because in reality these costs would be agreed upon in a contract.
+        </li>
+
+        <li>
+            <strong>Weather Sensitivity:</strong> Determines whether a method is affected by weather conditions.
+            <ul class="list-disc pl-6 mt-2 space-y-1 text-black mb-2">
+                <li><strong>None:</strong> Not affected by weather.</li>
+                <li><strong>Temperature:</strong> Productivity (CU/hr) is affected by temperature.</li>
+                <li><strong>Precipitation:</strong> Number of worked days is affected by rainfall.</li>
+                <li><strong>Both:</strong> Affected by both temperature and rainfall.</li>
+            </ul>
+        </li>
+
+        <li>
+            <strong>Method Type:</strong> There are two types of methods: self-performed and subcontracted.
+            <br>
+            Self-performed methods are those where the work is performed by your company directly.
+            <br>
+            Subcontracted methods are those where your company hires a subcontractor to perform the work.
+            <br>
+            In reality a contract would be negotiated between your company and a subcontractor.
+            <br>
+            In BIG this process is simplified so that subcontracted methods may be selected the same as normal methods.
+            <br>
+            Besides labor and materials vs. subcontractor costs, there are several key differences between subcontracted and self-performed methods that will be discussed later in this manual.
+        </li>
+    </ul>
+</section>
+
+<section class="mb-6">
+    <p class="text-lg text-black leading-relaxed">
+        The total cost per CU for a self-performed method can be calculated by adding together the labor and material costs.
+    </p>
+
+    <p class="text-lg text-black leading-relaxed">
+        The total cost per CU for a subcontracted method is the same as the subcontractor cost.
+    </p>
+
+    <p class="text-lg text-black leading-relaxed">
+        The total cost per hour can be calculated by multiplying the productivity (in CU/hour) by the total cost (in $/CU).
+    </p>
+</section>
+
+<section class="mb-6">
+    <p class="text-lg text-black leading-relaxed">
+        <strong>Example:</strong> For a self-performed method, the Productivity is 10 CU/hour.
+        The labor cost is $12/CU and the materials cost is $5/CU.
+    </p>
+
+    <p class="text-lg text-black leading-relaxed">
+        <strong>Step 1:</strong> To find the cost per hour, first add the labor and materials costs to compute the total cost per CU:
+        <br>
+        $12/CU + $5/CU = $17/CU.
+    </p>
+
+    <p class="text-lg text-black leading-relaxed">
+        <strong>Step 2:</strong> Next, multiply the total cost by the productivity to get the cost per hour:
+        <br>
+        $17/CU × 10 CU/hour = $170/hour.
+    </p>
+</section>
+
+<section class="mb-6">
+    <p class="text-lg text-black leading-relaxed">
+        <strong>TIP:</strong> Keeping track of the units will help you with these calculations.
+    </p>
+
+    <p class="text-lg text-black leading-relaxed">
+        As a regular practice you will not be required to use the raw numbers given on the Productivity Report very often.
+        Instead, you will receive an Estimated Time and Cost Report (Covered in Section 1.10) that has been prepared for you for each job available for bid.
+    </p>
+</section>
+
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/interacting-with-big}" class="font-semibold hover:underline">
+        ← 1.7 Job Information
+    </a>
+    <a th:href="@{/manual/available-jobs}" class="font-semibold hover:underline">
+        Next → 1.9 Available Jobs
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NameGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">NameGenerator.java</span></div><h1>NameGenerator.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.game;
+
+import java.util.Random;
+
+/**
+ * Generates (hopefully) realistic names for various entities in BIG
+ *
+ * @author Kevin Craig
+ *
+ */
+<span class="nc" id="L12">public class NameGenerator</span>
+{
+
+<span class="fc" id="L15">	private static Random random = new Random();</span>
+
+    //Random words that could be part of a company name
+    //Here we have geographic names,
+    //A few proper names,
+    //presidents' names,
+    //birds, plants, and animals
+    //Anything else appropriate
+<span class="fc" id="L23">	private static String[] contractorFictitiousNamePart = { &quot;Cal Poly&quot;,</span>
+										   			         &quot;Mustang&quot;,
+													         &quot;College&quot;,
+													         &quot;University&quot;,
+													         &quot;San Luis&quot;,
+													         &quot;Pacific&quot;,
+													         &quot;Atlantic&quot;,
+													         &quot;Northern&quot;,
+													         &quot;Western&quot;,
+													         &quot;Southern&quot;,
+													         &quot;Eastern&quot;,
+															 &quot;Northwestern&quot;,
+													         &quot;Northeastern&quot;,
+													         &quot;Southwestern&quot;,
+													         &quot;Southeastern&quot;,
+													         &quot;American&quot;,
+													         &quot;California&quot;,
+													         &quot;Golden State&quot;,
+													         &quot;Eagle&quot;,
+													         &quot;Washington&quot;,
+													         &quot;Pelican Bay&quot;,
+													         &quot;Condor&quot;,
+													         &quot;Jefferson&quot;,
+													         &quot;Lincoln&quot;,
+													         &quot;Ocean&quot;,
+													         &quot;Monroe&quot;,
+													         &quot;Madison&quot;,
+													         &quot;Valley Quail&quot;,
+													         &quot;Cardinal&quot;,
+													         &quot;Robin&quot;,
+													         &quot;Bluebird&quot;,
+													         &quot;Meadowlark&quot;,
+													         &quot;Cactus&quot;,
+													         &quot;Tumbleweed&quot;,
+													         &quot;Magnolia&quot;,
+													         &quot;Mayflower&quot;,
+													         &quot;Dogwood&quot;,
+													         &quot;Yucca&quot;,
+													         &quot;Hawthorn&quot;,
+													         &quot;Panther&quot;,
+													         &quot;Wildcat&quot;,
+													         &quot;Cougar&quot;,
+													         &quot;Spartan&quot;,
+													         &quot;Hornet&quot;,
+													         &quot;Grant&quot;,
+													         &quot;Holstein&quot;,
+													         &quot;Churchill&quot;,
+															 &quot;Swanson&quot;,
+															 &quot;Baker&quot;,
+													         &quot;Laacke&quot;
+													       };
+
+
+    //30 most common last names in the U.S., based on 1990 census
+<span class="fc" id="L77">	private static String[] contractorPersonalNamePart = {   &quot;Smith&quot;,</span>
+										   			         &quot;Johnson&quot;,
+													         &quot;Williams&quot;,
+													         &quot;Jones&quot;,
+													         &quot;Brown&quot;,
+													         &quot;Davis&quot;,
+													         &quot;Miller&quot;,
+													         &quot;Wilson&quot;,
+													         &quot;Moore&quot;,
+													         &quot;Taylor&quot;,
+													         &quot;Anderson&quot;,
+													         &quot;Thomas&quot;,
+													         &quot;Jackson&quot;,
+													         &quot;White&quot;,
+													         &quot;Harris&quot;,
+													         &quot;Martin&quot;,
+													         &quot;Thompson&quot;,
+													         &quot;Garcia&quot;,
+													         &quot;Martinez&quot;,
+													         &quot;Robinson&quot;,
+													         &quot;Clark&quot;,
+													         &quot;Rodriguez&quot;,
+													         &quot;Lewis&quot;,
+													         &quot;Lee&quot;,
+													         &quot;Walker&quot;,
+													         &quot;Hall&quot;,
+													         &quot;Allen&quot;,
+													         &quot;Young&quot;,
+													         &quot;Hernandez&quot;,
+													         &quot;King&quot;
+						   					             };
+
+
+<span class="fc" id="L110">	private static String[] contractorAssociatesPart = { &quot;&amp; Son&quot;,</span>
+												         &quot;&amp; Sons&quot;,
+														 &quot;&amp; Son&quot;,
+												         &quot;&amp; Sons&quot;,
+												         &quot;&amp; Company&quot;,
+												         &quot;&amp; Partners&quot;,
+												         &quot;&amp; Company&quot;,
+												         &quot;&amp; Partners&quot;,
+												         &quot;&amp; Family&quot;,
+														 &quot;&amp; Daughter&quot;,
+												         &quot;&amp; Daughters&quot;
+											 	       };
+
+<span class="fc" id="L123">	private static String[] contractorBusinessPart =  { &quot;Contractors&quot;,</span>
+												 	    &quot;Contracting&quot;,
+														&quot;Contractors&quot;,
+												 	    &quot;Contracting&quot;,
+													    &quot;General Contracting&quot;,
+													    &quot;Construction&quot;,
+													    &quot;Construction&quot;,
+												        &quot;Builders&quot;,
+											  	      };
+
+<span class="fc" id="L133">	private static String[] contractorBusinessTypePart =  { &quot;Inc.&quot;,</span>
+															&quot;Incorporated&quot;,
+														    &quot;LLP&quot;,
+														    &quot;Co.&quot;,
+														    &quot;Company&quot;,
+														    &quot;Corp.&quot;,
+														    &quot;Corporation&quot;
+													      };
+
+<span class="fc" id="L142">	private static String[] alphabet = { &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;G&quot;, &quot;H&quot;, &quot;I&quot;, &quot;J&quot;,</span>
+	                                     &quot;K&quot;, &quot;L&quot;, &quot;M&quot;, &quot;N&quot;, &quot;O&quot;, &quot;P&quot;, &quot;Q&quot;, &quot;R&quot;, &quot;S&quot;, &quot;T&quot;,
+	                                     &quot;U&quot;, &quot;V&quot;, &quot;W&quot;, &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;
+								   	   };
+
+<span class="fc" id="L147">	private static String[] alphabetNoVolews = { &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;F&quot;, &quot;G&quot;, &quot;H&quot;, &quot;J&quot;,</span>
+	                                             &quot;K&quot;, &quot;L&quot;, &quot;M&quot;, &quot;N&quot;, &quot;P&quot;, &quot;Q&quot;, &quot;R&quot;, &quot;S&quot;, &quot;T&quot;,
+	                                             &quot;V&quot;, &quot;W&quot;, &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;
+								   	   };
+
+
+
+    /**
+     * Creates a fictitious contractor name
+     */
+	public static String generateComputerControlledContractorName()
+	{
+<span class="fc" id="L159">		String name = &quot;Computer Controlled Contractor&quot;;</span>
+
+<span class="fc bfc" id="L161" title="All 2 branches covered.">		if(random.nextInt(100) &lt; 40) //40% chance of first part being 3-letter combo</span>
+		{
+<span class="fc" id="L163">			name = threeLetterCombo();</span>
+		    //100% chance of having a business title
+<span class="fc" id="L165">		    name += &quot; &quot; + contractorBusinessPart[random.nextInt(contractorBusinessPart.length)];</span>
+
+			//75% chance of having business type in name
+<span class="fc bfc" id="L168" title="All 2 branches covered.">			if(random.nextInt(100) &gt; 25)</span>
+			{
+<span class="fc" id="L170">				name += &quot; &quot; + contractorBusinessTypePart[random.nextInt(contractorBusinessTypePart.length)];</span>
+			}
+		}
+		else
+		{
+<span class="fc bfc" id="L175" title="All 2 branches covered.">			if(random.nextInt(100) &lt; 30) //% chance of first part being fictitious name</span>
+			{
+<span class="fc" id="L177">				name = contractorFictitiousNamePart[random.nextInt(contractorFictitiousNamePart.length)];</span>
+
+				//100% chance of having a business title
+<span class="fc" id="L180">				name += &quot; &quot; + contractorBusinessPart[random.nextInt(contractorBusinessPart.length)];</span>
+
+				//75% chance of having business type in name
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">				if(random.nextInt(100) &gt; 25)</span>
+				{
+<span class="fc" id="L185">					name += &quot; &quot; + contractorBusinessTypePart[random.nextInt(contractorBusinessTypePart.length)];</span>
+				}
+			}
+			else
+			{
+				//% chance of first part being single personal name
+<span class="fc" id="L191">				name = contractorPersonalNamePart[random.nextInt(contractorPersonalNamePart.length)];</span>
+
+<span class="fc bfc" id="L193" title="All 2 branches covered.">				if(random.nextInt(100) &lt; 50) //% chance of first part having associations</span>
+				{
+
+<span class="fc" id="L196">					name += &quot; &quot; + contractorAssociatesPart[random.nextInt(contractorAssociatesPart.length)];</span>
+
+					//100% chance of having a business title
+<span class="fc" id="L199">					name += &quot; &quot; + contractorBusinessPart[random.nextInt(contractorBusinessPart.length)];</span>
+				}
+				else
+				{
+
+					//30% chance of getting another personal name
+<span class="fc bfc" id="L205" title="All 2 branches covered.">					if(random.nextInt(100) &lt; 50)</span>
+					{
+<span class="fc" id="L207">						name += &quot; &amp; &quot; + contractorPersonalNamePart[random.nextInt(contractorPersonalNamePart.length)];</span>
+					}
+
+					//100% chance of having a business title
+<span class="fc" id="L211">					name += &quot; &quot; + contractorBusinessPart[random.nextInt(contractorBusinessPart.length)];</span>
+
+					//75% chance of having business type in name
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">					if(random.nextInt(100) &gt; 25)</span>
+					{
+<span class="fc" id="L216">						name += &quot; &quot; + contractorBusinessTypePart[random.nextInt(contractorBusinessTypePart.length)];</span>
+					}
+				}
+			}
+		}
+
+
+<span class="fc" id="L223">		return name;</span>
+	}
+
+	public static String generateCustomerName()
+	{
+<span class="fc" id="L228">		String name = &quot;Customer&quot;;</span>
+<span class="fc" id="L229">		return name;</span>
+	}
+
+    //Returns a &lt;code&gt;String&lt;/code&gt; of 3 capital letters, or 2 capital letter separated by an ampersand
+	private static String threeLetterCombo()
+	{
+<span class="fc" id="L235">		String letters = &quot;&quot;;</span>
+
+		//25% chance String will contain the ampersand
+<span class="fc bfc" id="L238" title="All 2 branches covered.">		if( random.nextInt(100) &lt; 25)</span>
+		{
+<span class="fc" id="L240">			letters += alphabet[random.nextInt(alphabet.length)];</span>
+<span class="fc" id="L241">			letters += &quot; &amp; &quot;;</span>
+<span class="fc" id="L242">			letters += alphabet[random.nextInt(alphabet.length)];</span>
+		}
+		else
+		{
+<span class="fc" id="L246">			letters += alphabet[random.nextInt(alphabet.length)];</span>
+<span class="fc" id="L247">			letters += alphabet[random.nextInt(alphabet.length)];</span>
+<span class="fc" id="L248">			letters += alphabet[random.nextInt(alphabet.length)];</span>
+
+
+		}
+
+		//Before returning the String check it against well-known offensive words
+		//or acronyms to ensure nothing offensive is returned.
+		//Add offensive 3-letter sequences here if need be
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">		if(letters.equals(&quot;KKK&quot;) ||</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">		   letters.equals(&quot;ASS&quot;) ||</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">		   letters.equals(&quot;SEX&quot;) ||</span>
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">		   letters.equals(&quot;BAD&quot;) ||</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">		   letters.equals(&quot;S &amp; M&quot;)</span>
+		  )
+		{
+<span class="nc" id="L263">			letters = threeLetterCombo();</span>
+		}
+<span class="fc" id="L265">		return letters;</span>
+	}
+
+    /**
+     *
+     */
+    public static void main(String args[])
+    {
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		for(int i = 0; i &lt; 100; i++)</span>
+		{
+<span class="nc" id="L275">			System.out.println(generateComputerControlledContractorName());</span>
+		}
+<span class="nc" id="L277">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

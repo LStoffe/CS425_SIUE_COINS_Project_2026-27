@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CCCParametersForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin</a> &gt; <span class="el_source">CCCParametersForm.java</span></div><h1>CCCParametersForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.users.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+/**
+ * ActionForm used to hold computer controlled contractor parameters.
+ *
+ *
+ * @author Kevin Craig
+ *
+ */
+<span class="fc" id="L18">public final class CCCParametersForm  extends ActionForm</span>
+{
+<span class="fc" id="L20">	private boolean makeDefaults = false;</span>
+
+<span class="fc" id="L22">    private String minNumberCCCsString = null;</span>
+<span class="fc" id="L23">    private String maxNumberCCCsString = null;</span>
+<span class="fc" id="L24">    private String minCCCBidsPerJobString = null;</span>
+<span class="fc" id="L25">    private String maxCCCBidsPerJobString = null;</span>
+<span class="fc" id="L26">    private String cccTurnoverString = null;</span>
+<span class="fc" id="L27">    private String lowerPercentJobMarkupString = null;</span>
+<span class="fc" id="L28">    private String upperPercentJobMarkupString = null;</span>
+
+
+    //**************** Public Methods ******************
+
+
+	/**
+	 * Ensures that all values are non-null, that all number strings contain only numeric characters,
+     * that all numbers are greater than or equal to zero, and that for each period the mins are less than or equal to the max.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L40">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L42">        boolean nullParams = false;</span>
+<span class="fc" id="L43">        boolean validNumbers = true;</span>
+<span class="fc" id="L44">        boolean positiveNumbers = true;</span>
+<span class="fc" id="L45">        boolean minsValid = true;</span>
+
+<span class="fc" id="L47">		int minNumberCCCs = 0;</span>
+<span class="fc" id="L48">		int maxNumberCCCs = 0;</span>
+<span class="fc" id="L49">		int minCCCBidsPerJob = 0;</span>
+<span class="fc" id="L50">		int maxCCCBidsPerJob = 0;</span>
+<span class="fc" id="L51">		int cccTurnover = 0;</span>
+<span class="fc" id="L52">		int lowerPercent = 0;</span>
+<span class="fc" id="L53">		int upperPercent = 0;</span>
+
+
+<span class="pc bpc" id="L56" title="2 of 4 branches missed.">		if((minNumberCCCsString == null) || (minNumberCCCsString.trim().length() &lt; 1))</span>
+<span class="nc" id="L57">			nullParams = true;</span>
+<span class="pc bpc" id="L58" title="2 of 4 branches missed.">		if((maxNumberCCCsString == null) || (maxNumberCCCsString.trim().length() &lt; 1))</span>
+<span class="nc" id="L59">		    nullParams = true;</span>
+<span class="pc bpc" id="L60" title="2 of 4 branches missed.">		if((minCCCBidsPerJobString == null) || (minCCCBidsPerJobString.trim().length() &lt; 1))</span>
+<span class="nc" id="L61">			nullParams = true;</span>
+<span class="pc bpc" id="L62" title="2 of 4 branches missed.">		if((maxCCCBidsPerJobString == null) || (maxCCCBidsPerJobString.trim().length() &lt; 1))</span>
+<span class="nc" id="L63">			nullParams = true;</span>
+<span class="pc bpc" id="L64" title="2 of 4 branches missed.">		if((cccTurnoverString == null) || (cccTurnoverString.trim().length() &lt; 1))</span>
+<span class="nc" id="L65">			nullParams = true;</span>
+<span class="pc bpc" id="L66" title="2 of 4 branches missed.">		if((lowerPercentJobMarkupString == null) || (lowerPercentJobMarkupString.trim().length() &lt; 1))</span>
+<span class="nc" id="L67">			nullParams = true;</span>
+<span class="pc bpc" id="L68" title="2 of 4 branches missed.">		if((upperPercentJobMarkupString == null) || (upperPercentJobMarkupString.trim().length() &lt; 1))</span>
+<span class="nc" id="L69">			nullParams = true;</span>
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">		if (nullParams) //nullParams == true</span>
+		{
+<span class="nc" id="L73">			errors.add(&quot;nullParameters&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+		else           //nullParams == false
+		{
+			//Next make sure all of the number Strings contain only numeric characters.
+
+			//Check that the strings are valid numbers by trying to convert them to ints and checking for a NumberFormatException
+			try
+			{
+<span class="fc" id="L82">				minNumberCCCs = Integer.parseInt(minNumberCCCsString);</span>
+<span class="fc" id="L83">				maxNumberCCCs = Integer.parseInt(maxNumberCCCsString);</span>
+<span class="fc" id="L84">				minCCCBidsPerJob = Integer.parseInt(minCCCBidsPerJobString);</span>
+<span class="fc" id="L85">				maxCCCBidsPerJob = Integer.parseInt(maxCCCBidsPerJobString);</span>
+<span class="fc" id="L86">				cccTurnover = Integer.parseInt(cccTurnoverString);</span>
+<span class="fc" id="L87">				lowerPercent = Integer.parseInt(lowerPercentJobMarkupString);</span>
+<span class="fc" id="L88">				upperPercent = Integer.parseInt(upperPercentJobMarkupString);</span>
+			}
+<span class="nc" id="L90">			catch(NumberFormatException nfe)</span>
+			{
+<span class="nc" id="L92">				validNumbers = false;</span>
+<span class="fc" id="L93">			}</span>
+		}
+
+<span class="pc bpc" id="L96" title="3 of 4 branches missed.">		if(!validNumbers &amp;&amp; !nullParams) //validNumbers == false AND nullParams == false</span>
+		{
+<span class="nc" id="L98">			errors.add(&quot;numberFormat&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">		else if(!nullParams)				//validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all the numbers are positive or zero
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">			if(minNumberCCCs &lt; 1)</span>
+<span class="nc" id="L104">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">			if(maxNumberCCCs &lt; 0)</span>
+<span class="nc" id="L106">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">			if(minCCCBidsPerJob &lt; 1)</span>
+<span class="nc" id="L108">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">			if(maxCCCBidsPerJob &lt; 0)</span>
+<span class="nc" id="L110">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">			if(cccTurnover &lt; 0)</span>
+<span class="nc" id="L112">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">			if(lowerPercent &lt; 0)</span>
+<span class="nc" id="L114">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">			if(upperPercent &lt; 0)</span>
+<span class="nc" id="L116">				positiveNumbers = false;</span>
+		}
+
+<span class="pc bpc" id="L119" title="5 of 6 branches missed.">		if(!positiveNumbers &amp;&amp; validNumbers &amp;&amp; !nullParams) //positiveNumbers = false AND nullParams == false AND validNumbers == true</span>
+		{
+<span class="nc" id="L121">			errors.add(&quot;negativeValue&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+		//Check that all min values are greater than or equal to their corresponding max value
+<span class="pc bpc" id="L125" title="2 of 4 branches missed.">		if(validNumbers &amp;&amp; !nullParams)  //validNumbers == true AND nullParams == false</span>
+		{
+<span class="fc bfc" id="L127" title="All 2 branches covered.">			if(minNumberCCCs &gt; maxNumberCCCs)</span>
+<span class="fc" id="L128">				minsValid = false;</span>
+
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">			if(minCCCBidsPerJob &gt; maxCCCBidsPerJob)</span>
+<span class="nc" id="L131">			    minsValid = false;</span>
+
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">			if(lowerPercent &gt; upperPercent)</span>
+<span class="nc" id="L134">			    minsValid = false;</span>
+		}
+
+<span class="pc bpc" id="L137" title="2 of 6 branches missed.">		if(!minsValid &amp;&amp; validNumbers &amp;&amp; !nullParams)  //minsValid == false AND validNumbers == true AND nullParams == false</span>
+		{
+<span class="fc" id="L139">			errors.add(&quot;minmax&quot;, new ActionMessage(&quot;error.parameters.minmax2&quot;));</span>
+		}
+
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">		if(minNumberCCCs &lt; minCCCBidsPerJob)</span>
+		{
+<span class="nc" id="L144">			errors.add(&quot;min&quot;, new ActionMessage(&quot;error.parameters.ccc&quot;));</span>
+		}
+
+<span class="fc" id="L147">		return errors;</span>
+	}
+
+
+
+//**************************** Set &amp; Get Methods ************************
+
+    public boolean getMakeDefaults()
+    {
+<span class="fc" id="L156">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L161">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L162">	}</span>
+
+	public void setMinNumberCCCs(int minNumberCCCs)
+	{
+<span class="fc" id="L166">		minNumberCCCsString = (new Integer(minNumberCCCs)).toString();</span>
+<span class="fc" id="L167">	}</span>
+
+	public void setMinNumberCCCsString(String minNumberCCCsString)
+	{
+<span class="fc" id="L171">		this.minNumberCCCsString = minNumberCCCsString;</span>
+<span class="fc" id="L172">	}</span>
+
+	public void setMaxNumberCCCs(int maxNumberCCCs)
+	{
+<span class="fc" id="L176">		maxNumberCCCsString = (new Integer(maxNumberCCCs)).toString();</span>
+<span class="fc" id="L177">	}</span>
+
+	public void setMaxNumberCCCsString(String maxNumberCCCsString)
+	{
+<span class="fc" id="L181">		this.maxNumberCCCsString = maxNumberCCCsString;</span>
+<span class="fc" id="L182">	}</span>
+
+	public void setMinCCCBidsPerJob(int minCCCBidsPerJob)
+	{
+<span class="fc" id="L186">		minCCCBidsPerJobString = (new Integer(minCCCBidsPerJob)).toString();</span>
+<span class="fc" id="L187">	}</span>
+
+	public void setMinCCCBidsPerJobString(String minCCCBidsPerJobString)
+	{
+<span class="fc" id="L191">		this.minCCCBidsPerJobString = minCCCBidsPerJobString;</span>
+<span class="fc" id="L192">	}</span>
+
+	public void setMaxCCCBidsPerJob(int maxCCCBidsPerJob)
+	{
+<span class="fc" id="L196">		maxCCCBidsPerJobString = (new Integer(maxCCCBidsPerJob)).toString();</span>
+<span class="fc" id="L197">	}</span>
+
+	public void setMaxCCCBidsPerJobString(String maxCCCBidsPerJobString)
+	{
+<span class="fc" id="L201">		this.maxCCCBidsPerJobString = maxCCCBidsPerJobString;</span>
+<span class="fc" id="L202">	}</span>
+
+	public void setCCCTurnover(int cccTurnover)
+	{
+<span class="fc" id="L206">		cccTurnoverString = (new Integer(cccTurnover)).toString();</span>
+<span class="fc" id="L207">	}</span>
+
+	public void setCCCTurnoverString(String cccTurnoverString)
+	{
+<span class="fc" id="L211">		this.cccTurnoverString = cccTurnoverString;</span>
+<span class="fc" id="L212">	}</span>
+
+	public void setLowerPercentJobMarkup(int lowerPercent)
+	{
+<span class="fc" id="L216">		this.lowerPercentJobMarkupString = (new Integer(lowerPercent)).toString();</span>
+<span class="fc" id="L217">	}</span>
+
+	public void setLowerPercentJobMarkupString(String lowerPercent)
+	{
+<span class="fc" id="L221">		this.lowerPercentJobMarkupString = lowerPercent;</span>
+<span class="fc" id="L222">	}</span>
+
+	public void setUpperPercentJobMarkup(int upperPercent)
+	{
+<span class="fc" id="L226">		this.upperPercentJobMarkupString = (new Integer(upperPercent)).toString();</span>
+<span class="fc" id="L227">	}</span>
+
+	public void setUpperPercentJobMarkupString(String upperPercent)
+	{
+<span class="fc" id="L231">		this.upperPercentJobMarkupString = upperPercent;</span>
+<span class="fc" id="L232">	}</span>
+
+	public int getMinNumberCCCs()
+	{
+<span class="fc" id="L236">		return Integer.parseInt(minNumberCCCsString);</span>
+	}
+
+	public String getMinNumberCCCsString()
+	{
+<span class="fc" id="L241">		return minNumberCCCsString;</span>
+	}
+
+	public int getMaxNumberCCCs()
+	{
+<span class="fc" id="L246">		return Integer.parseInt(maxNumberCCCsString);</span>
+	}
+
+	public String getMaxNumberCCCsString()
+	{
+<span class="fc" id="L251">		return maxNumberCCCsString;</span>
+	}
+
+	public int getMinCCCBidsPerJob()
+	{
+<span class="fc" id="L256">		return Integer.parseInt(minCCCBidsPerJobString);</span>
+	}
+
+	public String getMinCCCBidsPerJobString()
+	{
+<span class="nc" id="L261">		return minCCCBidsPerJobString;</span>
+	}
+
+	public int getMaxCCCBidsPerJob()
+	{
+<span class="fc" id="L266">		return Integer.parseInt(maxCCCBidsPerJobString);</span>
+	}
+
+	public String getMaxCCCBidsPerJobString()
+	{
+<span class="nc" id="L271">		return maxCCCBidsPerJobString;</span>
+	}
+
+	public int getCCCTurnover()
+	{
+<span class="fc" id="L276">		return Integer.parseInt(cccTurnoverString);</span>
+	}
+
+	public String getCCCTurnoverString()
+	{
+<span class="nc" id="L281">		return cccTurnoverString;</span>
+	}
+
+    public int getLowerPercentJobMarkup()
+    {
+<span class="fc" id="L286">		return Integer.parseInt(lowerPercentJobMarkupString);</span>
+	}
+
+	public String getLowerPercentJobMarkupString()
+	{
+<span class="nc" id="L291">		return lowerPercentJobMarkupString;</span>
+	}
+
+	public int getUpperPercentJobMarkup()
+	{
+<span class="fc" id="L296">		return Integer.parseInt(upperPercentJobMarkupString);</span>
+	}
+
+	public String getUpperPercentJobMarkupString()
+	{
+<span class="nc" id="L301">		return upperPercentJobMarkupString;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

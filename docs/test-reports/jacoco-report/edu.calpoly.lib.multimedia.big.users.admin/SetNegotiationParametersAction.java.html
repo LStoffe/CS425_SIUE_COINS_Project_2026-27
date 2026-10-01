@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetNegotiationParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin</a> &gt; <span class="el_source">SetNegotiationParametersAction.java</span></div><h1>SetNegotiationParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIGv2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Determines whether the administrator wishes to set parameters or restore defaults for number of jobs parameters then performs the appropriate action.
+ * If the administrator wishes to store his current parameters settings to the database s/he would have pushed the set parameters button
+ * (which must have the name &quot;submit&quot;).  In this case the values currently in the NegotiationParametersForm in the session will be
+ * stored to the database.  These parameters will also be made the admin's defaults if the getMakeDefaults method of the form returns true.
+ * &lt;br&gt;&lt;br&gt;
+ * If the administrator pressed some other submit button (any name other than &quot;submit&quot; or &quot;cancel&quot;) the parameters in the NegotiationParametersForm
+ * will be overwritten with a copy of the admin's defaults for the current parameters.  The defaults will also be re-copied into the database overwriting the current
+ * game parameters.
+ *
+ * @author Kevin Craig
+ *
+ *
+ */
+<span class="fc" id="L54">public class SetNegotiationParametersAction extends Action</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L62">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L65">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L71">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L73">			HttpSession session = request.getSession();</span>
+
+			//Retrieve the current game and admin from the session
+<span class="nc" id="L76">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+<span class="nc" id="L77">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+			//Get the game parameters from the action form
+<span class="nc" id="L80">			NegotiationParametersForm negotiationParametersForm = (NegotiationParametersForm) form;</span>
+
+            //Determine which submit button was pressed by the Administrator. If the SetParameters button is null the other RestoreDefaults button had to be pushed
+<span class="nc" id="L83">            String testSetParametersSubmitButton = (String) request.getParameter(&quot;submit&quot;);</span>
+
+			//Create a database facade that will hold the connection since it will be used repeatedly
+<span class="nc" id="L86">			BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+			//Hashtable used to transfer the parameters to the database facade
+<span class="nc" id="L89">			Hashtable parameters = null;</span>
+
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			if (testSetParametersSubmitButton != null)  //&quot;Set Parameters&quot; submit button was pushed.</span>
+			{
+				//Store the current parameters values from the form into the database
+				try
+				{
+<span class="nc" id="L97">					parameters = new Hashtable();</span>
+<span class="nc" id="L98">					parameters.put(&quot;MinWordOfMouthRate&quot;, new Integer(negotiationParametersForm.getMinWordOfMouthRate()));</span>
+<span class="nc" id="L99">					parameters.put(&quot;MaxWordOfMouthRate&quot;, new Integer(negotiationParametersForm.getMaxWordOfMouthRate()));</span>
+<span class="nc" id="L100">					parameters.put(&quot;MinWordOfMouthIntensity&quot;, new Integer(negotiationParametersForm.getMinWordOfMouthIntensity()));</span>
+<span class="nc" id="L101">					parameters.put(&quot;MaxWordOfMouthIntensity&quot;, new Integer(negotiationParametersForm.getMaxWordOfMouthIntensity()));</span>
+<span class="nc" id="L102">					parameters.put(&quot;PercentOfClosedBidsBecomingNegotiations&quot;, new Integer(negotiationParametersForm.getPercentOfClosedBidsBecomingNegotiations()));</span>
+<span class="nc" id="L103">					parameters.put(&quot;MeanPercentProfit&quot;, new Integer(negotiationParametersForm.getMeanPercentProfit()));</span>
+<span class="nc" id="L104">					parameters.put(&quot;StdDevPercentProfit&quot;, new Float(negotiationParametersForm.getStdDevPercentProfit()));</span>
+<span class="nc" id="L105">					parameters.put(&quot;MinPercentProfit&quot;, new Integer(negotiationParametersForm.getMinPercentProfit()));</span>
+<span class="nc" id="L106">					parameters.put(&quot;MaxPercentProfit&quot;, new Integer(negotiationParametersForm.getMaxPercentProfit()));</span>
+<span class="nc" id="L107">					parameters.put(&quot;LikelihoodCustomerBreaksNegotiations&quot;, new Integer(negotiationParametersForm.getLikelihoodCustomerBreaksNegotiations()));</span>
+<span class="nc" id="L108">					parameters.put(&quot;OverEstimationOfCostEffectingEthicsLimit&quot;, new Integer(negotiationParametersForm.getOverEstimationOfCostEffectingEthicsLimit()));</span>
+<span class="nc" id="L109">					parameters.put(&quot;MeanCustomerHaggling&quot;, new Integer(negotiationParametersForm.getMeanCustomerHaggling()));</span>
+<span class="nc" id="L110">					parameters.put(&quot;StdDevCustomerHaggling&quot;, new Float(negotiationParametersForm.getStdDevCustomerHaggling()));</span>
+<span class="nc" id="L111">					parameters.put(&quot;MinCustomerHaggling&quot;, new Integer(negotiationParametersForm.getMinCustomerHaggling()));</span>
+<span class="nc" id="L112">					parameters.put(&quot;MaxCustomerHaggling&quot;, new Integer(negotiationParametersForm.getMaxCustomerHaggling()));</span>
+
+<span class="nc" id="L114">					dbFacade.getGameParametersDBHandler().updateNegotiationParameters(game, parameters);</span>
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">					if(negotiationParametersForm.getMakeDefaults())</span>
+					{
+<span class="nc" id="L118">						dbFacade.getGameParametersDBHandler().updateDefaultNegotiationParameters(admin, parameters);</span>
+					}
+
+<span class="nc" id="L121">					dbFacade.close();</span>
+				}
+<span class="nc" id="L123">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					//Problem with the database
+<span class="nc" id="L126">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L127">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L129">				catch(ParametersNotFoundException pnfe)</span>
+				{
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L132">					log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L133">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L134">				}</span>
+			}
+			else //&quot;Restore defaults&quot; submit button was pushed
+			{
+				try
+				{
+
+					//Retrieve this admins default parameters from the database and re-store them for the current game
+<span class="nc" id="L142">					parameters = dbFacade.getGameParametersDBHandler().getDefaultNegotiationParameters(admin);</span>
+<span class="nc" id="L143">					dbFacade.getGameParametersDBHandler().updateNegotiationParameters(game, parameters);</span>
+<span class="nc" id="L144">					dbFacade.close();</span>
+
+					//The parameter vaules also need to be put in the Action Form so the user can see them
+<span class="nc" id="L147">					negotiationParametersForm.setMinWordOfMouthRate(((Integer) parameters.get(&quot;MinWordOfMouthRate&quot;)).intValue());</span>
+<span class="nc" id="L148">					negotiationParametersForm.setMaxWordOfMouthRate(((Integer) parameters.get(&quot;MaxWordOfMouthRate&quot;)).intValue());</span>
+<span class="nc" id="L149">					negotiationParametersForm.setMinWordOfMouthIntensity(((Integer) parameters.get(&quot;MinWordOfMouthIntensity&quot;)).intValue());</span>
+<span class="nc" id="L150">					negotiationParametersForm.setMaxWordOfMouthIntensity(((Integer) parameters.get(&quot;MaxWordOfMouthIntensity&quot;)).intValue());</span>
+<span class="nc" id="L151">					negotiationParametersForm.setPercentOfClosedBidsBecomingNegotiations(((Integer) parameters.get(&quot;PercentOfClosedBidsBecomingNegotiations&quot;)).intValue());</span>
+<span class="nc" id="L152">					negotiationParametersForm.setMeanPercentProfit(((Integer) parameters.get(&quot;MeanPercentProfit&quot;)).intValue());</span>
+<span class="nc" id="L153">					negotiationParametersForm.setStdDevPercentProfit(((Float) parameters.get(&quot;StdDevPercentProfit&quot;)).floatValue());</span>
+<span class="nc" id="L154">					negotiationParametersForm.setMinPercentProfit(((Integer) parameters.get(&quot;MinPercentProfit&quot;)).intValue());</span>
+<span class="nc" id="L155">					negotiationParametersForm.setMaxPercentProfit(((Integer) parameters.get(&quot;MaxPercentProfit&quot;)).intValue());</span>
+<span class="nc" id="L156">					negotiationParametersForm.setLikelihoodCustomerBreaksNegotiations(((Integer) parameters.get(&quot;LikelihoodCustomerBreaksNegotiations&quot;)).intValue());</span>
+<span class="nc" id="L157">					negotiationParametersForm.setOverEstimationOfCostEffectingEthicsLimit(((Integer) parameters.get(&quot;OverEstimationOfCostEffectingEthicsLimit&quot;)).intValue());</span>
+<span class="nc" id="L158">					negotiationParametersForm.setMeanCustomerHaggling(((Integer) parameters.get(&quot;MeanCustomerHaggling&quot;)).intValue());</span>
+<span class="nc" id="L159">					negotiationParametersForm.setStdDevCustomerHaggling(((Float) parameters.get(&quot;StdDevCustomerHaggling&quot;)).floatValue());</span>
+<span class="nc" id="L160">					negotiationParametersForm.setMinCustomerHaggling(((Integer) parameters.get(&quot;MinCustomerHaggling&quot;)).intValue());</span>
+<span class="nc" id="L161">					negotiationParametersForm.setMaxCustomerHaggling(((Integer) parameters.get(&quot;MaxCustomerHaggling&quot;)).intValue());</span>
+
+				}
+<span class="nc" id="L164">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					//Problem with the database
+<span class="nc" id="L167">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L168">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L170">				catch(ParametersNotFoundException pnfe)</span>
+				{
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L173">					log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L174">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L175">				}</span>
+
+			}
+
+<span class="nc bnc" id="L179" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L181" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L183">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L186">				saveErrors(request, errors);</span>
+<span class="nc" id="L187">	 	    	saveToken(request);</span>
+<span class="nc" id="L188">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+<span class="nc bnc" id="L190" title="All 2 branches missed.">			else if (testSetParametersSubmitButton != null)</span>
+			{
+<span class="nc bnc" id="L192" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L194">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;params_set\&quot;&quot;);</span>
+				}
+<span class="nc" id="L196">				return (mapping.findForward(&quot;params_set&quot;));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L200" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L202">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;defaults_restored\&quot;&quot;);</span>
+				}
+<span class="nc" id="L204">				return (mapping.findForward(&quot;defaults_restored&quot;));</span>
+			}
+
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="nc bnc" id="L210" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L212">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L214">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

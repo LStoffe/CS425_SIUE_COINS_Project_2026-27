@@ -1,0 +1,241 @@
+<!--
+  balance-sheet.html
+  This page is the user companys balance sheet and can show the companicies financial health.
+-->
+  
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Balance Sheet</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Consolidated Balance Sheet</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-6xl">
+
+      <!-- Period Selector -->
+      <div class="mb-6">
+        <p class="text-gray-700">
+          <span class="font-semibold">View Report for Period:</span> 
+          <a href="#" class="text-black hover:text-amber-600 hover:underline">Start</a>
+          <span class="ml-2">1</span>
+        </p>
+      </div>
+
+      <hr class="mb-8 border-gray-300">
+
+      <!-- Report Header -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2">J's Testing Company</h3>
+        <h4 class="text-xl font-semibold mb-2">CONSOLIDATED BALANCE SHEETS</h4>
+        <p class="text-sm text-gray-600">February 28, 1999 - End of Period 1</p>
+      </div>
+
+      <!-- Balance Sheet Two-Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+
+        <!-- ASSETS Column -->
+        <div>
+          <h5 class="font-bold text-center mb-6 text-lg">ASSETS</h5>
+
+          <!-- Current Assets -->
+          <div class="mb-6">
+            <h6 class="font-bold mb-3">Current Assets</h6>
+            
+            <div class="space-y-2 ml-4">
+              <div class="flex justify-between">
+                <span>Cash</span>
+                <span>$ 1,000,000</span>
+              </div>
+              
+              <div>
+                <p class="font-semibold mb-2">Accounts Receivable</p>
+                <div class="ml-4 space-y-1">
+                  <div class="flex justify-between text-sm">
+                    <span>Current</span>
+                    <span>0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span>Retention</span>
+                    <span>0</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span>Costs and estimated earnings in excess of billings</span>
+                <span>0</span>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span>Unbilled amounts on completed contracts</span>
+                <span>0</span>
+              </div>
+            </div>
+
+            <hr class="my-3 border-gray-400">
+
+            <div class="flex justify-between font-bold ml-4">
+              <span>Total Current Assets</span>
+              <span>1,000,000</span>
+            </div>
+          </div>
+
+          <!-- Property and Equipment -->
+          <div class="mb-6">
+            <h6 class="font-bold mb-3">Property and Equipment</h6>
+            
+            <div class="space-y-2 ml-4">
+              <div class="flex justify-between">
+                <span>Construction Equipment</span>
+                <span>4,000</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Trucks and Automobiles</span>
+                <span>15,000</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Office Equipment</span>
+                <span>6,000</span>
+              </div>
+            </div>
+
+            <hr class="my-3 border-gray-400">
+
+            <div class="flex justify-between ml-4">
+              <span></span>
+              <span>25,000</span>
+            </div>
+
+            <div class="flex justify-between ml-4 mt-3">
+              <span>Less Accumulated Depreciation</span>
+              <span>0</span>
+            </div>
+
+            <hr class="my-3 border-gray-400">
+
+            <div class="flex justify-between ml-4">
+              <span></span>
+              <span>25,000</span>
+            </div>
+
+            <div class="flex justify-between ml-4 mt-3">
+              <span>Land</span>
+              <span>97,000</span>
+            </div>
+
+            <hr class="my-3 border-gray-400">
+
+            <div class="flex justify-between ml-4">
+              <span></span>
+              <span>122,000</span>
+            </div>
+          </div>
+
+          <!-- Total Assets -->
+          <div class="mt-6">
+            <div class="flex justify-between font-bold text-lg">
+              <span>TOTAL ASSETS</span>
+              <span>$1,122,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIABILITIES AND EQUITY Column -->
+        <div>
+          <h5 class="font-bold text-center mb-6 text-lg">LIABILITIES and EQUITY</h5>
+
+          <!-- Current Liabilities -->
+          <div class="mb-6">
+            <h6 class="font-bold mb-3">Current Liabilities</h6>
+            
+            <div class="space-y-2 ml-4">
+              <div>
+                <p class="font-semibold mb-2">Accounts Payable</p>
+                <div class="ml-4 space-y-1">
+                  <div class="flex justify-between text-sm">
+                    <span>Current</span>
+                    <span>$ 0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span>Retention</span>
+                    <span>0</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span>Billings in excess of costs and estimated earnings</span>
+                <span>0</span>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span>Income Taxes</span>
+                <span>0</span>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span>Loan Balances</span>
+                <span>0</span>
+              </div>
+            </div>
+
+            <hr class="my-3 border-gray-400">
+
+            <div class="flex justify-between font-bold ml-4">
+              <span>Total Current Liabilities</span>
+              <span>0</span>
+            </div>
+          </div>
+
+          <!-- Equity -->
+          <div class="mb-6 mt-12">
+            <h6 class="font-bold mb-3">Equity</h6>
+            
+            <div class="flex justify-between ml-4">
+              <span>Retained Earnings</span>
+              <span>1,122,000</span>
+            </div>
+          </div>
+
+          <!-- Total Liabilities and Equity -->
+          <div class="mt-12">
+            <div class="flex justify-between font-bold text-lg">
+              <span>TOTAL LIABILITIES AND EQUITY</span>
+              <span>$1,122,000</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/financial-reports-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Financial Reports
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

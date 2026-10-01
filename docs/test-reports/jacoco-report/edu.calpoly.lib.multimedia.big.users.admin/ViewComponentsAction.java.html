@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewComponentsAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin</a> &gt; <span class="el_source">ViewComponentsAction.java</span></div><h1>ViewComponentsAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * @author Kevin Craig
+ */
+<span class="fc" id="L42">public class ViewComponentsAction extends Action</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L50">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L53">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L59">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L61">			boolean estimatingOn = false;</span>
+<span class="fc" id="L62">			boolean set = false;</span>
+
+<span class="fc" id="L64">			String setEstimating = request.getParameter(&quot;setEstimating&quot;);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">			if(setEstimating != null)</span>
+			{
+				//System.out.println(&quot;Set estimating not null&quot;);
+<span class="nc" id="L68">				set = true;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">				if(setEstimating.equals(&quot;true&quot;))</span>
+				{
+				    //System.out.println(&quot;Setting estimating to true&quot;);
+<span class="nc" id="L72">					estimatingOn = true;</span>
+				}
+			}
+
+<span class="fc" id="L76">			boolean autoBillingOn = false;</span>
+<span class="fc" id="L77">			boolean set1 = false;</span>
+
+<span class="fc" id="L79">			String setAutoBilling = request.getParameter(&quot;setAutoBilling&quot;);</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">			if(setAutoBilling != null)</span>
+			{
+				//System.out.println(&quot;Set autobilling not null&quot;);
+<span class="nc" id="L83">				set1 = true;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">				if(setAutoBilling.equals(&quot;true&quot;))</span>
+				{
+				    //System.out.println(&quot;Setting autobilling to true&quot;);
+<span class="nc" id="L87">					autoBillingOn = true;</span>
+				}
+			}
+
+<span class="fc" id="L91">			HttpSession session = request.getSession();</span>
+<span class="nc" id="L92">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc" id="L93">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+			//Create a new BIGDatabaseFacadeInterface which will hold connections
+<span class="nc" id="L96">			BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+			try
+			{
+<span class="nc bnc" id="L100" title="All 2 branches missed.">				if(!set)</span>
+				{
+<span class="nc" id="L102">				    estimatingOn  = dbFacade.getComponentsDBHandler().isEstimatingComponentOn(game);</span>
+				}
+				else
+				{
+<span class="nc" id="L106">					dbFacade.getComponentsDBHandler().setEstimatingComponentOn( game, estimatingOn);</span>
+				}
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">				if(!set1)</span>
+				{
+<span class="nc" id="L111">				    autoBillingOn = dbFacade.getComponentsDBHandler().isAutoBillingComponentOn(game);</span>
+				}
+				else
+				{
+<span class="nc" id="L115">					dbFacade.getComponentsDBHandler().setAutoBillingComponentOn(game, autoBillingOn);</span>
+				}
+
+<span class="nc" id="L118">				dbFacade.close();</span>
+
+			}
+<span class="nc" id="L121">			catch (BIGDatabaseFacadeException bigdbe)</span>
+			{
+				//Some problem with the database
+<span class="nc" id="L124">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L125">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L126">			}</span>
+
+<span class="nc" id="L128">			game.setEstimatingComponentOn(estimatingOn);</span>
+<span class="nc" id="L129">			game.setAutoBillingComponentOn(autoBillingOn);</span>
+
+<span class="nc bnc" id="L131" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L133" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L135">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L138">				saveErrors(request, errors);</span>
+<span class="nc" id="L139">	 	    	saveToken(request);</span>
+<span class="nc" id="L140">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L144" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L146">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L148">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="nc bnc" id="L153" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L155">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L157">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

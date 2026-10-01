@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmployeeSkillPointConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.personnel</a> &gt; <span class="el_source">EmployeeSkillPointConverter.java</span></div><h1>EmployeeSkillPointConverter.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.personnel;
+
+//JDK imports
+import java.util.List;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Class that does the actual work of determining how each employee types'
+ * base points are converted into Main Office Skill points.
+ * &lt;br&gt;&lt;br&gt;
+ * In the real world a construction company having jobs and staying in business
+ * would cause overhead work to at the main office.  The company must hire employees
+ * to do this work.  Additionally the work at a main office may require many different
+ * skills: finance, marketing, leadership.  Not every employee is capable of
+ * doing everyone else's job (however there is some overlap).
+ * &lt;br&gt;&lt;br&gt;
+ * BIG models main office work in terms units called of points.  Each point is
+ * associated with a certain skill that is required in the main office, giving
+ * them the name Main Office Skill Points (MOSPs).  In the real world, the amount
+ * of skills a company requires in different business areas probably depends
+ * on their business plan and the goals of the company.  In BIG the number of MOSP
+ * a company require for each different skill depends on the number, size, and type
+ * of company's current jobs.  This is far easier to model at this stage in BIG.
+ * &lt;br&gt;&lt;br&gt;
+ * In BIG jobs create the need for MOSPs.  Each MOSP can be though of as some amount of
+ * work, requiring some skill, that must be completed for the company to function.
+ * In BIG penalties are usually monetary, so each unfilled MOSP will cause the company to
+ * be charged some dollar amount (with the reason given this is the cost to hire a consultant or temp).
+ * To fill MOSPs without being charged a penalty companies can hire personnel.  Personnel are
+ * paid a salary but this should be significantly less than the penalty.  Each
+ * employee type comes with a set number of Base Points.  Base Points are useless
+ * by themselves, but they can be converted into useful MOSPs.  The amount
+ * of Base Point required to create a MOSP depends on the skill type of the MOSP
+ * and the conversion rate for the employee type for that skill.  Some employee types
+ * are far more efficient at turning Base Points into MOSPs for certain skills than other.
+ * Not all employee types can even turn Base Points into MOSPs for all skills.
+ * For many employees though there is overlap in the types of MOSP they can generate.
+ * The purpose of this algorithm is to generate MOSPs from Base Points efficiently.
+ * &lt;br&gt;&lt;br&gt;
+ * &lt;pre&gt;
+   Example:
+   Employee Type 1 has 10 Base Points and can turn 1 Base Point into 1 MOSP for Skill 1, or 2 Base Points into 1 MOSP for Skill 2.
+   Employee Type 2 has 5 Base Points and can turn 3 Base Points into 1 MOSP for Skill 1, or 1 Base Point into 1 MOSP for Skill 2.
+
+   Say 8 MOSP are required (based on the number of jobs) for Skill 1 and 6 are required for Skill 2.
+   To be efficient, Employee 1 should convert 8 Base Points into 8 MOSP for Skill 1 and 2 Base Points into 1 MOSP for Skill 2
+   and Employee 2 should turn all 5 Base Points into MOSP for Skill 2.
+   &lt;/pre&gt;
+ *
+ */
+public class EmployeeSkillPointConverter
+{
+	private Log log;
+
+	//This DEFINETLY needs to be brought out into configuration.  This is the number
+	//of MOSPs generated at a time.  Currently Base points are stored as ints
+	//but ratios are stored as floats.  This means signficant base points may
+	//be lost to rounding.  The best solution is to convert base point storage to
+	//float but for now we can increase the number of MOSPs generated at a time.
+<span class="fc" id="L63">	private int MOSP_GEN_SIZE = 2;</span>
+
+<span class="fc" id="L65">	private float floatEqualRange = .02f; //Two float are considered equal if they are less than this close together.</span>
+										 //It's a wide range because small differents in float values are not very significant for this usage.
+
+<span class="fc" id="L68">	private float efficiencyCutoff = 0.2f;</span>
+
+	public EmployeeSkillPointConverter()
+<span class="fc" id="L71">	{</span>
+<span class="fc" id="L72">		this.log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L73">	}</span>
+
+
+	/**
+	 * &lt;code&gt;convert&lt;/code&gt; is the implementation
+	 * for the employee base point to mos point generation algorithm.
+	 * @param employeeSkillConversionRatioLookup Must contain all needed conversion ratios for employee types.
+	 * @param scratchSheet Must already be loaded with available employee types and base points.
+	 * When this method returns the scratchSheet will be used up.
+	 * @param jobMosManager Generated MOSPs will be given to the JobMosManager
+	 * and which should update its counters accordingly.  When this method returns
+	 * the JobMosManager will contain the work done in the form that its MOSP counters should
+	 * be lowered or zeroed out.
+	 *
+	 */
+	public void convert(EmployeeSkillConversionRatioLookup employeeSkillConversionRatioLookup,
+					    EmployeeBasePointsScratchSheet scratchSheet,
+					    JobMosManager jobMosManager
+					   )
+	{
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L95">			log.debug(this.getClass() + &quot; starting convert method&quot;);</span>
+			// log.debug(this.getClass() + &quot; employee base points will be used to generate needed MOS points&quot;);
+	 	}
+
+		//Loop while we still have base points and still need mos points.
+<span class="fc bfc" id="L100" title="All 4 branches covered.">		while(scratchSheet.employeesLeftWithBasePoints() &amp;&amp; jobMosManager.stillMOSPRequired())</span>
+		{
+			//Pick the next most damaging skill
+<span class="fc" id="L103">			String skill = jobMosManager.getMostDamagingMOS();</span>
+
+			//Get the employees that still have base points
+<span class="fc" id="L106">			List&lt;String&gt; employees = scratchSheet.getEmployeeTypesWithPoints();</span>
+
+			//Pick the employee to generate the next points
+<span class="fc" id="L109">			String employee = pickBestEmployeeForSkill(skill, employees, employeeSkillConversionRatioLookup);</span>
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">			if(employee == null) //no one can complete skill</span>
+			{
+<span class="fc" id="L113">				jobMosManager.failMosp(skill);</span>
+			}
+			else
+			{
+
+				//Subtract the points from the job skill and (after conversion using the ratio) the employee's base points
+<span class="fc" id="L119">				jobMosManager.reduceRequiredMOSP(skill, MOSP_GEN_SIZE);</span>
+
+<span class="fc" id="L121">				float mospPoints = (float) MOSP_GEN_SIZE;</span>
+<span class="fc" id="L122">				int basePoints = Math.round(mospPoints / employeeSkillConversionRatioLookup.getConversionRatio(employee, skill));</span>
+
+/*				if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot;: reducing Job Required &quot; + skill + &quot; points by &quot; + MOSP_GEN_SIZE + &quot; and &quot; + employee + &quot; base points by &quot; + basePoints);
+				} */
+
+<span class="fc" id="L129">				scratchSheet.reduceBasePoints(employee, basePoints);</span>
+			}
+
+<span class="fc" id="L132">		}</span>
+
+<span class="pc bpc" id="L134" title="1 of 2 branches missed."> 		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L136">			log.debug(this.getClass() + &quot; ending convert method&quot;);</span>
+ 		}
+
+<span class="fc" id="L139">	}</span>
+
+	//Picks the employee type with the best ratio for the skill.
+	//In the event there are multiple employee types with the same ratio,
+	//picks the employee type with the lowest generalization value.
+	private String pickBestEmployeeForSkill(String skill, List&lt;String&gt; employees, EmployeeSkillConversionRatioLookup lookup)
+	{
+<span class="fc" id="L146">		String bestEmployee = null;</span>
+
+<span class="fc" id="L148">		float bestRatio = 0.0f;</span>
+
+<span class="fc bfc" id="L150" title="All 2 branches covered.">		for(String employee : employees)</span>
+		{
+<span class="fc" id="L152">			float ratio = lookup.getConversionRatio(employee, skill);</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">			if(ratio &gt; efficiencyCutoff)</span>
+			{
+<span class="fc bfc" id="L155" title="All 2 branches covered.">				if(equalFloats(ratio, bestRatio, floatEqualRange))</span>
+				{
+<span class="fc" id="L157">					float gen1 = lookup.getEmployeeSkillGeneralization(employee);</span>
+<span class="fc" id="L158">					float gen2 = lookup.getEmployeeSkillGeneralization(bestEmployee);</span>
+
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">					if(gen1 &lt; gen2)</span>
+					{
+<span class="nc" id="L162">						bestRatio = ratio;</span>
+<span class="nc" id="L163">						bestEmployee = employee;</span>
+					}
+<span class="fc" id="L165">				}</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">				else if(ratio &gt; bestRatio)</span>
+				{
+<span class="fc" id="L168">					bestRatio = ratio;</span>
+<span class="fc" id="L169">					bestEmployee = employee;</span>
+				}
+			}
+<span class="fc" id="L172">		}</span>
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(this.getClass() + &quot; picked &quot; + bestEmployee + &quot; as best employee for skill&quot;);
+		} */
+
+<span class="fc" id="L179">		return bestEmployee;</span>
+	}
+
+	private boolean equalFloats(float float1, float float2, float distance)
+	{
+<span class="fc bfc" id="L184" title="All 2 branches covered.">		if ( Math.abs(float1 - float2) &lt; distance )</span>
+<span class="fc" id="L185">			return true;</span>
+<span class="fc" id="L186">		return false;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

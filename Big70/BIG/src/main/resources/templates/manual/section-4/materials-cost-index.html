@@ -1,0 +1,79 @@
+<!--
+  materials-cost-index.html
+  Section 4.2 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 4">
+    <title>4.2 Materials Cost Index</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            4.2 Materials Cost Index
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The price of materials fluctuates each period due to inflation, supply & demand, and other factors. 
+            The amounts listed for materials cost on the Productivity Report and Estimated Time and Cost Reports does not take these price fluctations into account. 
+            If you would like to be able to plan more accurately for materials costs each period you may purchase the Materials Cost Index report. 
+            In this report a consultant analyzes all factors affecting the materials market and condenses them into a single figure called the Materials Cost Index. 
+            If the index is 100 then there is no change to the price of materials as listed in the estimates. 
+            If the index is greater than or less than 100 the price of materials will be affected by a percentage equal to the amount the Materials Cost Index differs from 100.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            For example, if the material cost index for a period is 105, the actual cost will be 5% higher than the estimate. If the value is 97, the actual cost will be 3% lower than the estimate.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To view materials cost index, select "Materials Cost Index Report". If you do not want to view the report you may select the back button. You must agree to pay the price by selecting 'Yes' before you may view the report.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Tip:</strong> Even knowing the Materials Cost Index you still cannot predict materials cost precisely because there is a small amount of uncertainty to the figures listed on the Productivity Report and the Estimated Time and Cost Report.
+             The bounds on this uncertainty are listed in the Productivity Report.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/labor-availability-index}" class="font-semibold hover:underline">
+        ← 4.1 Labor Availability Index
+    </a>
+    <a th:href="@{/manual/weather-forecast}" class="font-semibold hover:underline">
+        Next → 4.3 Weather Forecast
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

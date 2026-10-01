@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NetworkDependencies.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">NetworkDependencies.java</span></div><h1>NetworkDependencies.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.game;
+
+import java.util.Vector;
+import edu.calpoly.its.mas.big.game.Activity;
+
+/**
+ * Determines whether or not an activity is active (whether or not work can be performed on an activity)
+ * based on the activity's network dependencies. The network dependencies for a particular job type
+ * are set by the game's admin before the game begins.  Network dependencies for each activity consist of
+ * a &quot;start-to-start&quot; (STS) activity and percent, and a &quot;finish-to-finish&quot; (FTF) activity and percent.
+ *
+ * An activity may or may not have a STS dependency.  If the activity does not have an STS dependency,
+ * then work may begin on the activity immediately.  If the activity does have an STS dependency, then work
+ * may not begin on that activity until the activity on which it depends is X% complete. For example, an
+ * activity's STS activity=1, and STS percent=70.  This means that work may not begin on the activity until
+ * activity #1 has reached 70% completion.
+ *
+ * Each activity may or may not have a &quot;finish-to-finish&quot; (FTF) dependency.  If the activity does not have a
+ * FTF dependency, then work will continue on the activity non-stop until the activity is 100% complete.  If
+ * the activity does have an FTF dependency, then once the activity has reached Y% completion, work on the activity
+ * must be pause until the activity upon which it depends is 100% complete.  For example: an activity's
+ * FTF activity=3 and its FTF percent=40.  This means that once this activity has reached 40% completion,
+ * this activity must wait until activity #3 is 100% complete before any more work may be done on this activity.
+ *
+ * Note that NetworkDependencies.update(activities) method should be called at the beginning of the day before any
+ * work is done on any of the activities. After the update method has updated the status of each of the activities,
+ * work for each activity may then be calculated for the current day.
+ *
+ * @author Dara Manker
+ *
+ * @version $Revision: 1.6 $ $Date: 2002/04/12 19:06:03 $
+ */
+<span class="fc" id="L33"> public class NetworkDependencies</span>
+ {
+
+  /**
+   * Determines whether or not each activity should be set active (meaning that work may
+   * be done on this activity) or inactive (work may not be done on this activity) based on
+   * the amount of work that has already been performed on the activities, and the activity's
+   * start-to-start and finish-to-finish dependencies.
+   * @param activities A javax.util.Vector containing the current job's activities.
+   */
+  public void update(Vector activities)
+  {
+     // For each activity
+<span class="fc bfc" id="L46" title="All 2 branches covered.">     for(int i=0; i&lt;9; i++)</span>
+     {
+
+	    // Get the current activity
+<span class="fc" id="L50">	    Activity activity = (Activity) activities.get(i);</span>
+
+        // If an activity does not exist for this job, the lusTotal will be zero.  For example, &quot;Industrial Plant&quot; jobs have
+        // no &quot;Basement&quot; activity. Thus, the lusTotal for the &quot;Basement&quot; activity will be zero.
+        // If the activity does not exist, make sure it is inactive, and skip further processing of it.
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if(activity.getLusTotal() == 0)</span>
+        {
+<span class="fc" id="L57">			activity.setIsActive(false);</span>
+		}
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        else if(activity.getLusTotal() != 0)</span>
+        {
+           // Calculate the Percent Completion of this activity
+<span class="fc" id="L62">	       float currentActivityPercentComplete = (activity.getLusCompleted() * 100 / activity.getLusTotal()) ;</span>
+
+           // If Activity is completed, mark it as inactive and skip further processing of it
+<span class="fc bfc" id="L65" title="All 2 branches covered.">           if(currentActivityPercentComplete &gt;= 100)</span>
+           {
+<span class="fc" id="L67">			   activity.setIsActive(false);</span>
+		   }
+           // If Activity is not complete, determine whether or not it should be active based on its STS and FTF dependencies
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">	       else if(currentActivityPercentComplete &lt; 100)</span>
+	       {
+              // Perform STS logic only if activity has not yet started
+<span class="fc bfc" id="L73" title="All 2 branches covered.">		      if(currentActivityPercentComplete == 0)</span>
+	          {
+				  // If activity has no STS dependency, set it active
+<span class="fc bfc" id="L76" title="All 2 branches covered.">				  if(activity.getStartToStartActivity() == 0)</span>
+				  {
+<span class="fc" id="L78">					  activity.setIsActive(true);</span>
+				  }
+				  else
+				  {
+					 // Set activity inactive just in case it was inadvertently created as active.
+					 // (All activities except for the first activity should be created as inactive.)
+					 // Then determine whether or not the activity should be made active by checking its STS dependency.
+<span class="fc" id="L85">					 activity.setIsActive(false);</span>
+<span class="fc" id="L86">                     startToStartDependency(activities, i);</span>
+				  }
+		      }
+
+              // Perform FTF logic only if activity has an FTF dependency
+<span class="fc bfc" id="L91" title="All 2 branches covered.">              if(activity.getFinishToFinishActivity() != 0)</span>
+              {
+<span class="fc" id="L93">		         finishToFinishDependency(activities, i);</span>
+		      }
+	       }
+	    }
+     }
+<span class="fc" id="L98">  }</span>
+
+
+   /**
+    * Determines whether or not the current activity should be started. Note that the current activity's
+    * &quot;active&quot; status is based on the status of its dependent activity at the beginning of the current day.
+    * If at the beginning of the current day the dependent activity has progressed to or beyond the current
+    * activity's startToStartPercent, the current activity will be set active. However, if the dependent activity
+    * reaches the startToStartPercent because of the work performed on it this day, the current activity must wait
+    * until the following day before it will be marked as &quot;active.&quot;
+    * @param activities A javax.util.Vector containing the current job's activities.
+    * @param i An index into the &quot;activities&quot; Vector which specifieds the current activity. Note that this will be one less than the actual activity number.
+    */
+    private void startToStartDependency(Vector activities, int i)
+    {
+	    // Get the current activity
+<span class="fc" id="L114">	    Activity activity = (Activity) activities.get(i);</span>
+
+	    // Get the STS dependent Activity number and percent
+<span class="fc" id="L117">		int stsDependentActivityNumber = activity.getStartToStartActivity();</span>
+<span class="fc" id="L118">        int stsDependentActivityPercent = activity.getStartToStartPercent();</span>
+
+		// Get the STS dependent Activity itself - subtract 1 for the vector numbering system
+<span class="fc" id="L121">		Activity dependentActivity = (Activity) activities.get(stsDependentActivityNumber - 1);</span>
+
+        // If the administrator mistakenly sets a STS dependency on a non-existant activity, allow this to happen.
+        // This activity will always be set active.
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if(dependentActivity.getLusTotal() == 0)</span>
+        {
+<span class="fc" id="L127">			activity.setIsActive(true);</span>
+		}
+        else
+        {
+
+           // Determine the Percent Completion of the dependent Activity
+           // MGet the amount done before this day's work was calculated in. The current activity must be set active or inactive
+           // based on the amount of work done at the start of the day.
+<span class="fc" id="L135">		   float stsDependentActivityActualPercentComplete = (dependentActivity.getLusCompleted() * 100)/ dependentActivity.getLusTotal() ;</span>
+
+           // Determine whether or not this activity can be started yet
+<span class="fc bfc" id="L138" title="All 2 branches covered.">           if(stsDependentActivityActualPercentComplete &gt;= stsDependentActivityPercent)</span>
+           {
+<span class="fc" id="L140">              activity.setIsActive(true);</span>
+		   }
+	    }
+<span class="fc" id="L143">    }</span>
+
+    /**
+    * Determines whether or not the current activity should be stopped or restarted. Note that the current activity's
+    * &quot;active&quot; status is based on the status of its dependent activity at the beginning of the current day. If the
+    * current activity has progressed to finishToFinishPercent completion, the current activity will be set to inactive
+    * until the dependent activity is 100% complete. When the dependent activity has reached 100% completion, the
+    * current activity will again be set to active so that it work may resume on it on the next work day.
+    * @param activities A javax.util.Vector containing the current job's activities.
+    * @param i An index into the &quot;activities&quot; Vector which specifieds the current activity. Note that this will be one less than the actual activity number.
+    */
+    private void finishToFinishDependency(Vector activities, int i)
+    {
+	   // Get the current activity
+<span class="fc" id="L157">	    Activity activity = (Activity) activities.get(i);</span>
+
+       // Get the FTF dependent Activity number and percent
+<span class="fc" id="L160">       int ftfDependentActivityNumber = activity.getFinishToFinishActivity();</span>
+<span class="fc" id="L161">       int ftfPercent = activity.getFinishToFinishPercent();</span>
+
+       // Get the FTF dependent Activity itself- subtract 1 for the vector numbering system
+<span class="fc" id="L164">       Activity dependentActivity = (Activity) activities.get(ftfDependentActivityNumber - 1);</span>
+
+       // If the administrator mistakenly sets a FTF dependency on a non-existant activity, allow this to happen.
+       // This activity will always be set active.
+<span class="fc bfc" id="L168" title="All 2 branches covered.">       if(dependentActivity.getLusTotal() == 0)</span>
+       {
+<span class="fc" id="L170">		   activity.setIsActive(true);</span>
+	   }
+       else
+       {
+          // Calculate the percent completion of the dependent activity
+          // The percent completion of the dependent activity is based on the amount of work done at the start of the day.
+          // Once work is 100% complete on the dependent activity, the current activity will be marked as active so that work
+          // may resume on the following work day.
+<span class="fc" id="L178">          float ftfDependentActivityActualPercentComplete = (dependentActivity.getLusCompleted()  * 100) / dependentActivity.getLusTotal();</span>
+
+          // Temporarily stop the current activity if it has reached its finish-to-finish maximum and must wait for the dependent activity to complete
+<span class="fc" id="L181">          float currentActivityPercentComplete = (activity.getLusCompleted() * 100 / activity.getLusTotal()) ;</span>
+<span class="fc bfc" id="L182" title="All 6 branches covered.">          if((currentActivityPercentComplete &gt;= (ftfPercent)) &amp; (ftfDependentActivityActualPercentComplete &lt; 100) &amp; (activity.getIsActive()))</span>
+          {
+<span class="fc" id="L184">             activity.setIsActive(false);</span>
+          }
+
+         // Restart the current activity if the dependent activity is 100% complete and the current activity is not already active
+<span class="fc bfc" id="L188" title="All 4 branches covered.">          if( (ftfDependentActivityActualPercentComplete &gt;= 100) &amp;&amp; (!activity.getIsActive()))</span>
+          {
+<span class="fc" id="L190">             activity.setIsActive(true);</span>
+	      }
+       }
+
+<span class="fc" id="L194">   }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="Bid">
+
+  <select id="getTotalCompanyBids" resultClass="int" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT count(jobid)
+    FROM bid
+    WHERE companyid=#value#
+    
+    ]]>		               
+  </select>
+  
+  <select id="getTotalDismissedCompanyBids" resultClass="int" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT count(jobid)
+    FROM bid
+    WHERE companyid=#value#
+    AND (outcome_code = 2 OR outcome_code = 3 OR outcome_code = 4 OR outcome_code = 6)
+    
+    ]]>		               
+  </select>  
+
+</sqlMap>

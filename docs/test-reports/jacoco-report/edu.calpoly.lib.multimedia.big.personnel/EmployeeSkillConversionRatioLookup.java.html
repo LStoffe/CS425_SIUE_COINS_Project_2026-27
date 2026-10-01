@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmployeeSkillConversionRatioLookup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.personnel</a> &gt; <span class="el_source">EmployeeSkillConversionRatioLookup.java</span></div><h1>EmployeeSkillConversionRatioLookup.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.personnel;
+
+//JDK imports
+import java.util.Map;
+import java.util.HashMap;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Class for easy lookup of employee mosp conversion ratios.
+ */
+public class EmployeeSkillConversionRatioLookup
+{
+	//Keys in first map are employee types, in second map are
+	//skill codes.
+	private Map&lt;String, Map&lt;String, Float&gt;&gt; lookupTable;
+
+	private Log log;
+
+	public EmployeeSkillConversionRatioLookup()
+<span class="fc" id="L23">	{</span>
+<span class="fc" id="L24">		this.log = LogFactory.getLog(this.getClass());</span>
+
+<span class="fc" id="L26">		lookupTable = new HashMap&lt;String, Map&lt;String,Float&gt;&gt;();</span>
+<span class="fc" id="L27">	}</span>
+
+	/**
+	 * Returns the base point to mosp ratio (base points * ratio = mosp)
+	 * for an employee type and skill.
+	 * @param employeeType The employee type for which to return the ratio
+	 * @param skillCode The skill for which to return the ratio
+	 * @return The requested ratio or 0.0f if no such employee type
+	 * or skill code exist in the lookup table.
+	 */
+	public float getConversionRatio(String employeeType, String skillCode)
+	{
+<span class="fc" id="L39">		Map employeeMap = lookupTable.get(employeeType);</span>
+
+<span class="fc bfc" id="L41" title="All 2 branches covered.">		if(employeeMap == null)</span>
+		{
+<span class="fc" id="L43">			return 0.0f;</span>
+		}
+		else
+		{
+<span class="fc" id="L47">			Float ratio = (Float) employeeMap.get(skillCode);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">			if(ratio != null)</span>
+			{
+<span class="fc" id="L50">				return ratio.floatValue();</span>
+			}
+			else
+			{
+<span class="fc" id="L54">				return 0.0f;</span>
+			}
+		}
+	}
+
+	/**
+	 * Loads the lookup table.  In order for a conversion ratio
+	 * to be returned by &lt;code&gt;getConversionRatio&lt;/code&gt;, it must
+	 * first have been set through this method.
+	 *
+	 */
+	public void addConversionRatio(String employeeType, String skillCode, float ratio)
+	{
+<span class="fc" id="L67">		Map&lt;String, Float&gt; employeeMap = lookupTable.get(employeeType);</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">		if(employeeMap == null)</span>
+		{
+<span class="fc" id="L71">			employeeMap = new HashMap&lt;String, Float&gt;();</span>
+<span class="fc" id="L72">			lookupTable.put(employeeType, employeeMap);</span>
+		}
+
+<span class="fc" id="L75">		employeeMap.put(skillCode, new Float(ratio));</span>
+<span class="fc" id="L76">	}</span>
+
+
+	/**
+	 * The generalization value for an employee type is the sum of their
+	 * ratios for all skills.  A higher sum means that employee type
+	 * is more efficient at converting base points to MOSP for more skills.
+	 */
+	public float getEmployeeSkillGeneralization(String employeeType)
+	{
+<span class="fc" id="L86">		float generalization = 0.0f;</span>
+<span class="fc" id="L87">		Map&lt;String, Float&gt; employeeMap = lookupTable.get(employeeType);</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		if(employeeMap != null)</span>
+		{
+<span class="fc bfc" id="L91" title="All 2 branches covered.">			for(String skill : employeeMap.keySet())</span>
+			{
+<span class="fc" id="L93">				Float ratio = (Float) employeeMap.get(skill);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">				if(ratio != null)</span>
+				{
+<span class="fc" id="L96">					generalization += ratio;</span>
+				}
+<span class="fc" id="L98">			}</span>
+		}
+
+<span class="fc" id="L101">		return generalization;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

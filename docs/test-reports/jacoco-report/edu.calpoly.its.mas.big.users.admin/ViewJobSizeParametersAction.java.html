@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewJobSizeParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">ViewJobSizeParametersAction.java</span></div><h1>ViewJobSizeParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Handles use case of viewing the job size game parameters.
+ * Uses information contained in the session to determine the current administrator
+ * and game.  Retrieves from the database the job size game parameters that go
+ * with this admin and game and places them in a &lt;code&gt;JobSizeParametersForm&lt;/code&gt; in the session
+ * under the name &quot;jobSizeParams&quot;.  The game parameters in this form can be displayed to the user
+ * using jsp.
+ *
+ * @author Dara Manker
+ *
+ * @version $Revision: 1.5 $ $Date: 2002/03/14 18:53:06 $
+ *
+ */
+<span class="fc" id="L50">public class ViewJobSizeParametersAction extends BIGAction</span>
+{
+    int gametype;
+
+	public ActionForward execute(ActionMapping mapping,
+							     ActionForm form,
+							     HttpServletRequest request,
+						         HttpServletResponse response)
+	{
+<span class="fc" id="L59">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L62">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L68">			Hashtable jobSizeParamsHashtable = null;</span>
+<span class="fc" id="L69">            BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+<span class="fc" id="L70">			ActionMessages errors = new ActionMessages();</span>
+<span class="fc" id="L71">			JobSizeParametersForm jobSizeParams = new JobSizeParametersForm();</span>
+
+<span class="fc" id="L73">			HttpSession session = request.getSession();</span>
+
+<span class="fc" id="L75">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+<span class="fc" id="L76">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+			// Pull the game type number off the query string
+<span class="fc" id="L79">			gametype = (new Integer((String) request.getParameter(&quot;gametype&quot;))).intValue();</span>
+
+            try
+            {
+                //jobSizeParamsHashtable will have ten rows
+<span class="fc" id="L84">			    jobSizeParamsHashtable = dbFacade.getGameParametersDBHandler().getAllJobSizeParameters(game, admin, false);</span>
+
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                if (gametype == 2)  // Heavy Construction - remove rows 1-5 -&gt; copy 6-10 back in as 1-5</span>
+                {
+<span class="nc" id="L88">					int j=51;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">					for(int i=0;i&lt;5;i++) {</span>
+<span class="nc" id="L90">                       jobSizeParamsHashtable.remove(&quot;Median&quot; + i+1);</span>
+<span class="nc" id="L91">                       jobSizeParamsHashtable.put(&quot;Median&quot; + i+1, (Integer) jobSizeParamsHashtable.get(&quot;Median&quot; + j) );</span>
+
+<span class="nc" id="L93">                       jobSizeParamsHashtable.remove(&quot;StdDev&quot; + i+1);</span>
+<span class="nc" id="L94">                       jobSizeParamsHashtable.put(&quot;StdDev&quot; + i+1, (Integer) jobSizeParamsHashtable.get(&quot;StdDev&quot; + j) );</span>
+
+<span class="nc" id="L96">                       jobSizeParamsHashtable.remove(&quot;Min&quot; + i+1);</span>
+<span class="nc" id="L97">                       jobSizeParamsHashtable.put(&quot;Min&quot; + i+1,    (Integer) jobSizeParamsHashtable.get(&quot;Min&quot;    + j) );</span>
+
+<span class="nc" id="L99">                       jobSizeParamsHashtable.remove(&quot;Max&quot; + i+1);</span>
+<span class="nc" id="L100">                       jobSizeParamsHashtable.put(&quot;Max&quot; + i+1,    (Integer) jobSizeParamsHashtable.get(&quot;Max&quot;    + j) );</span>
+
+<span class="nc" id="L102">                       jobSizeParamsHashtable.remove(&quot;JobType&quot; + i+1);</span>
+<span class="nc" id="L103">                       jobSizeParamsHashtable.put(&quot;JobType&quot; + i+1,    (Integer) jobSizeParamsHashtable.get(&quot;JobType&quot;    + j) );</span>
+
+<span class="nc" id="L105">                       j=j+10;</span>
+					}
+                    //remove rows 6-10)
+<span class="nc bnc" id="L108" title="All 2 branches missed.">					for(int i=5;i&lt;10;i++) {</span>
+<span class="nc" id="L109">                       jobSizeParamsHashtable.remove(&quot;Median&quot; + i+1);</span>
+<span class="nc" id="L110">                       jobSizeParamsHashtable.remove(&quot;StdDev&quot; + i+1);</span>
+<span class="nc" id="L111">                       jobSizeParamsHashtable.remove(&quot;Min&quot; + i+1);</span>
+<span class="nc" id="L112">                       jobSizeParamsHashtable.remove(&quot;Max&quot; + i+1);</span>
+<span class="nc" id="L113">                       jobSizeParamsHashtable.remove(&quot;JobType&quot; + i+1);</span>
+					}
+<span class="nc" id="L115">				}</span>
+				else  // Building Construction - remove rows 6-10
+				{
+<span class="fc bfc" id="L118" title="All 2 branches covered.">					for(int i=5;i&lt;10;i++) {</span>
+<span class="fc" id="L119">                       jobSizeParamsHashtable.remove(&quot;Median&quot; + i+1);</span>
+<span class="fc" id="L120">                       jobSizeParamsHashtable.remove(&quot;StdDev&quot; + i+1);</span>
+<span class="fc" id="L121">                       jobSizeParamsHashtable.remove(&quot;Min&quot; + i+1);</span>
+<span class="fc" id="L122">                       jobSizeParamsHashtable.remove(&quot;Max&quot; + i+1);</span>
+<span class="fc" id="L123">                       jobSizeParamsHashtable.remove(&quot;JobType&quot; + i+1);</span>
+					}
+				}
+				//now the hashtable has only five rows (numbered 1-5) which is all that is accepted by JobSizeParametersForm
+<span class="nc" id="L127">			    jobSizeParams.setAllParameters(jobSizeParamsHashtable);</span>
+<span class="nc" id="L128">			    dbFacade.close();</span>
+		    }
+<span class="nc" id="L130">		    catch(ParametersNotFoundException pnfe)</span>
+		    {
+			    //All games should have parameters.  If there are no parameters found for a game it is an error.
+<span class="nc" id="L133">				log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L134">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.notfound&quot;));</span>
+		    }
+<span class="nc" id="L136">		    catch(BIGDatabaseFacadeException bigdbe)</span>
+		    {
+				//Problem with the database
+<span class="nc" id="L139">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L140">			    errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L141">			}</span>
+
+<span class="nc" id="L143">			session.setAttribute(&quot;jobSizeParams&quot;, jobSizeParams);</span>
+<span class="nc" id="L144">			session.setAttribute(&quot;gametype&quot;, gametype);</span>
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L148" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L150">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L153">				saveErrors(request, errors);</span>
+<span class="nc" id="L154">	 	    	saveToken(request);</span>
+<span class="nc" id="L155">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L159" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L161">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L163">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L171">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L173">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+	    }
+
+   }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

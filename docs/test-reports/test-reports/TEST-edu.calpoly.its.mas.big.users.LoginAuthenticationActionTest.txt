@@ -1,0 +1,18 @@
+Testsuite: edu.calpoly.its.mas.big.users.LoginAuthenticationActionTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.77 sec
+------------- Standard Output ---------------
+23:50:11,587 INFO  log.BIGLogFactory - Bringing up BIG logging system...
+23:50:11,603 INFO  log.BIGLog - Company company1 logged in to game 5
+23:50:11,605 INFO  log.BIGLog - Company company1 logged in
+23:50:11,606 INFO  log.BIGLog - Company company1 logged in
+23:50:11,617 INFO  log.BIGLog - Admin admin1 logged in
+23:50:11,621 INFO  log.BIGLog - Login failure for username admin1
+23:50:11,660 INFO  log.BIGLog - Admin admin1 logged in
+23:50:11,663 INFO  log.BIGLog - Login failure for username unknown
+------------- ---------------- ---------------
+
+Testcase: testCompanyLoginSuccess took 0.715 sec
+Testcase: testAdminLoginSuccess took 0.003 sec
+Testcase: testLoginFailureWrongPassword took 0.039 sec
+Testcase: testUsernameConvertedToLowerCase took 0.002 sec
+Testcase: testLoginFailureUserNotFound took 0.002 sec

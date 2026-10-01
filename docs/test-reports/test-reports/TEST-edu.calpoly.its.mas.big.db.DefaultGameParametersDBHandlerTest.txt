@@ -1,0 +1,46 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandlerTest
+Tests run: 40, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.286 sec
+------------- Standard Output ---------------
+No params found
+------------- ---------------- ---------------
+
+Testcase: testGetDefaultComputerControlledContractorParametersReturnsHashtable took 0.139 sec
+Testcase: testGetDefaultPercentTakeoffParametersReturnsHashtable took 0.013 sec
+Testcase: testGetDefaultNegotiationParametersReturnsHashtable took 0.01 sec
+Testcase: testGetDefaultLiquidatedDamagesParametersReturnsHashtable took 0.009 sec
+Testcase: testUpdateDefaultLiquidatedDamagesParametersSucceeds took 0.016 sec
+Testcase: testGetDefaultConsultingCostsParametersReturnsHashtable took 0.009 sec
+Testcase: testGetDefaultNetworkDependencyParametersReturnsHashtable took 0.015 sec
+Testcase: testUpdateDefaultNetworkDependencyParametersSucceeds took 0.001 sec
+Testcase: testUpdateLiquidatedDamagesParametersWrapsSQLException took 0.008 sec
+Testcase: testGetDefaultMethodParametersReturnsHashtable took 0.007 sec
+Testcase: testGetConsultingCostsParametersReturnsHashtable took 0 sec
+Testcase: testGetLiquidatedDamagesParametersReturnsHashtable took 0.001 sec
+Testcase: testGetNegotiationParametersReturnsHashtable took 0 sec
+Testcase: testGetNetworkDependencyParametersThrowsWhenNoRows took 0.009 sec
+Testcase: testUpdateLiquidatedDamagesParametersSucceeds took 0 sec
+Testcase: testGetDefaultMiscParametersReturnsHashtable took 0.006 sec
+Testcase: testGetPercentTakeoffParametersReturnsHashtable took 0 sec
+Testcase: testGetMaterialCostIndexParametersReturnsHashtable took 0.008 sec
+Testcase: testUpdateConsultingCostsParametersSucceeds took 0.002 sec
+Testcase: testUpdateDefaultConsultingCostsParametersSucceeds took 0 sec
+Testcase: testGetMaterialCostIndexParametersThrowsWhenNoRows took 0 sec
+Testcase: testGetLaborAvailabilityParametersReturnsHashtable took 0.007 sec
+Testcase: testGetNegotiationParametersThrowsWhenNoRows took 0.001 sec
+Testcase: testUpdateNetworkDependencyParametersSucceeds took 0 sec
+Testcase: testGetLaborAvailabilityParametersThrowsWhenNoRows took 0 sec
+Testcase: testGetLiquidatedDamagesParametersThrowsWhenNoRows took 0 sec
+Testcase: testGetNetworkDependencyParametersReturnsHashtable took 0 sec
+Testcase: testGetMethodParametersReturnsHashtable took 0.001 sec
+Testcase: testUpdateMiscParametersSucceeds took 0 sec
+Testcase: testUpdateMethodParametersSucceeds took 0 sec
+Testcase: testGetComputerControlledContractorParametersThrowsWhenNoRows took 0 sec
+Testcase: testGetComputerControlledContractorParametersReturnsHashtable took 0 sec
+Testcase: testGetMethodParametersWrapsSQLExceptionAndClosesConnection took 0 sec
+Testcase: testGetMiscParametersThrowsWhenNoRows took 0.001 sec
+Testcase: testGetMethodParametersThrowsWhenNoRows took 0 sec
+Testcase: testGetJobSizeParametersThrowsWhenNoRows took 0.001 sec
+Testcase: testGetMiscParametersReturnsHashtable took 0 sec
+Testcase: testUpdateDefaultMethodParametersSucceeds took 0 sec
+Testcase: testGetJobSizeParametersReturnsHashtable took 0.006 sec
+Testcase: testUpdateNegotiationParametersSucceeds took 0 sec

@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Customer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">Customer.java</span></div><h1>Customer.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.game;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.ExpandedCompany;
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.users.company.BillingForm;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Hashtable;
+
+/**
+ * Represents a customer in BIG.  A customer is an entity that creates Job that companies
+ * must complete (actually this is done by the Job Factory but players will think of it as being done
+ * by customers).  The &lt;code&gt;Customer&lt;/code&gt; class in BIGv3 is responsible for
+ * accepting and rejecting billings.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class Customer
+{
+    private int maxOverbillingPercent;
+    private int overbillingPercentAffectingEthics;
+
+	private String name;
+	private int customerID;
+
+	private int financialLiquidityFactor;
+	private int financialLiquidityLevel;
+	private int financialSuccessFactor;
+	private int financialSuccessLevel;
+	private int responsibilityFactor;
+	private int responsibilityLevel;
+	private int paceFactor;
+	private int paceLevel;
+	private int ethicsFactor;
+	private int ethicsLevel;
+	private int nameRecognitionFactor;
+	private int nameRecognitionLevel;
+	private int jobTypeFactor;
+	private int jobTypeLevel;
+
+
+    public Customer(int customerID,
+    			    String name,
+    			    int financialLiquidityFactor,
+    			    int financialLiquidityLevel,
+    			    int financialSuccessFactor,
+    			    int financialSuccessLevel,
+    			    int responsibilityFactor,
+    			    int responsibilityLevel,
+    			    int paceFactor,
+    			    int paceLevel,
+    			    int ethicsFactor,
+    			    int ethicsLevel,
+    			    int nameRecognitionFactor,
+    			    int nameRecognitionLevel,
+    			    int jobTypeFactor,
+    			    int jobTypeLevel)
+<span class="fc" id="L65">    {</span>
+<span class="fc" id="L66">		this.customerID = customerID;</span>
+<span class="fc" id="L67">		this.name = name;</span>
+<span class="fc" id="L68">		this.financialLiquidityFactor = financialLiquidityFactor;</span>
+<span class="fc" id="L69">		this.financialLiquidityLevel = financialLiquidityLevel;</span>
+<span class="fc" id="L70">		this.financialSuccessFactor = financialSuccessFactor;</span>
+<span class="fc" id="L71">		this.financialSuccessLevel = financialSuccessLevel;</span>
+<span class="fc" id="L72">		this.responsibilityFactor = responsibilityFactor;</span>
+<span class="fc" id="L73">		this.responsibilityLevel = responsibilityLevel;</span>
+<span class="fc" id="L74">		this.paceFactor = paceFactor;</span>
+<span class="fc" id="L75">		this.paceLevel = paceLevel;</span>
+<span class="fc" id="L76">		this.ethicsFactor = ethicsFactor;</span>
+<span class="fc" id="L77">		this.ethicsLevel = ethicsLevel;</span>
+<span class="fc" id="L78">		this.nameRecognitionFactor = nameRecognitionFactor;</span>
+<span class="fc" id="L79">		this.nameRecognitionLevel = nameRecognitionLevel;</span>
+<span class="fc" id="L80">		this.jobTypeFactor = jobTypeFactor;</span>
+<span class="fc" id="L81">		this.jobTypeLevel = jobTypeLevel;</span>
+<span class="fc" id="L82">	}</span>
+
+    public Customer(int maxOverbillingPercent, int overbillingPercentAffectingEthics)
+<span class="fc" id="L85">    {</span>
+<span class="fc" id="L86">		this.maxOverbillingPercent = maxOverbillingPercent;</span>
+<span class="fc" id="L87">		this.overbillingPercentAffectingEthics = overbillingPercentAffectingEthics;</span>
+<span class="fc" id="L88">	}</span>
+
+	/**
+	 * Job customer processes a bill and decides whether or not to pay it.
+	 * This class is intended to be expanded in future versions of BIG.
+	 * A call to this method results in two possibilities
+	 * &lt;ol&gt;
+	 *    &lt;li&gt;Bill Accepted - The amount of the bill would put the total amount billed on the job
+	 *        within an acceptable level of the amount earned.
+	 *    &lt;/li&gt;
+	 *    &lt;li&gt;
+	 *        Bill Rejected - The amount of the bill would either put the total amount billed on the job
+	 *        at more than the contract price or at an unacceptably high level above the amount earned.
+	 *    &lt;/li&gt;
+	 * &lt;/ol&gt;
+	 * &lt;br&gt;&lt;br&gt;&lt;b&gt;For Bid Jobs:&lt;/b&gt;&lt;br&gt;
+	 * The amount earned on a contract is calculated by multiplying the percent work complete,
+	 * in this case using the value from the progress report (architect's estimate),
+	 * by the contract price of the job including change orders.
+	 * The acceptable level is determined as follows:&lt;br&gt;
+	 * The max overbilling percent parameter set by the administrator is
+	 * reduced by an amount equal to the max overbilling percent parameter * percent work complete.
+	 * (e.g. if the max overbilling percent is 30%, when the job is 0% complete the acceptable level will
+	 * be 30%, when the job is 100% complete the acceptable level will be 0%, when the job is 50% complete
+	 * the acceptable level will be 15%).
+	 * The percent work complete is increased by the acceptable level to compute the
+	 * max customer job % complete belief.  This amount is multiplied by the contract price
+	 * to get the maximum amount the customer will pay on the job.  If this amount is
+	 * exceeded by the current bill amount plus the amount billed to date, the bill is rejected.
+	 * &lt;br&gt;&lt;br&gt;
+	 * &lt;b&gt;For Negotiated Jobs:&lt;/b&gt;
+	 * The amount of the bill will be accepted only if it is no greater than
+	 * the lesser of the cost of work done on the job plus profit and the maximum amount of the job.
+	 * If the job is complete and the cost plus profit is lower, then share of savings is also included.
+	 * @return BillingForm The same &lt;code&gt;BillingForm&lt;/code&gt; that was passed in
+	 * with the &lt;code&gt;amountPaid&lt;/code&gt; and &lt;code&gt;rejected&lt;/code&gt; fields set correctly.
+	 * If the bill is rejected the amountPaid will be 0, otherwise it will be equal to
+	 * to the billing amount.
+	 */
+	public BillingForm processBill(BillingForm bill, Job job)
+	{
+<span class="fc" id="L129">	    long maxWillPay = 0;</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">		if(! (job instanceof NegotiatedJob))</span>
+		{
+		    //System.out.println(&quot;Actual amount complete &quot; + job.getPercentOfJobComplete());
+<span class="fc" id="L133">		    float acceptableLevel = (((float) maxOverbillingPercent) * (1 - (job.getPercentOfJobComplete() /100))) /100;</span>
+		    //System.out.println(&quot;Acceptable level is &quot; + acceptableLevel);
+<span class="fc" id="L135">		    float customerMaxJobPercentCompleteBelief = (job.getPercentOfJobComplete() / 100) * (1 + acceptableLevel);</span>
+		    //System.out.println(&quot;customer belief: &quot; + customerMaxJobPercentCompleteBelief);
+
+<span class="fc" id="L138">		    maxWillPay = Math.round(((float) job.getTotalPrice()) * customerMaxJobPercentCompleteBelief);</span>
+		    //System.out.println(&quot;customer will pay up to &quot; + maxWillPay);
+<span class="fc" id="L140">	    }</span>
+	    else
+	    {
+<span class="nc" id="L143">			NegotiatedJob nj = (NegotiatedJob) job;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">			if(job.isComplete())</span>
+			{
+<span class="nc" id="L146">				maxWillPay = job.getTotalPrice();</span>
+				//System.out.println(&quot;Job is complete.  Max will pay equal to end price of job: &quot; + maxWillPay);
+			}
+			else
+			{
+<span class="nc" id="L151">				maxWillPay = NumberConverter.longValue(bill.getNegotiatedJobAmountEarnedSoFar());</span>
+				//System.out.println(&quot;Job is NOT complete.  Max will pay equal to : &quot; + maxWillPay);
+			}
+	    }
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		if((job.getBilledToDate() + bill.getBillingAmount()) &gt; maxWillPay)</span>
+		{
+<span class="fc" id="L158">		    bill.setAmountPaid(0);</span>
+<span class="fc" id="L159">			bill.setRejected(true);</span>
+		}
+		else
+		{
+<span class="fc" id="L163">			bill.setAmountPaid(bill.getBillingAmount());</span>
+<span class="fc" id="L164">			bill.setRejected(false);</span>
+		}
+
+
+<span class="fc" id="L168">		return bill;</span>
+	}
+
+
+    /**
+     * Returns true if the amount of the bill is ethical
+     * for the amount of work complete on job.
+     * A bill is considered unethical if the bill
+     * plus the total billed to date is greater than
+     * the percentage of the job complete times the price of the job
+     * raised by a percentage equal to the game parameter for ethical overbilling.
+     */
+	public boolean ethicalBill(BillingForm bill, Job job)
+	{
+<span class="nc" id="L182">		long totalBilled = job.getBilledToDate();</span>
+<span class="nc" id="L183">		long totalEarned = Math.round( ( ((float) job.getPercentOfJobComplete() / 100)) * ((float) job.getTotalPrice()));</span>
+<span class="nc" id="L184">		long ethicalBillingLimit = Math.round(  (((float) overbillingPercentAffectingEthics / 100) + 1) * ((float) totalEarned));</span>
+		//System.out.println(&quot;totalBilled = &quot; + totalBilled);
+		//System.out.println(&quot;ethical limit = &quot; + ethicalBillingLimit);
+<span class="nc bnc" id="L187" title="All 2 branches missed.">		if(totalBilled &lt; ethicalBillingLimit)</span>
+		{
+<span class="nc" id="L189">			return true;</span>
+		}
+		else
+		{
+<span class="nc" id="L193">			return false;</span>
+		}
+	}
+
+	public Vector getAllowedCompanies(Vector companies, int jobType)
+	{
+<span class="nc" id="L199">		Vector allowedCompanies = new Vector();</span>
+<span class="nc" id="L200">		int thresholdForConsideration</span>
+<span class="nc" id="L201">			= computeWeightedAverageOfCamValues(financialLiquidityLevel,</span>
+												financialSuccessLevel,
+												responsibilityLevel,
+												paceLevel,
+												ethicsLevel,
+												nameRecognitionLevel,
+												jobTypeLevel
+											   );
+
+		//System.out.println(&quot;Threshold is &quot; + thresholdForConsideration);
+		//System.out.println(&quot;Companies.size is &quot; + companies.size());
+<span class="nc bnc" id="L212" title="All 2 branches missed.">		for(int i = 0; i &lt; companies.size(); i++)</span>
+		{
+<span class="nc" id="L214">			ExpandedCompany ec =  (ExpandedCompany) companies.elementAt(i);</span>
+<span class="nc" id="L215">			Hashtable cams = ec.getCAMs();</span>
+
+<span class="nc" id="L217">			int companyCAMWeightedAverage = computeWeightedAverageOfCamValues( ((Integer) cams.get(&quot;FinancialLiquidity&quot;)).intValue(),</span>
+<span class="nc" id="L218">											       							   ((Integer) cams.get(&quot;FinancialSuccess&quot;)).intValue(),</span>
+<span class="nc" id="L219">											       							   ((Integer) cams.get(&quot;BiddingResponsibility&quot;)).intValue(),</span>
+<span class="nc" id="L220">											      							   ((Integer) cams.get(&quot;Pace&quot;)).intValue(),</span>
+<span class="nc" id="L221">											       							   ((Integer) cams.get(&quot;Ethics&quot;)).intValue(),</span>
+<span class="nc" id="L222">											      							   ((Integer) cams.get(&quot;NameRecognition&quot;)).intValue(),</span>
+<span class="nc" id="L223">											      							   getJobTypeCAMValue( jobType,</span>
+<span class="nc" id="L224">																				   				   ((Integer) cams.get(&quot;Apartments&quot;)).intValue(),</span>
+<span class="nc" id="L225">											       												   ((Integer) cams.get(&quot;Schools&quot;)).intValue(),</span>
+<span class="nc" id="L226">											       					 							   ((Integer) cams.get(&quot;Offices&quot;)).intValue(),</span>
+<span class="nc" id="L227">											       												   ((Integer) cams.get(&quot;Hospitals&quot;)).intValue(),</span>
+<span class="nc" id="L228">											       					  							   ((Integer) cams.get(&quot;Industrial&quot;)).intValue(),</span>
+<span class="nc" id="L229">											       					  							   ((Integer) cams.get(&quot;Highways&quot;)).intValue(),</span>
+<span class="nc" id="L230">																								   ((Integer) cams.get(&quot;Bridges&quot;)).intValue(),</span>
+<span class="nc" id="L231">																								   ((Integer) cams.get(&quot;SiteDevelopment&quot;)).intValue(),</span>
+<span class="nc" id="L232">																								   ((Integer) cams.get(&quot;MassExcavation&quot;)).intValue(),</span>
+<span class="nc" id="L233">																								   ((Integer) cams.get(&quot;UndergroundUtilities&quot;)).intValue()</span>
+											                         							 )
+												 							 );
+
+			//System.out.println(&quot;Values for &quot; + ec.getCompany().getTitle() + &quot; is &quot; + companyCAMWeightedAverage);
+
+<span class="nc bnc" id="L239" title="All 2 branches missed.">			if(companyCAMWeightedAverage  &gt;= thresholdForConsideration)</span>
+			{
+<span class="nc" id="L241">				allowedCompanies.add(new Integer(ec.getCompany().getCompanyID()));</span>
+				//System.out.println(ec.getCompany().getTitle() + &quot; is allowed to bid&quot;);
+			}
+			else
+			{
+				//System.out.println(ec.getCompany().getTitle() + &quot; is NOT allowed to bid&quot;);
+			}
+		}
+
+
+<span class="nc" id="L251">		return allowedCompanies;</span>
+	}
+
+	//Creates a weighted average of the cam values
+	//passed as parameters.
+	//The weights are always the values of the
+	//&quot;Factor&quot; variables, (e.g. financialLiquidityFactor, paceFactor).
+	//The cam values can come from the Level variables
+	//or be the cam values for the company of interest.
+	private int computeWeightedAverageOfCamValues(int financialLiquidity,
+	  								   		      int financialSuccess,
+	  							 			      int responsibility,
+	  							 				  int pace,
+	  							 				  int ethics,
+	  							 				  int nameRecognition,
+	  							 				  int jobType
+											     )
+	{
+<span class="nc" id="L269">		int average = 0;</span>
+
+<span class="nc" id="L271">		average += Math.round((( (float) financialLiquidityFactor) /100f) * ((float) financialLiquidity));</span>
+<span class="nc" id="L272">		average += Math.round((( (float) financialSuccessFactor) /100f) * ((float) financialSuccess));</span>
+<span class="nc" id="L273">		average += Math.round((( (float) responsibilityFactor) /100f) * ((float) responsibility));</span>
+<span class="nc" id="L274">		average += Math.round((( (float) paceFactor) /100f) * ((float) pace));</span>
+<span class="nc" id="L275">		average += Math.round((( (float) ethicsFactor) /100f) * ((float) ethics));</span>
+<span class="nc" id="L276">		average += Math.round((( (float) nameRecognitionFactor) /100f) * ((float) nameRecognition));</span>
+<span class="nc" id="L277">		average += Math.round((( (float) jobTypeFactor) /100f) * ((float) jobType));</span>
+
+<span class="nc" id="L279">		return average;</span>
+	}
+
+
+	//Figures out what the value of jobType metric should be by returning the
+	//metric for the job type that is the correct type for the job type of the job in question.
+	//e.g. If the job is of type apartments, the apartments metric is returned.
+	//This method assumes the jobType id values are permanent forever and uses
+	//hardcoding, so this entire method will need to be written for future updates to BIG
+	//if jobTypes become dynamic
+	private int getJobTypeCAMValue(int jobType, int apartments, int schools, int offices, int hospitals, int industrial, int highways, int bridges, int sitedevelopment, int massexcavation, int undergroundutilities)
+	{
+<span class="nc bnc" id="L291" title="All 2 branches missed.">		if(jobType == 1)</span>
+		{
+<span class="nc" id="L293">			return apartments;</span>
+		}
+<span class="nc bnc" id="L295" title="All 2 branches missed.">		else if (jobType == 2)</span>
+		{
+<span class="nc" id="L297">			return schools;</span>
+		}
+<span class="nc bnc" id="L299" title="All 2 branches missed.">		else if (jobType == 3)</span>
+		{
+<span class="nc" id="L301">			return offices;</span>
+		}
+<span class="nc bnc" id="L303" title="All 2 branches missed.">		else if (jobType == 4)</span>
+		{
+<span class="nc" id="L305">			return hospitals;</span>
+		}
+<span class="nc bnc" id="L307" title="All 2 branches missed.">		else if (jobType == 5)</span>
+		{
+<span class="nc" id="L309">			return industrial;</span>
+		}
+<span class="nc bnc" id="L311" title="All 2 branches missed.">		else if(jobType == 6)</span>
+		{
+<span class="nc" id="L313">			return highways;</span>
+		}
+<span class="nc bnc" id="L315" title="All 2 branches missed.">		else if (jobType == 7)</span>
+		{
+<span class="nc" id="L317">			return bridges;</span>
+		}
+<span class="nc bnc" id="L319" title="All 2 branches missed.">		else if (jobType == 8)</span>
+		{
+<span class="nc" id="L321">			return sitedevelopment;</span>
+		}
+<span class="nc bnc" id="L323" title="All 2 branches missed.">		else if (jobType == 9)</span>
+		{
+<span class="nc" id="L325">			return massexcavation;</span>
+		}
+<span class="nc bnc" id="L327" title="All 2 branches missed.">		else if (jobType == 10)</span>
+		{
+<span class="nc" id="L329">			return undergroundutilities;</span>
+		}
+		else
+		{
+<span class="nc" id="L333">			return 0;</span>
+		}
+	}
+
+	public String getCustomerName()
+	{
+<span class="fc" id="L339">		return name;</span>
+	}
+
+	public int getCustomerID()
+	{
+<span class="fc" id="L344">		return customerID;</span>
+	}
+
+	public int getFinancialLiquidityFactor()
+	{
+<span class="nc" id="L349">		return financialLiquidityFactor;</span>
+	}
+
+	public int getFinancialLiquidityLevel()
+	{
+<span class="nc" id="L354">		return financialLiquidityLevel;</span>
+	}
+
+	public int getFinancialSuccessFactor()
+	{
+<span class="nc" id="L359">		return financialSuccessFactor;</span>
+	}
+
+	public int getFinancialSuccessLevel()
+	{
+<span class="nc" id="L364">		return financialSuccessLevel;</span>
+	}
+
+	public int getResponsibilityFactor()
+	{
+<span class="nc" id="L369">		return responsibilityFactor;</span>
+	}
+
+	public int getResponsibilityLevel()
+	{
+<span class="nc" id="L374">		return responsibilityLevel;</span>
+	}
+
+	public int getPaceFactor()
+	{
+<span class="nc" id="L379">		return paceFactor;</span>
+	}
+
+	public int getPaceLevel()
+	{
+<span class="nc" id="L384">		return paceLevel;</span>
+	}
+
+	public int getEthicsFactor()
+	{
+<span class="nc" id="L389">		return ethicsFactor;</span>
+	}
+
+	public int getEthicsLevel()
+	{
+<span class="nc" id="L394">		return ethicsLevel;</span>
+	}
+
+	public int getNameRecognitionFactor()
+	{
+<span class="nc" id="L399">		return nameRecognitionFactor;</span>
+	}
+
+	public int getNameRecognitionLevel()
+	{
+<span class="nc" id="L404">		return nameRecognitionLevel;</span>
+	}
+
+	public int getJobTypeFactor()
+	{
+<span class="nc" id="L409">		return jobTypeFactor;</span>
+	}
+
+	public int getJobTypeLevel()
+	{
+<span class="nc" id="L414">		return jobTypeLevel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

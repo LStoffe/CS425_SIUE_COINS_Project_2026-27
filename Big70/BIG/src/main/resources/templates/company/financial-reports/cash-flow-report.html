@@ -1,0 +1,106 @@
+<!--
+    cash-flow-report.html
+    Allows users to view their cash flow report for each period
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COINS - Cash Flow Report</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Page Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Cash Flow Report</h2>
+    <p class="text-lg text-gray-600" th:text="${periodDate}">Period</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-3xl">
+
+      <!-- Company Name -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold" th:text="${username}">Company Name</h3>
+      </div>
+
+      <!-- Cash Flow Table -->
+      <div class="space-y-6">
+
+        <!-- Cash Start -->
+        <div class="flex justify-between border-b pb-2">
+          <span class="font-semibold">Cash on Hand (Start of Period)</span>
+          <span th:text="'$' + ${#numbers.formatDecimal(cf.cashStart, 1, 'COMMA', 2, 'POINT')}">$0</span>
+        </div>
+
+        <!-- Inflows -->
+        <div>
+          <h4 class="text-xl font-semibold mb-3">Inflows</h4>
+          <div class="space-y-2 ml-4">
+            <div class="flex justify-between text-gray-700">
+              <span>Job Income</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(cf.jobIncome, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+          </div>
+          <hr class="my-3 border-gray-300">
+          <div class="flex justify-between font-semibold ml-4">
+            <span>Total Inflows</span>
+            <span th:text="'$' + ${#numbers.formatDecimal(cf.totalInflows, 1, 'COMMA', 2, 'POINT')}">$0</span>
+          </div>
+        </div>
+
+        <!-- Outflows -->
+        <div>
+          <h4 class="text-xl font-semibold mb-3">Outflows</h4>
+          <div class="space-y-2 ml-4">
+            <div class="flex justify-between text-gray-700">
+              <span>Loan Repayments</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(cf.loanPayments, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+            <div class="flex justify-between text-gray-700">
+              <span>Payroll</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(cf.payroll, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+          </div>
+          <hr class="my-3 border-gray-300">
+          <div class="flex justify-between font-semibold ml-4">
+            <span>Total Outflows</span>
+            <span th:text="'$' + ${#numbers.formatDecimal(cf.totalOutflows, 1, 'COMMA', 2, 'POINT')}">$0</span>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- Cash End -->
+        <div class="flex justify-between text-lg font-bold pt-2">
+          <span>Cash on Hand (End of Period)</span>
+          <span th:text="'$' + ${#numbers.formatDecimal(cf.cashEnd, 1, 'COMMA', 2, 'POINT')}">$0</span>
+        </div>
+
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/financial-reports-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Financial Reports
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

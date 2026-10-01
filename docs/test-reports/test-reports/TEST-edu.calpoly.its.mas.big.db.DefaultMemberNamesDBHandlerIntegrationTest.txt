@@ -1,0 +1,14 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultMemberNamesDBHandlerIntegrationTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.83 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testGetMemberNamesEmpty took 0.814 sec
+Testcase: testAddAndGetMemberNames took 0.006 sec
+Testcase: testGetMemberNamesForGame took 0.001 sec
+Testcase: testRemoveMemberName took 0.003 sec
+Testcase: testAddMemberNameViaHandler took 0.001 sec

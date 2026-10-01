@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.SetCCCParametersActionTest
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.558 sec
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.553 sec
+	Caused an ERROR
+Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+	at edu.calpoly.lib.multimedia.big.users.admin.SetCCCParametersAction.execute(SetCCCParametersAction.java:77)
+	at edu.calpoly.lib.multimedia.big.users.admin.SetCCCParametersActionTest.testExecuteReturnsCancelledWhenRequestCancelled(SetCCCParametersActionTest.java:25)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+

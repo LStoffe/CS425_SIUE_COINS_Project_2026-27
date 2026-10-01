@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultRetentionDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultRetentionDBHandler.java</span></div><h1>DefaultRetentionDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;RetentionDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.2 $ $Date: 2002/03/14 18:53:05 $
+ */
+public class DefaultRetentionDBHandler extends DefaultDBHandler implements RetentionDBHandler
+{
+
+    public DefaultRetentionDBHandler(Connection connection)
+    {
+<span class="fc" id="L21">		super(connection);</span>
+<span class="fc" id="L22">	}</span>
+
+
+	public int[][] getRetentionPolicies() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L27">		int[][] retentionPolicies = new int[5][2];</span>
+
+<span class="fc" id="L29">		String query = &quot;SELECT retentionid, percent_retention, percent_of_job FROM retention ORDER BY retentionid&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L33">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L35">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc" id="L37">			int i = 0;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L40">				retentionPolicies[i][0] = rset.getInt(&quot;percent_of_job&quot;);</span>
+<span class="fc" id="L41">				retentionPolicies[i][1] = rset.getInt(&quot;percent_retention&quot;);</span>
+<span class="fc" id="L42">				i++;</span>
+			}
+
+<span class="fc" id="L45">			rset.close();</span>
+
+		}
+<span class="fc" id="L48">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L50">			close();</span>
+<span class="fc" id="L51">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L52">		}</span>
+
+<span class="fc" id="L54">		return retentionPolicies;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

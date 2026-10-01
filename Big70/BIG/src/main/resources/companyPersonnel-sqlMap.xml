@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="CompanyPersonnel">
+
+  <insert id="addCompanyEmployeeMap" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO company_personnel (gameid, companyid, periodid, employee_title, 
+    				   employee_type_count, employee_type_adds, employee_type_loss)
+    VALUES (#gameid#, #companyid#, #periodid#, #employeeType#, 
+    	    #employeeTypeCount#, #employeeTypeHires#, #employeeTypeFires#)
+    
+    ]]>		               
+  </insert>
+
+  <delete id="deleteCompanyPersonnel" parameterClass="map">
+    <![CDATA[
+
+    DELETE FROM company_personnel
+    WHERE companyid = #companyid#
+    AND periodid = #periodid#
+    AND employee_title = #employeeType#
+    
+    ]]>		               
+  </delete>  
+    
+  <resultMap id="getCompanyEmploymentResults" class="edu.calpoly.lib.multimedia.big.personnel.EmployeeTypeRecord">
+    <result property="employeeType" column="employee_title" />
+    <result property="employeeCost" column="employee_cost_per_period" />
+    <result property="employeeHiringCost" column="employee_hiring_cost" />
+    <result property="employeeFiringCost" column="employee_firing_cost" />    
+    <result property="employeeTypeCountInteger" column="employee_type_count" />
+    <result property="employeeTypeHiresInteger" column="employee_type_adds" />    
+    <result property="employeeTypeFiresInteger" column="employee_type_loss" />     
+    <result property="companyIDInteger" column="companyid" />
+    <result property="periodNumberInteger" column="periodid" />
+  </resultMap>      
+  
+  <select id="getCompanyEmployment" resultMap="getCompanyEmploymentResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT ap.employee_title, ap.employee_cost_per_period, ap.employee_hiring_cost, 
+           ap.employee_firing_cost, cp.companyid, cp.periodid, 
+    	   cp.employee_type_count, cp.employee_type_adds, cp.employee_type_loss
+    FROM available_personnel ap 
+    LEFT JOIN 
+        (SELECT companyid, periodid, employee_title, employee_type_count, 
+        	employee_type_adds, employee_type_loss
+         FROM company_personnel
+         WHERE companyid = #companyid#
+         AND periodid = #periodid#
+        ) cp
+    ON ap.employee_title = cp.employee_title
+    WHERE gameid = #gameid#
+    
+    ]]>		               
+  </select>   
+  
+  <select id="getCompanyEmployeeType" resultMap="getCompanyEmploymentResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT ap.employee_title, ap.employee_cost_per_period, ap.employee_hiring_cost, 
+           ap.employee_firing_cost, cp.companyid, cp.periodid, 
+    	   cp.employee_type_count, cp.employee_type_adds, cp.employee_type_loss
+    FROM available_personnel ap 
+    LEFT JOIN 
+        (SELECT companyid, periodid, employee_title, employee_type_count, 
+        	employee_type_adds, employee_type_loss
+         FROM company_personnel
+         WHERE companyid = #companyid#
+         AND periodid = #periodid#
+        ) cp
+    ON ap.employee_title = cp.employee_title
+    WHERE gameid = #gameid#
+    AND ap.employee_title = #employeeType#
+    
+    ]]>		               
+  </select>    
+ 
+  <resultMap id="getCompanyEmployeeTypeStatusResults" class="edu.calpoly.lib.multimedia.big.personnel.EmployeeTypeRecord">
+     <result property="employeeType" column="employee_title" />
+     <result property="employeeTypeCountInteger" column="employee_type_count" />
+     <result property="employeeTypeHiresInteger" column="employee_type_adds" />    
+     <result property="employeeTypeFiresInteger" column="employee_type_loss" />     
+  </resultMap>  
+ 
+  <select id="getCompanyEmployeeTypeStatus" resultMap="getCompanyEmployeeTypeStatusResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT cp.employee_title, cp.employee_type_count, cp.employee_type_adds, cp.employee_type_loss
+    FROM company_personnel cp
+    WHERE companyid = #companyid#
+    AND periodid = #periodid#
+    AND employee_title = #employeeType#
+    
+    ]]>		               
+  </select>
+  
+  <!-- Input is a String representing employee type name.  If that name is found in the 
+       database as an available employee type, the same string is returned.  If it is not 
+       found, null is returned.
+   -->
+  <select id="checkAvailableEmployeeType" resultClass="string" parameterClass="map" >
+    <![CDATA[
+ 
+    SELECT ap.employee_title
+    FROM available_personnel ap
+    WHERE gameid = #gameid#
+    AND employee_title = #employeeType#
+    
+    ]]>	
+  </select>
+ 
+</sqlMap>

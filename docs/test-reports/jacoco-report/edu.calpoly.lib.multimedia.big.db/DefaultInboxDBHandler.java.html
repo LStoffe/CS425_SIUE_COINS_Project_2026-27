@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultInboxDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultInboxDBHandler.java</span></div><h1>DefaultInboxDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.Message;
+
+/**
+ * Default implementation of &lt;code&gt;InboxDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultInboxDBHandler extends DefaultDBHandler implements InboxDBHandler
+{
+	Log log;
+
+
+    public DefaultInboxDBHandler(Connection connection)
+    {
+<span class="fc" id="L41">		super(connection);</span>
+<span class="fc" id="L42">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L43">	}</span>
+
+	public void storeMessage(Message message)
+	   throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L48">		String insert = &quot;INSERT INTO inbox (companyID, periodID, type, link, sender, message, subject) &quot; +</span>
+		    			&quot; VALUES (?, ?, ?, ?, ?, ?, ?) &quot;;
+
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L53">			log.debug(this.getClass() + &quot; adding new message: To: &quot; + message.getTo().getCompanyID() + &quot; From: &quot; + message.getFrom() + &quot; Subject: &quot; + message.getSubject() + &quot; Body: &quot; + message.getBody() );</span>
+		}
+
+		try
+		{
+<span class="fc" id="L58">			PreparedStatement pstatement = connection.prepareStatement(insert);</span>
+<span class="fc" id="L59">			pstatement.setInt(1, message.getTo().getCompanyID());</span>
+<span class="fc" id="L60">			pstatement.setInt(2, message.getPeriodNumber());</span>
+<span class="fc" id="L61">			pstatement.setInt(3, message.getType());</span>
+<span class="fc" id="L62">			pstatement.setInt(4, message.getLink());</span>
+<span class="fc" id="L63">			pstatement.setString(5, message.getFrom());</span>
+<span class="fc" id="L64">			pstatement.setString(6, message.getBody());</span>
+<span class="fc" id="L65">			pstatement.setString(7, message.getSubject());</span>
+
+<span class="fc" id="L67">			pstatement.executeUpdate();</span>
+<span class="fc" id="L68">			connection.commit();</span>
+
+<span class="fc" id="L70">			pstatement.close();</span>
+		}
+<span class="fc" id="L72">		catch (SQLException sqle)</span>
+		{
+<span class="fc" id="L74">			close();</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">			if(log.isErrorEnabled())</span>
+			{
+<span class="fc" id="L77">				log.error(&quot;&quot;, sqle);</span>
+			}
+<span class="fc" id="L79">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L80">		}</span>
+<span class="fc" id="L81">	}</span>
+
+
+    public Vector retrieveMessages(Company company, int period)
+       throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L87">		Vector messages = new Vector();</span>
+
+<span class="fc" id="L89">		String select = &quot;SELECT type, link, sender, message, subject &quot; +</span>
+		  				&quot; FROM inbox WHERE companyid = ? AND periodid = ? &quot;;
+
+		try
+		{
+<span class="fc" id="L94">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L95">			pstmt.setInt(1, company.getCompanyID());</span>
+<span class="fc" id="L96">			pstmt.setInt(2, period);</span>
+
+<span class="fc" id="L98">			ResultSet rset = pstmt.executeQuery();</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L101">				messages.add(new Message(rset.getString(&quot;sender&quot;),</span>
+										 company,
+<span class="fc" id="L103">										 rset.getString(&quot;message&quot;),</span>
+<span class="fc" id="L104">										 rset.getString(&quot;subject&quot;),</span>
+										 period,
+<span class="fc" id="L106">										 rset.getInt(&quot;type&quot;),</span>
+<span class="fc" id="L107">										 rset.getInt(&quot;link&quot;)</span>
+										)
+							);
+			}
+
+<span class="fc" id="L112">			rset.close();</span>
+<span class="fc" id="L113">			pstmt.close();</span>
+		}
+<span class="fc" id="L115">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L117">			close();</span>
+<span class="fc" id="L118">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L119">		}</span>
+
+<span class="fc" id="L121">		return messages;</span>
+	}
+
+	public Vector retrieveAllMessages(Company company)
+	   throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L127">		Vector messages = new Vector();</span>
+
+<span class="fc" id="L129">		String select = &quot;SELECT type, link, sender, message, periodid, subject &quot; +</span>
+		  				&quot; FROM inbox WHERE companyid = ? &quot; +
+		  				&quot; ORDER BY periodid DESC&quot;;
+
+		try
+		{
+<span class="fc" id="L135">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L136">			pstmt.setInt(1, company.getCompanyID());</span>
+
+<span class="fc" id="L138">			ResultSet rset = pstmt.executeQuery();</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L141">				messages.add(new Message(rset.getString(&quot;sender&quot;),</span>
+										 company,
+<span class="fc" id="L143">										 rset.getString(&quot;message&quot;),</span>
+<span class="fc" id="L144">										 rset.getString(&quot;subject&quot;),</span>
+<span class="fc" id="L145">										 rset.getInt(&quot;periodid&quot;),</span>
+<span class="fc" id="L146">										 rset.getInt(&quot;type&quot;),</span>
+<span class="fc" id="L147">										 rset.getInt(&quot;link&quot;)</span>
+										)
+							);
+			}
+
+<span class="fc" id="L152">			rset.close();</span>
+<span class="fc" id="L153">			pstmt.close();</span>
+		}
+<span class="nc" id="L155">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L157">			close();</span>
+<span class="nc" id="L158">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L159">		}</span>
+
+<span class="fc" id="L161">		return messages;</span>
+	}
+
+
+    public void deleteMessages(int companyID)
+    	throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L168">		String delete = &quot;DELETE FROM inbox WHERE companyid = ? &quot;;</span>
+
+		try
+		{
+<span class="fc" id="L172">			PreparedStatement pstmt = connection.prepareStatement(delete);</span>
+<span class="fc" id="L173">			pstmt.setInt(1, companyID);</span>
+
+<span class="fc" id="L175">			pstmt.executeUpdate();</span>
+		}
+<span class="nc" id="L177">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L179">			close();</span>
+<span class="nc" id="L180">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L181">		}</span>
+<span class="fc" id="L182">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

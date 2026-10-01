@@ -1,0 +1,124 @@
+<!--
+  balance-sheet.html
+  This page is the user companys balance sheet and can show the companicies financial health.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Balance Sheet</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Consolidated Balance Sheet</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-6xl">
+
+      <!-- Report Header -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2" th:text="${username}">Company Name</h3>
+        <h4 class="text-xl font-semibold mb-2">CONSOLIDATED BALANCE SHEETS</h4>
+        <p class="text-sm text-gray-600" th:text="${periodDate}">Period</p>
+      </div>
+
+      <!-- Balance Sheet Two-Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+
+        <!-- ASSETS Column -->
+        <div>
+          <h5 class="font-bold text-center mb-6 text-lg">ASSETS</h5>
+          <div class="mb-6">
+            <h6 class="font-bold mb-3">Current Assets</h6>
+            <div class="space-y-2 ml-4">
+              <div class="flex justify-between">
+                <span>Cash</span>
+                <span th:text="'$' + ${#numbers.formatDecimal(bs.cash, 1, 'COMMA', 2, 'POINT')}">$0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span>Accounts Receivable — Current</span>
+                <span>$0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span>Accounts Receivable — Retention</span>
+                <span>$0</span>
+              </div>
+            </div>
+            <hr class="my-3 border-gray-400">
+            <div class="flex justify-between font-bold ml-4">
+              <span>Total Current Assets</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(bs.totalCurrentAssets, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="flex justify-between font-bold text-lg">
+              <span>TOTAL ASSETS</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(bs.totalAssets, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIABILITIES AND EQUITY Column -->
+        <div>
+          <h5 class="font-bold text-center mb-6 text-lg">LIABILITIES and EQUITY</h5>
+          <div class="mb-6">
+            <h6 class="font-bold mb-3">Current Liabilities</h6>
+            <div class="space-y-2 ml-4">
+              <div class="flex justify-between text-sm">
+                <span>Loan Balances</span>
+                <span th:text="'$' + ${#numbers.formatDecimal(bs.loanBalance, 1, 'COMMA', 2, 'POINT')}">$0</span>
+              </div>
+            </div>
+            <hr class="my-3 border-gray-400">
+            <div class="flex justify-between font-bold ml-4">
+              <span>Total Current Liabilities</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(bs.totalLiabilities, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+          </div>
+
+          <div class="mb-6 mt-12">
+            <h6 class="font-bold mb-3">Equity</h6>
+            <div class="flex justify-between ml-4">
+              <span>Retained Earnings</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(bs.retainedEarnings, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+          </div>
+
+          <div class="mt-12">
+            <div class="flex justify-between font-bold text-lg">
+              <span>TOTAL LIABILITIES AND EQUITY</span>
+              <span th:text="'$' + ${#numbers.formatDecimal(bs.totalLiabilitiesAndEquity, 1, 'COMMA', 2, 'POINT')}">$0</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/financial-reports-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Financial Reports
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!--
+  game-parameters-building-construction.html
+  Building Construction activity types under Set Game Parameters.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Game Parameters - Building Construction</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Set Game Parameters</h2>
+    <p class="text-lg text-gray-700">Building Construction</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Method Parameters for Each Activity Type
+      </h3>
+
+      <div class="bg-gray-100 py-3 rounded mb-6">
+        <h4 class="font-bold text-xl text-center">Building Construction</h4>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Excavation</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Foundation</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Basement</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Framing</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Closure</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Roof</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Siding</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Finishing</span>
+        </a>
+        <a href="#" class="block text-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition sm:col-span-2">
+          <span class="font-semibold text-lg text-black hover:text-amber-600">Mechanical &amp; Electrical</span>
+        </a>
+      </div>
+
+      <div class="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+        <a th:href="@{/admin/game-parameters}"
+           class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block text-center">
+          Back to Set Game Parameters
+        </a>
+        <a th:href="@{/admin/recall-menu}"
+           class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block text-center">
+          Back to Game Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

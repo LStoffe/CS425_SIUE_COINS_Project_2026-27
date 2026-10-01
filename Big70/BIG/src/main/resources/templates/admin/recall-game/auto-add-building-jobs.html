@@ -1,0 +1,163 @@
+<!--
+  auto-add-building-jobs.html
+  Allows admins to add automatically add building jobs to every company
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Auto-Add Building Jobs</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Auto-Add Building Jobs</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-3xl">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Automatically Add Jobs to Every Company
+      </h3>
+
+      <!-- Implementation Note -->
+      <div class="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+        <p class="text-amber-800 font-semibold mb-1">Implementation Note</p>
+        <p class="text-amber-700 text-sm">
+          Auto-awarding jobs directly to companies is not available in this version of the simulation.
+          Jobs are generated automatically each period advance based on game parameters and are available
+          for companies to bid on. This form is preserved for reference and future implementation.
+        </p>
+      </div>
+
+      <form name="autoAwardJobsForm" method="post" action="#" class="space-y-8 opacity-50 pointer-events-none">
+
+        <!-- Percent Markup -->
+        <div class="pb-6 border-b border-gray-200">
+          <label for="percentMarkup" class="block font-semibold mb-2">
+            Desired Percent Markup
+          </label>
+          <input
+            type="text"
+            id="percentMarkup"
+            name="percentMarkup"
+            maxlength="5"
+            value="-1"
+            disabled
+            class="w-32 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50"
+          >
+          <div class="text-sm text-gray-700 mt-2 space-y-1">
+            <p><span class="font-semibold">Leave as -1</span> to let COINS choose Percent Markup (random number between 10 and 20 percent)</p>
+            <p>Your choice for percent markup may be between 0 and 100.</p>
+          </div>
+        </div>
+
+        <!-- Job Type -->
+        <div class="pb-6 border-b border-gray-200">
+          <label for="jobType" class="block font-semibold mb-2">
+            Type of Job
+          </label>
+          <input
+            type="text"
+            id="jobType"
+            name="jobType"
+            maxlength="3"
+            value="0"
+            disabled
+            class="w-24 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50"
+          >
+          <div class="text-sm text-gray-700 mt-2">
+            <p class="font-semibold mb-2">Leave as 0 to let COINS choose the Job Type</p>
+            <ul class="list-disc list-inside space-y-1 ml-6">
+              <li>1 = Apartment Building</li>
+              <li>2 = School Building</li>
+              <li>3 = Office Building</li>
+              <li>4 = Hospital</li>
+              <li>5 = Industrial Building</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Job Size -->
+        <div class="pb-6 border-b border-gray-200">
+          <label for="jobSize" class="block font-semibold mb-2">
+            Size of Job
+          </label>
+          <input
+            type="text"
+            id="jobSize"
+            name="jobSize"
+            maxlength="7"
+            value="0"
+            disabled
+            class="w-32 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50"
+          >
+          <div class="text-sm text-gray-700 mt-2">
+            <p class="font-semibold mb-2">Leave as 0 to let COINS choose the Job Size</p>
+            <p class="mb-2">Job Size may range between 10,000 and 99,000 units. Current default "median" values are:</p>
+            <ul class="list-disc list-inside space-y-1 ml-6">
+              <li>Apartment Buildings - 22,000</li>
+              <li>School Buildings - 37,000</li>
+              <li>Office Buildings - 35,000</li>
+              <li>Hospitals - 43,000</li>
+              <li>Industrial Buildings - 44,000</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Number of Jobs -->
+        <div class="pb-6 border-b border-gray-200">
+          <label for="numbOfJobs" class="block font-semibold mb-2">
+            Number of Building Jobs
+          </label>
+          <p class="text-sm text-gray-600 mb-2">
+            Jobs to be added to each team with a B license
+          </p>
+          <input
+            type="text"
+            id="numbOfJobs"
+            name="numbOfJobs"
+            maxlength="3"
+            value="1"
+            disabled
+            class="w-24 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50"
+          >
+          <div class="text-sm text-gray-700 mt-2">
+            <p>COINS can give each team more than one job that meets these specifications (max = 10).</p>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Actions -->
+      <div class="flex justify-between pt-4 border-t border-gray-200 mt-6">
+        <a th:href="@{/admin/recall-menu}"
+           class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+          Back to Game Menu
+        </a>
+        <button
+          disabled
+          class="px-6 py-2 rounded-lg bg-gray-300 text-gray-500 font-semibold cursor-not-allowed"
+          title="Not available in this version">
+          Create Game (Not Available)
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

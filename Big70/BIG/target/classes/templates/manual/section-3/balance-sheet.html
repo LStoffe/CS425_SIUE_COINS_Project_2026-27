@@ -1,0 +1,84 @@
+<!--
+  balance-sheet.html
+  Section 3.6 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>3.6 Balance Sheet</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            3.6 Balance Sheet
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Your company's balance sheet is the best place to get a quick overview of the financial status of your company. You should already be familiar with the contents and layout of a balance sheet, but here are a few notes about the BIG balance sheet:
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li><strong>Accounts Receivable:</strong> 
+                The "current" accounts receivable field of the balance sheet will contain the total amount of bills you have submitted this period. 
+                Also, when you complete work on a job, all retention will become a "current" receivable and appears in this field. 
+                This amount will be added to your cash-on-hand before bid evaluation during the next period update.
+            </li>
+            <li><strong>Retention Receivable:</strong>
+                All amounts retained from payments will appear in this field.
+            </li>
+            <li><strong>Fixed Assets (Property, Land, etc):</strong>
+                 These fields are not used in the current version of BIG. The numbers here are fixed and their purpose is only to make the balance sheet appear more realistic.
+            </li>
+            <li><strong>Accounts Payable:</strong> 
+                Amounts owed to subcontractors and material suppliers for work done during the previous period appear in the accounts payable field. 
+                This amount will be subtracted from your cash-on-hand before bid evaluation during the next period update.
+            </li>
+            <li><strong>Retention Payable:</strong> 
+                Amounts retained from subcontractors appear in the retention payable field. 
+                When a job that had amounts retained from subcontractors completes, those amount will be subtracted from the retention payable field and from cash-on-hand.
+            </li>
+            <li><strong>Income Taxes:</strong> 
+                The field contains your total estimate for income taxes for the year based on revenue for the year so far. 
+                Each time the period goes from Nov-Dec to Jan-Feb, this field is set to zero and the amount subtracted from cash-on-hand. 
+                It may not appear as zero in the Jan-Feb balance sheet because work done during Jan and Feb may cause a new income tax estimate for the new year.
+            </li>
+        </ul>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/statement-of-earnings}" class="font-semibold hover:underline">
+        ← 3.5 Statement of Earnings
+    </a>
+    <a th:href="@{/manual/consulting-services}" class="font-semibold hover:underline">
+        Next → Section 4 Summary
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

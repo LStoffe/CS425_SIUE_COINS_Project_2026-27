@@ -1,0 +1,483 @@
+<!--
+    network-dependencies-report.html
+    This page shows the network dependencies different jobs, such as schools or hospitals.
+-->
+
+
+<!--
+  network-dependencies.html
+  Displays network dependencies for Apartment and School job types.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Network Dependencies</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Network Dependencies</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-7xl">
+
+      <!-- Apartment Table -->
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Apartment Job Type
+      </h3>
+
+      <div class="overflow-x-auto border border-gray-300 rounded-lg mb-12">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b border-gray-300">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold w-1/4">Phase</th>
+              <th class="px-4 py-3 text-left font-semibold">Dependencies</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Excavation</td>
+              <td class="px-4 py-3">No dependencies</td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Foundation</td>
+              <td class="px-4 py-3">
+                Work may not start until Excavation is 80% complete.
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Basement</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Foundation is 40% complete.</div>
+                <div>May not proceed past 50% until Foundation is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Framing</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Basement is 50% complete.</div>
+                <div>May not proceed past 30% until Basement is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Closure</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Framing is 60% complete.</div>
+                <div>May not proceed past 40% until Framing is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Roof</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Closure is 50% complete.</div>
+                <div>May not proceed past 40% until Closure is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Siding</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Closure is 60% complete.</div>
+                <div>May not proceed past 30% until Closure is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Finishing</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Siding is 50% complete.</div>
+                <div>May not proceed past 40% until Siding is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Mechanical & Electrical</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Excavation is 70% complete.</div>
+                <div>May not proceed past 35% until Siding is 100% complete.</div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- School Table  -->
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        School Job Type
+      </h3>
+
+      <div class="overflow-x-auto border border-gray-300 rounded-lg">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b border-gray-300">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold w-1/4">Phase</th>
+              <th class="px-4 py-3 text-left font-semibold">Dependencies</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Excavation</td>
+              <td class="px-4 py-3">No dependencies</td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Foundation</td>
+              <td class="px-4 py-3">
+                Work may not start until Excavation is 70% complete.
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Basement</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Foundation is 40% complete.</div>
+                <div>May not proceed past 50% until Foundation is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Framing</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Foundation is 40% complete.</div>
+                <div>May not proceed past 40% until Basement is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Closure</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Framing is 30% complete.</div>
+                <div>May not proceed past 60% until Framing is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Roof</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Closure is 60% complete.</div>
+                <div>May not proceed past 80% until Closure is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Siding</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Closure is 60% complete.</div>
+                <div>May not proceed past 70% until Closure is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="border-b hover:bg-gray-50 bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Finishing</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Siding is 50% complete.</div>
+                <div>May not proceed past 60% until Siding is 100% complete.</div>
+              </td>
+            </tr>
+
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold">Mechanical & Electrical</td>
+              <td class="px-4 py-3 space-y-1">
+                <div>Work may not start until Excavation is 50% complete.</div>
+                <div>May not proceed past 40% until Closure is 100% complete.</div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Office Table -->
+        <h3 class="text-2xl font-bold mb-6 text-center mt-16">
+            Office Job Type
+        </h3>
+        
+        <div class="overflow-x-auto border border-gray-300 rounded-lg mb-12">
+            <table class="w-full text-sm">
+            <thead class="bg-gray-100 border-b border-gray-300">
+                <tr>
+                <th class="px-4 py-3 text-left font-semibold w-1/4">Phase</th>
+                <th class="px-4 py-3 text-left font-semibold">Dependencies</th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Excavation</td>
+                <td class="px-4 py-3">No dependencies</td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Foundation</td>
+                <td class="px-4 py-3">
+                    Work may not start until Excavation is 70% complete.
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Basement</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Foundation is 50% complete.</div>
+                    <div>May not proceed past 70% until Foundation is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Framing</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Foundation is 30% complete.</div>
+                    <div>May not proceed past 40% until Foundation is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Closure</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Framing is 50% complete.</div>
+                    <div>May not proceed past 30% until Framing is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Roof</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Closure is 40% complete.</div>
+                    <div>May not proceed past 50% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Siding</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Closure is 40% complete.</div>
+                    <div>May not proceed past 60% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Finishing</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Siding is 30% complete.</div>
+                    <div>May not proceed past 60% until Siding is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr>
+                <td class="px-4 py-3 font-semibold">Mechanical & Electrical</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Excavation is 70% complete.</div>
+                    <div>May not proceed past 40% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+            </tbody>
+            </table>
+        </div>
+
+        <!-- Hospital Table -->
+        <h3 class="text-2xl font-bold mb-6 text-center mt-16">
+            Hospital Job Type
+        </h3>
+        
+        <div class="overflow-x-auto border border-gray-300 rounded-lg mb-12">
+            <table class="w-full text-sm">
+            <thead class="bg-gray-100 border-b border-gray-300">
+                <tr>
+                <th class="px-4 py-3 text-left font-semibold w-1/4">Phase</th>
+                <th class="px-4 py-3 text-left font-semibold">Dependencies</th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Excavation</td>
+                <td class="px-4 py-3">No dependencies</td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Foundation</td>
+                <td class="px-4 py-3">
+                    Work may not start until Excavation is 70% complete.
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Basement</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Foundation is 40% complete.</div>
+                    <div>May not proceed past 50% until Foundation is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Framing</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Foundation is 30% complete.</div>
+                    <div>May not proceed past 40% until Foundation is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Closure</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Framing is 30% complete.</div>
+                    <div>May not proceed past 60% until Framing is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Roof</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Closure is 40% complete.</div>
+                    <div>May not proceed past 90% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Siding</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Closure is 40% complete.</div>
+                    <div>May not proceed past 90% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Finishing</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Roof is 30% complete.</div>
+                    <div>May not proceed past 50% until Siding is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr>
+                <td class="px-4 py-3 font-semibold">Mechanical & Electrical</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Excavation is 50% complete.</div>
+                    <div>May not proceed past 30% until Roof is 100% complete.</div>
+                </td>
+                </tr>
+        
+            </tbody>
+            </table>
+        </div>
+
+
+        <!-- Industrial Table -->
+        <h3 class="text-2xl font-bold mb-6 text-center mt-16">
+            Industrial Job Type
+        </h3>
+        
+        <div class="overflow-x-auto border border-gray-300 rounded-lg">
+            <table class="w-full text-sm">
+            <thead class="bg-gray-100 border-b border-gray-300">
+                <tr>
+                <th class="px-4 py-3 text-left font-semibold w-1/4">Phase</th>
+                <th class="px-4 py-3 text-left font-semibold">Dependencies</th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Excavation</td>
+                <td class="px-4 py-3">No dependencies</td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Foundation</td>
+                <td class="px-4 py-3">
+                    Work may not start until Excavation is 50% complete.
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Basement</td>
+                <td class="px-4 py-3">No dependencies</td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Framing</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Foundation is 50% complete.</div>
+                    <div>May not proceed past 50% until Foundation is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Closure</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Framing is 50% complete.</div>
+                    <div>May not proceed past 50% until Framing is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Roof</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Closure is 40% complete.</div>
+                    <div>May not proceed past 80% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Siding</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Closure is 40% complete.</div>
+                    <div>May not proceed past 90% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr class="border-b hover:bg-gray-50 bg-gray-50">
+                <td class="px-4 py-3 font-semibold">Finishing</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Siding is 20% complete.</div>
+                    <div>May not proceed past 60% until Siding is 100% complete.</div>
+                </td>
+                </tr>
+        
+                <tr>
+                <td class="px-4 py-3 font-semibold">Mechanical & Electrical</td>
+                <td class="px-4 py-3 space-y-1">
+                    <div>Work may not start until Excavation is 70% complete.</div>
+                    <div>May not proceed past 50% until Closure is 100% complete.</div>
+                </td>
+                </tr>
+        
+            </tbody>
+            </table>
+        </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/company/published-info-menu}" 
+        class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to the Published Info Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

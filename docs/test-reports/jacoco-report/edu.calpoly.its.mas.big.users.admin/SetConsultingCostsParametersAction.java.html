@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetConsultingCostsParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">SetConsultingCostsParametersAction.java</span></div><h1>SetConsultingCostsParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+
+//Serlvet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Determines whether the administrator wishes to set parameters or restore defaults for consulting costs parameters then performs the appropriate action.
+ * If the administrator wishes to store his current parameters settings to the database s/he would have pushed the set parameters button
+ * (which must have the name &quot;submit&quot;).  In this case the values currently in the ConsultingCostsParametersForm in the session will be
+ * stored to the database.  These parameters will also be made the admin's defaults if the getMakeDefaults method of the form returns true.
+ * &lt;br&gt;&lt;br&gt;
+ * If the administrator pressed some other submit button (any name other than &quot;submit&quot; or &quot;cancel&quot;) the parameters in the ConsultingCostsParametersForm
+ * will be overwritten with a copy of the admin's defaults for the current parameters.  These parameters will also be re-copied
+ * into the database overwriting the current game parameters.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.7 $ $Date: 2002/03/14 18:53:06 $
+ *
+ */
+<span class="fc" id="L51">public class SetConsultingCostsParametersAction extends BIGAction</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L58">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L61">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L67">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L69">			HttpSession session = request.getSession();</span>
+
+			//Retrieve the current game and admin from the session
+<span class="fc" id="L72">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+<span class="fc" id="L73">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+			//Get the game parameters from the action form
+<span class="fc" id="L76">			ConsultingCostsParametersForm consultingCostsParametersForm = (ConsultingCostsParametersForm) form;</span>
+
+            //Determine which submit button was pressed by the Administrator. If the SetParameters button is null the other RestoreDefaults button had to be pushed
+<span class="fc" id="L79">            String testSetParametersSubmitButton = (String) request.getParameter(&quot;submit&quot;);</span>
+
+			//Create a database facade that will hold the connection since it will be used repeatedly
+<span class="fc" id="L82">			BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">			if (testSetParametersSubmitButton != null)  //&quot;Set Parameters&quot; submit button was pushed.</span>
+			{
+				//Store the current parameters values from the form into the database
+				try
+				{
+
+<span class="nc" id="L90">					dbFacade.getGameParametersDBHandler().updateConsultingCostsParameters(game, consultingCostsParametersForm.getConsultingCosts());</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">					if (consultingCostsParametersForm.getMakeDefaults())</span>
+					{
+						//Store these as default parameters for this admin as well
+<span class="nc" id="L95">						dbFacade.getGameParametersDBHandler().updateDefaultConsultingCostsParameters(admin, consultingCostsParametersForm.getConsultingCosts());</span>
+					}
+
+<span class="nc" id="L98">					dbFacade.close();</span>
+				}
+<span class="nc" id="L100">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					//Problem with the database
+<span class="nc" id="L103">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L104">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L106">				catch(ParametersNotFoundException pnfe)</span>
+				{
+<span class="nc" id="L108">					log.fatal(&quot;&quot;, pnfe);</span>
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L110">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L111">				}</span>
+			}
+			else //&quot;Restore defaults&quot; submit button was pushed
+			{
+
+				try
+				{
+
+<span class="fc" id="L119">					Hashtable parameters = dbFacade.getGameParametersDBHandler().getDefaultConsultingCostsParameters(admin);</span>
+<span class="fc" id="L120">					dbFacade.getGameParametersDBHandler().updateConsultingCostsParameters(game, parameters);</span>
+
+<span class="fc" id="L122">					dbFacade.close();</span>
+
+					//Also put the parameters in the form
+<span class="nc" id="L125">					consultingCostsParametersForm.setConsultingCosts(parameters);</span>
+
+				}
+<span class="nc" id="L128">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					//Problem with the database
+<span class="nc" id="L131">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L132">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L134">				catch(ParametersNotFoundException pnfe)</span>
+				{
+<span class="nc" id="L136">					log.fatal(&quot;&quot;, pnfe);</span>
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L138">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L139">				}</span>
+
+
+			}
+<span class="nc bnc" id="L143" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L145" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L147">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L151">				saveErrors(request, errors);</span>
+<span class="nc" id="L152">	 	    	saveToken(request);</span>
+<span class="nc" id="L153">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+<span class="nc bnc" id="L155" title="All 2 branches missed.">			else if (testSetParametersSubmitButton != null)</span>
+			{
+<span class="nc bnc" id="L157" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L159">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;params_set\&quot;&quot;);</span>
+				}
+<span class="nc" id="L161">				return (mapping.findForward(&quot;params_set&quot;));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L165" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L167">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;defaults_restored\&quot;&quot;);</span>
+				}
+<span class="nc" id="L169">				return (mapping.findForward(&quot;defaults_restored&quot;));</span>
+			}
+
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L177">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L179">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

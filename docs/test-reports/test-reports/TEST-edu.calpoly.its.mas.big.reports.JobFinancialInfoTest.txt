@@ -1,0 +1,18 @@
+Testsuite: edu.calpoly.its.mas.big.reports.JobFinancialInfoTest
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 sec
+
+Testcase: testSetDaysLateAndLiquidatedDamagesPerDay took 0.003 sec
+Testcase: testConstructorAndGetters took 0 sec
+Testcase: testSetDirectLaborCost took 0 sec
+Testcase: testSetDirectMaterialsCost took 0 sec
+Testcase: testSetDirectEquipmentCost took 0 sec
+Testcase: testSetSubcontractorCost took 0 sec
+Testcase: testConstructorFromJob took 0.001 sec
+Testcase: testSetFieldOverhead took 0 sec
+Testcase: testGetJobNetIncomeWithZeroRevenue took 0 sec
+Testcase: testSetLiquidatedDamagesPerDay took 0 sec
+Testcase: testGetJobNetIncomeWithAllCosts took 0 sec
+Testcase: testIncreaseMethodsAndNetIncome took 0.001 sec
+Testcase: testSetPaymentsReceivedAndRetainageReceived took 0 sec
+Testcase: testSetJobID took 0 sec
+Testcase: testSetJobType took 0 sec

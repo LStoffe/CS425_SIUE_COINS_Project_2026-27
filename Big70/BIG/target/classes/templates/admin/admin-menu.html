@@ -1,0 +1,72 @@
+<!--
+  admin-menu.html
+  Landing page for admins once logged in.
+  Leads admins to multiple options, creating a game, changing password, etc.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Admin Menu</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+    
+    <!-- Header -->
+    <header class="text-center py-8">
+        <h1 class="text-6xl font-bold text-black mb-4">COINS</h1>
+        <h2 class="text-3xl text-black mb-6">Administrator Menu</h2>
+    </header>
+
+
+    <!-- Main Content Area -->
+  <main class="flex items-center justify-center px-6 pb-20 bg-white">
+    <div class="bg-white backdrop-blur-sm p-10 rounded-2xl shadow-lg w-full max-w-md text-center">
+      <p class="text-xl text-black mb-4">
+        Welcome,
+        <span th:text="${session.username}">Admin</span>!
+      </p>
+      <h3 class="text-2xl font-bold mb-6 text-black">Please select:</h3>
+
+      <!-- Navigation Buttons -->
+      <div class="flex flex-col space-y-4">
+
+        <a th:href="@{/admin/create-new-game}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Create a New Game
+        </a>
+
+        <a th:href="@{/admin/view-games}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Recall a Previous Game
+        </a>
+
+        <a th:href="@{/admin/change-password}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Change Password
+        </a>
+
+        <a th:href="@{/admin/change-email}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Update E-mail Address
+        </a>
+
+        <a th:href="@{/admin/register-admin}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Register a New Admin
+        </a>
+      </div>
+      
+    </div>
+  </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

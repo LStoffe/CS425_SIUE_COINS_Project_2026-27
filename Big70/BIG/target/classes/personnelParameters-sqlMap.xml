@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="PersonnelParameters">
+
+  <insert id="addPersonnelParameters" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO available_personnel (adminid, gameid, employee_title, employee_cost_per_period)
+    VALUES (#adminid#, #gameid#, #employeeTitle#, #employeeCost#)
+    
+    ]]>		               
+  </insert>
+
+  <update id="updatePersonnelParameters" parameterClass="map">
+    <![CDATA[
+
+    UPDATE available_personnel set employee_cost_per_period = #employeeCost#
+    WHERE gameid = #gameid#
+    AND adminid = #adminid#
+    AND employee_title = #employeeType#
+    
+    ]]>	  
+  </update>
+
+  <delete id="deletePersonnelParameters" parameterClass="map">
+    <![CDATA[
+
+    DELETE FROM available_personnel 
+    WHERE gameid= #gameid#
+    AND adminid = #adminid#
+    
+    ]]>		               
+  </delete>  
+    
+  <resultMap id="getPersonnelParametersResults" class="java.util.HashMap">
+    <result property="employeeTitle" column="employee_title" />
+    <result property="employeeCost" column="employee_cost_per_period" />
+  </resultMap>      
+  
+  <select id="getPersonnelParameters" resultMap="getPersonnelParametersResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT employee_title, employee_cost_per_period
+    FROM available_personnel
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>       
+  
+  <select id="getPersonnelTypes" resultClass="string" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT employee_title
+    FROM available_personnel
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>   
+
+</sqlMap>

@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.reports.NetworkDependenciesReportActionTest
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.573 sec
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.567 sec
+	Caused an ERROR
+Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+	at edu.calpoly.its.mas.big.reports.NetworkDependenciesReportAction.execute(NetworkDependenciesReportAction.java:73)
+	at edu.calpoly.its.mas.big.reports.NetworkDependenciesReportActionTest.testExecuteReturnsCancelledWhenRequestCancelled(NetworkDependenciesReportActionTest.java:25)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+

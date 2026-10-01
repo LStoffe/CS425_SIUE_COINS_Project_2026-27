@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IntervalPolicySettingsForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval</a> &gt; <span class="el_source">IntervalPolicySettingsForm.java</span></div><h1>IntervalPolicySettingsForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval;
+
+//Java imports
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+//Struts imports
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * ActionForm used to hold interval update policy settings.
+ *
+ *
+ * @author Kevin Craig
+ *
+ */
+public final class IntervalPolicySettingsForm  extends ActionForm
+{
+	private String interval;
+	private String updateTime;
+
+	private Log log;
+
+	public IntervalPolicySettingsForm()
+	{
+<span class="fc" id="L36">		super();</span>
+
+<span class="fc" id="L38">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L39">	}</span>
+
+    //**************** Public Methods ******************
+
+
+	/**
+	 * All String parameters can be correctly converted to their expected type.
+	 * Interval cannot be less than 1.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L50">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L52">        boolean error = false;</span>
+
+<span class="fc" id="L54">		int in = -1;</span>
+
+		try
+		{
+<span class="fc" id="L58">			in = Integer.parseInt(interval);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">			if(in &lt; 1)</span>
+			{
+<span class="fc" id="L61">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.automaticUpdates.intervalPolicy.negative&quot;));</span>
+			}
+		}
+<span class="fc" id="L64">		catch(NumberFormatException nfe)</span>
+		{
+<span class="fc" id="L66">			error = true;</span>
+<span class="fc" id="L67">		}</span>
+
+<span class="fc" id="L69">		DateFormat df = new SimpleDateFormat(&quot;h:mm a&quot; );</span>
+
+		try
+		{
+<span class="fc" id="L73">			df.parse(updateTime);</span>
+		}
+<span class="fc" id="L75">		catch(Exception e)</span>
+		{
+<span class="fc" id="L77">			error = true;</span>
+<span class="fc" id="L78">		}</span>
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		if(error)</span>
+		{
+<span class="fc" id="L82">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.invalid&quot;));</span>
+		}
+
+<span class="fc" id="L85">		return errors;</span>
+	}
+
+
+
+//**************************** Set &amp; Get Methods ************************
+
+	public String getInterval()
+	{
+<span class="fc" id="L94">		return this.interval;</span>
+	}
+
+	public void setInterval(String interval)
+	{
+<span class="fc" id="L99">		this.interval = interval;</span>
+<span class="fc" id="L100">	}</span>
+
+	public String getUpdateTime()
+	{
+<span class="fc" id="L104">		return updateTime;</span>
+	}
+
+	public void setUpdateTime(String updateTime)
+	{
+<span class="fc" id="L109">		this.updateTime = updateTime;</span>
+<span class="fc" id="L110">	}</span>
+
+	public int getIntervalAsInt()
+	{
+<span class="fc" id="L114">		return Integer.parseInt(interval);</span>
+	}
+
+	public void setIntervalAsInt(int interval)
+	{
+<span class="fc" id="L119">		this.interval = (new Integer(interval)).toString();</span>
+<span class="fc" id="L120">	}</span>
+
+	public Date getUpdateTimeAsDate()
+	{
+<span class="fc" id="L124">		Date time = null;</span>
+<span class="fc" id="L125">		DateFormat df = new SimpleDateFormat(&quot;h:mm a&quot; );</span>
+
+		try
+		{
+<span class="fc" id="L129">			time = df.parse(updateTime);</span>
+		}
+<span class="fc" id="L131">		catch(Exception e)</span>
+		{
+<span class="fc" id="L133">			log.error(&quot;&quot;, e);</span>
+<span class="fc" id="L134">		}</span>
+
+<span class="fc" id="L136">		return time;</span>
+	}
+
+	public void setUpdateTimeAsDate(Date updateTime)
+	{
+<span class="fc" id="L141">		DateFormat df = new SimpleDateFormat(&quot;h:mm a&quot; );</span>
+<span class="fc" id="L142">		this.updateTime = df.format(updateTime);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L145">			log.debug(this.getClass() + &quot;: updateTime is &quot; + updateTime);</span>
+		}
+
+<span class="fc" id="L148">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.PaymentsReportTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 sec
+
+Testcase: testSetCompanyName took 0.003 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testSetBillingForms took 0.001 sec
+Testcase: testExtendsReportForm took 0 sec

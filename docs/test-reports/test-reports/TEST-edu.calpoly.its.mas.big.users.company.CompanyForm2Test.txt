@@ -1,0 +1,29 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.CompanyForm2Test
+Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.529 sec
+
+Testcase: testValidateDetectsPerJobLimitNumberFormatException took 0.099 sec
+Testcase: testGettersAndSetters took 0 sec
+Testcase: testValidateRequiresTitle took 0.001 sec
+Testcase: testValidateDetectsPerJobLimitOver100 took 0 sec
+Testcase: testValidateRequiresPerJobLimitNotEmpty took 0 sec
+Testcase: testValidateDetectsUsernameTooShort took 0.002 sec
+Testcase: testValidateDetectsPasswordMismatch took 0 sec
+Testcase: testValidateRequiresCashOnHandNotEmpty took 0.001 sec
+Testcase: testValidateAddsNoLicenseErrorForGametype3 took 0 sec
+Testcase: testValidateRequiresWipLimitNotEmpty took 0 sec
+Testcase: testValidateDetectsWipLimitBelow5Million took 0.001 sec
+Testcase: testValidateDetectsPerJobLimitOutOfRange took 0.001 sec
+Testcase: testValidateDetectsPasswordTooShort took 0 sec
+Testcase: testValidateDetectsInvalidCashOnHand took 0.001 sec
+Testcase: testValidateDetectsUsernameTooLong took 0 sec
+Testcase: testValidateDetectsTitleTooLong took 0.001 sec
+Testcase: testValidateDetectsInvalidWipLimit took 0 sec
+Testcase: testValidateRequiresCashOnHand took 0 sec
+Testcase: testValidateRequiresWipLimit took 0.001 sec
+Testcase: testValidateRequiresPerJobLimit took 0 sec
+Testcase: testGetWIPLimitStringWhenNull took 0 sec
+Testcase: testValidateRequiresCashOnHandNotDollarSign took 0 sec
+Testcase: testValidatePassesForGametype1WithoutLicense took 0 sec
+Testcase: testValidateDetectsCashOnHandExceedsWipLimit took 0.001 sec
+Testcase: testValidatePassesWhenLicenseSelectedForGametype3 took 0.001 sec
+Testcase: testMockitoWorks took 0.403 sec

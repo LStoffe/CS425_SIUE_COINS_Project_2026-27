@@ -1,0 +1,891 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CAMUpdater.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">CAMUpdater.java</span></div><h1>CAMUpdater.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.game;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.reports.CAMReportForm;
+import edu.calpoly.lib.multimedia.big.db.DefaultCAMDBHandler;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//JDK Imports
+import java.util.Hashtable;
+import java.util.Vector;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ *  Handles the updating of company appraisal metrics.
+ *  The &lt;code&gt;updateMetrics&lt;/code&gt; method is called each period to
+ *  reconcile all changes to metrics made during the current period
+ *  with the existing set of metrics.
+ *
+ */
+public class CAMUpdater
+{
+	/**
+	 * Unique identifier for financial liquidity metric
+	 */
+    public static final int FINANCIAL_LIQUIDITY = 0;
+
+    /**
+     * Unique identifier for financial success metric
+     */
+    public static final int FINANCIAL_SUCCESS = 1;
+
+    /**
+     * Unique identifier for responsibility metric
+     */
+    public static final int BID_RESPONSIBILITY = 2;
+
+	/**
+	 * Unique identifier for pace metric
+	 */
+    public static final int PACE = 3;
+
+    /**
+     * Unique identifier for ethics metric
+     */
+    public static final int ETHICS = 4;
+
+    /**
+     * Unique identifier for name recognition metric
+     */
+    public static final int NAME_RECOGNITION = 5;
+
+    /**
+     * Unique identifier for apartments metric
+     */
+    public static final int APARTMENTS = 6;
+
+    /**
+     * Unique identifier for schools metric
+     */
+    public static final int SCHOOLS = 7;
+
+    /**
+     * Unique identifier for offices metric
+     */
+    public static final int OFFICES = 8;
+
+    /**
+     * Unique identifier for hospitals metric
+     */
+    public static final int HOSPITALS = 9;
+
+    /**
+     * Unique identifier for industrial metric
+     */
+    public static final int INDUSTRIAL = 10;
+
+    /**
+     * Unique identifier for highways metric
+     */
+    public static final int HIGHWAYS = 11;
+
+    /**
+     * Unique identifier for bridges metric
+     */
+    public static final int BRIDGES = 12;
+
+    /**
+     * Unique identifier for sitedevelopment metric
+     */
+    public static final int SITEDEVELOPMENT = 13;
+
+    /**
+     * Unique identifier for massexcavation metric
+     */
+    public static final int MASSEXCAVATION = 14;
+
+    /**
+     * Unique identifier for undergroundutilities metric
+     */
+    public static final int UNDERGROUNDUTILITIES = 15;
+
+    /**
+     * Amount the responsibility metric will be increased by if
+     * a company submits a bid within 1 standard deviation of the average
+     * bid price for the job.
+     */
+    public static final int BID_RESPONSIBILITY_1SD_INC = 20;
+
+    /**
+     * Amount the responsibility metric will be increased by if
+     * a company submits a bid within 2 standard deviations of the average
+     * bid price for the job.
+     */
+    public static final int BID_RESPONSIBILITY_2SD_INC = 10;
+
+    /**
+     * Amount the responsibility metric will be decreased by if
+     * a company submits a bid over 3 standard deviations of the average
+     * bid price for the job.
+     */
+    public static final int BID_RESPONSIBILITY_3SD_DEC = -30;
+
+    /**
+	 * Amount the responsibility metric will be decreased by if
+	 * a company submits a bid below BIG's calculated direct cost for
+	 * the job.
+     */
+    public static final int BID_RESPONSIBILITY_LOW_DC = -20;
+
+    /**
+	 * Amount the responsibility metric will be decreased by if
+	 * a company has unbilled for revenue at the end of a period.
+     */
+    public static final int BID_RESPONSIBILITY_UNDERBILLED = -10;
+
+    /**
+     * Amount company's pace metric is increased by when the
+     * company completes a job before or on the required completion date.
+     *
+     * Was 25 before I changed it
+     */
+    public static final int PACE_FINISHED_ONTIME = 40;
+
+    /**
+     * Amount Pace metric will be decreased by per day a job is late
+     *
+     * Was -2 before I changed it.
+     */
+    public static final int PACE_DAY_LATE = -1;
+
+    /**
+     * Amount company's Ethics metric is increased by each time they
+     * submit a bill that is considered ethical based
+     * on the percent complete of the job
+     */
+	public static final int ETHICS_ETHICAL_BILL = 5;
+
+    /**
+     * Amount company's Ethics metric is increased by each time they
+     * submit a bill that is considered unethical based
+     * on the percent complete of the job
+     */
+	public static final int ETHICS_UNETHICAL_BILL = -10;
+
+    /**
+     * Amount the name recognition metric will be decreased by each metric.
+     */
+    public static final int NAME_RECOGNITION_DECREASE = 8;
+
+    /**
+     * Increase to name recognition metric for bidding on a job.
+     */
+    public static final int NAME_RECOGNITION_BID_JOB = 10;
+
+    /**
+     * The name recognition bonus for being awarded a job will be job size divided by this value
+     */
+    public static final int NAME_RECOGNITION_GET_JOB_MODIFIER = 2000;
+
+    /**
+     * The name recognition bonus for finishing job will be job size divided by this value
+     */
+    public static final int NAME_RECOGNITION_FINISH_JOB_MODIFIER = 3000;
+
+    /**
+     * The name recognition bonus for working a job will be job size divided by this value
+     */
+    public static final int NAME_RECOGNITION_WORK_JOB_MODIFIER = 10000;
+
+    /**
+     * Bonus to a job type metric for getting a job of that type.
+     */
+    public static final int JOB_TYPE_AWARD_BONUS = 15;
+
+    /**
+     * Bonus to a job type metric for finishing a job of that type.
+     */
+    public static final int JOB_TYPE_FINISHING_BONUS = 25;
+
+    /**
+     * When a company is awarded a job, all job type metrics other than the
+     * type of the job are decreased by this amount.
+     */
+    public static final int JOB_TYPE_DECAY = -5;
+
+	private BIGDatabaseFacadeInterface dbFacade;
+	private Game game;
+	private Log log;
+
+	/**
+	 *  Creates a new &lt;code&gt;CAMUpdater&lt;/code&gt; to make
+	 *  updates to the &lt;code&gt;BIGDatabaseFacadeInterface&lt;/code&gt;
+	 *  passed as a parameter.
+	 */
+	public CAMUpdater(Game game, BIGDatabaseFacadeInterface dbFacade)
+<span class="nc" id="L228">	{</span>
+<span class="nc" id="L229">		log = LogFactory.getLog(this.getClass());</span>
+
+<span class="nc" id="L231">		this.dbFacade = dbFacade;</span>
+<span class="nc" id="L232">		this.game = game;</span>
+<span class="nc" id="L233">	}</span>
+
+    /**
+     * Updates the metrics for a company for a period.
+     * @param company The company whose metrics are to be updated.
+     * @param period The period the new updates should be saved under in the
+     * database.
+     * &lt;br&gt;&lt;b&gt;Precondition:&lt;/b&gt; The value passed for the period must
+     * never have been passed to this method before with the same company.
+     */
+	public void updateMetrics(Company company, int period)
+	{
+<span class="nc" id="L245">		int financialLiquidity = 0;</span>
+<span class="nc" id="L246">		int financialSuccess = 0;</span>
+<span class="nc" id="L247">		int biddingResponsibility = 0;</span>
+<span class="nc" id="L248">		int pace = 0;</span>
+<span class="nc" id="L249">		int ethics = 0;</span>
+<span class="nc" id="L250">		int nameRecognition = -DefaultCAMDBHandler.METRIC_MAX;  //Rather than starting off neutral, companies start off unknown</span>
+
+        /*   --- original code ---
+		int apartments = -DefaultCAMDBHandler.METRIC_MAX;
+		int schools = -DefaultCAMDBHandler.METRIC_MAX;
+		int offices = -DefaultCAMDBHandler.METRIC_MAX;
+		int hospitals = -DefaultCAMDBHandler.METRIC_MAX;
+		int industrial = -DefaultCAMDBHandler.METRIC_MAX;  */
+
+<span class="nc" id="L259">		int apartments = 0;</span>
+<span class="nc" id="L260">		int schools = 0;</span>
+<span class="nc" id="L261">		int offices = 0;</span>
+<span class="nc" id="L262">		int hospitals = 0;</span>
+<span class="nc" id="L263">		int industrial = 0;</span>
+<span class="nc" id="L264">		int highways = 0;</span>
+<span class="nc" id="L265">		int bridges = 0;</span>
+<span class="nc" id="L266">		int sitedevelopment = 0;</span>
+<span class="nc" id="L267">		int massexcavation = 0;</span>
+<span class="nc" id="L268">		int undergroundutilities = 0;</span>
+
+       /**
+        * The first time updateMetrics gets called is at the end of period 1 to calculate CAMs earned during that period.
+        * Note: When the game starts, it is period one.  Appraisal Metrics reports are not available during period one.
+        * The first time you &quot;Advance the Period&quot; it becomes period two. During period two you will be able to see the CAMS for period one.
+        *
+        * The values above are set as defaults to be used during this first period update.
+        * The &quot;try&quot; below will fail at the first update because there are no existing CAMs at that time.
+        * So, the above values will become the starting point when combined with the &quot;update&quot; values gathered during period one.
+        * In subsequent period updates, the default values above will be overridden by the values obtained during &quot;try&quot;
+        * as it obtains data from the appraisal_metrics table.
+        */
+
+		try
+		{
+            // currentMetrics is populated by values in the appraisal_metrics table, so these values will be the current CAMs
+<span class="nc" id="L285">			Hashtable currentMetrics = dbFacade.getCAMDBHandler().getCAMs(company, period - 1);</span>
+
+<span class="nc" id="L287">			financialLiquidity = ((Integer) currentMetrics.get(&quot;FinancialLiquidity&quot;)).intValue();</span>
+<span class="nc" id="L288">			financialSuccess =	((Integer) currentMetrics.get(&quot;FinancialSuccess&quot;)).intValue();</span>
+<span class="nc" id="L289">			biddingResponsibility = ((Integer) currentMetrics.get(&quot;BiddingResponsibility&quot;)).intValue();</span>
+<span class="nc" id="L290">			pace = ((Integer) currentMetrics.get(&quot;Pace&quot;)).intValue();</span>
+<span class="nc" id="L291">			ethics = ((Integer) currentMetrics.get(&quot;Ethics&quot;)).intValue();</span>
+<span class="nc" id="L292">			nameRecognition = ((Integer) currentMetrics.get(&quot;NameRecognition&quot;)).intValue();</span>
+<span class="nc" id="L293">			apartments = ((Integer) currentMetrics.get(&quot;Apartments&quot;)).intValue();</span>
+<span class="nc" id="L294">			schools = ((Integer) currentMetrics.get(&quot;Schools&quot;)).intValue();</span>
+<span class="nc" id="L295">			offices = ((Integer) currentMetrics.get(&quot;Offices&quot;)).intValue();</span>
+<span class="nc" id="L296">			hospitals = ((Integer) currentMetrics.get(&quot;Hospitals&quot;)).intValue();</span>
+<span class="nc" id="L297">			industrial = ((Integer) currentMetrics.get(&quot;Industrial&quot;)).intValue();</span>
+<span class="nc" id="L298">			highways = ((Integer) currentMetrics.get(&quot;Highways&quot;)).intValue();</span>
+<span class="nc" id="L299">			bridges = ((Integer) currentMetrics.get(&quot;Bridges&quot;)).intValue();</span>
+<span class="nc" id="L300">			sitedevelopment = ((Integer) currentMetrics.get(&quot;SiteDevelopment&quot;)).intValue();</span>
+<span class="nc" id="L301">			massexcavation = ((Integer) currentMetrics.get(&quot;MassExcavation&quot;)).intValue();</span>
+<span class="nc" id="L302">			undergroundutilities = ((Integer) currentMetrics.get(&quot;UndergroundUtilities&quot;)).intValue();</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;Current metrics for company &quot; + company.getCompanyID());
+				log.debug(&quot;financial liquidity: &quot; + financialLiquidity);
+				log.debug(&quot;financial success: &quot; + financialSuccess);
+				log.debug(&quot;responsibility: &quot; + biddingResponsibility);
+				log.debug(&quot;pace: &quot; + pace);
+				log.debug(&quot;ethics: &quot; + ethics);
+				log.debug(&quot;name recognition: &quot; + nameRecognition);
+				log.debug(&quot;apartments: &quot; + apartments);
+				log.debug(&quot;schools: &quot; + schools);
+				log.debug(&quot;offices: &quot; + offices);
+				log.debug(&quot;hospitals: &quot; + hospitals);
+				log.debug(&quot;industrial: &quot; + industrial);
+
+			} */
+
+		}
+<span class="nc" id="L322">		catch(ObjectNotFoundException onfe)</span>
+		{
+			//This exception will be correctly thrown if the period
+			//number is 1 because there are no existing CAMs yet.
+		}
+<span class="nc" id="L327">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L329">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L330">		}</span>
+
+		try
+		{
+            // updates is populated by values in the appraisal_metrics_updates table
+<span class="nc" id="L335">	 		Hashtable updates = dbFacade.getCAMDBHandler().getCAMUpdates(company);</span>
+
+			//FINANCIAL LIQUIDITY and FINANCIAL SUCCESS are computed differently then the others
+			//these two are based on a formula using ratio values as inputs.  The ratios must
+			//be pulled from the database.
+<span class="nc" id="L340">			Float[][] ratios = dbFacade.getRatiosDBHandler().getRatios(game, period - 1, 0, company);</span>
+<span class="nc" id="L341">			Float currentRatio = ratios[0][0];</span>
+<span class="nc" id="L342">			Float cashTurns = ratios[0][3];</span>
+<span class="nc" id="L343">			Float cashToWIP = ratios[0][4];</span>
+<span class="nc" id="L344">			Float returnOnEquity = ratios[0][9];</span>
+<span class="nc" id="L345">			Float returnOnAssets = ratios[0][10];</span>
+
+<span class="nc" id="L347">			int biddingResponsibilityUpdates = ((Integer) updates.get(&quot;BiddingResponsibility&quot;)).intValue();</span>
+<span class="nc" id="L348">			biddingResponsibility += biddingResponsibilityUpdates;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(biddingResponsibilityUpdates + &quot; total responsibility update points&quot;);
+			} */
+
+<span class="nc bnc" id="L355" title="All 2 branches missed.">			if(biddingResponsibility &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L357">				biddingResponsibility = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L359" title="All 2 branches missed.">			else if (biddingResponsibility &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L361">				biddingResponsibility = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new responsibility value : &quot; + biddingResponsibility);
+			} */
+
+<span class="nc" id="L369">			int paceUpdates = ((Integer) updates.get(&quot;Pace&quot;)).intValue();</span>
+<span class="nc" id="L370">			pace += paceUpdates;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(paceUpdates + &quot; total pace update points&quot;);
+			} */
+
+<span class="nc bnc" id="L377" title="All 2 branches missed.">			if(pace &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L379">				pace = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L381" title="All 2 branches missed.">			else if (pace &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L383">				pace = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new pace value : &quot; + pace);
+			} */
+
+<span class="nc" id="L391">			int ethicsUpdates = ((Integer) updates.get(&quot;Ethics&quot;)).intValue();</span>
+<span class="nc" id="L392">			ethics += ethicsUpdates;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(ethicsUpdates + &quot; total ethics update points&quot;);
+			} */
+
+<span class="nc bnc" id="L399" title="All 2 branches missed.">			if(ethics &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L401">				ethics = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L403" title="All 2 branches missed.">			else if (ethics &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L405">				ethics = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new ethics value : &quot; + ethics);
+			} */
+
+            //Name recognition is handled different in that it is reduced each period on top of the updates.
+<span class="nc" id="L414">			int nameRecognitionUpdates = ((Integer) updates.get(&quot;NameRecognition&quot;)).intValue() - NAME_RECOGNITION_DECREASE;</span>
+<span class="nc" id="L415">			nameRecognition += nameRecognitionUpdates;</span>
+
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(nameRecognitionUpdates + &quot; total name recognition update points&quot;);
+			} */
+
+<span class="nc bnc" id="L423" title="All 2 branches missed.">			if(nameRecognition &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L425">				nameRecognition = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L427" title="All 2 branches missed.">			else if (nameRecognition &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L429">				nameRecognition = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new name recognition value : &quot; + nameRecognition);
+			} */
+
+<span class="nc" id="L437">			int apartmentsUpdates = ((Integer) updates.get(&quot;Apartments&quot;)).intValue();</span>
+<span class="nc" id="L438">			apartments += apartmentsUpdates;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(apartmentsUpdates + &quot; total apartments update points&quot;);
+			} */
+
+<span class="nc bnc" id="L445" title="All 2 branches missed.">			if(apartments &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L447">				apartments = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L449" title="All 2 branches missed.">			else if (apartments &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L451">				apartments = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new apartments value : &quot; + apartments);
+			} */
+
+<span class="nc" id="L459">			int schoolsUpdate = ((Integer) updates.get(&quot;Schools&quot;)).intValue();</span>
+<span class="nc" id="L460">			schools += schoolsUpdate;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(schoolsUpdate + &quot; total schools update points&quot;);
+			} */
+
+<span class="nc bnc" id="L467" title="All 2 branches missed.">			if(schools &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L469">				schools = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L471" title="All 2 branches missed.">			else if (schools &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L473">				schools = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new schools value : &quot; + schools);
+			} */
+
+<span class="nc" id="L481">			int officesUpdates = ((Integer) updates.get(&quot;Offices&quot;)).intValue();</span>
+<span class="nc" id="L482">			offices += officesUpdates;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(officesUpdates + &quot; total offices update points&quot;);
+			} */
+
+<span class="nc bnc" id="L489" title="All 2 branches missed.">			if(offices &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L491">				offices = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L493" title="All 2 branches missed.">			else if (offices &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L495">				offices = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new offices value : &quot; + offices);
+			} */
+
+<span class="nc" id="L503">			int hospitalsUpdates = ((Integer) updates.get(&quot;Hospitals&quot;)).intValue();</span>
+<span class="nc" id="L504">			hospitals += hospitalsUpdates;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(hospitalsUpdates + &quot; total hospitals update points&quot;);
+			} */
+
+<span class="nc bnc" id="L511" title="All 2 branches missed.">			if(hospitals &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L513">				hospitals = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L515" title="All 2 branches missed.">			else if (hospitals &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L517">				hospitals = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new hospitals value : &quot; + hospitals);
+			} */
+
+<span class="nc" id="L525">			int industrialUpdates = ((Integer) updates.get(&quot;Industrial&quot;)).intValue();</span>
+<span class="nc" id="L526">			industrial += industrialUpdates;</span>
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(industrialUpdates + &quot; total industrial update points&quot;);
+			} */
+
+<span class="nc bnc" id="L533" title="All 2 branches missed.">			if(industrial &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L535">				industrial = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L537" title="All 2 branches missed.">			else if (industrial &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L539">				industrial = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;new industrial value : &quot; + industrial);
+			} */
+
+<span class="nc" id="L547">			int highwaysUpdates = ((Integer) updates.get(&quot;Highways&quot;)).intValue();</span>
+<span class="nc" id="L548">			highways += highwaysUpdates;</span>
+
+<span class="nc bnc" id="L550" title="All 2 branches missed.">			if(highways &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L552">				highways = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L554" title="All 2 branches missed.">			else if (highways &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L556">				highways = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+<span class="nc" id="L559">			int bridgesUpdates = ((Integer) updates.get(&quot;Bridges&quot;)).intValue();</span>
+<span class="nc" id="L560">			bridges += bridgesUpdates;</span>
+
+<span class="nc bnc" id="L562" title="All 2 branches missed.">			if(bridges &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L564">				bridges = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L566" title="All 2 branches missed.">			else if (bridges &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L568">				bridges = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+<span class="nc" id="L571">			int sitedevelopmentUpdates = ((Integer) updates.get(&quot;SiteDevelopment&quot;)).intValue();</span>
+<span class="nc" id="L572">			sitedevelopment += sitedevelopmentUpdates;</span>
+
+<span class="nc bnc" id="L574" title="All 2 branches missed.">			if(sitedevelopment &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L576">				sitedevelopment = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L578" title="All 2 branches missed.">			else if (sitedevelopment &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L580">				sitedevelopment = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+<span class="nc" id="L583">			int massexcavationUpdates = ((Integer) updates.get(&quot;MassExcavation&quot;)).intValue();</span>
+<span class="nc" id="L584">			massexcavation += massexcavationUpdates;</span>
+
+<span class="nc bnc" id="L586" title="All 2 branches missed.">			if(massexcavation &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L588">				massexcavation = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L590" title="All 2 branches missed.">			else if (massexcavation &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L592">				massexcavation = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+<span class="nc" id="L595">			int undergroundutilitiesUpdates = ((Integer) updates.get(&quot;UndergroundUtilities&quot;)).intValue();</span>
+<span class="nc" id="L596">			undergroundutilities += undergroundutilitiesUpdates;</span>
+
+<span class="nc bnc" id="L598" title="All 2 branches missed.">			if(undergroundutilities &gt; DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L600">				undergroundutilities = DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+<span class="nc bnc" id="L602" title="All 2 branches missed.">			else if (undergroundutilities &lt; -DefaultCAMDBHandler.METRIC_MAX)</span>
+			{
+<span class="nc" id="L604">				undergroundutilities = -DefaultCAMDBHandler.METRIC_MAX;</span>
+			}
+
+<span class="nc" id="L607">			Hashtable newCAMValues = new Hashtable();</span>
+<span class="nc" id="L608">			newCAMValues.put(&quot;FinancialLiquidity&quot;, new Integer(computeFinancialLiquidityValue(currentRatio, cashTurns, cashToWIP, company)));</span>
+<span class="nc" id="L609">			newCAMValues.put(&quot;FinancialSuccess&quot;, new Integer(computeFinancialSuccessValue(returnOnEquity, returnOnAssets)));</span>
+<span class="nc" id="L610">			newCAMValues.put(&quot;BiddingResponsibility&quot;, new Integer(biddingResponsibility));</span>
+<span class="nc" id="L611">			newCAMValues.put(&quot;Pace&quot;, new Integer(pace));</span>
+<span class="nc" id="L612">			newCAMValues.put(&quot;Ethics&quot;, new Integer(ethics));</span>
+<span class="nc" id="L613">			newCAMValues.put(&quot;NameRecognition&quot;, new Integer(nameRecognition));</span>
+<span class="nc" id="L614">			newCAMValues.put(&quot;Apartments&quot;, new Integer(apartments));</span>
+<span class="nc" id="L615">			newCAMValues.put(&quot;Schools&quot;, new Integer(schools));</span>
+<span class="nc" id="L616">			newCAMValues.put(&quot;Offices&quot;, new Integer(offices));</span>
+<span class="nc" id="L617">			newCAMValues.put(&quot;Hospitals&quot;, new Integer(hospitals));</span>
+<span class="nc" id="L618">			newCAMValues.put(&quot;Industrial&quot;, new Integer(industrial));</span>
+<span class="nc" id="L619">			newCAMValues.put(&quot;Highways&quot;, new Integer(highways));</span>
+<span class="nc" id="L620">			newCAMValues.put(&quot;Bridges&quot;, new Integer(bridges));</span>
+<span class="nc" id="L621">			newCAMValues.put(&quot;SiteDevelopment&quot;, new Integer(sitedevelopment));</span>
+<span class="nc" id="L622">			newCAMValues.put(&quot;MassExcavation&quot;, new Integer(massexcavation));</span>
+<span class="nc" id="L623">			newCAMValues.put(&quot;UndergroundUtilities&quot;, new Integer(undergroundutilities));</span>
+
+<span class="nc" id="L625">			dbFacade.getCAMDBHandler().addCAMs(company, period, newCAMValues);</span>
+<span class="nc" id="L626">			dbFacade.getCAMDBHandler().clearCAMUpdateRecord(company);</span>
+		}
+<span class="nc" id="L628">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L630">			log.fatal(&quot;&quot;, bigdbe);</span>
+		}
+<span class="nc" id="L632">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L634">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L635">		}</span>
+<span class="nc" id="L636">	}</span>
+
+	/**
+	 *  Computes the value of the financial liquidity metric for this company
+	 *  based on the number of jobs held by this company, the cash on hand for this company, and the current ratio, cash turns ratio,
+	 *  and cash to wip ratio for this company.  If the company's cash on hand is negative this method will always return the lowest possible value
+	 *  (&lt;code&gt;-CAMReportForm.rawMetricRange&lt;/code&gt;).
+	 *  If the company hold no jobs
+	 *  the FinancialLiquidity CAM will be neutral so long as the company's cash on hand is positive.
+	 *  Otherwise a contribution will be calculated for each ratio that has a value.
+	 *  This contribution will be based on where the value of the ratio falls into
+	 *  a predetermined hardcoded range for each ratio.  (These ranges are based on the probable values of the ratios
+	 *  unlikely to ever change.)  If a company has more than 3 jobs a bonus is given because it is more
+	 *  difficult to have liquid assets if the company has many jobs.
+	 *  If the CashToWIP ratio is negative it means the company has
+	 */
+	private int computeFinancialLiquidityValue(Float currentRatio, Float cashTurns, Float cashToWIP, Company company)
+	{
+		//First see if the company's cash on hand is negative.
+		//If so return immediately
+<span class="nc bnc" id="L656" title="All 2 branches missed.">		if(company.getCashOnHand() &lt; 1)</span>
+		{
+<span class="nc" id="L658">			return (- CAMReportForm.rawMetricRange);</span>
+		}
+
+<span class="nc" id="L661">		int numberOfJobs = 0;</span>
+
+		//Find the number of jobs held by this company by going to the database.
+		try
+		{
+<span class="nc" id="L666">			Vector jobs = dbFacade.getJobDBHandler().getActiveJobs(game, company);</span>
+<span class="nc" id="L667">			numberOfJobs = jobs.size();</span>
+		}
+<span class="nc" id="L669">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L671">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L672">		}</span>
+
+		//If the number of jobs is 0 then we can return 0 immediately
+<span class="nc bnc" id="L675" title="All 2 branches missed.">		if(numberOfJobs == 0)</span>
+		{
+<span class="nc" id="L677">			return 0;</span>
+		}
+
+
+<span class="nc" id="L681">		int currentRatioContribution = 3;</span>
+<span class="nc" id="L682">		int cashTurnsContribution = 3;</span>
+<span class="nc" id="L683">		int cashToWIPContribution = 3;</span>
+
+<span class="nc bnc" id="L685" title="All 2 branches missed.">		if(currentRatio != null)</span>
+		{
+<span class="nc bnc" id="L687" title="All 2 branches missed.">			if(currentRatio.floatValue() &lt; 1)</span>
+			{
+<span class="nc" id="L689">				currentRatioContribution = 1;</span>
+			}
+<span class="nc bnc" id="L691" title="All 2 branches missed.">			else if(currentRatio.floatValue() &lt; 3)</span>
+			{
+<span class="nc" id="L693">				currentRatioContribution = 2;</span>
+			}
+<span class="nc bnc" id="L695" title="All 2 branches missed.">			else if (currentRatio.floatValue() &lt; 6)</span>
+			{
+<span class="nc" id="L697">				currentRatioContribution = 3;</span>
+			}
+<span class="nc bnc" id="L699" title="All 2 branches missed.">			else if (currentRatio.floatValue() &lt; 10)</span>
+			{
+<span class="nc" id="L701">				currentRatioContribution = 4;</span>
+			}
+			else
+			{
+<span class="nc" id="L705">				currentRatioContribution = 5;</span>
+			}
+		}
+
+<span class="nc bnc" id="L709" title="All 2 branches missed.">		if(cashTurns != null)</span>
+		{
+<span class="nc bnc" id="L711" title="All 2 branches missed.">			if(cashTurns.floatValue() &lt; .01)</span>
+			{
+<span class="nc" id="L713">				cashTurnsContribution = 1;</span>
+			}
+<span class="nc bnc" id="L715" title="All 2 branches missed.">			else if(cashTurns.floatValue() &lt; .1)</span>
+			{
+<span class="nc" id="L717">				cashTurnsContribution = 2;</span>
+			}
+<span class="nc bnc" id="L719" title="All 2 branches missed.">			else if (cashTurns.floatValue() &lt; .25)</span>
+			{
+<span class="nc" id="L721">				cashTurnsContribution = 3;</span>
+			}
+<span class="nc bnc" id="L723" title="All 2 branches missed.">			else if (cashTurns.floatValue() &lt; .5)</span>
+			{
+<span class="nc" id="L725">				cashTurnsContribution = 4;</span>
+			}
+			else
+			{
+<span class="nc" id="L729">				cashTurnsContribution = 5;</span>
+			}
+		}
+
+<span class="nc bnc" id="L733" title="All 2 branches missed.">		if(cashToWIP != null)</span>
+		{
+			//
+
+<span class="nc bnc" id="L737" title="All 2 branches missed.">			if(cashToWIP.floatValue() &lt; .02)</span>
+			{
+<span class="nc" id="L739">				cashToWIPContribution = 1;</span>
+			}
+<span class="nc bnc" id="L741" title="All 2 branches missed.">			else if(cashToWIP.floatValue() &lt; .05)</span>
+			{
+<span class="nc" id="L743">				cashToWIPContribution = 2;</span>
+			}
+<span class="nc bnc" id="L745" title="All 2 branches missed.">			else if (cashToWIP.floatValue() &lt; .1)</span>
+			{
+<span class="nc" id="L747">				cashToWIPContribution = 3;</span>
+			}
+<span class="nc bnc" id="L749" title="All 2 branches missed.">			else if (cashToWIP.floatValue() &lt; .15)</span>
+			{
+<span class="nc" id="L751">				cashToWIPContribution = 4;</span>
+			}
+			else
+			{
+<span class="nc" id="L755">				cashToWIPContribution = 5;</span>
+			}
+		}
+
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;computing FinancialLiquidity&quot;);
+			log.debug(&quot;currentRatioContribution &quot; + currentRatioContribution);
+			log.debug(&quot;cashTurnsContribution &quot; + cashTurnsContribution);
+			log.debug(&quot;cashToWIPContribution &quot; + cashToWIPContribution);
+		} */
+
+<span class="nc" id="L768">		int sum = currentRatioContribution + cashTurnsContribution + cashToWIPContribution;</span>
+<span class="nc" id="L769">		float average = (float) sum / 3.0f;</span>
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;average &quot; + average );
+		} */
+
+<span class="nc" id="L776">		int returnValue = Math.round(average * CAMReportForm.formula) - CAMReportForm.rawMetricRange;</span>
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;intial return value &quot; + returnValue );
+		} */
+
+<span class="nc bnc" id="L783" title="All 2 branches missed.">		if(numberOfJobs &gt;= 3)</span>
+		{
+<span class="nc" id="L785">			returnValue += 30;</span>
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(&quot;3 job bonus&quot;);
+			} */
+
+		}
+<span class="nc bnc" id="L792" title="All 2 branches missed.">		if(returnValue &gt; CAMReportForm.rawMetricRange)</span>
+		{
+<span class="nc" id="L794">			returnValue = CAMReportForm.rawMetricRange;</span>
+		}
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;final return value &quot; + returnValue );
+		} */
+
+<span class="nc" id="L802">		return returnValue;</span>
+	}
+
+	/**
+	 *  Computes the value for a Financial Success metric based on the values of
+	 *  the Return on Equity and Return on Assets ratios.
+	 *  Each ratios is converted into a contribution for the value of the Financial Success metric.
+	 *  This contribution will be based on where the value of the ratio falls into
+	 *  a predetermined, hardcoded range for each ratio.  (These ranges are based on the probable values of the ratios
+	 *  unlikely to ever change.)
+	 */
+	private int computeFinancialSuccessValue(Float returnOnEquity, Float returnOnAssets)
+	{
+<span class="nc" id="L815">		int returnOnEquityContribution = 3;</span>
+<span class="nc" id="L816">		int returnOnAssetsContribution = 3;</span>
+
+<span class="nc bnc" id="L818" title="All 2 branches missed.">		if(returnOnEquity != null)</span>
+		{
+<span class="nc bnc" id="L820" title="All 2 branches missed.">			if(returnOnEquity.floatValue() &lt; -.05f)</span>
+			{
+<span class="nc" id="L822">				returnOnEquityContribution = 1;</span>
+			}
+<span class="nc bnc" id="L824" title="All 2 branches missed.">			else if(returnOnEquity.floatValue() &lt; 0.0f)</span>
+			{
+<span class="nc" id="L826">				returnOnEquityContribution = 2;</span>
+			}
+<span class="nc bnc" id="L828" title="All 2 branches missed.">			else if(returnOnEquity.floatValue() &lt; .05f)</span>
+			{
+<span class="nc" id="L830">				returnOnEquityContribution = 3;</span>
+			}
+<span class="nc bnc" id="L832" title="All 2 branches missed.">			else if(returnOnEquity.floatValue() &lt; .12f)</span>
+			{
+<span class="nc" id="L834">				returnOnEquityContribution = 4;</span>
+			}
+			else
+			{
+<span class="nc" id="L838">				returnOnEquityContribution = 5;</span>
+			}
+		}
+
+<span class="nc bnc" id="L842" title="All 2 branches missed.">		if(returnOnAssets != null)</span>
+		{
+<span class="nc bnc" id="L844" title="All 2 branches missed.">			if(returnOnAssets.floatValue() &lt; -.05f)</span>
+			{
+<span class="nc" id="L846">				returnOnAssetsContribution = 1;</span>
+			}
+<span class="nc bnc" id="L848" title="All 2 branches missed.">			else if(returnOnAssets.floatValue() &lt; 0.0f)</span>
+			{
+<span class="nc" id="L850">				returnOnAssetsContribution = 2;</span>
+			}
+<span class="nc bnc" id="L852" title="All 2 branches missed.">			else if(returnOnAssets.floatValue() &lt; .05f)</span>
+			{
+<span class="nc" id="L854">				returnOnAssetsContribution = 3;</span>
+			}
+<span class="nc bnc" id="L856" title="All 2 branches missed.">			else if(returnOnAssets.floatValue() &lt; .12f)</span>
+			{
+<span class="nc" id="L858">				returnOnAssetsContribution = 4;</span>
+			}
+			else
+			{
+<span class="nc" id="L862">				returnOnAssetsContribution = 5;</span>
+			}
+		}
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;computing financial success&quot;);
+			log.debug(&quot;returnOnEquityContribution &quot; + returnOnEquityContribution);
+			log.debug(&quot;returnOnAssetsContribution &quot; + returnOnAssetsContribution);
+		} */
+
+<span class="nc" id="L873">		int sum = returnOnEquityContribution + returnOnAssetsContribution;</span>
+<span class="nc" id="L874">		float average = (float) sum / 2.0f;</span>
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;average &quot; + average );
+		} */
+
+<span class="nc" id="L881">		int returnValue = Math.round(average * CAMReportForm.formula) - CAMReportForm.rawMetricRange;</span>
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;return value &quot; + returnValue );
+		} */
+
+<span class="nc" id="L888">		return returnValue;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

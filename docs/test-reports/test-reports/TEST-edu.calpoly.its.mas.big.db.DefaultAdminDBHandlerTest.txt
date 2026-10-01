@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultAdminDBHandlerTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.244 sec
+
+Testcase: testGetAdminWrapsSQLExceptionAndClosesConnection took 0.094 sec
+Testcase: testGetAdminsReturnsEmptyVectorWhenNoRows took 0.045 sec
+Testcase: testGetAdminReturnsNullWhenNoRows took 0.023 sec
+Testcase: testGetAdminReturnsAdminWhenFound took 0.023 sec
+Testcase: testUpdateAdminThrowsObjectNotFoundWhenNoRowsChanged took 0.016 sec
+Testcase: testGetAdminsReturnsVector took 0.003 sec
+Testcase: testAddAdminSucceeds took 0.033 sec
+Testcase: testUpdateAdminSucceeds took 0 sec

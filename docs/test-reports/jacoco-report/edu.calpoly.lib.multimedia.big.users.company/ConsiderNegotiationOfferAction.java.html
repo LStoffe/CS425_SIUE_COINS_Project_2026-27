@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsiderNegotiationOfferAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.company</a> &gt; <span class="el_source">ConsiderNegotiationOfferAction.java</span></div><h1>ConsiderNegotiationOfferAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.company;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Hashtable;
+import java.util.Random;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.company.Bid;
+import edu.calpoly.lib.multimedia.big.game.CCCCommandCenter;
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+import edu.calpoly.lib.multimedia.big.game.Statistics;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ */
+<span class="nc" id="L52">public class ConsiderNegotiationOfferAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				     			 ActionForm form,
+				     			 HttpServletRequest request,
+			         			 HttpServletResponse response)
+	{
+<span class="nc" id="L59">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L62">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="nc" id="L65">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="nc" id="L67">        ServletContext context = servlet.getServletContext();</span>
+<span class="nc" id="L68">        HttpSession session = request.getSession();</span>
+<span class="nc" id="L69">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="nc" id="L71">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="nc bnc" id="L75" title="All 2 branches missed.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="nc" id="L76">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L78">		Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc" id="L79">		NegotiatedJob job = (NegotiatedJob) session.getAttribute(&quot;jobUnderNegotiation&quot;);</span>
+
+		//If no job is set simply return to the main page.
+		//No need for an error message, as this is only possible if someone
+		//follows a bookmark, in which case they will simply be sent to
+		//where they need to be to choose a job.
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		if(job == null)</span>
+		{
+<span class="nc" id="L87">	 	    return (new ActionForward(mapping.getInput()));</span>
+		}
+
+<span class="nc" id="L90">		NegotiationOfferForm negotiationOfferForm = (NegotiationOfferForm) form;</span>
+<span class="nc" id="L91">		int percentProfit = negotiationOfferForm.getPercentProfit();</span>
+<span class="nc" id="L92">		long cost = negotiationOfferForm.getCost();</span>
+
+		//Hashtable to store the current negotiation values
+<span class="nc" id="L95">		Hashtable negotiationValues = null;</span>
+<span class="nc" id="L96">		Hashtable negotiationParameters = null;</span>
+<span class="nc" id="L97">		Hashtable cccParameters = null;</span>
+<span class="nc" id="L98">		Hashtable misc = null;</span>
+
+<span class="nc" id="L100">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request), true);</span>
+		try
+		{
+<span class="nc" id="L103">			negotiationValues = dbFacade.getNegotiationDBHandler().getNegotiationValues(game, job.getJobID());</span>
+<span class="nc" id="L104">			negotiationParameters = dbFacade.getGameParametersDBHandler().getNegotiationParameters(game);</span>
+<span class="nc" id="L105">		    cccParameters = dbFacade.getGameParametersDBHandler().getComputerControlledContractorParameters(game);</span>
+<span class="nc" id="L106">		    misc = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+<span class="nc" id="L107">			dbFacade.close();</span>
+		}
+<span class="nc" id="L109">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L111">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+<span class="nc" id="L113">		catch(ParametersNotFoundException pnfe)</span>
+		{
+<span class="nc" id="L115">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+<span class="nc" id="L117">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L119">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L120">		}</span>
+
+		//Check if the target profit and haggling values have already been set.  If not compute them and set them
+<span class="nc" id="L123">        int targetProfit = ((Integer) negotiationValues.get(&quot;customerTargetProfit&quot;)).intValue();</span>
+<span class="nc" id="L124">        int customerHaggling = ((Integer) negotiationValues.get(&quot;customerHaggling&quot;)).intValue();</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if(targetProfit &lt; 0)</span>
+        {
+<span class="nc" id="L128">			targetProfit = computeCustomerTargetProfit(game, negotiationParameters);</span>
+<span class="nc" id="L129">			negotiationValues.put(&quot;customerTargetProfit&quot;, new Integer(targetProfit));</span>
+		}
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		if(customerHaggling &lt; 0)</span>
+		{
+<span class="nc" id="L133">			customerHaggling = computeCustomerHaggling(game, negotiationParameters);</span>
+<span class="nc" id="L134">			negotiationValues.put(&quot;customerHaggling&quot;, new Integer(customerHaggling));</span>
+		}
+
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if(log.isDebugEnabled())</span>
+        {
+<span class="nc" id="L139">        	log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: Customer Haggling: &quot; + customerHaggling + &quot; Target Profit: &quot; + targetProfit);</span>
+		}
+
+<span class="nc" id="L142">	    Random r = new Random();</span>
+		//First check if cost is below max cost customer will pay for this job
+
+<span class="nc" id="L145">		long maxDirectCost = computeMaxDirectCost(game, job, cccParameters, misc);</span>
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		if(cost &gt; maxDirectCost)</span>
+		{
+			//Negotiation will continue based on the customer haggling value
+<span class="nc bnc" id="L150" title="All 2 branches missed.">			if(r.nextInt(100) &lt; customerHaggling)</span>
+			{
+<span class="nc" id="L152">				job.setState(NegotiatedJob.NEGOTIATION_FAILED);</span>
+			}
+			else
+			{
+<span class="nc" id="L156">			    job.setState(NegotiatedJob.COST_REJECTED);</span>
+			}
+		}
+		else
+		{
+			//Check profit
+<span class="nc" id="L162">			int maxPercentProfit = ((Integer) negotiationParameters.get(&quot;MaxPercentProfit&quot;)).intValue() * 10;</span>
+			//System.out.println(&quot;PP &quot; + percentProfit + &quot; mPP &quot; + maxPercentProfit);
+
+			//First make sure profit offer is not more than max profit for negotiated work in BIG
+<span class="nc bnc" id="L166" title="All 2 branches missed.">			if(percentProfit &gt; maxPercentProfit)</span>
+			{
+			    //Negotiation will continue based on the customer haggling value
+<span class="nc bnc" id="L169" title="All 2 branches missed.">			    if(r.nextInt(100) &lt; customerHaggling)</span>
+				{
+<span class="nc" id="L171">					job.setState(NegotiatedJob.NEGOTIATION_FAILED);</span>
+				}
+				else
+				{
+<span class="nc" id="L175">				    job.setState(NegotiatedJob.COST_REJECTED);</span>
+				}
+			}
+			else
+			{
+				//This is the amount the customer will suggest if this offer is
+				//rejected.  Go ahead and use it for comparison to avoid cases
+				//where customer rejects offer then suggests a higher amount
+<span class="nc" id="L183">				targetProfit += r.nextInt(6);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">			    if(percentProfit &gt; targetProfit)</span>
+			    {
+					//System.out.println(&quot;percent profit greater than target profit&quot;);
+
+			    	//Get random value between 0 and 100.  If greater than
+			    	//customer haggling, customer will accept
+<span class="nc bnc" id="L190" title="All 2 branches missed.">			    	if(r.nextInt(100) &gt; customerHaggling)</span>
+			    	{
+<span class="nc" id="L192">		                job.setState(NegotiatedJob.NEGOTIATION_SUCCEEDED);</span>
+					    //System.out.println(&quot;accepted on haggling&quot;);
+					}
+					else
+			    	{
+<span class="nc" id="L197">						negotiationValues.put(&quot;customerTargetProfit&quot;, new Integer(targetProfit));</span>
+<span class="nc" id="L198">						((NegotiationOfferForm) form).setPercentProfit(targetProfit);</span>
+
+			    		//Negotiation will continue based on the customer haggling value
+<span class="nc bnc" id="L201" title="All 2 branches missed.">			    		if(r.nextInt(100) &lt; customerHaggling)</span>
+						{
+<span class="nc" id="L203">							job.setState(NegotiatedJob.NEGOTIATION_FAILED);</span>
+						}
+						else
+						{
+<span class="nc" id="L207">						    job.setState(NegotiatedJob.COST_REJECTED);</span>
+						}
+			       	    //System.out.println(&quot;rejected on haggling new target profit :&quot; + targetProfit);
+				    }
+			    }
+			    else
+			    {
+					//System.out.println(&quot;percent profit less than target profit&quot;);
+<span class="nc" id="L215">		            job.setState(NegotiatedJob.NEGOTIATION_SUCCEEDED);</span>
+			    }
+			}
+		}
+
+
+<span class="nc" id="L221">		job.setAgreedCost(cost);</span>
+<span class="nc" id="L222">		job.setAgreedProfit(percentProfit);</span>
+
+
+<span class="nc" id="L225">		session.setAttribute(&quot;jobUnderNegotiation&quot;, job);</span>
+
+		//Update the latest negotiation values in the database
+		try
+		{
+<span class="nc" id="L230">			negotiationValues.put(&quot;agreedCost&quot;, new Long(cost));</span>
+<span class="nc" id="L231">			negotiationValues.put(&quot;agreedProfit&quot;, new Integer(percentProfit));</span>
+<span class="nc" id="L232">			negotiationValues.put(&quot;state&quot;, new Integer(job.getState()));</span>
+
+<span class="nc" id="L234">			dbFacade.getNegotiationDBHandler().setNegotationValues(game, job.getJobID(), negotiationValues);</span>
+<span class="nc" id="L235">			dbFacade.close();</span>
+		}
+<span class="nc" id="L237">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L239">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+<span class="nc" id="L241">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L243">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L244">		}</span>
+
+<span class="nc bnc" id="L246" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+			// Report any errors we have discovered back to the original form
+<span class="nc" id="L249">			saveErrors(request, errors);</span>
+<span class="nc" id="L250">	 	   	saveToken(request);</span>
+
+<span class="nc" id="L252">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L256" title="All 6 branches missed.">			if(job.getState() == NegotiatedJob.NEGOTIATION_SUCCEEDED || job.getState() == NegotiatedJob.NEGOTIATION_FAILED || job.getState() == NegotiatedJob.NEGOTIATION_CANCELLED)</span>
+			{
+<span class="nc bnc" id="L258" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L260">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;complete\&quot;&quot;);</span>
+				}
+<span class="nc" id="L262">			    return (mapping.findForward(&quot;complete&quot;));</span>
+		    }
+		    else
+		    {
+<span class="nc bnc" id="L266" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L268">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;continue\&quot;&quot;);</span>
+				}
+<span class="nc" id="L270">			    return (mapping.findForward(&quot;continue&quot;));</span>
+			}
+		}
+	}
+
+    //Computes the maximum direct cost this company will pay
+    private long computeMaxDirectCost(Game game, Job job, Hashtable cccParameters, Hashtable misc)
+    {
+<span class="nc" id="L278">		long maxCost = setupCCCCommandCenter(cccParameters, misc).estimateDirectJobCost(game.getGameID(), job.getJobID(), job.getDirectCost(), job.getEstimatedWorkdays());</span>
+<span class="nc" id="L279">		maxCost += Math.round(.5d * ((double) maxCost));</span>
+		//System.out.println(&quot;max direct cost is &quot; + maxCost);
+<span class="nc" id="L281">		return maxCost;</span>
+	}
+
+	//Computes the customer target profit based on the negotiation parameters from
+	//the database
+	private int computeCustomerTargetProfit(Game game, Hashtable negotiationParameters)
+	{
+<span class="nc" id="L288">		int retValue = 0;</span>
+
+		//Negotiation parameter values.  times 10 because company's profit choices are stored as 10 times actual value
+<span class="nc" id="L291">		int meanCustomerTargetProfit = ((Integer) negotiationParameters.get(&quot;MeanPercentProfit&quot;)).intValue() * 10;</span>
+<span class="nc" id="L292">		float stddevCustomerTargetProfit = ((Float) negotiationParameters.get(&quot;StdDevPercentProfit&quot;)).floatValue() * 10;</span>
+<span class="nc" id="L293">		int minCustomerTargetProfit = ((Integer) negotiationParameters.get(&quot;MinPercentProfit&quot;)).intValue() * 10;</span>
+<span class="nc" id="L294">		int maxCustomerTargetProfit = ((Integer) negotiationParameters.get(&quot;MaxPercentProfit&quot;)).intValue() * 10;</span>
+
+<span class="nc" id="L296">		retValue = Statistics.normalInt(meanCustomerTargetProfit, stddevCustomerTargetProfit, minCustomerTargetProfit, maxCustomerTargetProfit);</span>
+
+<span class="nc" id="L298">		return retValue;</span>
+	}
+
+	//Computes the customer haggling value based on the negotiation parameters from
+	//the database
+	private int computeCustomerHaggling(Game game, Hashtable negotiationParameters)
+	{
+<span class="nc" id="L305">		int retValue = 0;</span>
+
+		//Negotiation parameter values.
+<span class="nc" id="L308">		int meanCustomerHaggling = ((Integer) negotiationParameters.get(&quot;MeanCustomerHaggling&quot;)).intValue();</span>
+<span class="nc" id="L309">		float stddevCustomerHaggling = ((Float) negotiationParameters.get(&quot;StdDevCustomerHaggling&quot;)).floatValue();</span>
+<span class="nc" id="L310">		int minCustomerHaggling = ((Integer) negotiationParameters.get(&quot;MinCustomerHaggling&quot;)).intValue();</span>
+<span class="nc" id="L311">		int maxCustomerHaggling = ((Integer) negotiationParameters.get(&quot;MaxCustomerHaggling&quot;)).intValue();</span>
+
+<span class="nc" id="L313">		retValue = Statistics.normalInt(meanCustomerHaggling, stddevCustomerHaggling, minCustomerHaggling, maxCustomerHaggling);</span>
+
+<span class="nc" id="L315">		return retValue;</span>
+	}
+
+	private CCCCommandCenter setupCCCCommandCenter(Hashtable cccParameters, Hashtable misc)
+	{
+<span class="nc" id="L320">		  int minNumberCCCs = ((Integer) cccParameters.get(&quot;minNumberOfCCCs&quot;)).intValue();</span>
+<span class="nc" id="L321">		  int maxNumberCCCs = ((Integer) cccParameters.get(&quot;maxNumberOfCCCs&quot;)).intValue();</span>
+<span class="nc" id="L322">		  int minCCCBidsPerJob = ((Integer) cccParameters.get(&quot;minNumberOfCCCBidsPerJob&quot;)).intValue();</span>
+<span class="nc" id="L323">		  int maxCCCBidsPerJob = ((Integer) cccParameters.get(&quot;maxNumberOfCCCBidsPerJob&quot;)).intValue();</span>
+<span class="nc" id="L324">		  int cccTurnover = ((Integer) cccParameters.get(&quot;CCCTurnover&quot;)).intValue();</span>
+<span class="nc" id="L325">		  int lowerPercentProfit = ((Integer) cccParameters.get(&quot;lowerPercentJobMarkup&quot;)).intValue();</span>
+<span class="nc" id="L326">		  int upperPercentProfit = ((Integer) cccParameters.get(&quot;upperPercentJobMarkup&quot;)).intValue();</span>
+<span class="nc" id="L327">		  int fieldOverheadFixed = ((Integer) misc.get(&quot;fieldOverheadFixed&quot;)).intValue();</span>
+<span class="nc" id="L328">		  int fieldOverheadVariable = ((Integer) misc.get(&quot;fieldOverheadVariable&quot;)).intValue();</span>
+<span class="nc" id="L329">		  int officeOverheadFixed = ((Integer) misc.get(&quot;officeOverheadFixed&quot;)).intValue();</span>
+<span class="nc" id="L330">		  int bidExpensePercent = ((Integer) misc.get(&quot;bidExpensePercent&quot;)).intValue();</span>
+<span class="nc" id="L331">		  int workdaysPerMonth = ((Integer) misc.get(&quot;workdaysPerMonth&quot;)).intValue();</span>
+
+
+<span class="nc" id="L334">		  return new CCCCommandCenter(minNumberCCCs,</span>
+		  										  maxNumberCCCs,
+		  										  minCCCBidsPerJob,
+		  										  maxCCCBidsPerJob,
+		  										  cccTurnover,
+		  										  lowerPercentProfit,
+		  										  upperPercentProfit,
+		  										  fieldOverheadFixed,
+		  										  fieldOverheadVariable,
+		  										  officeOverheadFixed,
+		  										  bidExpensePercent,
+		  										  workdaysPerMonth,
+		  										  10 //right now there are 10 hardcoded job types.
+			  									 );
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

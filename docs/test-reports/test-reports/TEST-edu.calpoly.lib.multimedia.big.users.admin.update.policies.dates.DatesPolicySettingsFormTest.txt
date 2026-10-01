@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates.DatesPolicySettingsFormTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.092 sec
+
+Testcase: testGetUpdateDateAsDate took 0.077 sec
+Testcase: testGetSetDayMonthYear took 0 sec
+Testcase: testGetSetUpdateTime took 0 sec
+Testcase: testSetUpdateTimeAsDate took 0.001 sec
+Testcase: testValidateInvalidTime took 0.003 sec
+Testcase: testValidateValidInput took 0.002 sec
+Testcase: testGetUpdateTimeAsDate took 0 sec

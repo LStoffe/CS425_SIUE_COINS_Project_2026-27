@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultPeriodDBHandlerTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.116 sec
+
+Testcase: testAddAndRemovePeriodUseExecuteUpdate took 0.04 sec
+Testcase: testGetPeriodReturnsPeriodFromResultSet took 0.035 sec
+Testcase: testUpdatePeriodThrowsBIGDatabaseFacadeExceptionWhenMultipleRowsChanged took 0.005 sec
+Testcase: testUpdatePeriodSuccess took 0.001 sec
+Testcase: testGetPeriodThrowsObjectNotFoundWhenNoRows took 0.021 sec
+Testcase: testSQLExceptionIsWrappedAndConnectionClosed took 0.007 sec
+Testcase: testGetPeriodWrapsSQLExceptionAndClosesConnection took 0 sec
+Testcase: testUpdatePeriodThrowsObjectNotFoundWhenNoRowsChanged took 0.001 sec

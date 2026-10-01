@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmployeeTypeRecord.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.personnel</a> &gt; <span class="el_source">EmployeeTypeRecord.java</span></div><h1>EmployeeTypeRecord.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.personnel;
+
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+/**
+ * JavaBean class representing the current status
+ * of an employee type for a company during a period.
+ * This includes, the employee type, the salary/wage per period
+ * for that time, how many of employees of the type the company
+ * has employeed, and changes to the number of that employee type to
+ * occur in the period.
+ *
+ * EmployeeTypeHires/Fires are not included in employeeTypeCount for the current period,
+ * but will be included in the employeeTypeCount for the period after this one.  The formula for
+ * an employeeTypeCount is &lt;code&gt;employeeTypeCount[period n+1] = employeeTypeCount[period n] + employeeTypeHires[period n] - employeeTypeFires[period n]&lt;/code&gt;
+ * Realistically employeeTypeHires and employeeTypeFires will never both have a value greater than 0 in the same period,
+ * but
+ */
+public class EmployeeTypeRecord
+{
+	private int companyID;
+	private int periodNumber;
+	private String employeeType;
+	private int employeeCost;
+	private int employeeHiringCost;
+	private int employeeFiringCost;
+	private int employeeTypeCount;
+	private int employeeTypeHires;
+	private int employeeTypeFires;
+	private int employeeTypeBasePoints;
+	private int category;
+
+<span class="fc" id="L33">	protected String jobDescription = &quot;Job description not found&quot;;</span>
+
+	public EmployeeTypeRecord()
+<span class="fc" id="L36">	{</span>
+<span class="fc" id="L37">	}</span>
+
+	/**
+	 * Returns the companyID of the company to which this record belongs.
+	 */
+	public int getCompanyID()
+	{
+<span class="fc" id="L44">		return this.companyID;</span>
+	}
+
+	/**
+	 * Sets the companyID of the company to which this record belongs.
+	 */
+	public void setCompanyID(int companyID)
+	{
+<span class="fc" id="L52">		this.companyID = companyID;</span>
+<span class="fc" id="L53">	}</span>
+
+	public void setCompanyIDInteger(Integer companyID)
+	{
+<span class="fc bfc" id="L57" title="All 2 branches covered.">		if(companyID != null)</span>
+		{
+<span class="fc" id="L59">			this.companyID = companyID.intValue();</span>
+		}
+		else
+		{
+<span class="fc" id="L63">			this.companyID = 0;</span>
+		}
+<span class="fc" id="L65">	}</span>
+
+	/**
+	 * Returns the periodNumber of the period to which this record applies.
+	 */
+	public int getPeriodNumber()
+	{
+<span class="fc" id="L72">		return this.periodNumber;</span>
+	}
+
+	/**
+	 * Sets the periodNumber of period to which this record applies.
+	 */
+	public void setPeriodNumber(int periodNumber)
+	{
+<span class="fc" id="L80">		this.periodNumber = periodNumber;</span>
+<span class="fc" id="L81">	}</span>
+
+
+	public void setPeriodNumberInteger(Integer periodNumber)
+	{
+<span class="fc bfc" id="L86" title="All 2 branches covered.">		if(periodNumber != null)</span>
+		{
+<span class="fc" id="L88">			this.periodNumber = periodNumber.intValue();</span>
+		}
+		else
+		{
+<span class="fc" id="L92">			this.periodNumber = 0;</span>
+		}
+<span class="fc" id="L94">	}</span>
+
+	/**
+	 * Returns the type of employee to which this record applies.
+	 */
+	public String getEmployeeType()
+	{
+<span class="fc" id="L101">		return this.employeeType;</span>
+	}
+
+	/**
+	 * Sets the type of employee to which this record applies.
+	 */
+	public void setEmployeeType(String employeeType)
+	{
+<span class="fc" id="L109">		this.employeeType = employeeType;</span>
+<span class="fc" id="L110">	}</span>
+
+	/**
+	 * Returns the cost per period for each employee of the employee type
+	 */
+	public int getEmployeeCost()
+	{
+<span class="fc" id="L117">		return this.employeeCost;</span>
+	}
+
+	public String getFormattedEmployeeCost()
+	{
+<span class="fc" id="L122">		return NumberConverter.stringValue(employeeCost);</span>
+	}
+
+	/**
+	 * Sets the cost per period for each employee of the employee type
+	 */
+	public void setEmployeeCost(int employeeCost)
+	{
+<span class="fc" id="L130">		this.employeeCost = employeeCost;</span>
+<span class="fc" id="L131">	}</span>
+
+	/**
+	 * Returns the one time cost to hire an employee of the employee type
+	 */
+	public int getEmployeeHiringCost()
+	{
+<span class="nc" id="L138">		return this.employeeHiringCost;</span>
+	}
+
+	public String getFormattedEmployeeHiringCost()
+	{
+<span class="fc" id="L143">		return NumberConverter.stringValue(employeeHiringCost);</span>
+	}
+
+	/**
+	 * Sets the one time cost to hire an employee of the employee type
+	 */
+	public void setEmployeeHiringCost(int employeeFiringCost)
+	{
+<span class="fc" id="L151">		this.employeeHiringCost = employeeHiringCost;</span>
+<span class="fc" id="L152">	}</span>
+
+	/**
+	 * Returns the one time cost to fire an employee of the employee type
+	 */
+	public int getEmployeeFiringCost()
+	{
+<span class="fc" id="L159">		return this.employeeCost;</span>
+	}
+
+	public String getFormattedEmployeeFiringCost()
+	{
+<span class="fc" id="L164">		return NumberConverter.stringValue(employeeFiringCost);</span>
+	}
+
+	/**
+	 * Sets the one time cost to fire an employee of the employee type
+	 */
+	public void setEmployeeFiringCost(int employeeFiringCost)
+	{
+<span class="fc" id="L172">		this.employeeCost = employeeCost;</span>
+<span class="fc" id="L173">	}</span>
+
+	/**
+	 * Returns the number of employees of the employeeType that the company has employeed during the period.
+	 */
+    public int getEmployeeTypeCount()
+    {
+<span class="fc" id="L180">		return employeeTypeCount;</span>
+	}
+
+	/**
+	 * Sets the number of employees of the employeeType that the company has employeed during the period.
+	 */
+	public void setEmployeeTypeCount(int employeeTypeCount)
+	{
+<span class="fc" id="L188">		this.employeeTypeCount = employeeTypeCount;</span>
+<span class="fc" id="L189">	}</span>
+
+	public void setEmployeeTypeCountInteger(Integer employeeTypeCount)
+	{
+<span class="fc bfc" id="L193" title="All 2 branches covered.">		if(employeeTypeCount != null)</span>
+		{
+<span class="fc" id="L195">			this.employeeTypeCount = employeeTypeCount.intValue();</span>
+		}
+		else
+		{
+<span class="fc" id="L199">			this.employeeTypeCount = 0;</span>
+		}
+<span class="fc" id="L201">	}</span>
+
+	/**
+	 * Returns the number of employees of the employeeType that the company will add this period.
+	 */
+	public int getEmployeeTypeHires()
+	{
+<span class="fc" id="L208">		return employeeTypeHires;</span>
+	}
+
+	/**
+	 * Sets the number of employees of the employeeType that the company will add this period.
+	 */
+	public void setEmployeeTypeHires(int employeeTypeHires)
+	{
+<span class="fc" id="L216">		this.employeeTypeHires = employeeTypeHires;</span>
+<span class="fc" id="L217">	}</span>
+
+	public void setEmployeeTypeHiresInteger(Integer employeeTypeHires)
+	{
+<span class="fc bfc" id="L221" title="All 2 branches covered.">		if(employeeTypeHires != null)</span>
+		{
+<span class="fc" id="L223">			this.employeeTypeHires = employeeTypeHires.intValue();</span>
+		}
+		else
+		{
+<span class="fc" id="L227">			this.employeeTypeHires = 0;</span>
+		}
+<span class="fc" id="L229">	}</span>
+
+	/**
+	 * Returns the number of employees of the employeeType that the company will subtract this period.
+	 */
+	public int getEmployeeTypeFires()
+	{
+<span class="fc" id="L236">		return employeeTypeFires;</span>
+	}
+
+	/**
+	 * Sets the number of employees of the employeeType that the company will substract this period.
+	 */
+	public void setEmployeeTypeFires(int employeeTypeFires)
+	{
+<span class="fc" id="L244">		this.employeeTypeFires = employeeTypeFires;</span>
+<span class="fc" id="L245">	}</span>
+
+	public void setEmployeeTypeFiresInteger(Integer employeeTypeFires)
+	{
+<span class="fc bfc" id="L249" title="All 2 branches covered.">		if(employeeTypeFires != null)</span>
+		{
+<span class="fc" id="L251">			this.employeeTypeFires = employeeTypeFires.intValue();</span>
+		}
+		else
+		{
+<span class="fc" id="L255">			this.employeeTypeFires = 0;</span>
+		}
+<span class="fc" id="L257">	}</span>
+
+    /**
+     * Returns the total amount spend on this employee type &lt;code&gt;employeeCost * employeeTypeCount&lt;/code&gt;
+     */
+	public int getEmployeeTypeTotalCost()
+	{
+<span class="fc" id="L264">		return getEmployeeTypeCount() * getEmployeeCost();</span>
+	}
+
+    /**
+     * Returns the total amount spend on this employee type &lt;code&gt;employeeCost * employeeTypeCount&lt;/code&gt;
+     */
+	public String getFormattedEmployeeTypeTotalCost()
+	{
+<span class="fc" id="L272">		return NumberConverter.stringValue(getEmployeeTypeTotalCost());</span>
+	}
+
+	/**
+	 * Returns a &lt;code&gt;String&lt;/code&gt; representation of this object.
+	 */
+	public String toString()
+	{
+<span class="fc" id="L280">		return &quot;CompanyID: &quot; + companyID + &quot;, Period Number: &quot; + periodNumber + &quot;, Employee Type: &quot; + employeeType + &quot;, Employee Cost: &quot; + employeeCost + &quot;, Employee Count: &quot; + employeeTypeCount + &quot;, Employee Hires: &quot; + employeeTypeHires + &quot;, Employee Fires: &quot; + employeeTypeFires;</span>
+	}
+
+	/**
+	 * Returns the job description for this employee type.
+	 */
+	public String getJobDescription()
+	{
+<span class="fc" id="L288">		return jobDescription;</span>
+	}
+
+    /**
+     * Sets the job description for this employee type.
+     */
+    public void setJobDescription(String jobDescription)
+    {
+<span class="fc" id="L296">		this.jobDescription = jobDescription;</span>
+<span class="fc" id="L297">	}</span>
+
+	/**
+	 * Returns the number of employees of the employeeType that the company will have employed after hires and fire are taken into account.
+	 */
+    public int getNewEmployeeTypeCount()
+    {
+<span class="fc" id="L304">		int count = employeeTypeCount;</span>
+<span class="fc" id="L305">		count = count + employeeTypeHires - employeeTypeFires;</span>
+
+<span class="fc bfc" id="L307" title="All 2 branches covered.">		if(count &lt; 0) count = 0; //Can't have negative employees</span>
+
+<span class="fc" id="L309">		return count;</span>
+	}
+
+	public int getNewEmployeeTypeTotalCost()
+	{
+<span class="fc" id="L314">		return getNewEmployeeTypeCount() * getEmployeeCost();</span>
+	}
+
+    /**
+     * Returns the total amount spend on this employee type &lt;code&gt;employeeCost * employeeTypeCount&lt;/code&gt;
+     */
+	public String getFormattedNewEmployeeTypeTotalCost()
+	{
+<span class="fc" id="L322">		return NumberConverter.stringValue(getNewEmployeeTypeTotalCost());</span>
+	}
+
+	/**
+	 * Gets the base points for a single employee of this type.
+	 */
+	public int getEmployeeBasePoints()
+	{
+<span class="fc" id="L330">		return employeeTypeBasePoints;</span>
+	}
+
+	/**
+	 * Sets the base points for a single employee of this type.
+	 */
+	public void setEmployeeBasePoints(int basePoints)
+	{
+<span class="fc" id="L338">		this.employeeTypeBasePoints = basePoints;</span>
+<span class="fc" id="L339">	}</span>
+
+	/**
+	 * Gets the total base points for this employee type for the company.
+	 * This is the total of the base points for each employee of this type employeed by
+	 * the company.
+	 */
+	public int getTotalBasePointsForType()
+	{
+<span class="fc" id="L348">		return getEmployeeTypeCount() * getEmployeeBasePoints();</span>
+	}
+
+	/**
+	 * Gets the category of employee (&quot;1&quot; = Commercial, &quot;2&quot; = Heavy).
+	 */
+	public int getCategory()
+	{
+<span class="fc" id="L356">		return category;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

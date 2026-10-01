@@ -1,0 +1,73 @@
+<!--
+  company-information.html
+  Section 1.3 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.3 Company Information</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.3 Company Information
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Your company's title, the current period number, the period date, your company's current cash-on-hand and equity amounts, 
+            along with Current WIP and your bond limits will appear at the on the Company's Homepage.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            To change your password or company title, select the "Change Company Information" link from the Main Menu. After you login for the first time you should change your password to something secret to your team members only. 
+            Also, when logging in for the first time you should set your company title. Your title will be used to identify your company to the other companies and your instructor. 
+            Your title can be set to anything you want, but it should be unique among all other companies in the game so that your company can be distinguished from the others. 
+            Your instructor may have additional guidelines for choosing a company title.
+    </section>
+
+    <section>
+        <p class="text-lg text-black leading-relaxed">
+            In addition to your company information, each individual group member may choose to put their name and e-mail address on the company member list. 
+            All company members on this list will receive an e-mail message after every period update to notify them of the update. 
+            To add yourself to this list, click on the link titled "Sign-up for e-mail notification when the period updates" on the "Change Company Information" page.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/login-logout}" class="font-semibold hover:underline">
+        ← 1.2 Login/Logout
+    </a>
+    <a th:href="@{/manual/big-basics}" class="font-semibold hover:underline">
+        Next → 1.4 BIG Basics
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

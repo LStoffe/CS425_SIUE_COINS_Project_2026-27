@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompleteListofBidsReportAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">CompleteListofBidsReportAction.java</span></div><h1>CompleteListofBidsReportAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.reports;
+
+//JDK imports
+import java.util.Hashtable;
+import java.util.Vector;
+
+//Servlet imports
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.User;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ *  Handles requests to view a Complete List of Bids Report.
+ *
+ *  @version $Revision: 1.16 $
+ */
+<span class="fc" id="L46">public class CompleteListofBidsReportAction extends Action</span>
+{
+
+
+	public ActionForward execute(ActionMapping mapping,
+								 ActionForm form,
+								 HttpServletRequest request,
+								 HttpServletResponse response)
+	{
+<span class="fc" id="L55">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L58">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		// Process request if it was not cancelled
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L64">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L66">			MessageResources resources = getResources(request);</span>
+
+<span class="fc" id="L68">            HttpSession session = request.getSession();</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if(session == null)</span>
+            {
+<span class="fc" id="L71">		       return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		    }
+
+<span class="nc" id="L74">	        Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if(game == null)</span>
+            {
+<span class="nc" id="L77">		       return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		    }
+
+<span class="nc" id="L80">			Company company = null;</span>
+
+<span class="nc" id="L82">			User user = (User) session.getAttribute(&quot;user&quot;);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">			if (user instanceof Admin)</span>
+<span class="nc" id="L84">				company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			else if (user instanceof Company)</span>
+<span class="nc" id="L86">				company = (Company) user;</span>
+
+<span class="nc" id="L88">			String periodString = request.getParameter(&quot;period&quot;);</span>
+			int reportPeriod;
+<span class="nc bnc" id="L90" title="All 4 branches missed.">		    if (periodString == null || periodString.equals(&quot;&quot;))</span>
+		    {
+<span class="nc" id="L92">				reportPeriod = game.getCurrentPeriodNumber() - 1;</span>
+			}
+			else
+			{
+<span class="nc" id="L96">				reportPeriod = Integer.parseInt(periodString);</span>
+			}
+
+			// This accounts for the period numbering on 'View Period Reports'
+			// admin page
+<span class="nc bnc" id="L101" title="All 4 branches missed.">			if ((user instanceof Admin) &amp;&amp; (reportPeriod == game.getCurrentPeriodNumber()))</span>
+			{
+<span class="nc" id="L103">				reportPeriod--;</span>
+			}
+
+<span class="nc" id="L106">			CompleteListofBidsReportForm completeListofBidsForm = new CompleteListofBidsReportForm();</span>
+
+			// Make sure period is within an acceptable range
+<span class="nc bnc" id="L109" title="All 4 branches missed.">			if (reportPeriod &lt; 1 || reportPeriod &gt; (game.getCurrentPeriodNumber() - 1))</span>
+			{
+<span class="nc" id="L111">				return (mapping.findForward(&quot;noReport&quot;));</span>
+			}
+
+			// Create a new BIGDatabaseFacadeInterface which will hold connections
+<span class="nc" id="L115">			BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+			try {
+				// FIXME: Should it be assumed that there are in fact jobs, companies and bids
+				// for this game?
+<span class="nc" id="L120">				Vector jobs = dbFacade.getJobDBHandler().getJobs(game, reportPeriod);</span>
+<span class="nc" id="L121">				Vector companies = dbFacade.getCompanyDBHandler().getCompanies(game);</span>
+<span class="nc" id="L122">				Vector cccs = dbFacade.getCCCDBHandler().getAllCCCs(game);</span>
+
+<span class="nc" id="L124">				Hashtable miscParams = dbFacade.getGameParametersDBHandler().getMiscParameters(game);</span>
+
+				// Make sure that the company isn't trying any funny
+				// business by going directly to this report rather than
+				// through the ConsultingReportsAction gate
+<span class="nc bnc" id="L129" title="All 4 branches missed.">				if (user instanceof Company &amp;&amp; null != company)</span>
+				{
+<span class="nc" id="L131">					boolean hasPurchased = dbFacade.getReportLedgerDBHandler().checkIfPurchased(</span>
+<span class="nc" id="L132">												company.getCompanyID(), reportPeriod, 0);</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">					if (!hasPurchased)</span>
+					{
+						//System.out.println(&quot;Trying to pull a fast one? &quot; + company.getCompanyID() + &quot;, &quot; + reportPeriod);
+<span class="nc" id="L137">						errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+					}
+				}
+
+<span class="nc" id="L141">				completeListofBidsForm.setMaxJobsPerCompany(((Integer) miscParams.get(&quot;maxJobsPerTeam&quot;)).intValue());</span>
+<span class="nc" id="L142">				completeListofBidsForm.setJobs(jobs);</span>
+<span class="nc" id="L143">				completeListofBidsForm.addCompanies(companies);</span>
+<span class="nc" id="L144">				completeListofBidsForm.addCompanies(cccs);</span>
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">				for (int i = 0; i &lt; jobs.size(); i++)</span>
+				{
+<span class="nc" id="L148">					Job theJob = (Job) jobs.get(i);</span>
+
+<span class="nc" id="L150">					Vector bids = dbFacade.getBidDBHandler().getBids(game, (Job) jobs.get(i));</span>
+<span class="nc" id="L151">					completeListofBidsForm.setBids(bids);</span>
+				}
+
+<span class="nc" id="L154">				dbFacade.close();</span>
+
+			}
+<span class="nc" id="L157">			catch(ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L159">				log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L160">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+			}
+<span class="nc" id="L162">			catch (ParametersNotFoundException pnfe)</span>
+			{
+<span class="nc" id="L164">				log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L165">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+			}
+<span class="nc" id="L167">			catch (BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L169">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L170">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L171">			}</span>
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			if (null != company)</span>
+			{
+<span class="nc" id="L175">				completeListofBidsForm.setCompanyName(company.getTitle());</span>
+			}
+
+<span class="nc" id="L178">			completeListofBidsForm.setReportDate(game.getDateString(reportPeriod));</span>
+<span class="nc" id="L179">			completeListofBidsForm.setPeriod(reportPeriod);</span>
+
+<span class="nc" id="L181">			session.setAttribute(&quot;listofBids&quot;, completeListofBidsForm);</span>
+
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L185" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L187">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+<span class="nc" id="L189">				saveErrors(request, errors);</span>
+<span class="nc" id="L190">				saveToken(request);</span>
+<span class="nc" id="L191">				return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L195" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L197">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L199">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+		}
+		else
+		{
+<span class="nc bnc" id="L204" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L206">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+			// Request was cancelled
+<span class="nc" id="L209">			return (new ActionForward(mapping.getInput()));</span>
+		}
+
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

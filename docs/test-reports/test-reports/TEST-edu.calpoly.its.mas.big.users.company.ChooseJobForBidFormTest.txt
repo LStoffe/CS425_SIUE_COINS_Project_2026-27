@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.ChooseJobForBidFormTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+
+Testcase: testSetJobsFromVector took 0.003 sec
+Testcase: testGetBidAmountWhenNoBid took 0 sec
+Testcase: testGetSetJobID took 0 sec
+Testcase: testSetAndGetBid took 0 sec
+Testcase: testGetBidAmountUP took 0.001 sec
+Testcase: testGetBidAmount took 0 sec
+Testcase: testGetNumberOfJobsWhenNull took 0 sec
+Testcase: testGetBidAmountUPWhenNoBid took 0.001 sec
+Testcase: testValidatePassesForKnownJobID took 0.002 sec
+Testcase: testValidateFailsForUnknownJobID took 0 sec

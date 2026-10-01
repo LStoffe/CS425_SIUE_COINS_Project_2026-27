@@ -1,0 +1,109 @@
+<!--
+  request-a-loan.html
+  This page allows a company to request a loan as part of its financial services.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Request a Loan</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Request a Loan</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-3xl">
+
+      <h3 class="text-2xl font-bold mb-6">
+        Conditions of Loan
+      </h3>
+
+      <!-- Loan Conditions -->
+      <div class="mb-8 p-6 bg-gray-50 rounded-lg">
+        <ul class="space-y-3 text-gray-700">
+          <li class="flex items-start">
+            <span class="text-amber-600 mr-2">•</span>
+            <span>The maximum loan amount that can be requested for any one loan is <span class="font-semibold">$10,000,000</span></span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-amber-600 mr-2">•</span>
+            <span>Loans will be automatically repaid in <span class="font-semibold">7 equal installments</span> over the next 7 periods after the loan is received. You also have the option to payoff the entire outstanding loan balance at any time. If you choose this option, the entire loan balance will be deducted from your cash-on-hand during the next period update and you will be charged no further interest.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-amber-600 mr-2">•</span>
+            <span>An interest rate of <span class="font-semibold">12% annual, or 2.00% per period</span>, will be charged on any unpaid balance.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-amber-600 mr-2">•</span>
+            <span>You are limited to <span class="font-semibold">3 active loans</span> at any one time.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-amber-600 mr-2">•</span>
+            <span>There is only <span class="font-semibold">one loan request allowed each period</span>. If you take a second loan request during a period, it will replace your first request.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-amber-600 mr-2">•</span>
+            <span>The loan amount will be added to your cash-on-hand at the beginning of the next period before bids are processed or work done on jobs. Repayments will begin the period after that.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Loan Request Form -->
+      <form name="requestLoanForm" method="post" action="#" class="space-y-6">
+
+        <div>
+          <label for="loanAmount" class="block font-semibold mb-2">
+            Enter the loan request amount:
+          </label>
+          <input
+            type="text"
+            id="loanAmount"
+            name="loanAmount"
+            maxlength="12"
+            value="$"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-between pt-4">
+
+            
+            <a th:href="@{/company/financial-services-menu}" 
+            class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block">
+            Cancel
+            </a>
+              
+        
+
+          <button
+            type="submit"
+            class="px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+            Request Loan
+          </button>
+
+        </div>
+
+      </form>
+
+     
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

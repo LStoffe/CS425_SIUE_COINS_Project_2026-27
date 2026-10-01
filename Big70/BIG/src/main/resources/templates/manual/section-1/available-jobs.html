@@ -1,0 +1,78 @@
+<!--
+  available-jobs.html
+  section 1.9 of the COINS manual.
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.9 Available Jobs</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.9 Available Jobs
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Every period there will be new jobs available for bid. To view public jobs available for the current period, select "Bid on a job" from the Homepage.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The list of available public jobs provides the following information:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>Job number (jobs are numbered sequentially in the order they are created)</li>
+            <li>Type of job</li>
+            <li>Size of the job stated in construction units</li>
+            <li>Liquidated damages per day</li>
+            <li>Completion deadline</li>
+            <li>Your current bid (if any)</li>
+            <li>Links for more information or to bid on this job</li>
+        </ul>
+    </section>
+
+    <section>
+        <p class="text-lg text-black leading-relaxed">
+            Lists of available private jobs are not posted anywhere. If a private customer wants you to negotiate or bid on one of their jobs, they will contact you directly by sending a message to your inbox.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/productivity-report}" class="font-semibold hover:underline">
+        ← 1.8 Productivity Report
+    </a>
+    <a th:href="@{/manual/estimated-time-and-cost-report}" class="font-semibold hover:underline">
+        Next → 1.10 Estimated Time and Cost Report
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

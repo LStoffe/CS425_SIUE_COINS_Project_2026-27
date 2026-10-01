@@ -1,0 +1,97 @@
+<!--
+  billing.html
+  Section 5.8 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.8 Billing</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.8 Billing
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Up until now the discussion of income has mainly been about revenue on an accrual basis. To actually make use of your revenue for business expenses you must have your revenue in the form of cash. You receive cash by billing job customers for work completed on their jobs.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Each period you may submit a bill to every customer for each job you are currently working on. 
+            To submit a bill click on the "Bill for Work Completed" link from the main menu. Next, choose the job for which you want to submit a bill. 
+            You will be taken to a billing form for that job. The billing form is broken into two parts: a worksheet to help you calculate how much to bill and a summary of some information available from other reports that may help you with the billing. 
+            The only thing really important to BIG on the billing form is the input field labelled "Total Amount to Bill." Whatever number you type into this box is the amount of the bill.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The worksheet part of the billing form may help you determine the amount to bill. 
+            To bill using the worksheet you look at each activity separately and determine the total amount each contributes to the bill. 
+            You enter these amounts into the input field beside each activity and then push the calculate button to have BIG sum the numbers into the total amount of the bill. 
+            When you construct your bill this way you definitely include the cost of an activity in the amount it contributes to the bill, but you also need to consider other amounts such as overhead and profit. 
+            These amounts can be distributed over the activity costs in some manner, but exactly how much you assign to each activity and when is up to you. Keep in mind that not every activity is worked each period, and it is possible to distribute more of the overhead and 
+            profit amounts to the activities worked early in the job then to those worked at the end. This will result in an "overbilling" which is described in more detail in the following section.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            You may choose not to use the worksheet in BIG. 
+            You may choose to figure the bill on paper or base it on values other than the job costs. The summary information at the bottom of the billing form may also help you decide how much to bill. 
+            This information shows your amount of revenue using values provided by your architect and values provided by your accountant. These values differ because the accountant's numbers come from the Contracts in Progress report, which is generated from cost data, 
+            while the architect's numbers come from the Progress Report which is generated from the physical amount of work complete. 
+            Generally, the figure for the amount of work complete using cost data is less than the physical amount of work complete, but this may not be true early in the job where the cost of overhead is large compared to the direct costs.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The final figure (revenue earned minus billed to date) from both the architect and the accountant can be thought of as the amount that person is suggesting you bill. How much you actually bill is up to you, but the architect must approve and sign all bills before they will be paid.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Tip:</strong> Pressing the "Calculate" button does not submit the bill, it simply sums the values of all the fields and places that value into the input field for total. You must press the "Submit" button to actually submit the bill.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/loans}" class="font-semibold hover:underline">
+        ← 5.7 Loans
+    </a>
+    <a th:href="@{/manual/overbilling}" class="font-semibold hover:underline">
+        Next → 5.9 Overbilling
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

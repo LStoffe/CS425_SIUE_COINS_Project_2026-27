@@ -1,0 +1,102 @@
+<!--
+  big-basics.html
+  Section 1.4 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.4 Big Basics</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.4 Big Basics
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Each company acts as a construction firm within a competitive industry environment that has a fluctuating demand for construction jobs. 
+            The participating companies compete for work with each other and with internally simulated contractors.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            The game is broken up into periods, each period representing two calendar months. Every period you will be required to make decisions and enter them into BIG, and you will see the results in the following period. 
+            Your instructor controls when the current period ends and a new one begins, so the amount of real world time you have to make decisions each period is whatever your instructor chooses to give you. 
+            In game time, is helpful to think that in each period you make all decisions on the very first day of that period, and when the instructor updates from one period to the next all the decisions you made on the first day are carried out. 
+            A game consists of as many periods as your instructor chooses.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Every period there will be a varying number of jobs available for bid, each job being one of five different types:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>apartments</li>
+            <li>school buildings</li>
+            <li>office buildings</li>
+            <li>hospitals</li>
+            <li>industrial plants</li>
+        </ul>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            The goal in BIG is to increase your equity as much as possible by completing work on jobs and earning profit. 
+            To be awarded jobs, your company must place bids that are less than competitors' bids, or make your company attractive enough to customers to receive direct offers for work. 
+            To make a competitive bid you must use the information made available to you to schedule the various activities of the job with methods that will complete the job on time at the lowest possible cost.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Once you have been awarded a job you must monitor that job for schedule slippages and take appropriate action to get the job done on time. 
+            Every job contract in BIG has a clause in it for a liquidated damages penalty that will be assigned if you fail to complete a job on time. 
+            Liquidated damages can quickly cause your profit margin for a job to turn negative.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            As a business, your company will also have a certain number of fixed costs that must be paid each period. 
+            If you are not able to earn enough income each period to cover these costs, your company will slowly go bankrupt.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/company-information}" class="font-semibold hover:underline">
+        ← 1.3 Company Information
+    </a>
+    <a th:href="@{/manual/interacting-with-big}" class="font-semibold hover:underline">
+        Next → 1.5 Interacting with BIG
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

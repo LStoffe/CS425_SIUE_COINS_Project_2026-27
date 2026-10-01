@@ -1,0 +1,15 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.IncomeStatementActionTest
+Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.706 sec
+
+Testcase: testSuccessWithMockedDb took 0.699 sec
+	Caused an ERROR
+Cannot invoke "edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm.getTaxes()" because "prevBalanceSheet" is null
+java.lang.NullPointerException: Cannot invoke "edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm.getTaxes()" because "prevBalanceSheet" is null
+	at edu.calpoly.lib.multimedia.big.reports.IncomeStatementGetter.getIncomeStatement(IncomeStatementGetter.java:183)
+	at edu.calpoly.lib.multimedia.big.reports.IncomeStatementGetter.handleTaxes(IncomeStatementGetter.java:155)
+	at edu.calpoly.lib.multimedia.big.reports.IncomeStatementGetter.getIncomeStatementComputeTaxes(IncomeStatementGetter.java:81)
+	at edu.calpoly.lib.multimedia.big.reports.IncomeStatementAction.execute(IncomeStatementAction.java:135)
+	at edu.calpoly.lib.multimedia.big.reports.IncomeStatementActionTest.testSuccessWithMockedDb(IncomeStatementActionTest.java:100)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testLoginFailureWhenNoGame took 0.002 sec

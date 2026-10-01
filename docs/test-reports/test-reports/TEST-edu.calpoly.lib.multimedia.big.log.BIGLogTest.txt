@@ -1,0 +1,97 @@
+Testsuite: edu.calpoly.lib.multimedia.big.log.BIGLogTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.259 sec
+------------- Standard Output ---------------
+23:51:31,430 INFO  log.BIGLogFactory - Bringing up BIG logging system...
+23:51:31,431 ERROR log.BIGLog - java.lang.RuntimeException: error exception only
+23:51:31,450 WARN  log.BIGLog - warning
+23:51:31,457 ERROR log.BIGLog - error msg
+23:51:31,465 ERROR log.BIGLog - error with ex
+java.lang.RuntimeException: test exception
+	at edu.calpoly.lib.multimedia.big.log.BIGLogTest.testErrorWithException(BIGLogTest.java:64)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:51:31,475 FATAL log.BIGLog - fatal msg
+23:51:31,490 FATAL log.BIGLog - fatal with ex
+java.lang.NullPointerException: npe
+	at edu.calpoly.lib.multimedia.big.log.BIGLogTest.testFatalWithException(BIGLogTest.java:113)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:51:31,514 WARN  log.BIGLog - warn ex
+java.lang.Exception: warn exception
+	at edu.calpoly.lib.multimedia.big.log.BIGLogTest.testWarnWithException(BIGLogTest.java:131)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:51:31,521 INFO  log.BIGLog - java.lang.Exception: info exception only
+23:51:31,529 INFO  log.BIGLog - info ex
+java.lang.Exception: info exception
+	at edu.calpoly.lib.multimedia.big.log.BIGLogTest.testInfoWithException(BIGLogTest.java:122)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+23:51:31,536 WARN  log.BIGLog - java.lang.Exception: warn exception only
+23:51:31,543 FATAL log.BIGLog - java.lang.NullPointerException: fatal exception only
+23:51:31,553 INFO  log.BIGLog - test message
+------------- ---------------- ---------------
+
+Testcase: testErrorExceptionOnly took 0.124 sec
+Testcase: testTraceWithException took 0.008 sec
+Testcase: testWarnWritesToFile took 0.007 sec
+Testcase: testErrorWritesToFile took 0.007 sec
+Testcase: testErrorWithException took 0.01 sec
+Testcase: testFatalWritesToFile took 0.005 sec
+Testcase: testTraceWritesToFile took 0.009 sec
+Testcase: testFatalWithException took 0.01 sec
+Testcase: testDebugWithException took 0.008 sec
+Testcase: testDebugWritesToFile took 0.005 sec
+Testcase: testWarnWithException took 0.008 sec
+Testcase: testInfoExceptionOnly took 0.007 sec
+Testcase: testInfoWithException took 0.008 sec
+Testcase: testWarnExceptionOnly took 0.007 sec
+Testcase: testFatalExceptionOnly took 0.008 sec
+Testcase: testInfoWritesToFile took 0.005 sec
+Testcase: testDebugExceptionOnly took 0.008 sec
+Testcase: testIsLevelEnabledDelegatesToFactory took 0.001 sec
+Testcase: testTraceStringWithException took 0.006 sec

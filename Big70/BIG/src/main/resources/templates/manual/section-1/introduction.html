@@ -1,0 +1,82 @@
+<!--
+  introduction.html
+  Section 1.1 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>1.1 Introduction</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            1.1 Introduction
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            BIG is a computer program that simulates a market with demand for the construction of buildings. 
+            As a student, you and a group of your classmates will form a construction management company to compete for work and profit in this market. 
+            To be successful, you must make business decisions that will keep revenue flowing into your company, 
+            while at the same time monitoring other companies to ensure your company stays competitive.            
+        </p>
+    </section>
+
+    <!-- List of Activities -->
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+        The goal is to give you experience at performing the following activities:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>Deciding which jobs are best for your company to bid on</li>
+            <li>Estimating and forecasting costs and revenues</li>
+            <li>Creating bids that are both responsible and competitive</li>
+            <li>Monitoring jobs in progress</li>
+            <li>Reading accounting reports and using them to understand your financial position</li>
+            <li>Learning from your mistakes and not repeating them</li>
+        </ul>
+    </section>
+
+    <section>
+        <p class="text-lg text-black leading-relaxed">
+            The last item is particularly important because BIG gives you an environment in which mistakes do not come with any real-world penalties. 
+            Hopefully, the mistakes you make in BIG are not mistakes you will make in the real world when you are asked to perform the same activities.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/getting-started}" class="font-semibold hover:underline">
+        ← Section 1 Summary
+    </a>
+    <a th:href="@{/manual/login-logout}" class="font-semibold hover:underline">
+        Next → 1.2 Login/Logout
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!--
+  labor-availbility-index.html
+  Section 4.1 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 4">
+    <title>4.1 Labor Availability Index</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            4.1 Labor Availability Index
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            A surplus or shortage of labor can have a significant impact on the progress and labor cost of a job. Each period, BIG determines the availability of labor and uses that information to make the following adjustments to both labor cost and job progress:
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            A surplus or shortage of labor can have a significant impact on the progress and labor cost of a job. Each period, BIG determines the availability of labor and uses that information to make the following adjustments to both labor cost and job progress:
+        </p>
+    
+        <table class="min-w-full text-lg text-black">
+            <thead>
+                <tr>
+                    <th class="text-left font-bold pb-2">
+                        Labor Availability
+                    </th>
+                    <th class="text-left font-bold pb-2">
+                        Cost of Labor ($/CU) this period
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="pr-6">Very Good</td>
+                    <td>reduced between 6 and 8 percent</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">Good</td>
+                    <td>reduced between 2 and 5 percent</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">Balanced</td>
+                    <td>no change</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">Unsatisfactory</td>
+                    <td>increased between 1 and 4 percent</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">Extremely Unsatisfactory</td>
+                    <td>increased between 5 and 8 percent</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="mb-6">
+        <table class="min-w-full text-lg text-black">
+            <thead>
+                <tr>
+                    <th class="text-left font-bold pb-2">
+                        Labor Availability
+                    </th>
+                    <th class="text-left font-bold pb-2">
+                        Number of work days this period
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="pr-6">Unsatisfactory</td>
+                    <td>decreased by three days</td>
+                </tr>
+                <tr>
+                    <td class="pr-6">Extremely Unsatisfactory</td>
+                    <td>decreased by six days</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+    
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+           To view labor availability, select "Labor Availability Report" from the Main Menu. If you do not want to view the report you may select the back button. 
+           You must agree to pay the price by selecting 'Yes' before you may view the report.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Tip:</strong> The estimates provided for labor cost on the Productivity Report and Estimated Time and Cost Report are also subject to a small amount of uncertainty in addition to the affects of labor availability. 
+            The bounds on this uncertainty are listed in the Productivity Report.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/consulting-services}" class="font-semibold hover:underline">
+        ← Section 4 Summary
+    </a>
+    <a th:href="@{/manual/materials-cost-index}" class="font-semibold hover:underline">
+        Next → 4.2 Material Index Report
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

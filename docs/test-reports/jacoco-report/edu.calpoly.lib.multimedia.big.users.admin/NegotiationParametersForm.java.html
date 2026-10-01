@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NegotiationParametersForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin</a> &gt; <span class="el_source">NegotiationParametersForm.java</span></div><h1>NegotiationParametersForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.users.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+/**
+ * ActionForm used to hold negotiation parameters.
+ *
+ *
+ * @author Kevin Craig
+ *
+ */
+<span class="fc" id="L18">public final class NegotiationParametersForm  extends ActionForm</span>
+{
+<span class="fc" id="L20">	private boolean makeDefaults = false;</span>
+
+<span class="fc" id="L22">	private String minWordOfMouthRate = &quot;&quot;;</span>
+<span class="fc" id="L23">	private String maxWordOfMouthRate = &quot;&quot;;</span>
+<span class="fc" id="L24">	private String minWordOfMouthIntensity = &quot;&quot;;</span>
+<span class="fc" id="L25">	private String maxWordOfMouthIntensity = &quot;&quot;;</span>
+<span class="fc" id="L26">	private String percentOfClosedBidsBecomingNegotiations = &quot;&quot;;</span>
+<span class="fc" id="L27">	private String meanPercentProfit = &quot;&quot;;</span>
+<span class="fc" id="L28">	private String stdDevPercentProfit = &quot;&quot;;</span>
+<span class="fc" id="L29">	private String minPercentProfit = &quot;&quot;;</span>
+<span class="fc" id="L30">	private String maxPercentProfit = &quot;&quot;;</span>
+<span class="fc" id="L31">	private String likelihoodCustomerBreaksNegotiations = &quot;&quot;;</span>
+<span class="fc" id="L32">	private String overEstimationOfCostEffectingEthicsLimit = &quot;&quot;;</span>
+<span class="fc" id="L33">	private String meanCustomerHaggling = &quot;&quot;;</span>
+<span class="fc" id="L34">	private String stdDevCustomerHaggling = &quot;&quot;;</span>
+<span class="fc" id="L35">	private String minCustomerHaggling = &quot;&quot;;</span>
+<span class="fc" id="L36">	private String maxCustomerHaggling = &quot;&quot;;</span>
+
+
+    //**************** Public Methods ******************
+
+	/**
+	 * Ensures that all values are non-null, that all number strings contain only numeric characters,
+     * that all numbers are greater than or equal to zero, and that for each period the mins are less than or equal to the max.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L47">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L49">        boolean nullParams = false;</span>
+<span class="fc" id="L50">        boolean validNumbers = true;</span>
+<span class="fc" id="L51">        boolean positiveNumbers = true;</span>
+<span class="fc" id="L52">        boolean minsValid = true;</span>
+
+<span class="fc" id="L54">		int minWordOfMouthRateInt = 0;</span>
+<span class="fc" id="L55">		int maxWordOfMouthRateInt = 0;</span>
+<span class="fc" id="L56">		int minWordOfMouthIntensityInt = 0;</span>
+<span class="fc" id="L57">		int maxWordOfMouthIntensityInt = 0;</span>
+<span class="fc" id="L58">		int percentOfClosedBidsBecomingNegotiationsInt = 0;</span>
+<span class="fc" id="L59">		int meanPercentProfitInt = 0;</span>
+<span class="fc" id="L60">		float stdDevPercentProfitFloat = 0.0f;</span>
+<span class="fc" id="L61">		int minPercentProfitInt = 0;</span>
+<span class="fc" id="L62">		int maxPercentProfitInt = 0;</span>
+<span class="fc" id="L63">		int likelihoodCustomerBreaksNegotiationsInt = 0;</span>
+<span class="fc" id="L64">		int overEstimationOfCostEffectingEthicsLimitInt = 0;</span>
+<span class="fc" id="L65">		int meanCustomerHagglingInt = 0;</span>
+<span class="fc" id="L66">		float stdDevCustomerHagglingFloat = 0.0f;</span>
+<span class="fc" id="L67">		int minCustomerHagglingInt = 0;</span>
+<span class="fc" id="L68">		int maxCustomerHagglingInt = 0;</span>
+
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">		if((minWordOfMouthRate.trim() == null) || (minWordOfMouthRate.trim().length() &lt; 1))</span>
+<span class="nc" id="L71">			nullParams = true;</span>
+<span class="pc bpc" id="L72" title="2 of 4 branches missed.">		if((maxWordOfMouthRate.trim() == null) || (maxWordOfMouthRate.trim().length() &lt; 1))</span>
+<span class="nc" id="L73">		    nullParams = true;</span>
+<span class="pc bpc" id="L74" title="2 of 4 branches missed.">		if((minWordOfMouthIntensity.trim() == null) || (minWordOfMouthIntensity.trim().length() &lt; 1))</span>
+<span class="nc" id="L75">			nullParams = true;</span>
+<span class="pc bpc" id="L76" title="2 of 4 branches missed.">		if((maxWordOfMouthIntensity.trim() == null) || (maxWordOfMouthIntensity.trim().length() &lt; 1))</span>
+<span class="nc" id="L77">			nullParams = true;</span>
+<span class="pc bpc" id="L78" title="2 of 4 branches missed.">		if((percentOfClosedBidsBecomingNegotiations.trim() == null) || (percentOfClosedBidsBecomingNegotiations.trim().length() &lt; 1))</span>
+<span class="nc" id="L79">			nullParams = true;</span>
+<span class="pc bpc" id="L80" title="2 of 4 branches missed.">		if((meanPercentProfit.trim() == null) || (meanPercentProfit.trim().length() &lt; 1))</span>
+<span class="nc" id="L81">			nullParams = true;</span>
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">		if((stdDevPercentProfit.trim() == null) || (stdDevPercentProfit.trim().length() &lt; 1))</span>
+<span class="nc" id="L83">			nullParams = true;</span>
+<span class="pc bpc" id="L84" title="2 of 4 branches missed.">		if((minPercentProfit.trim() == null) || (minPercentProfit.trim().length() &lt; 1))</span>
+<span class="nc" id="L85">			nullParams = true;</span>
+<span class="pc bpc" id="L86" title="2 of 4 branches missed.">		if((maxPercentProfit.trim() == null) || (maxPercentProfit.trim().length() &lt; 1))</span>
+<span class="nc" id="L87">			nullParams = true;</span>
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">		if((likelihoodCustomerBreaksNegotiations.trim() == null) || (likelihoodCustomerBreaksNegotiations.trim().length() &lt; 1))</span>
+<span class="nc" id="L89">			nullParams = true;</span>
+<span class="pc bpc" id="L90" title="2 of 4 branches missed.">		if((overEstimationOfCostEffectingEthicsLimit.trim() == null) || (overEstimationOfCostEffectingEthicsLimit.trim().length() &lt; 1))</span>
+<span class="nc" id="L91">			nullParams = true;</span>
+<span class="pc bpc" id="L92" title="2 of 4 branches missed.">		if((meanCustomerHaggling.trim() == null) || (meanCustomerHaggling.trim().length() &lt; 1))</span>
+<span class="nc" id="L93">			nullParams = true;</span>
+<span class="pc bpc" id="L94" title="2 of 4 branches missed.">		if((stdDevCustomerHaggling.trim() == null) || (stdDevCustomerHaggling.trim().length() &lt; 1))</span>
+<span class="nc" id="L95">			nullParams = true;</span>
+<span class="pc bpc" id="L96" title="2 of 4 branches missed.">		if((minCustomerHaggling.trim() == null) || (minCustomerHaggling.trim().length() &lt; 1))</span>
+<span class="nc" id="L97">			nullParams = true;</span>
+<span class="pc bpc" id="L98" title="2 of 4 branches missed.">		if((maxCustomerHaggling.trim() == null) || (maxCustomerHaggling.trim().length() &lt; 1))</span>
+<span class="nc" id="L99">			nullParams = true;</span>
+
+
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		if (nullParams) //nullParams == true</span>
+		{
+<span class="nc" id="L104">			errors.add(&quot;nullParameters&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+		else           //nullParams == false
+		{
+			//Next make sure all of the number Strings contain only numeric characters.
+
+			//Check that the strings are valid numbers by trying to convert them to ints and checking for a NumberFormatException
+			try
+			{
+<span class="fc" id="L113">				minWordOfMouthRateInt = Integer.parseInt(minWordOfMouthRate);</span>
+<span class="fc" id="L114">				maxWordOfMouthRateInt = Integer.parseInt(maxWordOfMouthRate);</span>
+<span class="fc" id="L115">				minWordOfMouthIntensityInt = Integer.parseInt(minWordOfMouthIntensity);</span>
+<span class="fc" id="L116">				maxWordOfMouthIntensityInt = Integer.parseInt(maxWordOfMouthIntensity);</span>
+<span class="fc" id="L117">				percentOfClosedBidsBecomingNegotiationsInt = Integer.parseInt(percentOfClosedBidsBecomingNegotiations);</span>
+<span class="fc" id="L118">				meanPercentProfitInt = Integer.parseInt(meanPercentProfit);</span>
+<span class="fc" id="L119">				stdDevPercentProfitFloat = Float.parseFloat(stdDevPercentProfit);</span>
+<span class="fc" id="L120">				minPercentProfitInt = Integer.parseInt(minPercentProfit);</span>
+<span class="fc" id="L121">				maxPercentProfitInt = Integer.parseInt(maxPercentProfit);</span>
+<span class="fc" id="L122">				likelihoodCustomerBreaksNegotiationsInt = Integer.parseInt(likelihoodCustomerBreaksNegotiations);</span>
+<span class="fc" id="L123">				overEstimationOfCostEffectingEthicsLimitInt = Integer.parseInt(overEstimationOfCostEffectingEthicsLimit);</span>
+<span class="fc" id="L124">				meanCustomerHagglingInt = Integer.parseInt(meanCustomerHaggling);</span>
+<span class="fc" id="L125">				stdDevCustomerHagglingFloat = Float.parseFloat(stdDevCustomerHaggling);</span>
+<span class="fc" id="L126">				minCustomerHagglingInt = Integer.parseInt(minCustomerHaggling);</span>
+<span class="fc" id="L127">				maxCustomerHagglingInt = Integer.parseInt(maxCustomerHaggling);</span>
+
+			}
+<span class="nc" id="L130">			catch(NumberFormatException nfe)</span>
+			{
+<span class="nc" id="L132">				validNumbers = false;</span>
+<span class="fc" id="L133">			}</span>
+		}
+
+<span class="pc bpc" id="L136" title="3 of 4 branches missed.">		if(!validNumbers &amp;&amp; !nullParams) //validNumbers == false AND nullParams == false</span>
+		{
+<span class="nc" id="L138">			errors.add(&quot;numberFormat&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		else if(!nullParams)				//validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all the numbers are positive or zero
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">			if(minWordOfMouthRateInt &lt; 0)</span>
+<span class="nc" id="L144">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">			if(maxWordOfMouthRateInt &lt; 0)</span>
+<span class="nc" id="L146">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">			if(minWordOfMouthIntensityInt &lt; 0)</span>
+<span class="nc" id="L148">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">			if(maxWordOfMouthIntensityInt &lt; 0)</span>
+<span class="nc" id="L150">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">			if(percentOfClosedBidsBecomingNegotiationsInt &lt; 0)</span>
+<span class="nc" id="L152">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">			if(meanPercentProfitInt &lt; 0)</span>
+<span class="nc" id="L154">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">			if(stdDevPercentProfitFloat &lt; 0)</span>
+<span class="nc" id="L156">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">			if(minPercentProfitInt &lt; 0)</span>
+<span class="nc" id="L158">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">			if(maxPercentProfitInt &lt; 0)</span>
+<span class="nc" id="L160">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">			if(likelihoodCustomerBreaksNegotiationsInt &lt; 0)</span>
+<span class="nc" id="L162">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">			if(overEstimationOfCostEffectingEthicsLimitInt &lt; 0)</span>
+<span class="nc" id="L164">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">			if(meanCustomerHagglingInt &lt; 0)</span>
+<span class="nc" id="L166">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">			if(stdDevCustomerHagglingFloat &lt; 0)</span>
+<span class="nc" id="L168">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">			if(minCustomerHagglingInt &lt; 0)</span>
+<span class="nc" id="L170">				positiveNumbers = false;</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">			if(maxCustomerHagglingInt &lt; 0)</span>
+<span class="nc" id="L172">				positiveNumbers = false;</span>
+
+		}
+
+<span class="pc bpc" id="L176" title="5 of 6 branches missed.">		if(!positiveNumbers &amp;&amp; validNumbers &amp;&amp; !nullParams) //positiveNumbers = false AND nullParams == false AND validNumbers == true</span>
+		{
+<span class="nc" id="L178">			errors.add(&quot;negativeValue&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+		//Check that all min values are greater than or equal to their corresponding max value
+<span class="pc bpc" id="L182" title="2 of 4 branches missed.">		if(validNumbers &amp;&amp; !nullParams)  //validNumbers == true AND nullParams == false</span>
+		{
+<span class="fc bfc" id="L184" title="All 2 branches covered.">			if(minWordOfMouthRateInt &gt; maxWordOfMouthRateInt)</span>
+<span class="fc" id="L185">				minsValid = false;</span>
+
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">			if(minWordOfMouthIntensityInt &gt; maxWordOfMouthIntensityInt)</span>
+<span class="nc" id="L188">			    minsValid = false;</span>
+
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">			if(minPercentProfitInt &gt; maxPercentProfitInt)</span>
+<span class="nc" id="L191">			    minsValid = false;</span>
+
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">			if(minCustomerHagglingInt &gt; maxCustomerHagglingInt)</span>
+<span class="nc" id="L194">			    minsValid = false;</span>
+		}
+
+<span class="pc bpc" id="L197" title="2 of 6 branches missed.">		if(!minsValid &amp;&amp; validNumbers &amp;&amp; !nullParams)  //minsValid == false AND validNumbers == true AND nullParams == false</span>
+		{
+<span class="fc" id="L199">			errors.add(&quot;minmax&quot;, new ActionMessage(&quot;error.parameters.minmax2&quot;));</span>
+		}
+
+
+<span class="fc" id="L203">		return errors;</span>
+	}
+
+
+
+//**************************** Set &amp; Get Methods ************************
+
+    public boolean getMakeDefaults()
+    {
+<span class="nc" id="L212">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="nc" id="L217">		this.makeDefaults = makeDefaults;</span>
+<span class="nc" id="L218">	}</span>
+
+    public void setMinWordOfMouthRate(int minWordOfMouthRate)
+    {
+<span class="fc" id="L222">		this.minWordOfMouthRate = (new Integer(minWordOfMouthRate)).toString();</span>
+<span class="fc" id="L223">	}</span>
+
+	public void setMinWordOfMouthRateString(String minWordOfMouthRate)
+	{
+<span class="nc" id="L227">		this.minWordOfMouthRate = minWordOfMouthRate;</span>
+<span class="nc" id="L228">	}</span>
+
+	public void setMaxWordOfMouthRate(int maxWordOfMouthRate)
+	{
+<span class="fc" id="L232">		this.maxWordOfMouthRate = (new Integer(maxWordOfMouthRate)).toString();</span>
+<span class="fc" id="L233">	}</span>
+
+    public void setMaxWordOfMouthRateString(String maxWordOfMouthRate)
+    {
+<span class="nc" id="L237">		this.maxWordOfMouthRate = maxWordOfMouthRate;</span>
+<span class="nc" id="L238">	}</span>
+
+	public void setMinWordOfMouthIntensity(int minWordOfMouthIntensity)
+	{
+<span class="fc" id="L242">		this.minWordOfMouthIntensity = (new Integer(minWordOfMouthIntensity)).toString();</span>
+<span class="fc" id="L243">	}</span>
+
+	public void setMinWordOfMouthIntensityString(String minWordOfMouthIntenisty)
+	{
+<span class="nc" id="L247">		this.minWordOfMouthIntensity = minWordOfMouthIntensity;</span>
+<span class="nc" id="L248">	}</span>
+
+	public void setMaxWordOfMouthIntensity(int maxWordOfMouthIntensity)
+	{
+<span class="fc" id="L252">		this.maxWordOfMouthIntensity = (new Integer(maxWordOfMouthIntensity)).toString();</span>
+<span class="fc" id="L253">	}</span>
+
+	public void setPercentOfClosedBidsBecomingNegotiations(int percentOfClosedBidsBecomingNegotiations)
+	{
+<span class="fc" id="L257">		this.percentOfClosedBidsBecomingNegotiations = (new Integer(percentOfClosedBidsBecomingNegotiations)).toString();</span>
+<span class="fc" id="L258">	}</span>
+
+	public void setPercentOfClosedBidsBecomingNegotiationsString(String percentOfClosedBidsBecomingNegotiations)
+	{
+<span class="nc" id="L262">		this.percentOfClosedBidsBecomingNegotiations = percentOfClosedBidsBecomingNegotiations;</span>
+<span class="nc" id="L263">	}</span>
+
+	public void setMeanPercentProfit(int meanPercentProfit)
+	{
+<span class="fc" id="L267">		this.meanPercentProfit = (new Integer(meanPercentProfit)).toString();</span>
+<span class="fc" id="L268">	}</span>
+
+	public void setMeanPercentProfitString(String meanPercentProfit)
+	{
+<span class="nc" id="L272">		this.meanPercentProfit = meanPercentProfit;</span>
+<span class="nc" id="L273">	}</span>
+
+	public void setStdDevPercentProfit(float stdDevPercentProfit)
+	{
+<span class="fc" id="L277">		this.stdDevPercentProfit = (new Float(stdDevPercentProfit)).toString();</span>
+<span class="fc" id="L278">	}</span>
+
+	public void setStdDevPercentProfitString(String stdDevPercentProfit)
+	{
+<span class="nc" id="L282">		this.stdDevPercentProfit = stdDevPercentProfit;</span>
+<span class="nc" id="L283">	}</span>
+
+	public void setMinPercentProfit(int minPercentProfit)
+	{
+<span class="fc" id="L287">		this.minPercentProfit = (new Integer(minPercentProfit)).toString();</span>
+<span class="fc" id="L288">	}</span>
+
+	public void setMinPercentProfitString(String minPercentProfit)
+	{
+<span class="nc" id="L292">		this.minPercentProfit = minPercentProfit;</span>
+<span class="nc" id="L293">	}</span>
+
+	public void setMaxPercentProfit(int maxPercentProfit)
+	{
+<span class="fc" id="L297">		this.maxPercentProfit = (new Integer(maxPercentProfit)).toString();</span>
+<span class="fc" id="L298">	}</span>
+
+	public void setMaxPercentProfitString(String maxPercentProfit)
+	{
+<span class="nc" id="L302">		this.maxPercentProfit = maxPercentProfit;</span>
+<span class="nc" id="L303">	}</span>
+
+	public void setLikelihoodCustomerBreaksNegotiations(int likelihoodCustomerBreaksNegotiations)
+	{
+<span class="fc" id="L307">		this.likelihoodCustomerBreaksNegotiations = (new Integer(likelihoodCustomerBreaksNegotiations)).toString();</span>
+<span class="fc" id="L308">	}</span>
+
+	public void setLikelihoodCustomerBreaksNegotiationsString(String likelihoodCustomerBreaksNegotiations)
+	{
+<span class="nc" id="L312">		this.likelihoodCustomerBreaksNegotiations = likelihoodCustomerBreaksNegotiations;</span>
+<span class="nc" id="L313">	}</span>
+
+    public void setOverEstimationOfCostEffectingEthicsLimit(int overEstimationOfCostEffectingEthicsLimit)
+    {
+<span class="fc" id="L317">		this.overEstimationOfCostEffectingEthicsLimit = (new Integer(overEstimationOfCostEffectingEthicsLimit)).toString();</span>
+<span class="fc" id="L318">	}</span>
+
+    public void setOverEstimationOfCostEffectingEthicsLimitString(String overEstimationOfCostEffectingEthicsLimit)
+    {
+<span class="nc" id="L322">		this.overEstimationOfCostEffectingEthicsLimit = overEstimationOfCostEffectingEthicsLimit;</span>
+<span class="nc" id="L323">	}</span>
+
+	public void setMeanCustomerHaggling(int meanCustomerHaggling)
+	{
+<span class="fc" id="L327">		this.meanCustomerHaggling = (new Integer(meanCustomerHaggling)).toString();</span>
+<span class="fc" id="L328">	}</span>
+
+	public void setMeanCustomerHagglingString(String meanCustomerHaggling)
+	{
+<span class="nc" id="L332">		this.meanCustomerHaggling = meanCustomerHaggling;</span>
+<span class="nc" id="L333">	}</span>
+
+	public void setStdDevCustomerHaggling(float stdDevCustomerHaggling)
+	{
+<span class="fc" id="L337">		this.stdDevCustomerHaggling = (new Float(stdDevCustomerHaggling)).toString();</span>
+<span class="fc" id="L338">	}</span>
+
+	public void setStdDevCustomerHagglingString(String stdDevCustomerHaggling)
+	{
+<span class="nc" id="L342">		this.stdDevCustomerHaggling = stdDevCustomerHaggling;</span>
+<span class="nc" id="L343">	}</span>
+
+	public void setMinCustomerHaggling(int minCustomerHaggling)
+	{
+<span class="fc" id="L347">		this.minCustomerHaggling = (new Integer(minCustomerHaggling)).toString();</span>
+<span class="fc" id="L348">	}</span>
+
+	public void setMinCustomerHagglingString(String minCustomerHaggling)
+	{
+<span class="nc" id="L352">		this.minCustomerHaggling = minCustomerHaggling;</span>
+<span class="nc" id="L353">	}</span>
+
+	public void setMaxCustomerHaggling(int maxCustomerHaggling)
+	{
+<span class="fc" id="L357">		this.maxCustomerHaggling = (new Integer(maxCustomerHaggling)).toString();</span>
+<span class="fc" id="L358">	}</span>
+
+	public void setMaxCustomerHagglingString(String maxCustomerHaggling)
+	{
+<span class="nc" id="L362">		this.maxCustomerHaggling = maxCustomerHaggling;</span>
+<span class="nc" id="L363">	}</span>
+
+	public int getMinWordOfMouthRate()
+	{
+<span class="fc" id="L367">		return Integer.parseInt(this.minWordOfMouthRate);</span>
+	}
+
+	public String getMinWordOfMouthRateString()
+	{
+<span class="nc" id="L372">		return minWordOfMouthRate;</span>
+	}
+
+	public int getMaxWordOfMouthRate()
+	{
+<span class="fc" id="L377">		return Integer.parseInt(this.maxWordOfMouthRate);</span>
+	}
+
+	public String getMaxWordOfMouthRateString()
+	{
+<span class="nc" id="L382">		return maxWordOfMouthRate;</span>
+	}
+
+	public int getMinWordOfMouthIntensity()
+	{
+<span class="fc" id="L387">		return Integer.parseInt(minWordOfMouthIntensity);</span>
+	}
+
+	public String getMinWordOfMouthIntensityString()
+	{
+<span class="nc" id="L392">		return minWordOfMouthIntensity;</span>
+	}
+
+	public int getMaxWordOfMouthIntensity()
+	{
+<span class="fc" id="L397">		return Integer.parseInt(maxWordOfMouthIntensity);</span>
+	}
+
+	public String getMaxWordOfMouthIntensityString()
+	{
+<span class="nc" id="L402">		return maxWordOfMouthIntensity;</span>
+	}
+
+	public int getPercentOfClosedBidsBecomingNegotiations()
+	{
+<span class="fc" id="L407">		return Integer.parseInt(percentOfClosedBidsBecomingNegotiations);</span>
+	}
+
+	public String getPercentOfClosedBidsBecomingNegotiationsString()
+	{
+<span class="nc" id="L412">		return percentOfClosedBidsBecomingNegotiations;</span>
+	}
+
+	public int getMeanPercentProfit()
+	{
+<span class="fc" id="L417">		return Integer.parseInt(meanPercentProfit);</span>
+	}
+
+	public String getMeanPercentProfitString()
+	{
+<span class="nc" id="L422">		return meanPercentProfit;</span>
+	}
+
+	public float getStdDevPercentProfit()
+	{
+<span class="fc" id="L427">		return Float.parseFloat(stdDevPercentProfit);</span>
+	}
+
+	public String getStdDevPercentProfitString()
+	{
+<span class="nc" id="L432">		return stdDevPercentProfit;</span>
+	}
+
+	public int getMinPercentProfit()
+	{
+<span class="fc" id="L437">		return Integer.parseInt(minPercentProfit);</span>
+	}
+
+	public String getMinPercentProfitString()
+	{
+<span class="nc" id="L442">		return minPercentProfit;</span>
+	}
+
+	public int getMaxPercentProfit()
+	{
+<span class="fc" id="L447">		return Integer.parseInt(maxPercentProfit);</span>
+	}
+
+	public String getMaxPercentProfitString()
+	{
+<span class="nc" id="L452">		return maxPercentProfit;</span>
+	}
+
+	public int getLikelihoodCustomerBreaksNegotiations()
+	{
+<span class="fc" id="L457">		return Integer.parseInt(likelihoodCustomerBreaksNegotiations);</span>
+	}
+
+	public String getLikelihoodCustomerBreaksNegotiationsString()
+	{
+<span class="nc" id="L462">		return likelihoodCustomerBreaksNegotiations;</span>
+	}
+
+	public int getOverEstimationOfCostEffectingEthicsLimit()
+	{
+<span class="fc" id="L467">		return Integer.parseInt(overEstimationOfCostEffectingEthicsLimit);</span>
+	}
+
+	public String getOverEstimationOfCostEffectingEthicsLimitString()
+	{
+<span class="nc" id="L472">		return overEstimationOfCostEffectingEthicsLimit;</span>
+	}
+
+	public int getMeanCustomerHaggling()
+	{
+<span class="fc" id="L477">		return Integer.parseInt(meanCustomerHaggling);</span>
+	}
+
+	public String getMeanCustomerHagglingString()
+	{
+<span class="nc" id="L482">		return meanCustomerHaggling;</span>
+	}
+
+	public float getStdDevCustomerHaggling()
+	{
+<span class="fc" id="L487">		return Float.parseFloat(stdDevCustomerHaggling);</span>
+	}
+
+	public String getStdDevCustomerHagglingString()
+	{
+<span class="nc" id="L492">		return stdDevCustomerHaggling;</span>
+	}
+
+    public int getMinCustomerHaggling()
+    {
+<span class="fc" id="L497">		return Integer.parseInt(minCustomerHaggling);</span>
+	}
+
+	public String getMinCustomerHagglingString()
+	{
+<span class="nc" id="L502">		return minCustomerHaggling;</span>
+	}
+
+	public int getMaxCustomerHaggling()
+	{
+<span class="fc" id="L507">		return Integer.parseInt(maxCustomerHaggling);</span>
+	}
+
+	public String getMaxCustomerHagglingString()
+	{
+<span class="nc" id="L512">		return maxCustomerHaggling;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

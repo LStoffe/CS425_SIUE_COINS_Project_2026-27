@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultCurrentMethodDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultCurrentMethodDBHandler.java</span></div><h1>DefaultCurrentMethodDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import edu.calpoly.its.mas.big.game.Method;
+
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;CurrentMethodDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.13 $ $Date: 2002/03/14 18:53:05 $
+ */
+public class DefaultCurrentMethodDBHandler extends DefaultDBHandler implements CurrentMethodDBHandler
+{
+
+    public DefaultCurrentMethodDBHandler(Connection connection)
+    {
+<span class="fc" id="L26">		super(connection);</span>
+<span class="fc" id="L27">	}</span>
+
+    public int[] getCurrentMethods(Game game, Job job) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+
+<span class="fc" id="L32">        int[] methods = new int[9]; //9 activities</span>
+
+		//SQL statement to retrieve the game matching the given gameID
+<span class="fc" id="L35">		String query = &quot;SELECT method_id FROM current_methods cm WHERE cm.gameid = ? AND cm.jobid =? AND cm.activity_type_id = ?&quot;;</span>
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        for (int i = 0; i &lt; 9; i ++)</span>
+        {
+  			try
+  			{
+<span class="fc" id="L41">				PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L42">				pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L43">				pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L44">				pstmt.setInt(3, i+1);</span>
+
+<span class="fc" id="L46">				ResultSet rset = pstmt.executeQuery();</span>
+
+				//Check if no rows are returned
+				//(rset.last() returns false if there are no rows in the result set)
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    		    if(!rset.last())</span>
+    		    {
+<span class="fc" id="L52">    		 	   throw new ObjectNotFoundException();</span>
+    		    }
+    		    else
+    		    {
+<span class="fc" id="L56">    		       rset.first();</span>
+
+<span class="fc" id="L58">    		       methods[i] = rset.getInt(&quot;method_id&quot;);</span>
+
+    		    }
+<span class="fc" id="L61">    		    rset.close();</span>
+<span class="fc" id="L62">    		    pstmt.close();</span>
+			}
+<span class="fc" id="L64">			catch(SQLException sqle)</span>
+			{
+				//if an exception occurs close the connection
+<span class="fc" id="L67">				close();</span>
+<span class="fc" id="L68">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L69">			}</span>
+		}
+<span class="fc" id="L71">		return methods;</span>
+	}
+
+
+    public Method[] getAllMethods(Game game, int activityType) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L77">        Method[] methods = new Method[5]; //5 methods for each activity</span>
+
+		//SQL statement to retrieve the game matching the given gameID
+<span class="fc" id="L80">		String query = &quot;SELECT methodid, method_name, productivity, laborcost, &quot; +</span>
+		                       &quot; materialcost, equipmentcost, subcontractorcost, uncertainty_range, weather_sensitivity, subcontracted &quot; +
+		                       &quot; FROM method WHERE gameid = ? AND activity_type_id = ? ORDER BY methodid &quot;;
+
+		try
+ 		{
+<span class="fc" id="L86">			PreparedStatement pstmt = connection.prepareStatement(query);</span>
+<span class="fc" id="L87">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L88">			pstmt.setInt(2, activityType);</span>
+
+<span class="fc" id="L90">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc" id="L92">      	                int i = 0;</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    	                while(rset.next())</span>
+    	                {
+<span class="fc" id="L95">                 	     methods[i] = new Method(rset.getInt(&quot;methodid&quot;),</span>
+<span class="fc" id="L96">                                                 rset.getString(&quot;method_name&quot;),</span>
+<span class="fc" id="L97">    	        	                             rset.getInt(&quot;productivity&quot;),</span>
+<span class="fc" id="L98">    	        	                             rset.getInt(&quot;laborcost&quot;),</span>
+<span class="fc" id="L99">    	        	                             rset.getInt(&quot;materialcost&quot;),</span>
+<span class="fc" id="L100">    	        	                             rset.getInt(&quot;equipmentcost&quot;),</span>
+<span class="fc" id="L101">    	        	                             rset.getInt(&quot;subcontractorcost&quot;),</span>
+<span class="fc" id="L102">    	        	                             rset.getInt(&quot;uncertainty_range&quot;),</span>
+<span class="fc" id="L103">    	        	                             rset.getInt(&quot;weather_sensitivity&quot;),</span>
+<span class="fc" id="L104">    	        	                             rset.getBoolean(&quot;subcontracted&quot;));</span>
+<span class="fc" id="L105">    	                     i++;</span>
+			}
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                        if (i &lt; 4)</span>
+<span class="fc" id="L108">                            throw new ObjectNotFoundException();</span>
+<span class="fc" id="L109">        		rset.close();</span>
+<span class="fc" id="L110">    		        pstmt.close();</span>
+		}
+<span class="nc" id="L112">		catch(SQLException sqle)</span>
+		{
+			//if an exception occurs close the connection
+<span class="nc" id="L115">			close();</span>
+<span class="nc" id="L116">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L117">		}</span>
+<span class="fc" id="L118">		return methods;</span>
+	}
+
+
+    public void updateCurrentMethods(Game game, Job job, int[] methods) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L124">		String update = &quot;UPDATE current_methods SET method_id = ? WHERE gameid = ? AND jobid = ? AND activity_type_id = ? &quot;;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">		for (int i = 0; i &lt; 9; i++)</span>
+		{
+			try
+ 			{
+<span class="fc" id="L129">				PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L130">				pstmt.setInt(1, methods[i]);</span>
+<span class="fc" id="L131">				pstmt.setInt(2, game.getGameID());</span>
+<span class="fc" id="L132">				pstmt.setInt(3, job.getJobID());</span>
+<span class="fc" id="L133">				pstmt.setInt(4, i+1);</span>
+
+<span class="fc" id="L135">                int rows = pstmt.executeUpdate();</span>
+<span class="fc" id="L136">                connection.commit();</span>
+
+<span class="fc" id="L138">    		    pstmt.close();</span>
+			}
+<span class="nc" id="L140">			catch(SQLException sqle)</span>
+			{
+				//if an exception occurs close the connection
+<span class="nc" id="L143">				close();</span>
+<span class="nc" id="L144">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L145">			}</span>
+		}
+<span class="fc" id="L147">	}</span>
+
+
+    public void addCurrentMethods(Game game, Job job, int[] methods) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L152">		String update = &quot;INSERT INTO current_methods (gameid, jobid, activity_type_id, method_id) VALUES (?, ?, ?, ?)&quot;;</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">		for (int i = 0; i &lt; 9; i++)</span>
+		{
+			try
+ 			{
+<span class="fc" id="L157">				PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L158">				pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L159">				pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L160">				pstmt.setInt(3, i+1);</span>
+<span class="fc" id="L161">				pstmt.setInt(4, methods[i]);</span>
+
+<span class="fc" id="L163">                int rows = pstmt.executeUpdate();</span>
+<span class="fc" id="L164">                connection.commit();</span>
+
+<span class="fc" id="L166">    		    pstmt.close();</span>
+			}
+<span class="nc" id="L168">			catch(SQLException sqle)</span>
+			{
+				//if an exception occurs close the connection
+<span class="nc" id="L171">				close();</span>
+<span class="nc" id="L172">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L173">			}</span>
+		}
+<span class="fc" id="L175">	}</span>
+
+
+    public void removeCurrentMethods(int gameID) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L180">		String remove = &quot;DELETE FROM current_methods WHERE gameid = ? &quot;;</span>
+
+		try
+		{
+<span class="fc" id="L184">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L185">			pstmt.setInt(1, gameID);</span>
+
+<span class="fc" id="L187">			int rows = pstmt.executeUpdate();</span>
+<span class="fc" id="L188">			connection.commit();</span>
+		}
+<span class="nc" id="L190">		catch(SQLException sqle)</span>
+		{
+			//if an exception occurs close the connection
+<span class="nc" id="L193">			close();</span>
+<span class="nc" id="L194">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L195">		}</span>
+<span class="fc" id="L196">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

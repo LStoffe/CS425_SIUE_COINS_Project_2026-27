@@ -1,0 +1,78 @@
+<!--
+  liquidated-damages.html
+  Section 5.1 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.1 Liquidated Damages</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.1 Liquidated Damages
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Job customers set required completion dates because they want the use of their building by a certain date. 
+            If they are unable to use the building by that date, they may suffer various negative consequences such as increased costs and loss of income. 
+            When you are awarded a bid you are making a contract with that customer to complete the job by the date they specify. 
+            If you fail to meet your end of the contract by having the building ready on time, the financial consequences to the customer become your consequences. 
+            In BIG, each customer will estimate the amount of money they expect to lose per day that the job is not completed and will write this amount into the contract as a liquidated damages clause. 
+            This clause states that for every day past the required completion date that the job is unfinished, 
+            your company must pay to the customer that amount of money. Liquidated damages have the potential to bankrupt your company, especially on larger jobs. They are charged every day the job is incomplete, not just workdays.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            When you bid on a job you will not want to ignore the amount of liquidated damages that will be charged, 
+            especially if you are unsure of your schedule. If liquidated damages on the job are high you may even consider passing on the job as some other jobs may have relatively low amounts of liquidated damages.ss:
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            If you do miss a required completion date and incur liquidated damages, you will need to decide the best way to handle the situation. 
+            Generally if the job will miss the required completion date by a only few days, or if the liquidated damages are low, it is best just to suffer the cost of the damages. 
+            If you will miss the required completion date by several weeks or more, and the liquidated damages are substantial, your best choice is probably to change methods or add large amounts of overtime. 
+            Of course, to decide what to do you will need to figure out the actual cost of the liquidated damages versus accelerating the schedule. 
+            (Remember, once you miss the required completion date the estimated cost to complete on the Contracts in Progress Report becomes less accurate).
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/project-administration}" class="font-semibold hover:underline">
+        ← Section 5 Summary
+    </a>
+    <a th:href="@{/manual/change-orders}" class="font-semibold hover:underline">
+        Next → 5.2 Change Orders
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

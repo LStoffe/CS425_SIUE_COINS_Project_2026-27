@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.lib.multimedia.big.game.NamedVariableDataFacadeTestImplTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.084 sec
+
+Testcase: testGetJobNamedVariableValueReturnsNull took 0.076 sec
+Testcase: testGetNamedVariableValueCustomInt took 0.001 sec
+Testcase: testGetCompanyNamedVariableValue took 0 sec
+Testcase: testGetNamedVariableValueTotalJobs took 0.001 sec

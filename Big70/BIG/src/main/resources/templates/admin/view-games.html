@@ -1,0 +1,98 @@
+<!--
+  view-games.html
+  Allows admins to look at previously created games
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Games</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Manage Existing Games</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="px-6 pb-20 flex justify-center">
+    <div class="w-full max-w-6xl bg-white p-8 rounded-2xl shadow-lg">
+
+      <h3 class="text-2xl font-bold mb-6">
+        Here are the games you have created:
+      </h3>
+
+      <!-- Games Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-300 rounded-lg overflow-hidden">
+
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2 text-left">Game Name</th>
+              <th class="px-4 py-2 text-left">Game Type</th>
+              <th class="px-4 py-2 text-left">Start Year</th>
+              <th class="px-4 py-2 text-left">Current Period</th>
+              <th class="px-4 py-2 text-left">Status</th>
+              <th class="px-4 py-2 text-center">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr th:each="game : ${games}"
+                class="border-t hover:bg-gray-50 transition">
+
+              <td class="px-4 py-2" th:text="${game.name}">Game Name</td>
+              <td class="px-4 py-2" th:text="${game.type}">Game Type</td>
+              <td class="px-4 py-2" th:text="${game.startYear}">1999</td>
+              <td class="px-4 py-2" th:text="${game.currentPeriod}">1</td>
+              <td class="px-4 py-2" th:text="${game.status}">Active</td>
+
+              <td class="px-4 py-2 text-center space-x-3">
+
+                <a th:href="@{/admin/recall-menu(id=${game.id})}"
+                   class="text-amber-600 hover:underline font-semibold">
+                  Recall
+                </a>         
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr th:if="${#lists.isEmpty(games)}">
+              <td colspan="6" class="px-4 py-6 text-center text-gray-500">
+                You have not created any games yet.
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="flex justify-between items-center mt-6">
+        <a th:href="@{/admin/admin-menu}"
+           class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+          Back to Admin Menu
+        </a>
+
+        <a th:href="@{/admin/create-new-game}"
+           class="bg-amber-500 hover:bg-amber-600 px-6 py-2 rounded-lg font-semibold transition">
+          Create a New Game
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

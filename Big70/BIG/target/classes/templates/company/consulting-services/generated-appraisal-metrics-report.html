@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Company Appraisal Metrics</title>
+  <link rel="stylesheet" href="/css/tailwind.css">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Company Appraisal Metrics</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <!-- Period Selector -->
+      <div class="mb-6">
+        <p class="text-gray-700">
+          <span class="font-semibold">View Report for Period:</span>
+          <a href="#" class="text-amber-600 hover:underline ml-2">1</a>
+          <span class="ml-2 font-semibold">2</span>
+        </p>
+      </div>
+
+      <hr class="mb-8 border-gray-300">
+
+      <!-- Company Header -->
+      <div class="text-center mb-10">
+        <h3 class="text-2xl font-bold mb-2">J's Testing Company</h3>
+        <p class="text-sm text-gray-600">Period: 2, March & April 1999</p>
+      </div>
+
+      <!-- Metrics Section -->
+      <div class="space-y-6">
+
+        <!-- Metric Card -->
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Financial Liquidity</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
+              3 / 5
+            </span>
+          </div>
+          <p class="text-gray-700 text-sm">
+            You currently have enough cash on hand to cover job costs.
+            While acceptable for now, expanding operations may require
+            increasing liquidity proportionally.
+          </p>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Financial Success</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
+              3 / 5
+            </span>
+          </div>
+          <p class="text-gray-700 text-sm">
+            Your company shows moderate financial success.
+            Increasing equity could improve competitiveness
+            for private-sector contracts.
+          </p>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Bid Responsibility</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
+              3 / 5
+            </span>
+          </div>
+          <p class="text-gray-700 text-sm">
+            Customers currently have a neutral perception of your bidding responsibility.
+          </p>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Pace</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
+              3 / 5
+            </span>
+          </div>
+          <p class="text-gray-700 text-sm">
+            Most projects are completed on schedule.
+          </p>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Ethics</h4>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
+              3 / 5
+            </span>
+          </div>
+          <p class="text-gray-700 text-sm">
+            Billing practices are generally accurate and ethical.
+          </p>
+        </div>
+
+        <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-lg font-semibold">Name Recognition</h4>
+            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
+              1 / 5
+            </span>
+          </div>
+          <p class="text-gray-700 text-sm mb-3">
+            Your company is virtually unknown to consumers.
+          </p>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+            <span class="font-semibold">Advice:</span>
+            Bid on more jobs to increase visibility and brand recognition.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Job Types Section -->
+      <div class="mt-12">
+        <h4 class="text-xl font-semibold mb-4">Jobs Awarded by Type</h4>
+
+        <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+          <div class="p-4 bg-gray-50 rounded-lg border">Apartments: 0</div>
+          <div class="p-4 bg-gray-50 rounded-lg border">Schools: 0</div>
+          <div class="p-4 bg-gray-50 rounded-lg border">Offices: 0</div>
+          <div class="p-4 bg-gray-50 rounded-lg border">Hospitals: 0</div>
+          <div class="p-4 bg-gray-50 rounded-lg border">Industrial: 0</div>
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a href="/company/consulting-services-menu"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Consulting Services
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FinancialReportForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">FinancialReportForm.java</span></div><h1>FinancialReportForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.reports;
+
+import edu.calpoly.its.mas.big.game.Job;
+
+import java.util.Vector;
+import java.util.Iterator;
+
+/**
+ * Holds info on job costs and job income.
+ * &lt;br&gt;&lt;br&gt;
+ * This class is updated for BIGv3 to serve a slightly different purpose than it did in BIGv2.
+ * In BIG v2 this represented the one and only financial report and financial info
+ * went from this class directly into the GUI.  In BIGv3 some fields are removed and this class now
+ * holds the underlying data for presenting the job cost reports, payments report and income statement.  The reason
+ * for this architecture is because the fields needed for these reports were already handled by &lt;code&gt;
+ * FinancialReportForm&lt;/code&gt;.  Reports using data already handled by the &lt;code&gt;FinancialReportForm&lt;/code&gt;
+ * should be wrapper classes that take the data they need from this class.
+ * &lt;br&gt;&lt;br&gt;
+ * All text below is originally from the BIGv2 version of &lt;code&gt;FinancialReportForm&lt;/code&gt;
+ * so the reference to jsps are no longer true, however the discussion of &lt;code&gt;JobFinancialInfo&lt;/code&gt; objects is
+ * still true.
+ * &lt;br&gt;&lt;br&gt;&lt;i&gt;
+ * Financial data about particular jobs of a company is stored in an internal list of &lt;code&gt;JobFinancialInfo&lt;/code&gt;
+ * objects.  These objects are accessible direcly from the &lt;code&gt;getJobInfoList&lt;/code&gt; method but &lt;code&gt;FinancialReportForm&lt;/code&gt;
+ * also provides a primitive interface for manipulating them.  There are set, get and increase methods for job specific data
+ * that work like the ones for company data except that they will take a &lt;code&gt;Job&lt;/code&gt; object as a parameter.  The method will manipulate the
+ * data for that specific job only.  Any &lt;code&gt;Job&lt;/code&gt; object used as a parameter in a method call will become part of this
+ * Financial Report and be added to the internal list (even from a call to a get method).
+ * &lt;br&gt;
+ * To simplify displaying job specific data to users the &lt;code&gt;FinancialReportForm&lt;/code&gt; offers get methods that will not take a &lt;code&gt;Job&lt;/code&gt;
+ * as a parameter but will apply to the current job.  The current job can be controlled by the &lt;code&gt;nextJob()&lt;/code&gt; method.  Each time &lt;code&gt;nextJob()&lt;/code&gt;
+ * is called the current job will become the next job in the internal list (if there are still jobs remaining).  There is no way to reset the current
+ * job to a different place in the list because it is intended that the jsp will go through the job list once to display each job's info, then
+ * have no further use for the list of jobs. &lt;/i&gt;
+ *
+ * @author Kevin Craig
+ * @version BIGv3
+ */
+public class FinancialReportForm extends ReportForm
+{
+
+
+  private String companyName;
+
+  private Vector jobInfoList;
+
+  private long interestPaidOnLoans;
+  private long biddingExpenses;
+  private long consultingExpenses;
+  private long settlementExpenses;
+  private long previousCashOnHand;
+  private long officeOverhead;
+  private long loanPrinciplePayments;
+  private long settlementExpense;
+
+<span class="fc" id="L57">  private int currentJobInfo = -1;</span>
+
+  /**
+   * Constructor to be used when creating a new &lt;code&gt;FinancialReportForm&lt;/code&gt;.
+   */
+  public FinancialReportForm()
+<span class="fc" id="L63">  {</span>
+<span class="fc" id="L64">	  companyName = null;</span>
+
+<span class="fc" id="L66">	  jobInfoList = new Vector();</span>
+
+<span class="fc" id="L68">	  interestPaidOnLoans = 0;</span>
+<span class="fc" id="L69">	  biddingExpenses = 0;</span>
+<span class="fc" id="L70">	  consultingExpenses = 0;</span>
+<span class="fc" id="L71">	  previousCashOnHand = 0;</span>
+<span class="fc" id="L72">	  officeOverhead = 0;</span>
+<span class="fc" id="L73">	  loanPrinciplePayments = 0;</span>
+
+<span class="fc" id="L75">  }</span>
+
+  /**
+   * Constructor to be used when creating a &lt;code&gt;FinancialReportForm&lt;/code&gt; with values from the database.
+   */
+  public FinancialReportForm(String companyName,
+  							 Vector jobInfoList,
+  							 long interestPaidOnLoans,
+  							 long biddingExpenses,
+  							 long consultingExpenses,
+  							 long previousCashOnHand,
+  							 long officeOverhead,
+  							 long loanPrinciplePayments)
+<span class="fc" id="L88">  {</span>
+<span class="fc" id="L89">	  this.companyName = companyName;</span>
+<span class="fc" id="L90">	  this.jobInfoList = jobInfoList;</span>
+<span class="fc" id="L91">	  this.interestPaidOnLoans = interestPaidOnLoans;</span>
+<span class="fc" id="L92">	  this.biddingExpenses = biddingExpenses;</span>
+<span class="fc" id="L93">	  this.consultingExpenses = consultingExpenses;</span>
+<span class="fc" id="L94">	  this.previousCashOnHand = previousCashOnHand;</span>
+<span class="fc" id="L95">	  this.officeOverhead = officeOverhead;</span>
+<span class="fc" id="L96">	  this.loanPrinciplePayments = loanPrinciplePayments;</span>
+<span class="fc" id="L97">  }</span>
+
+
+  /**
+   * Returns the title of the company that is the subject of this report.
+   * @return Title of company that is the subject of this report.
+   */
+  public String getCompanyName()
+  {
+<span class="fc" id="L106">	  return companyName;</span>
+  }
+
+
+  /**
+   * Sets the title of the company that is the subject of this report.
+   * @param companyName Title of company that is the subject of this report
+   */
+  public void setCompanyName(String companyName)
+  {
+<span class="fc" id="L116">    this.companyName = companyName;</span>
+<span class="fc" id="L117">  }</span>
+
+  /**
+   * Returns the internal list of &lt;code&gt;JobFinancialInfo&lt;/code&gt; objects
+   * @return Internal list of &lt;code&gt;JobFinancialInfo&lt;/code&gt; objects
+   */
+  public Vector getJobInfoList()
+  {
+<span class="fc" id="L125">	  return jobInfoList;</span>
+  }
+
+  /**
+   * Sets the internal list of &lt;code&gt;JobFinancialInfo&lt;/code&gt; objects
+   * @param jobInfoList Internal list of &lt;code&gt;JobFinancialInfo&lt;/code&gt; objects
+   */
+  public void setJobInfoList(Vector jobInfoList)
+  {
+<span class="fc" id="L134">	  this.jobInfoList = jobInfoList;</span>
+<span class="fc" id="L135">  }</span>
+
+  /**
+   * Returns the total amount this company has paid as interest on all loans.
+   */
+  public long getInterestPaidOnLoans()
+  {
+<span class="fc" id="L142">	  return interestPaidOnLoans;</span>
+  }
+
+  /**
+   * Sets the total amount this company has paid as interest on all loans.
+   */
+  public void setInterestPaidOnLoans(long interestPaidOnLoans)
+  {
+<span class="fc" id="L150">	  this.interestPaidOnLoans = interestPaidOnLoans;</span>
+<span class="fc" id="L151">  }</span>
+
+  /**
+   * Increases the total amount this company has paid as interest on all loans.
+   * @param amount Amount by which to increase total.
+   */
+  public void increaseInterestPaidOnLoans(long amount)
+  {
+<span class="fc" id="L159">	  this.interestPaidOnLoans += amount;</span>
+<span class="fc" id="L160">  }</span>
+
+  /**
+   * Returns the total amount this company has paid as bidding expenses.
+   */
+  public long getBiddingExpenses()
+  {
+<span class="fc" id="L167">	  return biddingExpenses;</span>
+  }
+
+  /**
+   * Sets the total amount this company has paid as bidding expenses.
+   */
+  public void setBiddingExpenses(long biddingExpenses)
+  {
+<span class="fc" id="L175">	  this.biddingExpenses = biddingExpenses;</span>
+<span class="fc" id="L176">  }</span>
+
+  /**
+   * Increases the total amount this company has paid as bidding expenses.
+   */
+  public void increaseBiddingExpenses(long amount)
+  {
+<span class="fc" id="L183">	  this.biddingExpenses += amount;</span>
+<span class="fc" id="L184">  }</span>
+
+  /**
+   * Returns the total amount this company has paid as settlement expenses.
+   */
+  public long getSettlementExpenses()
+  {
+<span class="fc" id="L191">	  return settlementExpenses;</span>
+  }
+
+  /**
+   * Sets the total amount this company has paid as settlement expenses.
+   */
+  public void setSettlementExpenses(long settlementExpenses)
+  {
+<span class="fc" id="L199">	  this.settlementExpenses = settlementExpenses;</span>
+<span class="fc" id="L200">  }</span>
+
+  /**
+   * Increases the total amount this company has paid as settlement expenses.
+   */
+  public void increaseSettlementExpenses(long amount)
+  {
+<span class="fc" id="L207">	  this.settlementExpenses += amount;</span>
+<span class="fc" id="L208">  }</span>
+
+
+  public long getConsultingExpenses()
+  {
+<span class="fc" id="L213">	  return consultingExpenses;</span>
+  }
+
+  public void setConsultingExpenses(long amount)
+  {
+<span class="fc" id="L218">	  this.consultingExpenses = consultingExpenses;</span>
+<span class="fc" id="L219">  }</span>
+
+  public void increaseConsultingExpenses(long amount)
+  {
+<span class="fc" id="L223">	  this.consultingExpenses += amount;</span>
+<span class="fc" id="L224">  }</span>
+
+  /**
+   * Returns the amount of cash-on-hand this company had before any changes were made for the current period.
+   */
+  public long getPreviousCashOnHand()
+  {
+<span class="fc" id="L231">	  return previousCashOnHand;</span>
+  }
+
+  /**
+   * Sets the amount of cash-on-hand this company had before any changes were made for the current period.
+   */
+  public void setPreviousCashOnHand(long previousCashOnHand)
+  {
+<span class="fc" id="L239">	  this.previousCashOnHand = previousCashOnHand;</span>
+<span class="fc" id="L240">  }</span>
+
+  public long getOfficeOverhead()
+  {
+<span class="fc" id="L244">	  return officeOverhead;</span>
+  }
+
+  public void setOfficeOverhead(long officeOverhead)
+  {
+<span class="fc" id="L249">	  this.officeOverhead = officeOverhead;</span>
+<span class="fc" id="L250">  }</span>
+
+  public void increaseOfficeOverhead(long amount)
+  {
+<span class="fc" id="L254">	  this.officeOverhead += amount;</span>
+<span class="fc" id="L255">  }</span>
+
+  /**
+   * Returns the total amount this company has paid to repay loan principle for all loans.
+   */
+  public long getLoanPrinciplePayments()
+  {
+<span class="fc" id="L262">	  return loanPrinciplePayments;</span>
+  }
+
+  /**
+   * Sets the total amount this company has paid to repay loan principle for all loans.
+   */
+  public void setLoanPrinciplePayments(long loanPrinciplePayments)
+  {
+<span class="fc" id="L270">	  this.loanPrinciplePayments = loanPrinciplePayments;</span>
+<span class="fc" id="L271">  }</span>
+
+  /**
+   * Increases the total amount this company has paid to repay loan principle for all loans.
+   */
+  public void increaseLoanPrinciplePayments(long amount)
+  {
+<span class="fc" id="L278">	  this.loanPrinciplePayments += amount;</span>
+<span class="fc" id="L279">  }</span>
+
+
+//****  Methods that make calls to specific JobFinancialInfo objects
+  public long getPaymentsReceived(Job job)
+  {
+<span class="fc" id="L285">	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L287">	  return jobInfo.getPaymentsReceived();</span>
+  }
+
+  public void increasePaymentsReceived(Job job, long amount)
+  {
+<span class="fc" id="L292">	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L294">	  jobInfo.increasePaymentsReceived(amount);</span>
+<span class="fc" id="L295">  }</span>
+
+  public long getRetainageReceived(Job job)
+  {
+<span class="fc" id="L299">	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L301">	  return jobInfo.getRetainageReceived();</span>
+  }
+
+  public void increaseRetainageReceived(Job job, long amount)
+  {
+<span class="fc" id="L306">	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L308">	  jobInfo.increaseRetainageReceived(amount);</span>
+<span class="fc" id="L309">  }</span>
+
+  public long getDirectLaborCost(Job job)
+  {
+<span class="fc" id="L313">	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L315">	  return jobInfo.getDirectLaborCost();</span>
+  }
+
+  public void increaseDirectLaborCost(Job job, long amount)
+  {
+<span class="fc" id="L320">	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L322">	  jobInfo.increaseDirectLaborCost(amount);</span>
+<span class="fc" id="L323">  }</span>
+
+  public long getDirectMaterialsCost(Job job)
+  {
+<span class="fc" id="L327">      JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L329">  	  return jobInfo.getDirectMaterialsCost();</span>
+  }
+
+  public void increaseDirectMaterialsCost(Job job, long amount)
+  {
+<span class="fc" id="L334">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L336">  	  jobInfo.increaseDirectMaterialsCost(amount);</span>
+<span class="fc" id="L337">  }</span>
+
+  public long getDirectEquipmentCost(Job job)
+  {
+<span class="fc" id="L341">      JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L343">  	  return jobInfo.getDirectEquipmentCost();</span>
+  }
+
+  public void increaseDirectEquipmentCost(Job job, long amount)
+  {
+<span class="fc" id="L348">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L350">  	  jobInfo.increaseDirectEquipmentCost(amount);</span>
+<span class="fc" id="L351">  }</span>
+
+  public long getSubcontractorCost(Job job)
+  {
+<span class="fc" id="L355">      JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L357">  	  return jobInfo.getSubcontractorCost();</span>
+  }
+
+  public void increaseSubcontractorCost(Job job, long amount)
+  {
+<span class="fc" id="L362">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L364">  	  jobInfo.increaseSubcontractorCost(amount);</span>
+<span class="fc" id="L365">  }</span>
+
+  public long getFieldOverhead(Job job)
+  {
+<span class="fc" id="L369">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L371">  	  return jobInfo.getFieldOverhead();</span>
+  }
+
+  public void increaseFieldOverhead(Job job, long amount)
+  {
+<span class="fc" id="L376">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L378">  	  jobInfo.increaseFieldOverhead(amount);</span>
+<span class="fc" id="L379">  }</span>
+
+  public long getLiquidatedDamages(Job job)
+  {
+<span class="fc" id="L383">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L385">  	  return jobInfo.getLiquidatedDamages();</span>
+  }
+
+  public long getDaysLate(Job job)
+  {
+<span class="fc" id="L390">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L392">  	  return jobInfo.getDaysLate();</span>
+  }
+
+  public void incrementDaysLate(Job job)
+  {
+<span class="fc" id="L397">  	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="fc" id="L399">  	  jobInfo.incrementDaysLate();</span>
+<span class="fc" id="L400">  }</span>
+
+  public long getLiquidatedDamagesPerDay(Job job)
+  {
+<span class="nc" id="L404">	  JobFinancialInfo jobInfo = getJobInfo(job);</span>
+
+<span class="nc" id="L406">	  return jobInfo.getLiquidatedDamagesPerDay();</span>
+  }
+
+
+  //Methods that make calls to the current JobFinancialInfo object
+  public long getPaymentsReceived()
+  {
+<span class="fc" id="L413">	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getPaymentsReceived();</span>
+  }
+
+  public long getRetainageReceived()
+  {
+<span class="fc" id="L418">	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getRetainageReceived();</span>
+  }
+
+  public long getDirectLaborCost()
+  {
+<span class="fc" id="L423">	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getDirectLaborCost();</span>
+  }
+
+  public long getDirectMaterialsCost()
+  {
+<span class="fc" id="L428">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getDirectMaterialsCost();</span>
+  }
+
+  public long getDirectEquipmentCost()
+  {
+<span class="fc" id="L433">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getDirectEquipmentCost();</span>
+  }
+
+  public long getSubcontractorCost()
+  {
+<span class="fc" id="L438">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getSubcontractorCost();</span>
+  }
+
+  public long getFieldOverhead()
+  {
+<span class="fc" id="L443">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getFieldOverhead();</span>
+  }
+
+  public long getLiquidatedDamages()
+  {
+<span class="fc" id="L448">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getLiquidatedDamages();</span>
+  }
+
+  public int getDaysLate()
+  {
+<span class="fc" id="L453">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getDaysLate();</span>
+  }
+
+  public long getLiquidatedDamagesPerDay()
+  {
+<span class="fc" id="L458">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getLiquidatedDamagesPerDay();</span>
+  }
+
+  public int getJobID()
+  {
+<span class="fc" id="L463">  	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getJobID();</span>
+  }
+
+  public String getJobType()
+  {
+<span class="fc" id="L468">	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getJobType();</span>
+  }
+
+  public short getTypeModifier()
+  {
+<span class="fc" id="L473">	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getTypeModifier();</span>
+  }
+
+  public long getJobNetIncome()
+  {
+<span class="fc" id="L478">	  return ((JobFinancialInfo) jobInfoList.elementAt(currentJobInfo)).getJobNetIncome();</span>
+  }
+
+
+  //Methods that control the current job info
+
+  /**
+   * Returns true if there are jobs left in the list, false o/w.
+   */
+  public boolean jobsLeft()
+  {
+<span class="pc bpc" id="L489" title="1 of 4 branches missed.">	  if ((jobInfoList != null) &amp;&amp; (currentJobInfo+1 &lt; jobInfoList.size()))</span>
+	  {
+<span class="fc" id="L491">		  return true;</span>
+	  }
+	  else
+	  {
+<span class="fc" id="L495">		  return false;</span>
+	  }
+  }
+
+  /**
+   * Advances the current job to the next job in this list.
+   * &lt;br&gt;Caution: ArrayOutOfBoundException will be thrown if a get method is called on
+   * and &lt;code&gt;nextJob&lt;/code&gt; was called when there were no jobs left.  Use the &lt;code&gt;jobsLeft&lt;/code&gt;
+   * to check if there are jobs remaining before calling this method.
+   */
+  public void nextJob()
+  {
+<span class="fc" id="L507">	  currentJobInfo++;</span>
+<span class="fc" id="L508">  }</span>
+
+
+  //Returns the JobFinancialInfo object associated with jobid.  If one doesn't exist one is created.
+  private JobFinancialInfo getJobInfo(Job job)
+  {
+<span class="fc" id="L514">	  JobFinancialInfo jobInfo = null;</span>
+
+<span class="fc" id="L516">	  Iterator i = jobInfoList.iterator();</span>
+<span class="fc bfc" id="L517" title="All 2 branches covered.">	  while(i.hasNext())</span>
+	  {
+<span class="fc" id="L519">		  JobFinancialInfo jfi = (JobFinancialInfo) i.next();</span>
+<span class="pc bpc" id="L520" title="1 of 2 branches missed.">		  if (jfi.getJobID() == job.getJobID())</span>
+		  {
+<span class="fc" id="L522">			  jobInfo = jfi;</span>
+		  }
+<span class="fc" id="L524">	  }</span>
+
+<span class="fc bfc" id="L526" title="All 2 branches covered.">	  if( jobInfo == null)</span>
+	  {
+<span class="fc" id="L528">	      jobInfo = new JobFinancialInfo(job);</span>
+<span class="fc" id="L529">	      jobInfoList.add(jobInfo);</span>
+	      //System.out.println(&quot;added jobinfo to list.  Size of list is: &quot; + jobInfoList.size());
+	  }
+
+<span class="fc" id="L533">	  return jobInfo;</span>
+
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

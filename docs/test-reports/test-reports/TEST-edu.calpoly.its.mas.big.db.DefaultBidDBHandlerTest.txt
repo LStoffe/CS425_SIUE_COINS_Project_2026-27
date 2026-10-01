@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultBidDBHandlerTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.144 sec
+
+Testcase: testRemoveBid took 0.045 sec
+Testcase: testRemoveBidsByGameAndJob took 0.001 sec
+Testcase: testRemoveBidsByCompany took 0 sec
+Testcase: testGetBidThrowsWhenNoRows took 0.042 sec
+Testcase: testRemoveBidsByGame took 0 sec
+Testcase: testGetBidsCompanyReturnsNull took 0 sec
+Testcase: testGetBidReturnsBidForCompanyX took 0.024 sec
+Testcase: testGetBidsReturnsEmptyVector took 0.025 sec

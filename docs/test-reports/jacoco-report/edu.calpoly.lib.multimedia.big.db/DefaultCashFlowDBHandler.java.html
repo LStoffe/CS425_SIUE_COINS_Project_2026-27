@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultCashFlowDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultCashFlowDBHandler.java</span></div><h1>DefaultCashFlowDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.reports.CashFlowForm;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;CashFlowDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultCashFlowDBHandler extends DefaultDBHandler implements CashFlowDBHandler
+{
+
+    public DefaultCashFlowDBHandler(Connection connection)
+    {
+<span class="fc" id="L35">		super(connection);</span>
+<span class="fc" id="L36">	}</span>
+
+    public CashFlowForm getCashFlowReport(Game game, int periodNum, Company company) throws ObjectNotFoundException, BIGDatabaseFacadeException
+    {
+<span class="fc" id="L40">		CashFlowForm cashFlowForm = new CashFlowForm();</span>
+
+		try
+		{
+<span class="fc" id="L44">			String query = &quot;SELECT amount, source, inflow &quot; +</span>
+						   &quot; FROM cash_flow WHERE gameid = ? AND periodid = ? AND companyid = ? &quot; ;
+
+<span class="fc" id="L47">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L49">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L50">			pstmt.setInt(2, periodNum);</span>
+<span class="fc" id="L51">			pstmt.setInt(3, company.getCompanyID());</span>
+
+
+<span class="fc" id="L54">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L56" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L58">				int amount = rset.getInt(&quot;amount&quot;);</span>
+<span class="fc" id="L59">				String source = rset.getString(&quot;source&quot;);</span>
+<span class="fc" id="L60">				boolean inflow = rset.getBoolean(&quot;inflow&quot;);</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">				if(inflow)</span>
+				{
+<span class="fc" id="L64">					cashFlowForm.addInflow(amount, source);</span>
+				}
+				else
+				{
+<span class="fc" id="L68">					cashFlowForm.addOutflow(amount, source);</span>
+				}
+
+
+<span class="fc" id="L72">			}</span>
+			//done with the result set
+<span class="fc" id="L74">			rset.close();</span>
+<span class="fc" id="L75">			pstmt.close();</span>
+		}
+<span class="fc" id="L77">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="fc" id="L80">			close();</span>
+<span class="fc" id="L81">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L82">		}</span>
+<span class="fc" id="L83">		return cashFlowForm;</span>
+    }
+
+
+
+    public void addCashFlowReport(Game game, Company company, CashFlowForm theReport) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L90">		String insert = &quot;INSERT INTO cash_flow (gameid, companyid, periodid, amount, inflow, source) &quot; +</span>
+		                                           &quot; VALUES (?,?,?,?,?,?)&quot;;
+
+
+<span class="fc" id="L94">		theReport.reset();</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		while(theReport.moreInflows())</span>
+		{
+<span class="fc" id="L97">			theReport.nextInflow();</span>
+			try
+			{
+<span class="fc" id="L100">				PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L101">				pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L102">				pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L103">				pstmt.setInt(3, theReport.getPeriod());</span>
+<span class="fc" id="L104">				pstmt.setInt(4, theReport.getCurrentInflowAmount());</span>
+<span class="fc" id="L105">				pstmt.setBoolean(5, true);</span>
+<span class="fc" id="L106">				pstmt.setString(6, theReport.getCurrentInflowSource());</span>
+
+<span class="fc" id="L108">				int rowsChanged = pstmt.executeUpdate();</span>
+			}
+<span class="nc" id="L110">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L112">				close();</span>
+<span class="nc" id="L113">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L114">			}</span>
+		}
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">		while(theReport.moreOutflows())</span>
+		{
+<span class="fc" id="L119">			theReport.nextOutflow();</span>
+			try
+			{
+<span class="fc" id="L122">				PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L123">				pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L124">				pstmt.setInt(2, company.getCompanyID());</span>
+<span class="fc" id="L125">				pstmt.setInt(3, theReport.getPeriod());</span>
+<span class="fc" id="L126">				pstmt.setInt(4, theReport.getCurrentOutflowAmount());</span>
+<span class="fc" id="L127">				pstmt.setBoolean(5, false);</span>
+<span class="fc" id="L128">				pstmt.setString(6, theReport.getCurrentOutflowSource());</span>
+
+<span class="fc" id="L130">				int rowsChanged = pstmt.executeUpdate();</span>
+			}
+<span class="nc" id="L132">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L134">				close();</span>
+<span class="nc" id="L135">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L136">			}</span>
+		}
+
+<span class="fc" id="L139">    }</span>
+
+
+
+
+    public void removeCashFlowReports(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L146">		String remove = &quot;DELETE FROM cash_flow WHERE gameid = ? AND companyid = ? &quot;;</span>
+
+		try
+		{
+<span class="fc" id="L150">			PreparedStatement pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L151">			pstmt.setInt(1, gameid);</span>
+<span class="fc" id="L152">			pstmt.setInt(2, companyid);</span>
+
+<span class="fc" id="L154">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L156">			pstmt.close();</span>
+		}
+<span class="fc" id="L158">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L160">			close();</span>
+<span class="fc" id="L161">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L162">		}</span>
+
+
+<span class="fc" id="L165">    }</span>
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

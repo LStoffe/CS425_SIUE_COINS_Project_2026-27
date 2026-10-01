@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CAMReportForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">CAMReportForm.java</span></div><h1>CAMReportForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.reports;
+
+//JDK imports
+import java.util.Hashtable;
+
+
+//BIGv2 imports
+import edu.calpoly.its.mas.big.reports.ReportForm;
+
+/**
+ * ActionForm containing the values for a Company Appraisal Metrics report.
+ *
+ * @author Kevin Craig
+ */
+public class CAMReportForm extends ReportForm
+{
+	private String companyName;
+	private int financialLiquidity;
+	private int financialSuccess;
+	private int biddingResponsibility;
+	private int pace;
+	private int ethics;
+	private int nameRecognition;
+	private int apartments;
+	private int schools;
+	private int offices;
+	private int hospitals;
+	private int industrial;
+	private int highways;
+	private int bridges;
+	private int sitedevelopment;
+	private int massexcavation;
+	private int undergroundutilities;
+
+    public static final int rawMetricRange = 100;
+    public static final int metricsRange = 5;
+    public static final float formula = (2 * rawMetricRange) / 5;
+
+    /**
+     * Creates an empty &lt;code&gt;CAMReportForm&lt;/code&gt; that serves as a place holder only.
+     * null will be returned or exceptions thrown if any methods are invoked.
+     */
+    public CAMReportForm()
+<span class="fc" id="L45">    {</span>
+<span class="fc" id="L46">	}</span>
+
+
+    /**
+     * Creates a new &lt;code&gt;CAMReportForm&lt;/code&gt; from a &lt;code&gt;Hashtable&lt;/code&gt; of values.
+     */
+	public CAMReportForm(Hashtable cams)
+<span class="fc" id="L53">	{</span>
+<span class="fc" id="L54">		this.financialLiquidity = ((Integer) cams.get(&quot;FinancialLiquidity&quot;)).intValue();</span>
+<span class="fc" id="L55">		this.financialSuccess = ((Integer) cams.get(&quot;FinancialSuccess&quot;)).intValue();</span>
+<span class="fc" id="L56">		this.biddingResponsibility = ((Integer) cams.get(&quot;BiddingResponsibility&quot;)).intValue();</span>
+<span class="fc" id="L57">		this.pace = ((Integer) cams.get(&quot;Pace&quot;)).intValue();</span>
+<span class="fc" id="L58">		this.ethics = ((Integer) cams.get(&quot;Ethics&quot;)).intValue();</span>
+<span class="fc" id="L59">		this.nameRecognition = ((Integer) cams.get(&quot;NameRecognition&quot;)).intValue();</span>
+<span class="fc" id="L60">		this.apartments = ((Integer) cams.get(&quot;Apartments&quot;)).intValue();</span>
+<span class="fc" id="L61">		this.schools = ((Integer) cams.get(&quot;Schools&quot;)).intValue();</span>
+<span class="fc" id="L62">		this.offices = ((Integer) cams.get(&quot;Offices&quot;)).intValue();</span>
+<span class="fc" id="L63">		this.hospitals = ((Integer) cams.get(&quot;Hospitals&quot;)).intValue();</span>
+<span class="fc" id="L64">		this.industrial = ((Integer) cams.get(&quot;Industrial&quot;)).intValue();</span>
+<span class="fc" id="L65">		this.highways = ((Integer) cams.get(&quot;Highways&quot;)).intValue();</span>
+<span class="fc" id="L66">		this.bridges = ((Integer) cams.get(&quot;Bridges&quot;)).intValue();</span>
+<span class="fc" id="L67">		this.sitedevelopment = ((Integer) cams.get(&quot;SiteDevelopment&quot;)).intValue();</span>
+<span class="fc" id="L68">		this.massexcavation = ((Integer) cams.get(&quot;MassExcavation&quot;)).intValue();</span>
+<span class="fc" id="L69">		this.undergroundutilities = ((Integer) cams.get(&quot;UndergroundUtilities&quot;)).intValue();</span>
+<span class="fc" id="L70">	}</span>
+
+	public void setCompanyName(String name)
+	{
+<span class="fc" id="L74">		this.companyName = name;</span>
+<span class="fc" id="L75">	}</span>
+
+	public String getCompanyName()
+	{
+<span class="fc" id="L79">		return companyName;</span>
+	}
+
+	public int getFinancialLiquidity()
+	{
+<span class="fc" id="L84">		int value = Math.round(((float) (financialLiquidity + rawMetricRange)) / formula);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">		if(value &lt; 1)</span>
+		{
+<span class="fc" id="L87">			return 1;</span>
+		}
+		else
+		{
+<span class="fc" id="L91">			return value;</span>
+		}
+	}
+
+	public int getFinancialSuccess()
+	{
+<span class="fc" id="L97">		int value = Math.round(((float) (financialSuccess + rawMetricRange)) / formula);</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">		if(value &lt; 1)</span>
+		{
+<span class="fc" id="L100">			return 1;</span>
+		}
+		else
+		{
+<span class="fc" id="L104">			return value;</span>
+		}
+	}
+
+	public int getBiddingResponsibility()
+	{
+<span class="fc" id="L110">		int value = Math.round(((float) (biddingResponsibility + rawMetricRange)) / formula);</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">		if(value &lt; 1)</span>
+		{
+<span class="fc" id="L113">			return 1;</span>
+		}
+		else
+		{
+<span class="nc" id="L117">			return value;</span>
+		}
+	}
+
+	public int getPace()
+	{
+<span class="fc" id="L123">		int value = Math.round(((float) (pace + rawMetricRange)) / formula);</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if(value &lt; 1)</span>
+		{
+<span class="fc" id="L126">			return 1;</span>
+		}
+		else
+		{
+<span class="nc" id="L130">			return value;</span>
+		}
+
+	}
+
+	public int getEthics()
+	{
+<span class="fc" id="L137">		int value = Math.round(((float) (ethics + rawMetricRange)) / formula);</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">		if(value &lt; 1)</span>
+		{
+<span class="fc" id="L140">			return 1;</span>
+		}
+		else
+		{
+<span class="nc" id="L144">			return value;</span>
+		}
+	}
+
+	public int getNameRecognition()
+	{
+<span class="fc" id="L150">		int value = Math.round(((float) (nameRecognition + rawMetricRange)) / formula);</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">		if(value &lt; 1)</span>
+		{
+<span class="fc" id="L153">			return 1;</span>
+		}
+		else
+		{
+<span class="nc" id="L157">			return value;</span>
+		}
+	}
+
+	public int getApartments()
+	{
+    /*	int value =  Math.round(((float) (apartments + rawMetricRange)) / formula);
+		if(value &lt; 1)
+		{
+			return 1;
+		}
+		else
+		{
+			return value;
+		}  */
+
+<span class="nc" id="L173">        return apartments;</span>
+	}
+
+	public int getSchools()
+	{
+	/*	int value = Math.round(((float) (schools + rawMetricRange)) / formula);
+		if(value &lt; 1)
+		{
+			return 1;
+		}
+		else
+		{
+			return value;
+		}  */
+
+<span class="nc" id="L188">		return schools;</span>
+	}
+
+	public int getOffices()
+	{
+	/*	int value = Math.round(((float) (offices + rawMetricRange)) / formula);
+		if(value &lt; 1)
+		{
+			return 1;
+		}
+		else
+		{
+			return value;
+		}  */
+
+<span class="nc" id="L203">		return offices;</span>
+	}
+
+	public int getHospitals()
+	{
+	/*	int value = Math.round(((float) (hospitals + rawMetricRange)) / formula);
+		if(value &lt; 1)
+		{
+			return 1;
+		}
+		else
+		{
+			return value;
+		}  */
+
+<span class="nc" id="L218">		return hospitals;</span>
+	}
+
+	public int getIndustrial()
+	{
+	/*	int value = Math.round(((float) (industrial + rawMetricRange)) / formula);
+		if(value &lt; 1)
+		{
+			return 1;
+		}
+		else
+		{
+			return value;
+		}  */
+
+<span class="nc" id="L233">		return industrial;</span>
+	}
+
+	public int getHighways()
+	{
+<span class="nc" id="L238">		return highways;</span>
+	}
+
+	public int getBridges()
+	{
+<span class="nc" id="L243">		return bridges;</span>
+	}
+
+	public int getSiteDevelopment()
+	{
+<span class="nc" id="L248">		return sitedevelopment;</span>
+	}
+
+	public int getMassExcavation()
+	{
+<span class="nc" id="L253">		return massexcavation;</span>
+	}
+
+	public int getUndergroundUtilities()
+	{
+<span class="fc" id="L258">		return undergroundutilities;</span>
+	}
+
+}
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

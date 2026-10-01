@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetLiqdamParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">SetLiqdamParametersAction.java</span></div><h1>SetLiqdamParametersAction.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Determines whether the administrator wishes to set parameters or restore defaults for number of jobs parameters then performs the appropriate action.
+ * If the administrator wishes to store his current parameters settings to the database s/he would have pushed the set parameters button
+ * (which must have the name &quot;submit&quot;).  In this case the values currently in the NumberOfJobsParametersForm in the session will be
+ * stored to the database.  These parameters will also be made the admin's defaults if the getMakeDefaults method of the form returns true.
+ * &lt;br&gt;&lt;br&gt;
+ * If the administrator pressed some other submit button (any name other than &quot;submit&quot; or &quot;cancel&quot;) the parameters in the NumberOfJobsParametersForm
+ * will be overwritten with a copy of the admin's defaults for the current parameters.  The defaults will also be re-copied into the database overwriting the current
+ * game parameters.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.10 $ $Date: 2002/03/14 18:53:06 $
+ *
+ */
+<span class="fc" id="L53">public class SetLiqdamParametersAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L61">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L64">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L70">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L72">			HttpSession session = request.getSession();</span>
+
+			//Retrieve the current game and admin from the session
+<span class="fc" id="L75">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+<span class="fc" id="L76">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+			//Get the game parameters from the action form
+<span class="fc" id="L79">			LiqdamParametersForm liqdamParametersForm = (LiqdamParametersForm) form;</span>
+
+            //Determine which submit button was pressed by the Administrator. If the SetParameters button is null the other RestoreDefaults button had to be pushed
+<span class="fc" id="L82">            String testSetParametersSubmitButton = (String) request.getParameter(&quot;submit&quot;);</span>
+
+			//Create a database facade that will hold the connection since it will be used repeatedly
+<span class="fc" id="L85">			BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+			//Hashtable used to transfer the parameters to the database facade
+<span class="fc" id="L88">			Hashtable parameters = null;</span>
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">			if (testSetParametersSubmitButton != null)  //&quot;Set Parameters&quot; submit button was pushed.</span>
+			{
+				//Store the current parameters values from the form into the database
+				try
+				{
+<span class="fc" id="L95">					parameters = new Hashtable(7);</span>
+<span class="nc" id="L96">					parameters.put(&quot;Median&quot;, new Float(liqdamParametersForm.getMedian()));</span>
+<span class="nc" id="L97">					parameters.put(&quot;StdDev&quot;, new Float(liqdamParametersForm.getStddev()));</span>
+<span class="nc" id="L98">					parameters.put(&quot;Min&quot;, new Float(liqdamParametersForm.getMin()));</span>
+<span class="nc" id="L99">					parameters.put(&quot;Max&quot;, new Float(liqdamParametersForm.getMax()));</span>
+<span class="nc" id="L100">					parameters.put(&quot;PercentJobs&quot;, new Integer(liqdamParametersForm.getPercentJobs()));</span>
+<span class="nc" id="L101">					parameters.put(&quot;FasterJobsIncrease&quot;, new Boolean(liqdamParametersForm.getFasterJobsIncrease()));</span>
+<span class="nc" id="L102">					parameters.put(&quot;LargerJobsIncrease&quot;, new Boolean(liqdamParametersForm.getLargerJobsIncrease()));</span>
+
+<span class="nc" id="L104">					dbFacade.getGameParametersDBHandler().updateLiquidatedDamagesParameters(game, parameters);</span>
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">					if(liqdamParametersForm.getMakeDefaults())</span>
+					{
+<span class="nc" id="L108">						dbFacade.getGameParametersDBHandler().updateDefaultLiquidatedDamagesParameters(admin, parameters);</span>
+					}
+
+
+<span class="nc" id="L112">					dbFacade.close();</span>
+				}
+<span class="nc" id="L114">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					//Problem with the database
+<span class="nc" id="L117">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L118">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L120">				catch(ParametersNotFoundException pnfe)</span>
+				{
+<span class="nc" id="L122">					log.fatal(&quot;&quot;, pnfe);</span>
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L124">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L125">				}</span>
+			}
+			else //&quot;Restore defaults&quot; submit button was pushed
+			{
+				try
+				{
+					//Retrieve this admins default parameters from the database and re-store them for the current game
+<span class="nc" id="L132">					parameters = dbFacade.getGameParametersDBHandler().getDefaultLiquidatedDamagesParameters(admin);</span>
+<span class="nc" id="L133">					dbFacade.getGameParametersDBHandler().updateLiquidatedDamagesParameters(game, parameters);</span>
+<span class="nc" id="L134">					dbFacade.close();</span>
+
+					//The parameter vaules also need to be put in the Action Form so the user can see them
+<span class="nc" id="L137">					liqdamParametersForm.setMedian(((Float) parameters.get(&quot;Median&quot;)).floatValue());</span>
+<span class="nc" id="L138">					liqdamParametersForm.setStddev(((Float) parameters.get(&quot;StdDev&quot;)).floatValue());</span>
+<span class="nc" id="L139">					liqdamParametersForm.setMin(((Float) parameters.get(&quot;Min&quot;)).floatValue());</span>
+<span class="nc" id="L140">					liqdamParametersForm.setMax(((Float) parameters.get(&quot;Max&quot;)).floatValue());</span>
+<span class="nc" id="L141">					liqdamParametersForm.setPercentJobs(((Integer) parameters.get(&quot;PercentJobs&quot;)).intValue());</span>
+<span class="nc" id="L142">					liqdamParametersForm.setFasterJobsIncrease(((Boolean) parameters.get(&quot;FasterJobsIncrease&quot;)).booleanValue());</span>
+<span class="nc" id="L143">					liqdamParametersForm.setLargerJobsIncrease(((Boolean) parameters.get(&quot;LargerJobsIncrease&quot;)).booleanValue());</span>
+
+				}
+<span class="nc" id="L146">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					//Problem with the database
+<span class="nc" id="L149">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L150">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L152">				catch(ParametersNotFoundException pnfe)</span>
+				{
+<span class="nc" id="L154">					log.fatal(&quot;&quot;, pnfe);</span>
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L156">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L157">				}</span>
+
+			}
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L163" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L165">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L169">				saveErrors(request, errors);</span>
+<span class="nc" id="L170">	 	    	saveToken(request);</span>
+<span class="nc" id="L171">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			else if (testSetParametersSubmitButton != null)</span>
+			{
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L177">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;params_set\&quot;&quot;);</span>
+				}
+<span class="nc" id="L179">				return (mapping.findForward(&quot;params_set&quot;));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L183" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L185">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;defaults_restored\&quot;&quot;);</span>
+				}
+<span class="nc" id="L187">				return (mapping.findForward(&quot;defaults_restored&quot;));</span>
+			}
+
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L195">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L197">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

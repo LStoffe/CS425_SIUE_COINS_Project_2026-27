@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaveIntervalUpdatePolicySettingsAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval</a> &gt; <span class="el_source">SaveIntervalUpdatePolicySettingsAction.java</span></div><h1>SaveIntervalUpdatePolicySettingsAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval;
+
+//JDK imports
+import java.util.Date;
+import java.util.Calendar;
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * @author Kevin Craig
+ */
+<span class="nc" id="L44">public class SaveIntervalUpdatePolicySettingsAction extends Action</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="nc" id="L52">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L55">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if(!isCancelled(request))</span>
+        {
+<span class="nc" id="L61">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="nc" id="L63">			HttpSession session = request.getSession();</span>
+<span class="nc" id="L64">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc" id="L65">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+			//Create a new BIGDatabaseFacadeInterface which will hold connections
+<span class="nc" id="L68">			BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+<span class="nc" id="L70">			IntervalPolicySettingsForm settingsForm = (IntervalPolicySettingsForm) form;</span>
+
+			//Determine the date of the next update by adding the interval to today
+<span class="nc" id="L73">			Date nextUpdate = new Date();</span>
+<span class="nc" id="L74">			Calendar cal = Calendar.getInstance();</span>
+<span class="nc" id="L75">			cal.setTime(nextUpdate);</span>
+<span class="nc" id="L76">			cal.add(Calendar.DAY_OF_MONTH, settingsForm.getIntervalAsInt());</span>
+<span class="nc" id="L77">			nextUpdate = cal.getTime();</span>
+
+			try
+			{
+<span class="nc" id="L81">				dbFacade.getAutomaticUpdatePolicyDBHandler().deleteIntervalPolicySettings(game);</span>
+<span class="nc" id="L82">				dbFacade.getAutomaticUpdatePolicyDBHandler().addIntervalPolicySettings(game, settingsForm.getIntervalAsInt(), settingsForm.getUpdateTimeAsDate(), nextUpdate);</span>
+<span class="nc" id="L83">				dbFacade.close();</span>
+			}
+<span class="nc" id="L85">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L87">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L88">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L89">			}</span>
+
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L93" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L95">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L98">				saveErrors(request, errors);</span>
+<span class="nc" id="L99">				saveToken(request);</span>
+<span class="nc" id="L100">				return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L104" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L106">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L108">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+		}
+	    else  //Request was cancelled
+	    {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L115">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L117">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+	    }
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

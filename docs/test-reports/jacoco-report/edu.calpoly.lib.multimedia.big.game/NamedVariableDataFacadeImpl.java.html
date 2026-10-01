@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NamedVariableDataFacadeImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">NamedVariableDataFacadeImpl.java</span></div><h1>NamedVariableDataFacadeImpl.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.game;
+
+import static edu.calpoly.lib.multimedia.big.game.NamedVariables.*;
+
+//JDK imports
+import java.util.Hashtable;
+import java.util.Vector;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.lib.multimedia.big.reports.CAMReportForm;
+import edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportForm;
+import edu.calpoly.lib.multimedia.big.reports.CompletedContractsReportForm;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Acts as another layer over the DAOs
+ * to get game variables by name.
+ * &lt;br&gt;&lt;br&gt;
+ * This class is an implemention of methods that provide each of the
+ * named variables in &lt;code&gt;NamedVariables&lt;/code&gt;.
+ *
+ */
+public class NamedVariableDataFacadeImpl implements NamedVariableDataFacade
+{
+	private Admin admin;
+	private Game game;
+	private BIGDatabaseFacadeInterface dbFacade;
+	private CAMReportForm camForm;
+
+	private Log log;
+
+	public NamedVariableDataFacadeImpl(Admin admin, Game game, BIGDatabaseFacadeInterface dbFacade)
+<span class="fc" id="L47">	{</span>
+<span class="fc" id="L48">		this.admin=admin;</span>
+<span class="fc" id="L49">		this.game=game;</span>
+<span class="fc" id="L50">		this.dbFacade=dbFacade;</span>
+
+<span class="fc" id="L52">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L53">	}</span>
+
+	/**
+	 * Returns the value of a variable that is not associated with any one company.
+	 * Variable that are valid inputs to this method are: TOTAL_JOBS
+	 */
+	public Object getNamedVariableValue(String variable)
+	{
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;Looking up named variable &quot; + variable);
+		} */
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if(variable.equals(TOTAL_JOBS))</span>
+		{
+<span class="nc" id="L68">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L72">				value = dbFacade.getJobDBHandler().getJobCountForGame(game.getGameID());</span>
+			}
+<span class="nc" id="L74">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L76">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L77">			}</span>
+
+<span class="nc" id="L79">			return new Integer(value);</span>
+		}
+
+<span class="nc" id="L82">		return null;</span>
+	}
+
+	/**
+	 * Returns the value of a variable that is associated with a particular company.
+	 * Variables that are valid inputs to this method are: COMPANY_JOBS, COMPANY_PUBLIC_JOBS, COMPANY_PRIVATE_JOBS, COMPANY_HEAVY_JOBS,
+	 * COMPANY_CLOSED_BID_JOBS, COMPANY_NEGOTIATED_JOBS, COMPANY_EQUITY, COMPANY_BIDS, COMPANY_DISMISSED_BIDS, and SUM_SIX_CAM_VALUES
+	 */
+	public Object getCompanyNamedVariableValue(String variable, int companyid)
+	{
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(&quot;Looking up named variable &quot; + variable + &quot; for company &quot; + companyid);
+		} */
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">		if(variable.equals(COMPANY_JOBS))</span>
+		{
+<span class="nc" id="L99">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L103">				value = dbFacade.getJobDBHandler().getJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L105">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L107">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L108">			}</span>
+<span class="nc" id="L109">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		else if(variable.equals(COMPANY_JOBS_IN_PROGRESS))</span>
+		{
+<span class="nc" id="L113">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L117">				value = dbFacade.getJobDBHandler().getInProgressJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L119">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L121">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L122">			}</span>
+<span class="nc" id="L123">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		else if(variable.equals(COMPANY_JOBS_COMPLETED))</span>
+		{
+<span class="nc" id="L127">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L131">				value = dbFacade.getJobDBHandler().getCompletedJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L133">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L135">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L136">			}</span>
+<span class="nc" id="L137">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		else if(variable.equals(COMPANY_PUBLIC_JOBS))</span>
+		{
+<span class="nc" id="L141">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L145">				value = dbFacade.getJobDBHandler().getPublicJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L147">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L149">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L150">			}</span>
+<span class="nc" id="L151">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L153" title="All 2 branches missed.">		else if(variable.equals(COMPANY_PRIVATE_JOBS))</span>
+		{
+<span class="nc" id="L155">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L159">				value = dbFacade.getJobDBHandler().getPrivateJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L161">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L163">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L164">			}</span>
+<span class="nc" id="L165">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		else if(variable.equals(COMPANY_HEAVY_JOBS))</span>
+		{
+<span class="nc" id="L169">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L173">				value = dbFacade.getJobDBHandler().getHeavyJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L175">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L177">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L178">			}</span>
+<span class="nc" id="L179">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L181" title="All 2 branches missed.">		else if(variable.equals(COMPANY_CLOSED_BID_JOBS))</span>
+		{
+<span class="nc" id="L183">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L187">				value = dbFacade.getJobDBHandler().getPrivateJobCountForCompany(game.getGameID(), companyid) - dbFacade.getJobDBHandler().getNegotiatedJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L189">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L191">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L192">			}</span>
+<span class="nc" id="L193">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L195" title="All 2 branches missed.">		else if(variable.equals(COMPANY_NEGOTIATED_JOBS))</span>
+		{
+<span class="nc" id="L197">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L201">				value = dbFacade.getJobDBHandler().getNegotiatedJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L203">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L205">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L206">			}</span>
+<span class="nc" id="L207">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L209" title="All 2 branches missed.">		else if(variable.equals(COMPANY_AUTO_JOBS))</span>
+		{
+<span class="nc" id="L211">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L215">				value = dbFacade.getJobDBHandler().getAutoJobCountForCompany(game.getGameID(), companyid);</span>
+			}
+<span class="nc" id="L217">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L219">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L220">			}</span>
+<span class="nc" id="L221">			return new Integer(value);</span>
+		}
+<span class="nc bnc" id="L223" title="All 2 branches missed.">		else if(variable.equals(COMPANY_EQUITY))</span>
+		{
+<span class="nc" id="L225">			long value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L229">				Company company = dbFacade.getCompanyDBHandler().getCompany(game, companyid);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">				if(company != null)</span>
+				{
+<span class="nc" id="L232">					value = company.getEquity();</span>
+				}
+			}
+<span class="nc" id="L235">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L237">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L238">			}</span>
+<span class="nc" id="L239">			return new Long(value);</span>
+		}
+<span class="nc bnc" id="L241" title="All 2 branches missed.">		else if(variable.equals(TOTAL_GROSS_MARGIN_JOBS_IN_PROGRESS))</span>
+		{
+<span class="nc" id="L243">			long value = 0;</span>
+			try
+			{
+<span class="nc" id="L246">				Company company = dbFacade.getCompanyDBHandler().getCompany(game, companyid);</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">				if(company != null)</span>
+				{
+<span class="nc" id="L249">					ContractsInProgressReportForm theForm = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, game.getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L250">					value = theForm.getTotalGrossMarginEarned();</span>
+				}
+			}
+<span class="nc" id="L253">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L255">				log.fatal(&quot;&quot;, bigdbe);</span>
+			}
+<span class="nc" id="L257">			catch(ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L259">				log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L260">			}</span>
+<span class="nc" id="L261">			return new Long(value);</span>
+		}
+<span class="nc bnc" id="L263" title="All 2 branches missed.">		else if(variable.equals(TOTAL_GROSS_MARGIN_JOBS_COMPLETED))</span>
+		{
+<span class="nc" id="L265">			long value = 0;</span>
+			try
+			{
+<span class="nc" id="L268">				Company company = dbFacade.getCompanyDBHandler().getCompany(game, companyid);</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">				if(company != null)</span>
+				{
+<span class="nc" id="L271">					CompletedContractsReportForm theForm = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, game.getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L272">					value = theForm.getTotalGrossMarginEarned();</span>
+				}
+			}
+<span class="nc" id="L275">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L277">				log.fatal(&quot;&quot;, bigdbe);</span>
+			}
+<span class="nc" id="L279">			catch(ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L281">				log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L282">			}</span>
+<span class="nc" id="L283">			return new Long(value);</span>
+		}
+<span class="nc bnc" id="L285" title="All 2 branches missed.">		else if(variable.equals(COMPANY_BIDS))</span>
+		{
+<span class="nc" id="L287">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L291">				value = dbFacade.getBidDBHandler().getBidCountForCompany(companyid);</span>
+			}
+<span class="nc" id="L293">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L295">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L296">			}</span>
+<span class="nc" id="L297">			return new Long(value);</span>
+		}
+<span class="nc bnc" id="L299" title="All 2 branches missed.">		else if(variable.equals(COMPANY_DISMISSED_BIDS))</span>
+		{
+<span class="nc" id="L301">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L305">				value = dbFacade.getBidDBHandler().getDismissedBidCountForCompany(companyid);</span>
+			}
+<span class="nc" id="L307">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L309">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L310">			}</span>
+<span class="nc" id="L311">			return new Long(value);</span>
+		}
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		else if(variable.equals(SUM_SIX_CAM_VALUES))</span>
+		{
+			try
+			{
+<span class="nc" id="L317">                Company company = dbFacade.getCompanyDBHandler().getCompany(game, companyid);</span>
+<span class="nc" id="L318">                camForm = new CAMReportForm(dbFacade.getCAMDBHandler().getCAMs(company, game.getCurrentPeriodNumber() -1));</span>
+			}
+<span class="nc" id="L320">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L322">				log.fatal(&quot;&quot;, bigdbe);</span>
+			}
+<span class="nc" id="L324">			catch(ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L326">				log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L327">			}</span>
+
+<span class="nc" id="L329">			int value = camForm.getFinancialLiquidity() + camForm.getFinancialSuccess() + camForm.getBiddingResponsibility() +</span>
+<span class="nc" id="L330">						camForm.getPace()               + camForm.getEthics()           + camForm.getNameRecognition();</span>
+
+
+      /* This code returned the exact values stored in the database fields, not the scores after being
+         evaluated in CAMUpdater.java.  It worked okay but didn't give me the results I wanted.
+
+			try  // Note: code copied from CAMUpdater.java
+			{
+				Company company = dbFacade.getCompanyDBHandler().getCompany(game, companyid);
+				currentMetrics = dbFacade.getCAMDBHandler().getCAMs(company, game.getCurrentPeriodNumber() - 1);
+			}
+			catch(BIGDatabaseFacadeException bigdbe)
+			{
+				log.fatal(&quot;&quot;, bigdbe);
+			}
+			catch(ObjectNotFoundException onfe)
+			{
+				log.fatal(&quot;&quot;, onfe);
+			}
+
+			int value = ((Integer) currentMetrics.get(&quot;FinancialLiquidity&quot;)).intValue() +
+					((Integer) currentMetrics.get(&quot;FinancialSuccess&quot;)).intValue() +
+					((Integer) currentMetrics.get(&quot;BiddingResponsibility&quot;)).intValue() +
+					((Integer) currentMetrics.get(&quot;Pace&quot;)).intValue() +
+					((Integer) currentMetrics.get(&quot;Ethics&quot;)).intValue() +
+					((Integer) currentMetrics.get(&quot;NameRecognition&quot;)).intValue();    */
+
+			// int value = 77;  // for testing purposes
+
+<span class="nc" id="L359">			return new Integer(value);</span>
+		}
+
+<span class="nc" id="L362">		return null;</span>
+	}
+
+
+	public Object getJobNamedVariableValue(String variable, int jobid)
+	{
+
+<span class="nc bnc" id="L369" title="All 2 branches missed.">		if(variable.equals(JOB_DAYS_LATE))</span>
+		{
+<span class="nc" id="L371">			int value = 0;</span>
+
+			try
+			{
+<span class="nc" id="L375">				value = dbFacade.getJobDBHandler().getJobDaysLate(game.getGameID(), jobid);</span>
+			}
+<span class="nc" id="L377">			catch(BIGDatabaseFacadeException bigdbe)</span>
+			{
+<span class="nc" id="L379">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L380">			}</span>
+<span class="nc" id="L381">			return new Integer(value);</span>
+		}
+
+<span class="nc" id="L384">		return null;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

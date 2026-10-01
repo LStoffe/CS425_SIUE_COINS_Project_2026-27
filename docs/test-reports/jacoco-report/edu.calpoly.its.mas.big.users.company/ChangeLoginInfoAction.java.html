@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangeLoginInfoAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">ChangeLoginInfoAction.java</span></div><h1>ChangeLoginInfoAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+//JDK imports
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ *  Updates the current user company's information.
+ *  The company logged in is stored as a &lt;code&gt;Company&lt;/code&gt; object in the session under the name &quot;user&quot;.
+ *  This object will have its information updated to match that of the &lt;code&gt;CompanyForm&lt;/code&gt;, named &quot;companyForm&quot;, in the session.
+ *  The changes made to the user company's information are also saved to the database.
+ *
+ *  @author Kevin Craig
+ *
+ *  @version $Revision: 1.7 $ $Date: 2002/04/12 17:44:29 $
+ */
+<span class="fc" id="L49">public class ChangeLoginInfoAction extends Action</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+					       	     ActionForm form,
+					       		 HttpServletRequest request,
+				           		 HttpServletResponse response)
+	{
+<span class="fc" id="L57">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L60">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">	    if(!isCancelled(request))</span>
+	    {
+
+<span class="fc" id="L67">	       ActionMessages errors = new ActionErrors();</span>
+
+<span class="fc" id="L69">           ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L70">           HttpSession session = request.getSession();</span>
+<span class="fc" id="L71">	       Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L73">           LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+           // If for any reason the company should not be allowed to login, route the
+           // company to an error message page.
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">	       if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L78">		     return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+			//Get datafields for company from form
+<span class="nc" id="L81">			String password = ((CompanyForm) form).getPassword();</span>
+<span class="nc" id="L82">            String title = ((CompanyForm) form).getTitle();</span>
+
+<span class="nc" id="L84">            Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+			try
+			{
+<span class="nc" id="L88">				BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+<span class="nc" id="L90">                company.setPassword(password);</span>
+<span class="nc" id="L91">				company.setTitle(title);</span>
+
+<span class="nc" id="L93">                dbFacade.getCompanyDBHandler().updateCompany(game, company);</span>
+<span class="nc" id="L94">                dbFacade.close();</span>
+
+				//Put the updated user company back into the session
+<span class="nc" id="L97">				session.setAttribute(&quot;user&quot;, company);</span>
+			}
+<span class="nc" id="L99">			catch(BIGDatabaseFacadeException BIGDbe)</span>
+			{
+<span class="nc" id="L101">				log.fatal(&quot;&quot;, BIGDbe);</span>
+<span class="nc" id="L102">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+			}
+<span class="nc" id="L104">			catch(ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L106">				log.fatal(&quot;&quot; ,onfe);</span>
+<span class="nc" id="L107">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L108">			}</span>
+
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L113" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L115">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L118">				saveErrors(request, errors);</span>
+<span class="nc" id="L119">	 	    	saveToken(request);</span>
+<span class="nc" id="L120">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L124" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L126">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L128">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+
+	    }
+	    else
+	    {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L136">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L138">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

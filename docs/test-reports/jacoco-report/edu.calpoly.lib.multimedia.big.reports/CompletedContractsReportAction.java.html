@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompletedContractsReportAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">CompletedContractsReportAction.java</span></div><h1>CompletedContractsReportAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.reports;
+
+//JDK imports
+import java.text.NumberFormat;
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.ServletContext;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.User;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ *  Handles requests to view a Completed Contracts Report.
+ *
+ *  @author Kevin Craig
+ */
+<span class="fc" id="L51">public class CompletedContractsReportAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+		           				 ActionForm form,
+		           				 HttpServletRequest request,
+		           				 HttpServletResponse response)
+		{
+
+<span class="fc" id="L60">		   Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		   if(log.isDebugEnabled())</span>
+		   {
+<span class="nc" id="L63">		       log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		   }
+
+<span class="fc" id="L66">	       ActionMessages errors = new ActionMessages();</span>
+
+	       // Check for existance of Game object in user's session
+<span class="fc" id="L69">           ServletContext context = servlet.getServletContext();</span>
+
+<span class="fc" id="L71">           HttpSession session = request.getSession();</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">           if(session == null)</span>
+           {
+<span class="nc" id="L74">		      return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		   }
+
+<span class="fc" id="L77">	       Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">           if(game == null)</span>
+           {
+<span class="fc" id="L80">		      return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		   }
+
+<span class="fc" id="L83">		   Company company = null;</span>
+
+<span class="fc" id="L85">           String periodNumber = (String) request.getParameter(&quot;period&quot;);</span>
+<span class="fc" id="L86">           User user = (User) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">           if(user instanceof Company)</span>
+           {
+<span class="nc" id="L90">              LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+              // If for any reason the company should not be allowed to login, route the
+              // company to an error message page.
+<span class="nc bnc" id="L93" title="All 2 branches missed.">	          if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+	          {
+<span class="nc" id="L95">		          return (mapping.findForward(&quot;loginFailure&quot;));</span>
+		      }
+<span class="nc" id="L97">			  company = (Company) user;</span>
+<span class="nc" id="L98"> 		   }</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">	  	   else if(user instanceof Admin)</span>
+	   	   {
+<span class="fc" id="L101">		      company = (Company) session.getAttribute(&quot;company&quot;);</span>
+           }
+
+
+		   int reportPeriod;
+
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">           if (periodNumber == null)</span>
+           {
+<span class="nc" id="L109">			   reportPeriod = game.getCurrentPeriodNumber() - 1;</span>
+		   }
+		   else
+		   {
+<span class="fc" id="L113">			   reportPeriod = Integer.parseInt(periodNumber);</span>
+		   }
+
+           //Dummy Completed Contracts Report.  If a CompletedContractsReportForm doesn't exist for a company/period
+           //because the company was created after that period, this dummy will prevent
+           //null pointer exceptions
+<span class="fc" id="L119">		   CompletedContractsReportForm completedContracts = new CompletedContractsReportForm();</span>
+
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">		   if(reportPeriod &gt; 0)</span>
+		   {
+
+<span class="fc" id="L124">		   	  MessageResources resources = getResources(request);</span>
+
+		   	  try
+		   	  {
+<span class="fc" id="L128">		   		  BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+<span class="fc" id="L129">		   		  completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, reportPeriod, company);</span>
+
+<span class="fc" id="L131">				  dbFacade.close();</span>
+
+		   	  }
+<span class="nc" id="L134">		      catch (BIGDatabaseFacadeException bigdbe)</span>
+		      {
+<span class="nc" id="L136">				  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L137">				  errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		      }
+<span class="nc" id="L139">		      catch (ObjectNotFoundException onfe)</span>
+		      {
+				  //Do nothing.  This company must have been created after the report period.
+<span class="pc" id="L142">		      }</span>
+		   }
+		   else
+		   {
+				//do nothing if there is no report for this period
+		   }
+
+<span class="fc" id="L149">		   completedContracts.setCompanyName(company.getTitle());</span>
+<span class="fc" id="L150">		   completedContracts.setReportDate(game.getDateString(reportPeriod));</span>
+<span class="fc" id="L151">		   completedContracts.setPeriod(reportPeriod);</span>
+
+<span class="fc" id="L153">		   session.setAttribute(&quot;completedContracts&quot;, completedContracts);</span>
+
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">	       if (!errors.isEmpty())</span>
+		   {
+<span class="nc bnc" id="L157" title="All 2 branches missed.">			  if(log.isDebugEnabled())</span>
+			  {
+<span class="nc" id="L159">			      log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			  }
+
+		   	  // Report any errors we have discovered back to the original form
+<span class="nc" id="L163">		   	  saveErrors(request, errors);</span>
+<span class="nc" id="L164">		   	  saveToken(request);</span>
+<span class="nc" id="L165">		   	  return (new ActionForward(mapping.getInput()));</span>
+		   }
+		   else
+		   {
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">			   if(log.isDebugEnabled())</span>
+			   {
+<span class="nc" id="L171">			       log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			   }
+<span class="fc" id="L173"> 			   return (mapping.findForward(&quot;success&quot;));</span>
+		   }
+
+	   } // end execute()
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

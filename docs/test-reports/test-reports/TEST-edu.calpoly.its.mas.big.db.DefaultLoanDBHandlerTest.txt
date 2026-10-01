@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultLoanDBHandlerTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.144 sec
+
+Testcase: testRemoveLoanRollsBackWhenTooManyRowsChanged took 0.05 sec
+Testcase: testUpdateLoanWrapsSQLExceptionAndClosesConnection took 0.009 sec
+Testcase: testGetLoansWrapsSQLExceptionAndClosesConnection took 0.001 sec
+Testcase: testRemoveLoansCommitsOnSuccess took 0 sec
+Testcase: testUpdateLoanSuccessAndNotFound took 0 sec
+Testcase: testGetLoansReturnsVectorOfLoans took 0.034 sec
+Testcase: testAddLoanAssignsLoanIdAndInsertsRow took 0.043 sec

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewCompanyScoresAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin</a> &gt; <span class="el_source">ViewCompanyScoresAction.java</span></div><h1>ViewCompanyScoresAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
+import java.lang.Integer;
+import java.lang.Double;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+//BIG v4 imports
+import edu.calpoly.lib.multimedia.big.game.NamedVariables;
+import edu.calpoly.lib.multimedia.big.game.NamedVariableDataFacade;
+import edu.calpoly.lib.multimedia.big.game.NamedVariableDataFacadeImpl;
+import edu.calpoly.lib.multimedia.big.interpreter.BIGFormulaInterpreter;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+<span class="fc" id="L49">public class ViewCompanyScoresAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L56">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L59">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if(!isCancelled(request))</span>
+        {
+
+<span class="fc" id="L66">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L68">			HttpSession session = request.getSession();</span>
+<span class="nc" id="L69">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc" id="L70">			Company thisCompany = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+            //Create a database facade and get a list of companies from it
+<span class="nc" id="L73">		    BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+<span class="nc" id="L75">            String template  = &quot;&quot;;</span>
+<span class="nc" id="L76">            String template1 = &quot;&quot;;</span>
+<span class="nc" id="L77">            String template2 = &quot;&quot;;</span>
+<span class="nc" id="L78">            String template3 = &quot;&quot;;</span>
+
+<span class="nc" id="L80">            HashMap m = new HashMap();</span>
+
+		    try
+		    {
+<span class="nc" id="L84">			    Vector companies = dbFacade.getCompanyDBHandler().getCompanies(game);</span>
+
+<span class="nc" id="L86">			    m = dbFacade.getGradingTemplateDBHandler().getGradingTemplate(game);</span>
+<span class="nc" id="L87">			    template  = (String) m.get(&quot;template&quot;);</span>
+<span class="nc" id="L88">			    template1 = (String) m.get(&quot;template1&quot;);</span>
+<span class="nc" id="L89">			    template2 = (String) m.get(&quot;template2&quot;);</span>
+<span class="nc" id="L90">			    template3 = (String) m.get(&quot;template3&quot;);</span>
+
+                //Put the templates into the session
+<span class="nc" id="L93">			    session.setAttribute(&quot;template&quot;,  template);</span>
+<span class="nc" id="L94">			    session.setAttribute(&quot;template1&quot;, template1);</span>
+<span class="nc" id="L95">			    session.setAttribute(&quot;template2&quot;, template2);</span>
+<span class="nc" id="L96">			    session.setAttribute(&quot;template3&quot;, template3);</span>
+
+<span class="nc" id="L98">			    NamedVariableDataFacade namedVariableDataFacade = new NamedVariableDataFacadeImpl(null, game, dbFacade);</span>
+<span class="nc" id="L99">			    BIGFormulaInterpreter interpreter = new BIGFormulaInterpreter(namedVariableDataFacade);</span>
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">			    for(int i = 0; i &lt; companies.size(); i++)</span>
+			    {
+<span class="nc" id="L103">				    Company company = (Company) companies.get(i);</span>
+
+<span class="nc" id="L105">				    company.setGrade( interpreter.interpretFormula(template, company.getCompanyID()));</span>
+<span class="nc" id="L106">				    company.setGrade1(interpreter.interpretFormula(template1, company.getCompanyID()));</span>
+<span class="nc" id="L107">				    company.setGrade2(interpreter.interpretFormula(template2, company.getCompanyID()));</span>
+<span class="nc" id="L108">				    company.setGrade3(interpreter.interpretFormula(template3, company.getCompanyID()));</span>
+			    }
+
+<span class="nc" id="L111">			    dbFacade.close();</span>
+
+			    /* now do the ranking for each of the company's scores */
+
+			    // holds the unranked values
+<span class="nc" id="L116">			    int[][] rankTemplate  = new int[ companies.size() ][3];</span>
+<span class="nc" id="L117">			    int[][] rankTemplate1 = new int[ companies.size() ][3];</span>
+<span class="nc" id="L118">			    int[][] rankTemplate2 = new int[ companies.size() ][3];</span>
+<span class="nc" id="L119">			    int[][] rankTemplate3 = new int[ companies.size() ][3];</span>
+
+			    // contains the ranking values
+<span class="nc" id="L122">			    int[][] doneRankTemplate  = new int[ companies.size() ][3];</span>
+<span class="nc" id="L123">			    int[][] doneRankTemplate1 = new int[ companies.size() ][3];</span>
+<span class="nc" id="L124">			    int[][] doneRankTemplate2 = new int[ companies.size() ][3];</span>
+<span class="nc" id="L125">			    int[][] doneRankTemplate3 = new int[ companies.size() ][3];</span>
+
+			    // load values into unranked arrays
+<span class="nc bnc" id="L128" title="All 2 branches missed.">			    for(int i = 0; i &lt; companies.size(); i++)</span>
+			    {
+<span class="nc" id="L130">				    Company company = (Company) companies.get(i);</span>
+
+				    // note: replaceAll takes out the commas in strings when a number is very large
+				    // Double is used because sometimes the number has decimal value and needs to be an integer
+<span class="nc" id="L134">				    rankTemplate[i][0]  = Double.valueOf( company.getGrade().replaceAll(&quot;,&quot;, &quot;&quot;) ).intValue();</span>
+<span class="nc" id="L135">				    rankTemplate1[i][0] = Double.valueOf( company.getGrade1().replaceAll(&quot;,&quot;, &quot;&quot;) ).intValue();</span>
+<span class="nc" id="L136">				    rankTemplate2[i][0] = Double.valueOf( company.getGrade2().replaceAll(&quot;,&quot;, &quot;&quot;) ).intValue();</span>
+<span class="nc" id="L137">				    rankTemplate3[i][0] = Double.valueOf( company.getGrade3().replaceAll(&quot;,&quot;, &quot;&quot;) ).intValue();</span>
+
+				    // the index values
+<span class="nc" id="L140">				    rankTemplate[i][1]  = i;</span>
+<span class="nc" id="L141">				    rankTemplate1[i][1] = i;</span>
+<span class="nc" id="L142">				    rankTemplate2[i][1] = i;</span>
+<span class="nc" id="L143">				    rankTemplate3[i][1] = i;</span>
+			    }
+
+			    // perform the ranking analysis
+
+<span class="nc" id="L148">			    doneRankTemplate  = doRanking( rankTemplate, companies.size() );</span>
+<span class="nc" id="L149">			    doneRankTemplate1 = doRanking( rankTemplate1, companies.size() );</span>
+<span class="nc" id="L150">			    doneRankTemplate2 = doRanking( rankTemplate2, companies.size() );</span>
+<span class="nc" id="L151">			    doneRankTemplate3 = doRanking( rankTemplate3, companies.size() );</span>
+
+			    // figure out which of these companies is the current company
+
+<span class="nc" id="L155">			    int indexCurrentCo = 99999;</span>
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">			    for(int i = 0; i &lt; companies.size(); i++)</span>
+				{
+<span class="nc" id="L159">				    Company company = (Company) companies.get(i);</span>
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">				    if (company.getCompanyID() == thisCompany.getCompanyID() ) indexCurrentCo = i;</span>
+				}
+
+<span class="nc" id="L164">                Company myCompany = (Company) companies.get(indexCurrentCo);</span>
+
+<span class="nc" id="L166">                String scoreTemplate   = myCompany.getGrade();</span>
+<span class="nc" id="L167">                String scoreTemplate1  = myCompany.getGrade1();</span>
+<span class="nc" id="L168">                String scoreTemplate2  = myCompany.getGrade2();</span>
+<span class="nc" id="L169">                String scoreTemplate3  = myCompany.getGrade3();</span>
+
+<span class="nc" id="L171">                int rankedTemplate   = doneRankTemplate[indexCurrentCo][2];</span>
+<span class="nc" id="L172">                int rankedTemplate1  = doneRankTemplate1[indexCurrentCo][2];;</span>
+<span class="nc" id="L173">                int rankedTemplate2  = doneRankTemplate2[indexCurrentCo][2];;</span>
+<span class="nc" id="L174">                int rankedTemplate3  = doneRankTemplate3[indexCurrentCo][2];;</span>
+
+                //Put the scores and ranks into the session
+<span class="nc" id="L177">			    session.setAttribute(&quot;scoreTemplate&quot;,  scoreTemplate);</span>
+<span class="nc" id="L178">			    session.setAttribute(&quot;scoreTemplate1&quot;, scoreTemplate1);</span>
+<span class="nc" id="L179">			    session.setAttribute(&quot;scoreTemplate2&quot;, scoreTemplate2);</span>
+<span class="nc" id="L180">			    session.setAttribute(&quot;scoreTemplate3&quot;, scoreTemplate3);</span>
+
+<span class="nc" id="L182">			    session.setAttribute(&quot;rankedTemplate&quot;,  rankedTemplate);</span>
+<span class="nc" id="L183">			    session.setAttribute(&quot;rankedTemplate1&quot;, rankedTemplate1);</span>
+<span class="nc" id="L184">			    session.setAttribute(&quot;rankedTemplate2&quot;, rankedTemplate2);</span>
+<span class="nc" id="L185">			    session.setAttribute(&quot;rankedTemplate3&quot;, rankedTemplate3);</span>
+
+			    // Number of companies
+<span class="nc" id="L188">			    session.setAttribute(&quot;numOfCompanies&quot;, companies.size() );</span>
+
+		    }
+<span class="nc" id="L191">		    catch(BIGDatabaseFacadeException BIGDbe)</span>
+		    {
+<span class="nc" id="L193">			    log.fatal(&quot;&quot;, BIGDbe);</span>
+<span class="nc" id="L194">			    errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L195">		    }</span>
+
+<span class="nc" id="L197">	    }</span>
+	    else  //Request was cancelled
+	    {
+<span class="nc bnc" id="L200" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L202">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L204">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+<span class="nc" id="L207">        return (mapping.findForward(&quot;success&quot;));</span>
+	}
+
+
+ /**
+   * There are four grading templates.  Each has a two-dimensional array holding necessary values.
+   * Vertical dimension of array equals number of companies.  Horizontal is three values.
+   * Horizontally --&gt; [0] holds the score, [1] holds the index value, [2] holds the rank
+   * This method receives the unsorted values, does the sort, stores the ranking value for each in [2].
+   * Returns the array (now with ranking information) to the calling method.
+   */
+  private int[][] doRanking( int[][] theArray, int numbComp )
+  {
+ 	 int temp;
+
+ 	 // rank in descending order (highest to lowest)
+<span class="nc bnc" id="L223" title="All 2 branches missed."> 	 for (int i = 0; i &lt; (numbComp - 1); i++)</span>
+     {
+<span class="nc bnc" id="L225" title="All 2 branches missed.">         for (int j = 0; j &lt; numbComp - i - 1; j++)</span>
+         {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">             if (theArray[j][0] &lt; theArray[j+1][0])</span>
+             {
+<span class="nc" id="L229">                 temp = theArray[j][0];</span>
+<span class="nc" id="L230">                 theArray[j][0] = theArray[j+1][0];</span>
+<span class="nc" id="L231">                 theArray[j+1][0] = temp;</span>
+
+<span class="nc" id="L233">                 temp = theArray[j][1];</span>
+<span class="nc" id="L234">			     theArray[j][1] = theArray[j+1][1];</span>
+<span class="nc" id="L235">                 theArray[j+1][1] = temp;</span>
+             }
+         }
+     }
+
+     // store rank values in array
+<span class="nc bnc" id="L241" title="All 2 branches missed.">     for (int i = 0; i &lt; numbComp; i++)</span>
+     {
+<span class="nc" id="L243">		 theArray[i][2] = i + 1;</span>
+	 }
+
+	 // restore array to original sequence - sort by index value in ascending order (smallest to largest)
+<span class="nc bnc" id="L247" title="All 2 branches missed."> 	 for (int i = 0; i &lt; numbComp; i++)</span>
+     {
+<span class="nc bnc" id="L249" title="All 2 branches missed.">         for (int j = i + 1; j &lt; numbComp; j++)</span>
+         {
+<span class="nc bnc" id="L251" title="All 2 branches missed.">             if (theArray[i][1] &gt; theArray[j][1])</span>
+             {
+<span class="nc" id="L253">                 temp = theArray[i][1];</span>
+<span class="nc" id="L254">                 theArray[i][1] = theArray[j][1];</span>
+<span class="nc" id="L255">                 theArray[j][1] = temp;</span>
+
+<span class="nc" id="L257">                 temp = theArray[i][0];</span>
+<span class="nc" id="L258">                 theArray[i][0] = theArray[j][0];</span>
+<span class="nc" id="L259">                 theArray[j][0] = temp;</span>
+
+<span class="nc" id="L261">                 temp = theArray[i][2];</span>
+<span class="nc" id="L262">                 theArray[i][2] = theArray[j][2];</span>
+<span class="nc" id="L263">                 theArray[j][2] = temp;</span>
+             }
+         }
+     }
+
+<span class="nc" id="L268">     return theArray;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

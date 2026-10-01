@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CCCCommandCenter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">CCCCommandCenter.java</span></div><h1>CCCCommandCenter.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.game;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Random;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.Bid;
+
+
+/**
+ * Creates, destroys, and handles tasks related to CCCs.
+ * This class is responsible for maintaining the correct number of
+ * CCC's in BIG each period.  The following takes place during
+ * period updates:&lt;br&gt;&lt;br&gt;
+ * First, an optimal number of CCCs for the next period is chosen
+ * randomly from the the range specified by game parameters.
+ * &lt;br&gt;&lt;br&gt;
+ * Next the number of CCCs to be destroyed is calculated.  The number
+ * of CCCs to be destroyed is a percentage of the total number of
+ * CCCs equal to the value for CCC Turnover game parameters.  (e.g. if the
+ * CCC Turnover value is 25, then 25% of the CCCs will be destroyed).
+ * &lt;br&gt;&lt;br&gt;
+ * Next the individual CCCs that will be destroyed are selected based.  On the internal
+ * fitness value of the CCC.  Fitness values range from [0,99].  A temporary
+ * value called the inverse fitness is calculated by subtracting a CCC's fitness value
+ * from 100.  A roulette wheel selection is used where each company has a slice
+ * proportionate to its inverse fitness.  The wheel is repeatedly spun until the required number
+ * of CCCs is destroyed.  If the wheel lands on the slice of a CCC that has previously been
+ * destroyed this update, then the wheel is spun again.
+ * &lt;br&gt;&lt;br&gt;
+ * After the required number of CCCs are gone, new CCCs are added to bring the total number
+ * of CCC's up to the optimal number established earlier.  If there are already more
+ * CCCs than the optimal number then no CCCs are added.
+ * &lt;br&gt;&lt;br&gt;
+ * When a new CCC is created, it is given a name and randomly assigned a fitness value,
+ * and preferences for each job type.
+ * &lt;br&gt;&lt;br&gt;
+ * This class also contains the method to place CCC bids on jobs, &lt;code&gt;placeCCCBids&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class CCCCommandCenter
+{
+	private int minNumberOfCCCs;
+	private int maxNumberOfCCCs;
+	private int minCCCBidsPerJob;
+	private int maxCCCBidsPerJob;
+	private int cccTurnover;
+	private int lowerProfitPercent;
+	private int upperProfitPercent;
+	private int fieldOverheadFixed;
+	private int fieldOverheadVariable;
+	private int officeOverheadFixed;
+	private int bidExpensePercent;
+	private int workdaysPerMonth;
+	private int jobTypes;
+	private Random random;
+
+    /**
+     * @param minNumberOfCCCs Minimum number of CCCs that must be in the game
+     *		each period
+     * @param maxNumberOfCCCs Maximum number of CCCs that may be in the game
+     *		each period
+     * @param minCCCBidsPerJob Minimum number of bids by CCCs that must be on each job
+     * @param maxCCCBidsPerJob Maximum number of bids by CCCs that may be on a job
+     * @param cccTurnover Percentage of the total CCCs that leave the game each period
+     * @param lowerProfitPercent Minimum percentage of costs a CCC will add to costs as profit
+     *		when computing a bid price
+     * @param upperProfitPercent Maximum percentage of costs a CCC will add to costs as profit
+     		when computing a bid price
+     * @param jobTypes Total number of job types in the game.  A preference will be created
+     *		for this many job types.
+     */
+	public CCCCommandCenter(int minNumberOfCCCs,
+							int maxNumberOfCCCs,
+							int minCCCBidsPerJob,
+							int maxCCCBidsPerJob,
+							int cccTurnover,
+							int lowerProfitPercent,
+							int upperProfitPercent,
+							int fieldOverheadFixed,
+							int fieldOverheadVariable,
+							int officeOverheadFixed,
+							int bidExpensePercent,
+							int workdaysPerMonth,
+							int jobTypes)
+<span class="nc" id="L91">	{</span>
+<span class="nc" id="L92">		this.minNumberOfCCCs = minNumberOfCCCs;</span>
+<span class="nc" id="L93">		this.maxNumberOfCCCs = maxNumberOfCCCs;</span>
+<span class="nc" id="L94">		this.jobTypes = jobTypes;</span>
+<span class="nc" id="L95">		this.minCCCBidsPerJob = minCCCBidsPerJob;</span>
+<span class="nc" id="L96">		this.maxCCCBidsPerJob = maxCCCBidsPerJob;</span>
+<span class="nc" id="L97">		this.cccTurnover = cccTurnover;</span>
+<span class="nc" id="L98">		this.lowerProfitPercent = lowerProfitPercent;</span>
+<span class="nc" id="L99">		this.upperProfitPercent = upperProfitPercent;</span>
+<span class="nc" id="L100">		this.fieldOverheadFixed = fieldOverheadFixed;</span>
+<span class="nc" id="L101">		this.fieldOverheadVariable = fieldOverheadVariable;</span>
+<span class="nc" id="L102">		this.officeOverheadFixed = officeOverheadFixed;</span>
+<span class="nc" id="L103">		this.bidExpensePercent = bidExpensePercent;</span>
+<span class="nc" id="L104">		this.workdaysPerMonth = workdaysPerMonth;</span>
+<span class="nc" id="L105">		random = new Random();</span>
+<span class="nc" id="L106">	}</span>
+
+    /**
+     * Returns a newly created &lt;code&gt;ComputerControlledContractor&lt;/code&gt; object.
+     */
+	public ComputerControlledContractor createCCC()
+	{
+<span class="nc" id="L113">		int fitness = random.nextInt(100);</span>
+<span class="nc" id="L114">		int[] jobTypePreferences = new int[jobTypes];</span>
+
+<span class="nc" id="L116">		int bestType = random.nextInt(jobTypes);</span>
+<span class="nc" id="L117">		int secondBest = random.nextInt(jobTypes);</span>
+
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">		for(int i = 0; i &lt; jobTypes; i++)</span>
+		{
+<span class="nc" id="L122">			jobTypePreferences[i] = 25;</span>
+		}
+
+<span class="nc" id="L125">		jobTypePreferences[secondBest] = 50;</span>
+<span class="nc" id="L126">		jobTypePreferences[bestType] = 70;</span>
+
+<span class="nc bnc" id="L128" title="All 2 branches missed.">		if(secondBest == bestType)</span>
+<span class="nc" id="L129">		   jobTypePreferences[bestType] = 90;</span>
+
+<span class="nc" id="L131">		return new ComputerControlledContractor(NameGenerator.generateComputerControlledContractorName(), fitness, jobTypePreferences);</span>
+	}
+
+	/**
+	 * Performs the updates described in the class overview.
+	 * @param CCCs &lt;code&gt;Vector&lt;/code&gt; of &lt;code&gt;ComputerControlledContractor&lt;/code&gt;
+	 *    that represent the CCCs currently in a game.
+	 * @return &lt;code&gt;Vector&lt;/code&gt; The input list of CCCs updated as described above.
+	 */
+	public Vector updateCCCs(Vector CCCs)
+	{
+<span class="nc" id="L142">		int optimalNumberOfCCCs = random.nextInt(maxNumberOfCCCs-minNumberOfCCCs+1) + minNumberOfCCCs;</span>
+		//System.out.println(&quot;OPT #&quot; + optimalNumberOfCCCs);
+
+		//Calculate the number of CCCs to be deleted
+<span class="nc" id="L146">		int cccsToGo = Math.round(((float) CCCs.size()) * (((float) cccTurnover)/100f));</span>
+
+		//System.out.println(&quot;TO GO #&quot; + cccsToGo);
+
+<span class="nc" id="L150">		int totalInverseFitness = 0;</span>
+
+		//The wheel is an array the holds the bounds of the slice
+		//for each CCC.  This array forms a parallel
+		//array to the input Vector, CCCs.
+        //The value at each index in rouletteWheel is the upper bound
+        //of the slice belonging to the CCC in CCCs at matching array index.
+        //The lower bound is 0 for the CCC at array index 0, or 1 greater than the value
+        //at index - 1 for all other indices.
+        //Example: if the value at index 3 is 231, and the value at index 2 is
+        //189, that means the slice for the company at index 3 in CCCs goes
+        //from 190-231
+<span class="nc" id="L162">		int[] rouletteWheel = new int[CCCs.size()];</span>
+
+		//Populate the roulette wheel
+<span class="nc bnc" id="L165" title="All 2 branches missed.">		for(int i = 0; i &lt; rouletteWheel.length; i++)</span>
+		{
+<span class="nc" id="L167">			ComputerControlledContractor ccc = (ComputerControlledContractor) CCCs.elementAt(i);</span>
+
+<span class="nc" id="L169">			totalInverseFitness += (100 - ccc.getFitness());</span>
+<span class="nc" id="L170">			rouletteWheel[i] = totalInverseFitness;</span>
+		}
+
+		//Array to mark off deleted CCCs
+<span class="nc" id="L174">		Object[] scratchList = CCCs.toArray();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		while(cccsToGo &gt; 0)</span>
+		{
+<span class="nc" id="L177">			int spin = random.nextInt(totalInverseFitness+1);</span>
+
+			//Determine which slice this spin falls in
+<span class="nc" id="L180">			int slice = -1;</span>
+<span class="nc" id="L181">			int j = 0;</span>
+<span class="nc bnc" id="L182" title="All 4 branches missed.">			while((j &lt; rouletteWheel.length) &amp;&amp; (slice &lt; 0))</span>
+			{
+<span class="nc bnc" id="L184" title="All 2 branches missed.">				if(spin &lt;= rouletteWheel[j])</span>
+				{
+<span class="nc" id="L186">					slice = j;</span>
+				}
+<span class="nc" id="L188">				j++;</span>
+			}
+
+			//Check if the ccc who owns the slice is still
+			//there (it could have already been destroyed this turn)
+<span class="nc bnc" id="L193" title="All 2 branches missed.">			if(scratchList[slice] != null)</span>
+			{
+<span class="nc" id="L195">				ComputerControlledContractor ccc = (ComputerControlledContractor) scratchList[slice];</span>
+				//System.out.println(&quot;Removing: &quot; + ccc.getName() + &quot;   &quot; + ccc.getFitness());
+<span class="nc" id="L197">				CCCs.remove(scratchList[slice]);</span>
+<span class="nc" id="L198">				scratchList[slice] = null;</span>
+<span class="nc" id="L199">				cccsToGo--;</span>
+			}
+<span class="nc" id="L201">		}</span>
+
+        //Add CCCs until the optimum is reached
+<span class="nc bnc" id="L204" title="All 2 branches missed.">		while(CCCs.size() &lt; optimalNumberOfCCCs)</span>
+		{
+<span class="nc" id="L206">			ComputerControlledContractor ccc = createCCC();</span>
+			//System.out.println(&quot;Adding: &quot; + ccc.getName() + &quot;   &quot; + ccc.getFitness());
+<span class="nc" id="L208">			CCCs.add(ccc);</span>
+<span class="nc" id="L209">		}</span>
+
+
+<span class="nc" id="L212">		return CCCs;</span>
+	}
+
+	/**
+	 * Generates CCC bids on a job.
+	 * Runs through the list of CCCs and chooses some (or all)
+	 * to create bids on the job based on the limits on
+	 * number of CCC bids per job and internal job type preferences
+	 * of the CCCs.
+	 * @param CCCs &lt;code&gt;Vector&lt;/code&gt; of CCCs currently in the game.  &lt;b&gt;PRE:&lt;/b&gt; This &lt;code&gt;Vector&lt;/code&gt;
+	 *      cannot be empty, it must contain at least as many &lt;code&gt;ComputerControlledContractor&lt;/code&gt; objects
+	 *		as the minimum number of CCC bids per job.  It must not be empty even if this value is zero.
+	 * @param Job The job for which to generate bids.
+	 * @return &lt;code&gt;Vector&lt;/code&gt; of &lt;code&gt;Bid&lt;/code&gt; that represents
+	 * the CCC bids on the job.
+	 */
+    public Vector placeCCCBids(Vector CCCs, Job job)
+    {
+		//The min and max number of CCC bids per job is halved for private jobs
+<span class="nc" id="L231">		int minCCCBids = minCCCBidsPerJob;</span>
+<span class="nc" id="L232">		int maxCCCBids = maxCCCBidsPerJob;</span>
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if(job.getTypeModifier() == Job.PRIVATE)</span>
+		{
+<span class="nc" id="L236">			minCCCBids = minCCCBids / 2;</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">			if(minCCCBids &lt; 1)</span>
+<span class="nc" id="L238">			   minCCCBids = 1;</span>
+
+<span class="nc" id="L240">			maxCCCBids = maxCCCBids / 2;</span>
+		}
+
+<span class="nc" id="L243">		Vector bids = new Vector();</span>
+
+		//Index to start examining CCC to give a chance to bid.
+		//This ensures that each CCC gets a fair chance to bid overall.
+		//If we started at the top of the list each time, the companies at
+		//the bottom of the list would have less of a chance due to the max number
+		//of ccc bids per job
+<span class="nc" id="L250">		int startingPoint = random.nextInt(CCCs.size());</span>
+<span class="nc" id="L251">		int i = 0;</span>
+<span class="nc" id="L252">		int j = startingPoint;</span>
+<span class="nc" id="L253">		int bidsMade = 0;</span>
+
+		//Used to mark of CCCs that have already made a bid to ensure
+		//that no one gets to bid twice
+<span class="nc" id="L257">		boolean [] scratch = new boolean[CCCs.size()];</span>
+
+		do
+		{
+<span class="nc bnc" id="L261" title="All 2 branches missed.">			if(!scratch[j])</span>
+			{
+<span class="nc" id="L263">				ComputerControlledContractor ccc = (ComputerControlledContractor) CCCs.elementAt(j);</span>
+
+				//The chance this CCC will bid is based on its level of preference
+				//of this job type
+<span class="nc bnc" id="L267" title="All 2 branches missed.">				if(ccc.getJobTypePreferences()[job.getJobType()-1] &gt; random.nextInt(100))</span>
+				{
+					//This CCC will bid
+<span class="nc" id="L270">					scratch[j] = true;</span>
+<span class="nc" id="L271">					bidsMade++;</span>
+<span class="nc" id="L272">					bids.add(generateBid(job.getGame().getGame().getGameID(),</span>
+<span class="nc" id="L273">										 ccc.getCCCID(),</span>
+<span class="nc" id="L274">										 job.getJobID(),</span>
+<span class="nc" id="L275">										 job.getDirectCost(),</span>
+<span class="nc" id="L276">										 job.getEstimatedWorkdays()</span>
+										)
+							);
+				}
+
+			}
+
+
+<span class="nc" id="L284">			j++;</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">			if(j == CCCs.size())</span>
+			{
+<span class="nc" id="L287">				j = 0;</span>
+			}
+<span class="nc" id="L289">			i++;</span>
+		}
+<span class="nc bnc" id="L291" title="All 4 branches missed.">		while( (bidsMade &lt; minCCCBids) ||</span>
+<span class="nc bnc" id="L292" title="All 4 branches missed.">			   ( (bidsMade &lt; maxCCCBids) &amp;&amp; (i &lt; CCCs.size()) &amp;&amp; (j != startingPoint))</span>
+			 );
+
+<span class="nc" id="L295">		return bids;</span>
+	}
+
+	/**
+	 *
+	 * @param gameID ID of the game to which the eventual &lt;code&gt;Bid&lt;/code&gt;
+	 *        will belong.
+	 * @param jobNumber identifies the job on which the eventual
+	 *        &lt;code&gt;Bid&lt;/code&gt; will be placed.
+	 * @param directCost direct cost of the job on which the eventual
+	 *        &lt;code&gt;Bid&lt;/code&gt; will be placed.
+	 * @param extimatedWorkdays the number of estimated workdays for the
+	 *        job on which the eventual &lt;code&gt;Bid&lt;/code&gt; will be placed
+	 * @returns &lt;code&gt;Bid&lt;/code&gt; object representing CompanyX's bid on
+	 *          the &lt;code&gt;Job&lt;/code&gt; that invoked this method.
+	 */
+	public Bid generateBid(int gameID, int cccid, int jobNumber, long directCost,
+						   int estimatedWorkdays)
+	{
+<span class="nc" id="L314">		long bidAmount = directCost;</span>
+<span class="nc" id="L315">		int numberOfPeriods = calculateNumberOfPeriods(estimatedWorkdays,</span>
+													   workdaysPerMonth);
+
+		// For now, assume bidExpensePercent is in tenths of percents
+<span class="nc" id="L319">		long bidExpense = (directCost * bidExpensePercent) / 1000;</span>
+
+		// Calculate total field overhead
+<span class="nc" id="L322">		long fieldOverhead = (fieldOverheadFixed * estimatedWorkdays) +</span>
+			(((fieldOverheadVariable * directCost) / 100) * numberOfPeriods);
+
+		// Calculate total office overhead
+<span class="nc" id="L326">		long officeOverhead = (officeOverheadFixed * numberOfPeriods);</span>
+
+<span class="nc" id="L328">		bidAmount += bidExpense + fieldOverhead + officeOverhead;</span>
+
+		//System.out.println(bidAmount);
+		//bidAmount = Math.round((((float) (100 - (discount/10))) / 100f) * ((float) bidAmount));
+		//System.out.println(bidAmount + &quot;\n\n&quot;);
+
+		// Determine random profit markup
+<span class="nc" id="L335">		int percentMarkup = (lowerProfitPercent * 100) +</span>
+<span class="nc" id="L336">			random.nextInt((upperProfitPercent * 100) -</span>
+								   (lowerProfitPercent + 1) * 100);
+
+								   //The times 100s are to make the perfect profit have two decimal
+								   //places.  like 7.34% or 3.45%
+								   //The upper and lower limits are integers but by mulitiplying
+								   //by 100 we can still get 2 decimal place accuracy
+
+		// Add random profit markup
+<span class="nc" id="L345">		bidAmount += (bidAmount * percentMarkup) / 10000; //100 * 100, to undo the *100s above and to</span>
+														  //go from % to decimal
+
+<span class="nc" id="L348">		int companyID = - cccid;  //The companyID of a CCC is the negation of its cccid</span>
+
+<span class="nc" id="L350">        double[] unitPrices = new double[9];</span>
+<span class="nc" id="L351">        double theBidPrice = 0;</span>
+
+		// gameID and jobNumber aren't required by Job.determinrBidWinner(),
+		// they are included for completeness and consistency
+<span class="nc" id="L355">		return (new Bid(gameID, companyID, jobNumber, bidAmount, theBidPrice, unitPrices, 0));</span>
+
+	}
+
+	/**
+	 *
+	 * @param gameID ID of the game to which the eventual &lt;code&gt;Bid&lt;/code&gt;
+	 *        will belong.
+	 * @param jobNumber identifies the job on which the eventual
+	 *        &lt;code&gt;Bid&lt;/code&gt; will be placed.
+	 * @param directCost direct cost of the job on which the eventual
+	 *        &lt;code&gt;Bid&lt;/code&gt; will be placed.
+	 * @param extimatedWorkdays the number of estimated workdays for the
+	 *        job on which the eventual &lt;code&gt;Bid&lt;/code&gt; will be placed
+	 * @returns &lt;code&gt;Bid&lt;/code&gt; object representing CompanyX's bid on
+	 *          the &lt;code&gt;Job&lt;/code&gt; that invoked this method.
+	 */
+	public long estimateDirectJobCost(int gameID, int jobNumber, long directCost,
+						   int estimatedWorkdays)
+	{
+<span class="nc" id="L375">		long bidAmount = directCost;</span>
+<span class="nc" id="L376">		int numberOfPeriods = calculateNumberOfPeriods(estimatedWorkdays,</span>
+													   workdaysPerMonth);
+
+
+		// Calculate total field overhead
+<span class="nc" id="L381">		long fieldOverhead = (fieldOverheadFixed * estimatedWorkdays) +</span>
+			(((fieldOverheadVariable * directCost) / 100) * numberOfPeriods);
+
+<span class="nc" id="L384">		bidAmount += + fieldOverhead ;</span>
+
+		// gameID and jobNumber aren't required by Job.determinrBidWinner(),
+		// they are included for completeness and consistency
+<span class="nc" id="L388">		return bidAmount;</span>
+
+	}
+
+	/**
+	 * Given an estimated number of workdays and the number of
+	 * workdays per month, determines the associated number of
+	 * whole periods.
+	 *
+	 * @param extimatedWorkdays the number of estimated workdays for the
+	 *        job on which the eventual &lt;code&gt;Bid&lt;/code&gt; will be placed
+	 * @param workdaysPerMonth the number of workdays per month (a game
+     *        parameter.)
+	 * @returns an int which represents the number of whole periods.
+	 */
+	private int calculateNumberOfPeriods(int estimatedWorkdays,
+										 int workdaysPerMonth)
+	{
+<span class="nc" id="L406">		int workdaysPerPeriod = workdaysPerMonth * 2;</span>
+
+<span class="nc bnc" id="L408" title="All 2 branches missed.">		if (estimatedWorkdays &lt;= workdaysPerMonth) {</span>
+<span class="nc" id="L409">			return 1;</span>
+		} else {
+
+			/* Take into account the fact that work doesn't start
+			   until the second month of the first period by subtracting
+			   the first month and adding one whole period. */
+
+<span class="nc" id="L416">			return 1 + (int) Math.ceil((float) (estimatedWorkdays - workdaysPerMonth) /</span>
+									   (float) workdaysPerPeriod);
+		}
+	}
+
+
+
+
+	public static void main(String args[])
+	{
+<span class="nc" id="L426">		CCCCommandCenter ccccc = new CCCCommandCenter(10, 20, 2, 10, 50, 10, 20, 900, 1, 40000, 3, 20, 10);</span>
+<span class="nc" id="L427">		Vector cccs = new Vector();</span>
+
+<span class="nc bnc" id="L429" title="All 2 branches missed.">		for(int i = 0; i &lt; 15; i++)</span>
+		{
+<span class="nc" id="L431">			ComputerControlledContractor ccc = ccccc.createCCC();</span>
+<span class="nc" id="L432">			cccs.add(ccc);</span>
+<span class="nc" id="L433">			System.out.println(ccc.getName() + &quot;   &quot; + ccc.getFitness());</span>
+		}
+
+<span class="nc" id="L436">		System.out.println(&quot;\n\n\nCurrent CCCs:\n&quot;);</span>
+<span class="nc bnc" id="L437" title="All 2 branches missed.">		for(int i = 0; i &lt; cccs.size(); i++)</span>
+		{
+<span class="nc" id="L439">			ComputerControlledContractor ccc = (ComputerControlledContractor) cccs.elementAt(i);</span>
+<span class="nc" id="L440">			System.out.println(ccc.getName() + &quot;   &quot; + ccc.getFitness());</span>
+		}
+<span class="nc" id="L442">		cccs = ccccc.updateCCCs(cccs);</span>
+
+<span class="nc" id="L444">		System.out.println(&quot;\n\n\nCurrent CCCs:\n&quot;);</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">		for(int i = 0; i &lt; cccs.size(); i++)</span>
+		{
+<span class="nc" id="L447">			ComputerControlledContractor ccc = (ComputerControlledContractor) cccs.elementAt(i);</span>
+<span class="nc" id="L448">			System.out.println(ccc.getName() + &quot;   &quot; + ccc.getFitness());</span>
+		}
+<span class="nc" id="L450">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChooseJobToViewEstimateAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.company</a> &gt; <span class="el_source">ChooseJobToViewEstimateAction.java</span></div><h1>ChooseJobToViewEstimateAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.company;
+
+//JDK imports
+import javax.sql.DataSource;
+import java.util.Vector;
+import java.util.Iterator;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.JobDBHandler;
+import edu.calpoly.its.mas.big.db.BidDBHandler;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ *
+ */
+<span class="nc" id="L48">public class ChooseJobToViewEstimateAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				     			 ActionForm form,
+				     			 HttpServletRequest request,
+			         			 HttpServletResponse response)
+	{
+<span class="nc" id="L55">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L58">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+
+<span class="nc" id="L62">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="nc" id="L64">        ServletContext context = servlet.getServletContext();</span>
+<span class="nc" id="L65">        HttpSession session = request.getSession();</span>
+<span class="nc" id="L66">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="nc" id="L68">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="nc bnc" id="L72" title="All 2 branches missed.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="nc" id="L73">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L75">		Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+<span class="nc" id="L77">		Vector newJobs = null;</span>
+<span class="nc" id="L78">		Vector oldJobs = new Vector();</span>
+<span class="nc" id="L79">		int estimatesThisPeriod = 0;</span>
+<span class="nc" id="L80">		int estimatesAvailablePerPeriod = 0;</span>
+<span class="nc" id="L81">		boolean estimatesOn = false;</span>
+
+
+<span class="nc" id="L84">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request), true);</span>
+
+		try
+		{
+<span class="nc" id="L88">			newJobs = ((JobDBHandler) dbFacade.getJobDBHandler()).getJobs(game, game.getCurrentPeriodNumber());</span>
+
+<span class="nc" id="L90">			int[] oldJobIDs = dbFacade.getEstimatingComponentDBHandler().estimatesAvailableForCompany(game, company);</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			for(int i = 0; i &lt; oldJobIDs.length; i++)</span>
+			{
+<span class="nc" id="L94">				Job job = dbFacade.getJobDBHandler().getJob(game, oldJobIDs[i]);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">				if(job.getPeriodCreated() == game.getCurrentPeriodNumber())</span>
+				{
+<span class="nc" id="L97">					estimatesThisPeriod++;</span>
+				}
+<span class="nc" id="L99">				oldJobs.add(job);</span>
+			}
+
+<span class="nc" id="L102">			estimatesAvailablePerPeriod = dbFacade.getEstimatingComponentDBHandler().getEstimatesPerPeriod(game);</span>
+
+<span class="nc" id="L104">			estimatesOn = dbFacade.getComponentsDBHandler().isEstimatingComponentOn(game);</span>
+
+<span class="nc" id="L106">			dbFacade.close();</span>
+
+		}
+<span class="nc" id="L109">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L111">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L112">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+<span class="nc" id="L114">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L116">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L117">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L118">		}</span>
+
+<span class="nc" id="L120">		session.setAttribute(&quot;newJobs&quot;, newJobs);</span>
+<span class="nc" id="L121">		session.setAttribute(&quot;oldJobs&quot;, oldJobs);</span>
+<span class="nc" id="L122">		session.setAttribute(&quot;estimatesAvailable&quot;, new Integer(estimatesAvailablePerPeriod - estimatesThisPeriod));</span>
+<span class="nc" id="L123">		session.setAttribute(&quot;estimatesOn&quot;, new Boolean(estimatesOn));</span>
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L129">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+			// Report any errors we have discovered back to the original form
+<span class="nc" id="L132">			saveErrors(request, errors);</span>
+<span class="nc" id="L133">	 	   	saveToken(request);</span>
+<span class="nc" id="L134">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L138" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L140">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="nc" id="L142">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

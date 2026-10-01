@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChooseExistingGameAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">ChooseExistingGameAction.java</span></div><h1>ChooseExistingGameAction.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Hashtable;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//Database facade
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Puts a &lt;code&gt;Vector&lt;/code&gt; of gameIDs, stored as &lt;code&gt;Integer&lt;/code&gt;s in the session.
+ * Games in the &lt;code&gt;Vector&lt;/code&gt; will be all those owned by the administrator making the request.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.6 $ $Date: 2002/03/14 18:53:06 $
+ */
+<span class="fc" id="L43">public class ChooseExistingGameAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+		  				         ActionForm form,
+ 		  				         HttpServletRequest request,
+					             HttpServletResponse response)
+	{
+<span class="fc" id="L51">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L54">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="fc" id="L57">		ActionMessages errors = new ActionMessages();</span>
+<span class="fc" id="L58">		HttpSession session = request.getSession();</span>
+
+<span class="fc" id="L60">		Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		if (admin == null)  // &quot;user&quot; object no longer exists because the session has timed out</span>
+<span class="fc" id="L63">		   return (mapping.findForward(&quot;sessionTimedOut&quot;));</span>
+
+		//Ensure user's adminID &gt;= 1.  Valid adminID's begin at 1
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		if (admin.getAdminID() &gt; 0)</span>
+		{
+			//Create a database facade and get a list of games from it that belong to this admin
+
+<span class="fc" id="L70">			BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+			try
+			{
+<span class="fc" id="L73">				Vector games = dbFacade.getGameDBHandler().getGames(admin);</span>
+<span class="fc" id="L74">				dbFacade.close();</span>
+
+				//Put the Vector of games in the session for a scriplet to extract
+<span class="fc" id="L77">				session.setAttribute(&quot;games&quot;, games);</span>
+			}
+<span class="fc" id="L79">			catch(BIGDatabaseFacadeException BIGDbe)</span>
+			{
+<span class="fc" id="L81">				log.fatal(&quot;&quot;, BIGDbe);</span>
+<span class="fc" id="L82">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="fc" id="L83">			}</span>
+<span class="fc" id="L84">		}</span>
+		else
+		{
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">			if(log.isWarnEnabled())</span>
+			{
+<span class="fc" id="L89">				log.warn(this.getClass() + &quot; user permission error&quot;);</span>
+			}
+			//User's adminID was &lt; 1.  Valid adminID's begin at 1
+<span class="fc" id="L92">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.user.permission&quot;));</span>
+		}
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		if (!errors.isEmpty())</span>
+		{
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L99">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+			// Report any errors we have discovered back to the original form
+<span class="fc" id="L102">			saveErrors(request, errors);</span>
+<span class="fc" id="L103">	 	   	saveToken(request);</span>
+<span class="fc" id="L104">	 	   	return (new ActionForward(mapping.getInput()));</span>
+		}
+
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L109">			log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+		}
+<span class="fc" id="L111">		return (mapping.findForward(&quot;success&quot;));</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

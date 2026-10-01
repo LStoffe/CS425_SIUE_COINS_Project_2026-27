@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:16
+    container_name: big_postgres
+    environment:
+      POSTGRES_DB: bigdb
+      POSTGRES_USER: biguser
+      POSTGRES_PASSWORD: bigpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Optional: add .sql (or .sh) files here to run on first DB init
+      - ./docker-init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U biguser -d bigdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - big_net
+
+  app:
+    build: .
+    container_name: big_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/bigdb
+      SPRING_DATASOURCE_USERNAME: biguser
+      SPRING_DATASOURCE_PASSWORD: bigpass
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - big_net
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: big_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@coinsapp.dev
+      PGADMIN_DEFAULT_PASSWORD: adminpass
+      PGADMIN_CONFIG_SESSION_COOKIE_NAME: "'pga4_session_coins'"
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - big_net
+
+volumes:
+  pgdata:
+
+networks:
+  big_net:
+    name: big_big_net

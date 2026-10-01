@@ -1,0 +1,123 @@
+<!--
+  negotiation-offers.html
+  Section 2.5 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>2.5 Negotiation Offers</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            2.5 Negotiation Offers
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            If you have received a negotiation offer, you do not need to create a bid but you must estimate costs the same way. 
+            You may view the Estimated Time and Cost report for negotiated jobs and receive an estimate if allowed in your game.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Companies who contact you directly with a job will want two values from you: a maximum cost for the job and a percentage of that cost that you will add to the cost for your (gross) profit. 
+            The cost of the job should include only those expenses directly attributable to the job (direct cost, field overhead, contingency allowances); everything else will be covered by the profit percentage. 
+            Calculate the cost and the percent profit you will need to cover office expenses and make a net profit on the job, and submit these to the customer. 
+            The customer will evaluate these values and do one of the following: offer you the job, decide to take the job elsewhere, or ask you to reconsider one of the values you submitted. Some customers may accept any offer that seems decent, 
+            other may be extremely cheap. In somes cases it may be in your best interest not to do business with these customers because you will lose money on the job. 
+            Some customers may try to haggle you into accepting a lower percent profit, which is something you might consider doing if your profit percent was high.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Revenue on negotiated jobs is accrued differently than on bid jobs. Each period you will be able to bill for all cost you incurred from working the job (direct and field overhead) plus the profit percentage. 
+            However, your revenue for a negotiated job is bound by the max cost estimate you provide the customer during negotiation. The total amount of revenue you receive on the job may never be more than your max cost estimate plus the percent profit, 
+            so keep this in mind when you are creating your maximum cost estimate. You will not necessarily get the total amount of max cost estimate plus percent profit because your real job costs may not be as high as your estimate. 
+            Ideally there should be a good buffer between your max cost estimate and your real costs, because if your real costs go over your max cost estimate, the overage comes out of your gross profit for the job.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            As an added incentive to keep costs low, customers offer you a portion of the amount of money you saved them by finishing below your max cost estimate, or a "share of savings." 
+            In BIG your share of the savings is permenantely fixed at 25%. You get this amount as revenue on top of the job costs and your profit percent.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            High bond limits have definite advantages. Having a high WIP limit means you can take on more jobs. Having a high Per Job limits means you can take on larger, often more profitable jobs. 
+            There are fewer companies who can bid on large jobs, so having a high Per Job limit puts you above the rest of the pack.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Example:</strong>Say you receive a job offer and you negotiate max cost estimate to be $1,000,000 and profit percent to be 10%. This means the maximum amount of revenue you may receive on the job is equal to $1,100,000 ($1,000,000 + 10%).
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Each period your revenue from the job will be equal to the costs of the job for that period plus profit percent. If you spend $100,000 on the job in some period, then your revenue for that period is $110,000 ($100,000 + 10%).
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            f your final cost when you finish the job is below your max cost estimate you will receive 25% of the savings. Say the final cost to complete the job is only $900,000. There is a savings of $100,000. 
+            Your final revenue will be equal to your cost plus profit, $990,000, but you are also entitle to 25% of the savings, or another $25,000. So your final revenue would be $1,015,000. 
+            If you finished the job at max cost or above, then your final revenue would be the maximum revenue of $1,100,000.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Thought Question:</strong> In which case is your company better off? Finishing the job at max cost estimate for $1,100,000 in revenue or finishing the job below cost for $1,015,000 in revenue?
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>TIP:</strong> Customers choose construction companies who have shown themselves to perform well in the industry. You can easily go through an entire game of BIG without receiving a single negotiation offer if your company is doing poorly at public jobs.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/bond-limits}" class="font-semibold hover:underline">
+        ← 2.4 Bond Limits
+    </a>
+    <a th:href="@{/manual/bid-closing}" class="font-semibold hover:underline">
+        Next → 2.6 Bid Closing
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

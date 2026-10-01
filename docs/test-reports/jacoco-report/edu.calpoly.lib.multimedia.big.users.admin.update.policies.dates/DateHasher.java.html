@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DateHasher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates</a> &gt; <span class="el_source">DateHasher.java</span></div><h1>DateHasher.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates;
+
+import java.util.Date;
+import java.util.Calendar;
+
+/**
+ * Creates Date hash codes as required to store schedule updates
+ * under the dates policy.
+ */
+<span class="nc" id="L10">public class DateHasher</span>
+{
+	/**
+	 * Returns a Date hash code created from two &lt;code&gt;Date&lt;/code&gt;
+	 * objects.  The year, month, and day fields will be used from the
+	 * first &lt;code&gt;Date&lt;/code&gt; object and the hours, minutes
+	 * fields will be used from the second &lt;code&gt;Date&lt;/code&gt; object.
+	 * &lt;br&gt;&lt;br&gt;
+	 * All hash codes are 12 digit integers in the format YYYYMMDDhhmm.
+	 *
+	 */
+	public static long getDateHashCode(Date date, Date time)
+	{
+<span class="fc" id="L23">		Calendar dateCal = Calendar.getInstance();</span>
+<span class="fc" id="L24">		Calendar timeCal = Calendar.getInstance();</span>
+<span class="fc" id="L25">		dateCal.setTime(date);</span>
+<span class="fc" id="L26">		timeCal.setTime(time);</span>
+
+<span class="fc" id="L28">		org.apache.commons.logging.Log log = org.apache.commons.logging.LogFactory.getLog(&quot;edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates.DateHasher&quot;);</span>
+
+<span class="fc" id="L30">		long dateHash = 0l;</span>
+
+<span class="fc" id="L32">		dateHash += dateCal.get(Calendar.YEAR) * 100000000l;</span>
+<span class="fc" id="L33">		log.debug(dateCal.get(Calendar.YEAR) + &quot; &quot; + dateHash);</span>
+
+<span class="fc" id="L35">		dateHash += dateCal.get(Calendar.MONTH) * 1000000l;</span>
+<span class="fc" id="L36">		log.debug(dateCal.get(Calendar.MONTH) + &quot; &quot; + dateHash);</span>
+<span class="fc" id="L37">		dateHash += dateCal.get(Calendar.DAY_OF_MONTH) * 10000l;</span>
+<span class="fc" id="L38">		log.debug(dateCal.get(Calendar.DAY_OF_MONTH) + &quot; &quot; + dateHash);</span>
+<span class="fc" id="L39">		dateHash += timeCal.get(Calendar.HOUR_OF_DAY) * 100l;</span>
+<span class="fc" id="L40">		log.debug(timeCal.get(Calendar.HOUR_OF_DAY) + &quot; &quot; + dateHash);</span>
+<span class="fc" id="L41">		dateHash += timeCal.get(Calendar.MINUTE);</span>
+<span class="fc" id="L42">		log.debug(timeCal.get(Calendar.MINUTE) + &quot; &quot; + dateHash);</span>
+
+<span class="fc" id="L44">		return dateHash;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

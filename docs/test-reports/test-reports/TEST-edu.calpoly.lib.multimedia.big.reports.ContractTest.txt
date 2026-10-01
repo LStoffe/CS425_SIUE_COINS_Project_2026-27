@@ -1,0 +1,43 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.ContractTest
+Tests run: 40, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.1 sec
+
+Testcase: testGetOriginalContractAndChangeOrdersAndEstimatedCostToComplete took 0.078 sec
+Testcase: testGetEstimatedTotalGrossMarginPercentWithZeroAdjustedContract took 0 sec
+Testcase: testNegotiatedContractCurrentRevenueWithShareOfSavings took 0.002 sec
+Testcase: testGetCurrentRevenueRecorded took 0.001 sec
+Testcase: testGetCurrentPercentWorkComplete took 0 sec
+Testcase: testGetGrossMarginEarnedPercent took 0 sec
+Testcase: testGetCurrentRevenueEarned took 0 sec
+Testcase: testEstimatedTotalGrossMargin took 0 sec
+Testcase: testNegotiatedContractOverCost took 0 sec
+Testcase: testConstructorAndBasicGetters took 0 sec
+Testcase: testGetRevenueEarnedNonZero took 0 sec
+Testcase: testGetRevenuePreviouslyRecorded took 0 sec
+Testcase: testGetPreviousPercentWorkComplete took 0 sec
+Testcase: testGetCurrentGrossMarginPercent took 0.001 sec
+Testcase: testGetPreviousRevenueEarned took 0 sec
+Testcase: testContractWithLargeValues took 0 sec
+Testcase: testGetPreviousGrossMarginPercent took 0 sec
+Testcase: testUnbilledPortion took 0 sec
+Testcase: testGrossMarginEarned took 0 sec
+Testcase: testGetPercentWorkComplete took 0 sec
+Testcase: testSetNegotiatedJob took 0 sec
+Testcase: testGetRevenueToBeEarned took 0 sec
+Testcase: testGetCurrentAndPreviousGrossMargin took 0 sec
+Testcase: testGetGrossMarginPercentWhenRevenueZero took 0 sec
+Testcase: testUnderbillingWhenEqualReturnsZero took 0 sec
+Testcase: testGetEstimatedTotalCostAndGrossMargin took 0 sec
+Testcase: testGetGrossMarginEarnedPercentZeroRevenue took 0 sec
+Testcase: testGetEstimatedTotalGrossMarginPercent took 0 sec
+Testcase: testNegotiatedContractCurrentRevenueEarned took 0 sec
+Testcase: testOverbillingWhenEqualReturnsZero took 0.001 sec
+Testcase: testGetPercentWorkCompleteWithZeroEstimatedTotal took 0 sec
+Testcase: testGetRevenueToBeEarnedAndCurrentRevenueRecorded took 0.001 sec
+Testcase: testNegotiatedContractOverCostCurrentRevenueExact took 0 sec
+Testcase: testNegotiatedContractPreviousRevenueEarned took 0 sec
+Testcase: testSetPeriodID took 0 sec
+Testcase: testOverbilling took 0 sec
+Testcase: testCostIncurred took 0 sec
+Testcase: testUnderbilling took 0 sec
+Testcase: testSetNegotiated took 0.001 sec
+Testcase: testZeroValues took 0 sec

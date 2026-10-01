@@ -1,0 +1,112 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandlerIntegrationTest
+Tests run: 68, Failures: 0, Errors: 4, Skipped: 0, Time elapsed: 1.593 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+No params found
+------------- ---------------- ---------------
+
+Testcase: testGetJobSizeParameters took 0.803 sec
+Testcase: testUpdateMiscParameters took 0.006 sec
+Testcase: testUpdateMethodParameters took 0.016 sec
+Testcase: testRemoveGameParameters took 0.201 sec
+	Caused an ERROR
+null
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+ java.sql.SQLException: Connection is closed.
+	at edu.calpoly.its.mas.big.db.DefaultDBHandler.close(DefaultDBHandler.java:34)
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandler.removeMethodParameters(DefaultGameParametersDBHandler.java:3675)
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandler.removeAdminDefaultParameters(DefaultGameParametersDBHandler.java:3527)
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandlerIntegrationTest.testRemoveGameParameters(DefaultGameParametersDBHandlerIntegrationTest.java:1310)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testGetRainfallParameters took 0.001 sec
+Testcase: testGetMiscParameters took 0 sec
+Testcase: testGetDefaultComputerControlledContractorParameters took 0.002 sec
+Testcase: testUpdateDefaultComputerControlledContractorParameters took 0 sec
+Testcase: testUpdateAllRainfallParameters took 0.101 sec
+Testcase: testGetNumberOfJobsParameters took 0.001 sec
+Testcase: testUpdateDefaultMiscParameters took 0 sec
+Testcase: testCopyGlobalDefaultParameters took 0.046 sec
+Testcase: testUpdateNegotiationParameters took 0.001 sec
+Testcase: testGetDefaultJobSizeParameters took 0.001 sec
+Testcase: testGetLiquidatedDamagesParameters took 0.001 sec
+Testcase: testGetNetworkDependencyParameters took 0 sec
+Testcase: testGetNegotiationParameters took 0 sec
+Testcase: testGetMethodParametersForGame took 0.001 sec
+Testcase: testUpdateAllTemperatureParameters took 0.082 sec
+Testcase: testGetAllTemperatureParameters took 0.001 sec
+Testcase: testRemoveAdminDefaultParameters took 0.04 sec
+Testcase: testGetAllRainfallParameters took 0.001 sec
+Testcase: testGetLaborAvailabilityParameters took 0 sec
+Testcase: testGetMaterialCostIndexParameters took 0 sec
+Testcase: testGetRainfallParametersPeriod2 took 0.001 sec
+Testcase: testGetConsultingCostsParameters took 0 sec
+Testcase: testGetDefaultMethodParameters took 0.001 sec
+Testcase: testGetAllJobSizeParameters took 0.001 sec
+Testcase: testUpdateDefaultMethodParameters took 0.001 sec
+Testcase: testCopyAdminDefaultParameters took 0.082 sec
+Testcase: testGetDefaultMiscParameters took 0 sec
+Testcase: testGetPercentTakeoffParameters took 0.002 sec
+Testcase: testGetTemperatureParameters took 0.001 sec
+Testcase: testUpdateNumberOfJobsParameters took 0.008 sec
+	Caused an ERROR
+null
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+Inconsistent database!  Multiple rows matching gameid=0 periodid=1 in table game_params_jobs_per_period
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandler.updateNumberOfJobsParameters(DefaultGameParametersDBHandler.java:2615)
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandlerIntegrationTest.testUpdateNumberOfJobsParameters(DefaultGameParametersDBHandlerIntegrationTest.java:829)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testUpdateAllJobSizeParameters took 0.042 sec
+Testcase: testGetAllTemperatureParametersWithDefaults took 0.001 sec
+Testcase: testGetAllLaborAvailabilityParametersWithDefaults took 0 sec
+Testcase: testGetDefaultMethodParametersThrowsWhenNotFound took 0.002 sec
+Testcase: testGetComputerControlledContractorParameters took 0.001 sec
+Testcase: testUpdateDefaultLiquidatedDamagesParameters took 0 sec
+Testcase: testGetAllMaterialCostIndexParametersWithDefaults took 0 sec
+Testcase: testUpdateComputerControlledContractorParameters took 0 sec
+Testcase: testUpdateDefaultNetworkDependencyParameters took 0.001 sec
+Testcase: testGetNetworkDependencyParametersJob2Activity2 took 0 sec
+Testcase: testGetAllLaborAvailabilityParameters took 0.001 sec
+Testcase: testGetJobSizeParametersForHeavyJob took 0 sec
+Testcase: testGetDefaultConsultingCostsParameters took 0 sec
+Testcase: testGetAllMaterialCostIndexParameters took 0 sec
+Testcase: testGetMaterialCostIndexParametersPeriod2 took 0.001 sec
+Testcase: testGetDefaultPercentTakeoffParameters took 0.001 sec
+Testcase: testGetDefaultNumberOfJobsParameters took 0 sec
+Testcase: testGetAllRainfallParametersWithDefaults took 0.001 sec
+Testcase: testGetDefaultNetworkDependencyParameters took 0 sec
+Testcase: testGetLaborAvailabilityParametersPeriod2 took 0.002 sec
+Testcase: testGetDefaultLiquidatedDamagesParameters took 0 sec
+Testcase: testGetDefaultNegotiationParameters took 0 sec
+Testcase: testGetJobSizeParametersThrowsWhenNotFound took 0.001 sec
+Testcase: testGetPercentTakeoffParametersJobType2 took 0.001 sec
+Testcase: testUpdateDefaultNegotiationParameters took 0 sec
+Testcase: testGetTemperatureParametersPeriod2 took 0 sec
+Testcase: testUpdateAllMaterialCostIndexParameters took 0.054 sec
+Testcase: testUpdateAllLaborAvailabilityParameters took 0.039 sec
+Testcase: testUpdateDefaultPercentTakeoffParameters took 0.002 sec
+Testcase: testUpdateConsultingCostsParameters took 0.001 sec
+	Caused an ERROR
+null
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+Inconsistent database!
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandler.updateConsultingCostsParameters(DefaultGameParametersDBHandler.java:2904)
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandlerIntegrationTest.testUpdateConsultingCostsParameters(DefaultGameParametersDBHandlerIntegrationTest.java:690)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testUpdateDefaultNumberOfJobsParameters took 0 sec
+Testcase: testUpdateLiquidatedDamagesParameters took 0 sec
+	Caused an ERROR
+null
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+Inconsistent database!
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandler.updateLiquidatedDamagesParameters(DefaultGameParametersDBHandler.java:3019)
+	at edu.calpoly.its.mas.big.db.DefaultGameParametersDBHandlerIntegrationTest.testUpdateLiquidatedDamagesParameters(DefaultGameParametersDBHandlerIntegrationTest.java:720)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testUpdateDefaultConsultingCostsParameters took 0 sec
+Testcase: testGetNumberOfJobsParametersPeriod2 took 0 sec

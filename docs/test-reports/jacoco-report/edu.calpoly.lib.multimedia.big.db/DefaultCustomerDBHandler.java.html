@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultCustomerDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultCustomerDBHandler.java</span></div><h1>DefaultCustomerDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.Customer;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;CustomerDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultCustomerDBHandler extends DefaultDBHandler implements CustomerDBHandler
+{
+
+    public DefaultCustomerDBHandler(Connection connection)
+    {
+<span class="fc" id="L35">		super(connection);</span>
+<span class="fc" id="L36">	}</span>
+
+  	public Vector getCustomers() throws BIGDatabaseFacadeException
+  	{
+<span class="fc" id="L40">		Vector customers = new Vector();</span>
+
+<span class="fc" id="L42">		String select = &quot;SELECT customerid, &quot; +</span>
+					    &quot; customer_name, &quot; +
+					    &quot; fin_liq_factor, &quot; +
+					    &quot; fin_liq_level, &quot; +
+					    &quot; fin_suc_factor, &quot; +
+					    &quot; fin_suc_level, &quot; +
+					    &quot; responsibility_factor, &quot; +
+					    &quot; responsibility_level, &quot; +
+					    &quot; pace_factor, &quot; +
+					    &quot; pace_level, &quot; +
+					    &quot; ethics_factor, &quot; +
+					    &quot; ethics_level, &quot; +
+					    &quot; name_rec_factor, &quot; +
+					    &quot; name_rec_level, &quot; +
+					    &quot; job_type_factor, &quot; +
+					    &quot; job_type_level &quot; +
+					    &quot; FROM customer &quot;;
+
+		try
+		{
+<span class="fc" id="L62">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+
+<span class="fc" id="L64">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L66" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L68">				customers.add(new Customer(rset.getInt(&quot;customerid&quot;),</span>
+<span class="fc" id="L69">										   rset.getString(&quot;customer_name&quot;),</span>
+<span class="fc" id="L70">										   rset.getInt(&quot;fin_liq_factor&quot;),</span>
+<span class="fc" id="L71">										   rset.getInt(&quot;fin_liq_level&quot;),</span>
+<span class="fc" id="L72">										   rset.getInt(&quot;fin_suc_factor&quot;),</span>
+<span class="fc" id="L73">										   rset.getInt(&quot;fin_suc_level&quot;),</span>
+<span class="fc" id="L74">										   rset.getInt(&quot;responsibility_factor&quot;),</span>
+<span class="fc" id="L75">										   rset.getInt(&quot;responsibility_level&quot;),</span>
+<span class="fc" id="L76">										   rset.getInt(&quot;pace_factor&quot;),</span>
+<span class="fc" id="L77">										   rset.getInt(&quot;pace_level&quot;),</span>
+<span class="fc" id="L78">										   rset.getInt(&quot;ethics_factor&quot;),</span>
+<span class="fc" id="L79">										   rset.getInt(&quot;ethics_level&quot;),</span>
+<span class="fc" id="L80">										   rset.getInt(&quot;name_rec_factor&quot;),</span>
+<span class="fc" id="L81">										   rset.getInt(&quot;name_rec_level&quot;),</span>
+<span class="fc" id="L82">										   rset.getInt(&quot;job_type_factor&quot;),</span>
+<span class="fc" id="L83">										   rset.getInt(&quot;job_type_level&quot;)</span>
+										  )
+						     );
+			}
+<span class="fc" id="L87">			rset.close();</span>
+		}
+<span class="fc" id="L89">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L91">			close();</span>
+<span class="fc" id="L92">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L93">		}</span>
+
+<span class="fc" id="L95">		return customers;</span>
+	}
+
+	public Customer getCustomer(int customerID) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L100">		Customer customer = null;</span>
+
+<span class="fc" id="L102">		String select = &quot;SELECT customerid, &quot; +</span>
+					    &quot; customer_name, &quot; +
+					    &quot; fin_liq_factor, &quot; +
+					    &quot; fin_liq_level, &quot; +
+					    &quot; fin_suc_factor, &quot; +
+					    &quot; fin_suc_level, &quot; +
+					    &quot; responsibility_factor, &quot; +
+					    &quot; responsibility_level, &quot; +
+					    &quot; pace_factor, &quot; +
+					    &quot; pace_level, &quot; +
+					    &quot; ethics_factor, &quot; +
+					    &quot; ethics_level, &quot; +
+					    &quot; name_rec_factor, &quot; +
+					    &quot; name_rec_level, &quot; +
+					    &quot; job_type_factor, &quot; +
+					    &quot; job_type_level &quot; +
+					    &quot; FROM customer WHERE customerid = ?&quot;;
+
+		try
+		{
+<span class="fc" id="L122">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L123">			pstmt.setInt(1, customerID);</span>
+
+<span class="fc" id="L125">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">			if(rset.next())</span>
+			{
+<span class="fc" id="L129">				customer = new Customer(rset.getInt(&quot;customerid&quot;),</span>
+<span class="fc" id="L130">										   rset.getString(&quot;customer_name&quot;),</span>
+<span class="fc" id="L131">										   rset.getInt(&quot;fin_liq_factor&quot;),</span>
+<span class="fc" id="L132">										   rset.getInt(&quot;fin_liq_level&quot;),</span>
+<span class="fc" id="L133">										   rset.getInt(&quot;fin_suc_factor&quot;),</span>
+<span class="fc" id="L134">										   rset.getInt(&quot;fin_suc_level&quot;),</span>
+<span class="fc" id="L135">										   rset.getInt(&quot;responsibility_factor&quot;),</span>
+<span class="fc" id="L136">										   rset.getInt(&quot;responsibility_level&quot;),</span>
+<span class="fc" id="L137">										   rset.getInt(&quot;pace_factor&quot;),</span>
+<span class="fc" id="L138">										   rset.getInt(&quot;pace_level&quot;),</span>
+<span class="fc" id="L139">										   rset.getInt(&quot;ethics_factor&quot;),</span>
+<span class="fc" id="L140">										   rset.getInt(&quot;ethics_level&quot;),</span>
+<span class="fc" id="L141">										   rset.getInt(&quot;name_rec_factor&quot;),</span>
+<span class="fc" id="L142">										   rset.getInt(&quot;name_rec_level&quot;),</span>
+<span class="fc" id="L143">										   rset.getInt(&quot;job_type_factor&quot;),</span>
+<span class="fc" id="L144">										   rset.getInt(&quot;job_type_level&quot;)</span>
+										);
+			}
+<span class="fc" id="L147">			rset.close();</span>
+<span class="fc" id="L148">			pstmt.close();</span>
+		}
+<span class="fc" id="L150">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L152">			close();</span>
+<span class="fc" id="L153">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L154">		}</span>
+
+<span class="fc" id="L156">		return customer;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

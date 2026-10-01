@@ -1,0 +1,50 @@
+<!--
+    assign-overtime.html
+    This page allows a company to select a job for which to request overtime as part of its project management functions.
+-->
+    
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Request Overtime</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Request Overtime</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-2xl text-center">
+
+      <h3 class="text-2xl font-bold mb-6">Assign Overtime</h3>
+
+      <div class="p-6 bg-gray-50 border border-gray-200 rounded-lg mb-8">
+        <p class="text-gray-700 text-lg">
+          Overtime assignment is not available in this version of the simulation.
+        </p>
+      </div>
+
+      <a th:href="@{/company/project-management-menu}"
+        class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+        Back to Project Management
+      </a>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

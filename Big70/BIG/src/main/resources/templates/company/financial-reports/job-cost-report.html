@@ -1,0 +1,96 @@
+<!--
+    job-cost-report.html
+    Allows users to see their job costs for each period
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Job Cost Report</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Job Cost Report</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <!-- Report Header -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2" th:text="${username}">Company Name</h3>
+        <h4 class="text-xl font-semibold mb-2">Job Cost Report</h4>
+        <p class="text-sm text-gray-600" th:text="${periodDate}">Period</p>
+      </div>
+
+      <!-- Jobs Table -->
+      <div th:if="${!#lists.isEmpty(jobs)}"
+           class="overflow-x-auto border border-gray-300 rounded-lg mb-6">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b border-gray-300">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Job</th>
+              <th class="px-4 py-3 text-left font-semibold">Type</th>
+              <th class="px-4 py-3 text-center font-semibold">Status</th>
+              <th class="px-4 py-3 text-right font-semibold">Bid Amount</th>
+              <th class="px-4 py-3 text-right font-semibold">Est. Direct Cost</th>
+              <th class="px-4 py-3 text-right font-semibold">Est. Profit/Loss</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="job : ${jobs}" class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold"
+                  th:text="'Job #' + ${job.jobid}">Job</td>
+              <td class="px-4 py-3" th:text="${job.job_type_name}">Type</td>
+              <td class="px-4 py-3 text-center">
+                <span th:text="${job.status}"
+                      th:classappend="${job.status == 'Completed'} ? 'text-green-600 font-semibold' : 'text-amber-600 font-semibold'">
+                  Status
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right"
+                  th:text="'$' + ${#numbers.formatDecimal(job['bid_amount'], 1, 'COMMA', 2, 'POINT')}">$0</td>
+              <td class="px-4 py-3 text-right"
+                  th:text="'$' + ${#numbers.formatDecimal(job['direct_cost'], 1, 'COMMA', 2, 'POINT')}">$0</td>
+              <td class="px-4 py-3 text-right"
+                  th:classappend="${job.profit_loss >= 0} ? 'text-green-600' : 'text-red-600'"
+                  th:text="'$' + ${#numbers.formatDecimal(job.profit_loss, 1, 'COMMA', 2, 'POINT')}">$0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div th:if="${#lists.isEmpty(jobs)}"
+           class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg text-center">
+        <p class="text-lg text-gray-800 font-medium">
+          No current jobs.
+        </p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/financial-reports-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Financial Reports
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

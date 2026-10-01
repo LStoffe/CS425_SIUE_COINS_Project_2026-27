@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EstimatedTimeandCostForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">EstimatedTimeandCostForm.java</span></div><h1>EstimatedTimeandCostForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.reports;
+
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.game.Activity;
+
+/**
+ * Holds info for an Estimated Time and Cost Report
+ *
+ * @version $Revision: 1.10 $
+ */
+
+<span class="fc" id="L13">public class EstimatedTimeandCostForm extends ReportForm {</span>
+	// The Job associated with this report
+	private Job job;
+
+    // 18 possible activity types -- each has five possible methods
+<span class="fc" id="L18">	private Method[][] methods = new Method[18][5];  // First index is the activity id</span>
+	private Activity[] activities;
+
+<span class="fc" id="L21">	private int[][] retentionPolicies = null;</span>
+
+	private int hoursPerDay;
+
+	// true indicates that lusTotal should be used in calculations,
+	// false indicates that lusRemaining should be used
+<span class="fc" id="L27">	private boolean staticReportFlag = true;</span>
+
+    // for Heavy Jobs
+<span class="fc" id="L30">    private double[][] unitPrices = new double[45][4];</span>
+<span class="fc" id="L31">    private int[] quantities = new int[9];</span>
+
+	/**
+	 * Calculate the labor cost for a method of an activity using the formula:
+	 * Total Labor Units * Labor Cost.
+	 *
+	 * @param activity the activity (1-9) in which we are interested
+	 * @param method the method (1-5)
+	 * @returns Labor cost for the activity/method combination
+	 */
+	public int getLaborCost(int activity, int method)
+	{
+		// Return 0 if bogus activity or method is passed in, or
+		// if labor cost for this method/activity is 0
+<span class="pc bpc" id="L45" title="2 of 8 branches missed.">		if ((activity &lt; 1 || activity &gt; 18) ||</span>
+			(method &lt; 1 || method &gt; 5) ||
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">			(methods[activity - 1][method - 1].getBaseLaborCost() == 0))</span>
+		{
+<span class="fc" id="L49">			return 0;</span>
+		}
+		else
+		{
+		    // adjust for Heavy jobs. -- activities[] only has nine elements
+<span class="fc" id="L54">		    int tempActivity = activity;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">		    if (job.getTypeModifier() == Job.HEAVY) tempActivity = tempActivity - 9;</span>
+
+<span class="fc" id="L57">			int laborUnits = activities[tempActivity - 1].getLusTotal();</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">			if (!staticReportFlag)</span>
+			{
+<span class="fc" id="L60">				laborUnits = activities[tempActivity - 1].getLusTotal() - activities[tempActivity - 1].getLusCompleted();</span>
+			}
+<span class="fc" id="L62">			return (laborUnits * methods[activity - 1][method - 1].getBaseLaborCost());</span>
+		}
+	}
+
+	/**
+	 * Calculate the material cost for a method of an activity using the formula:
+	 * Total Labor Units * Materials Cost
+	 *
+	 * @param activity the activity (1-9) in which we are interested
+	 * @param method the method (1-5)
+	 * @returns Material cost for the provided activity/method combination
+	 */
+	public int getMaterialsCost(int activity, int method)
+	{
+		// Return 0 if bogus activity or method is passed in, or
+		// if material cost for this method/activity is 0
+<span class="pc bpc" id="L78" title="4 of 8 branches missed.">		if ((activity &lt; 1 || activity &gt; 18) ||</span>
+			(method &lt; 1 || method &gt; 5) ||
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">			(methods[activity - 1][method - 1].getBaseMaterialsCost() == 0))</span>
+		{
+<span class="nc" id="L82">			return 0;</span>
+		}
+		else
+		{
+		    // adjust for Heavy jobs. -- activities[] only has nine elements
+<span class="fc" id="L87">		    int tempActivity = activity;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		    if (job.getTypeModifier() == Job.HEAVY) tempActivity = tempActivity - 9;</span>
+
+<span class="fc" id="L90">			int laborUnits = activities[tempActivity - 1].getLusTotal();</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">			if (!staticReportFlag)</span>
+			{
+<span class="fc" id="L93">				laborUnits = activities[tempActivity - 1].getLusTotal() - activities[tempActivity - 1].getLusCompleted();</span>
+			}
+
+<span class="fc" id="L96">			return (laborUnits * methods[activity - 1][method - 1].getBaseMaterialsCost());</span>
+		}
+	}
+
+	/**
+	 * Calculate the equipment cost for a method of an activity using the formula:
+	 * Total Labor Units * Equipment Cost
+	 *
+	 * @param activity the activity (1-9) in which we are interested
+	 * @param method the method (1-5)
+	 * @returns Equipment cost for the provided activity/method combination
+	 */
+	public int getEquipmentCost(int activity, int method)
+	{
+		// Return 0 if bogus activity or method is passed in, or
+		// if equipment cost for this method/activity is 0
+<span class="pc bpc" id="L112" title="4 of 8 branches missed.">		if ((activity &lt; 1 || activity &gt; 18) ||</span>
+			(method &lt; 1 || method &gt; 5) ||
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">			(methods[activity - 1][method - 1].getBaseEquipmentCost() == 0))</span>
+		{
+<span class="nc" id="L116">			return 0;</span>
+		}
+		else
+		{
+		    // adjust for Heavy jobs. -- activities[] only has nine elements
+<span class="fc" id="L121">		    int tempActivity = activity;</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">		    if (job.getTypeModifier() == Job.HEAVY) tempActivity = tempActivity - 9;</span>
+
+<span class="fc" id="L124">			int laborUnits = activities[tempActivity - 1].getLusTotal();</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">			if (!staticReportFlag)</span>
+			{
+<span class="fc" id="L127">				laborUnits = activities[tempActivity - 1].getLusTotal() - activities[tempActivity - 1].getLusCompleted();</span>
+			}
+
+<span class="fc" id="L130">			return (laborUnits * methods[activity - 1][method - 1].getBaseEquipmentCost());</span>
+		}
+	}
+
+	/**
+	 * Calculate the subcontract cost for a method of an activity using the formula:
+	 * Total Labor Units * Subcontract Cost
+	 *
+	 * @param activity the activity (1-9) in which we are interested
+	 * @param method the method (1-5)
+	 * @returns Subcontract cost for the provided activity/method combination
+	 */
+	public int getSubcontractorCost(int activity, int method)
+	{
+		// Return 0 if bogus activity or method is passed in, or
+		// if subcontract cost for this method/activity is 0
+<span class="pc bpc" id="L146" title="4 of 8 branches missed.">		if ((activity &lt; 1 || activity &gt; 18) ||</span>
+			(method &lt; 1 || method &gt; 5) ||
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">			(methods[activity - 1][method - 1].getSubcontractorCost() == 0))</span>
+		{
+<span class="nc" id="L150">			return 0;</span>
+		}
+		else
+		{
+		    // adjust for Heavy jobs. -- activities[] only has nine elements
+<span class="fc" id="L155">		    int tempActivity = activity;</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		    if (job.getTypeModifier() == Job.HEAVY) tempActivity = tempActivity - 9;</span>
+
+<span class="fc" id="L158">			int laborUnits = activities[tempActivity - 1].getLusTotal();</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">			if (!staticReportFlag)</span>
+			{
+<span class="fc" id="L161">				laborUnits = activities[tempActivity - 1].getLusTotal() - activities[tempActivity - 1].getLusCompleted();</span>
+			}
+
+<span class="fc" id="L164">			return (laborUnits * methods[activity - 1][method - 1].getSubcontractorCost());</span>
+		}
+	}
+
+	/**
+	 * Calculate the estimated number of days an activity will take
+	 * using a certain method using the following formula:
+	 * (Total Labor Units / (Productivity * Method Scaling Factor)) / Hours per Day
+	 *
+	 * @param activity the activity (1-9) in which we are interested
+	 * @param method the method (1-5)
+	 * @returns The number of days it will take to complete an
+	 *          activity using a given method
+	 */
+	public int getDays(int activity, int method)
+	{
+		// Return 0 if bogus activity or method is passed in, or
+		// if productivity for this method/activity is 0
+<span class="pc bpc" id="L182" title="4 of 8 branches missed.">		if ((activity &lt; 1 || activity &gt; 18) ||</span>
+			(method &lt; 1 || method &gt; 5) ||
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">			(methods[activity - 1][method - 1].getProductivity() == 0))</span>
+		{
+<span class="nc" id="L186">			return 0;</span>
+		}
+		else
+		{
+		    // adjust for Heavy jobs. -- activities[] only has nine elements
+<span class="fc" id="L191">		    int tempActivity = activity;</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">		    if (job.getTypeModifier() == Job.HEAVY) tempActivity = tempActivity - 9;</span>
+
+<span class="fc" id="L194">			int laborUnits = activities[tempActivity - 1].getLusTotal();</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">			if (!staticReportFlag)</span>
+			{
+<span class="fc" id="L197">				laborUnits = activities[tempActivity - 1].getLusTotal() - activities[tempActivity - 1].getLusCompleted();</span>
+			}
+
+			// Adjust productivity by Job's scaling factor
+<span class="fc" id="L201">			float actualProductivity = methods[activity - 1][method - 1].getProductivity() * job.getMethodScalingFactor();</span>
+<span class="fc" id="L202">			return (int) ((laborUnits / actualProductivity)) / hoursPerDay;</span>
+		}
+	}
+
+	public String getMethodName(int method)
+	{
+<span class="pc bpc" id="L208" title="1 of 4 branches missed.">		if (method &lt; 1 || method &gt; 5)</span>
+<span class="fc" id="L209">			return &quot;Try Again&quot;;</span>
+		else
+			// TODO: Make this return actual method name?
+<span class="fc" id="L212">			return &quot;Method #&quot; + method;</span>
+	}
+
+    public int getPercentofJob(int retentionID)
+	{
+<span class="fc bfc" id="L217" title="All 6 branches covered.">		if (retentionPolicies == null ||</span>
+			retentionID &lt; 1 || retentionID &gt; 5) {
+<span class="fc" id="L219">			return 0;</span>
+		} else {
+<span class="fc" id="L221">			return retentionPolicies[retentionID - 1][0];</span>
+		}
+	}
+
+    public int getRetainedAmount(int retentionID)
+	{
+<span class="fc bfc" id="L227" title="All 6 branches covered.">		if (retentionPolicies == null ||</span>
+			retentionID &lt; 1 || retentionID &gt; 5) {
+<span class="fc" id="L229">			return 0;</span>
+		} else {
+<span class="fc" id="L231">			return retentionPolicies[retentionID - 1][1];</span>
+		}
+	}
+
+
+	//******************************  Simple Set and Get Methods  ******************************
+	public void setHoursPerDay(int hpd)
+	{
+<span class="fc" id="L239">		hoursPerDay = hpd;</span>
+<span class="fc" id="L240">	}</span>
+
+	public Job getJob()
+	{
+<span class="fc" id="L244">		return job;</span>
+	}
+
+	public void setJob(Job job)
+	{
+<span class="fc" id="L249">		this.job = job;</span>
+<span class="fc" id="L250">	}</span>
+
+	public void setActivities(Activity[] activities)
+	{
+<span class="fc" id="L254">		this.activities = activities;</span>
+<span class="fc" id="L255">	}</span>
+
+	public void setMethods(int activity, Method[] methods)
+	{
+<span class="fc" id="L259">		this.methods[activity - 1] = methods;</span>
+<span class="fc" id="L260">	}</span>
+
+    public void setRetentionPolicies(int[][] retentions)
+	{
+<span class="fc" id="L264">		retentionPolicies = retentions;</span>
+<span class="fc" id="L265">	}</span>
+
+	public void setStaticReportFlag(boolean flag)
+	{
+<span class="fc" id="L269">		this.staticReportFlag = flag;</span>
+<span class="fc" id="L270">	}</span>
+
+	public boolean getStaticReportFlag()
+	{
+<span class="fc" id="L274">		return staticReportFlag;</span>
+	}
+
+	public double[][] getUnitPrices()
+	{
+<span class="fc" id="L279">		return unitPrices;</span>
+	}
+	public void setUnitPrices(double[][] unitPrices)
+	{
+<span class="fc" id="L283">		this.unitPrices = unitPrices;</span>
+<span class="fc" id="L284">	}</span>
+
+	public int[] getQuantities()
+	{
+<span class="fc" id="L288">		return quantities;</span>
+	}
+	public void setQuantities(int[] quantities)
+	{
+<span class="fc" id="L292">		this.quantities = quantities;</span>
+<span class="fc" id="L293">	}</span>
+
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

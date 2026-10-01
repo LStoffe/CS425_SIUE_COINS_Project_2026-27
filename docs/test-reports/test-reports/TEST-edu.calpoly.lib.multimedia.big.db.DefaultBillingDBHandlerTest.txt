@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.DefaultBillingDBHandlerTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.144 sec
+
+Testcase: testGetAllJobBillingAmountsReturnsVector took 0.111 sec
+Testcase: testGetAllBillingFormsReturnsVector took 0.001 sec
+Testcase: testGetAllBillingFormsReturnsEmptyVectorWhenNoRows took 0 sec
+Testcase: testGetAllBillingFormsWrapsSQLExceptionAndClosesConnection took 0.001 sec
+Testcase: testGetBillingFormThrowsObjectNotFoundExceptionWhenFewerThan9ActivityRows took 0.001 sec
+Testcase: testAddBillingFormSucceeds took 0.001 sec
+Testcase: testRemoveBillingFormsSucceeds took 0.001 sec
+Testcase: testGetBillingFormReturnsForm took 0.002 sec
+Testcase: testUpdateBillingFormSucceeds took 0.019 sec
+Testcase: testGetBillingFormThrowsObjectNotFoundExceptionWhenNoBillingsRow took 0.001 sec

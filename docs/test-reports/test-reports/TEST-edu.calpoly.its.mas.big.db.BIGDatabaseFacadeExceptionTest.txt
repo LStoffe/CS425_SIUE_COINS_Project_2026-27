@@ -1,0 +1,5 @@
+Testsuite: edu.calpoly.its.mas.big.db.BIGDatabaseFacadeExceptionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 sec
+
+Testcase: testDefaultConstructorToStringNotNull took 0.002 sec
+Testcase: testToStringIncludesMessageAndSQLExceptionWhenPresent took 0.009 sec

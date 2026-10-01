@@ -1,0 +1,8 @@
+Testsuite: edu.calpoly.its.mas.big.tags.CheckLoggedInTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 sec
+
+Testcase: testDoEndTagForwardsWhenUserInSessionButNotLoggedIn took 0.019 sec
+Testcase: testDoEndTagForwardsWhenSessionNull took 0 sec
+Testcase: testDoEndTagEvaluatesPageWhenUserLoggedIn took 0.001 sec
+Testcase: testDoEndTagForwardsWhenNotLoggedIn took 0 sec
+Testcase: testDoStartTagReturnsSkipBody took 0 sec

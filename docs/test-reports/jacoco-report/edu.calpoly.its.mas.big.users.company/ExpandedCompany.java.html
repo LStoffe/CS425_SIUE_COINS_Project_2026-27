@@ -1,0 +1,1709 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExpandedCompany.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">ExpandedCompany.java</span></div><h1>ExpandedCompany.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.company;
+
+//JDK imports
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+import java.util.Map;
+import java.util.Hashtable;
+import java.util.Random;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+
+
+//BIGv2 imports
+import edu.calpoly.its.mas.big.game.Loan;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Activity;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.ExpandedGame;
+import edu.calpoly.its.mas.big.game.ScheduledMonth;
+import edu.calpoly.its.mas.big.game.NumberConverter;
+import edu.calpoly.its.mas.big.reports.FinancialReportForm;
+import edu.calpoly.its.mas.big.reports.ConsultingReportsAction;
+
+//BIGv3 imports
+import edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm;
+import edu.calpoly.lib.multimedia.big.reports.JobCostEstimator;
+import edu.calpoly.lib.multimedia.big.reports.Contract;
+import edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportForm;
+import edu.calpoly.lib.multimedia.big.reports.CompletedContractsReportForm;
+import edu.calpoly.lib.multimedia.big.reports.IncomeStatementForm;
+import edu.calpoly.lib.multimedia.big.reports.IncomeStatementGetter;
+import edu.calpoly.lib.multimedia.big.reports.CashFlowForm;
+import edu.calpoly.lib.multimedia.big.reports.RatiosReportForm;
+import edu.calpoly.lib.multimedia.big.reports.CAMReportForm;
+import edu.calpoly.lib.multimedia.big.users.company.BillingForm;
+import edu.calpoly.lib.multimedia.big.game.Customer;
+import edu.calpoly.lib.multimedia.big.game.CAMUpdater;
+import edu.calpoly.lib.multimedia.big.users.company.BondLimitConstraints;
+import edu.calpoly.lib.multimedia.big.game.Message;
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+
+//BIG v4 imports
+import edu.calpoly.lib.multimedia.big.personnel.EmployeeTypeRecord;
+import edu.calpoly.lib.multimedia.big.personnel.EmploymentAggregateData;
+import edu.calpoly.lib.multimedia.big.game.NamedVariables;
+import edu.calpoly.lib.multimedia.big.game.NamedVariableDataFacade;
+import edu.calpoly.lib.multimedia.big.game.NamedVariableDataFacadeImpl;
+import edu.calpoly.lib.multimedia.big.personnel.MosToCUsRatio;
+import edu.calpoly.lib.multimedia.big.personnel.JobMosManager;
+import edu.calpoly.lib.multimedia.big.personnel.EmployeeBasePointsScratchSheet;
+import edu.calpoly.lib.multimedia.big.personnel.EmployeeSkillPointConverter;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Extended functionality to a company that contains and handles the Jobs, Bids, and Loans owned by the company.
+ * &lt;code&gt;ExpandedCompany&lt;/code&gt; wraps around a &lt;code&gt;Company&lt;/code&gt; object to provide it with the
+ * expanded functionality it will need during the period update process.  This added functionality
+ * deals with different steps of the update process.  The &lt;code&gt;ExpandedGame&lt;/code&gt; controls the update
+ * process and will call appropiate methods in &lt;code&gt;ExpandedCompany&lt;/code&gt; to perform different parts of the update in the proper sequence.
+ * &lt;br&gt;Specifically the functionally &lt;code&gt;ExpandedCompany&lt;/code&gt; provides is:
+ * &lt;ol&gt;
+ *  &lt;li&gt;Performing work on jobs owned by the company&lt;/li&gt;
+ *  &lt;li&gt;Processing loans held by the company&lt;/li&gt;
+ *  &lt;li&gt;Storing updates to the company to the database&lt;/li&gt;
+ *  &lt;li&gt;Managing cash flow to/from the company and recording it in a Financial Report&lt;/li&gt;
+ * &lt;/ol&gt;
+ * &lt;br&gt;
+ * &lt;code&gt;ExpandedCompany&lt;/code&gt; offers additional support functions to help it perform the above tasks.  These support funtions
+ * are sometimes called by other classes as well.
+ *
+ * @version $Revision: 1.47 $ $Date: 2002/05/17 00:03:24 $
+ */
+public class ExpandedCompany
+{
+
+  private Company company;	  //The base company object this ExpandedCompany is wrapped around
+  private Vector bids;		  //All current unprocessed bid made by this company
+  private ExpandedGame game;  //link back to the ExpandedGame which contains this company
+  private Vector loans;	      //All loans the company is currently paying or waiting to have approved
+  private Vector jobs;	      //All jobs held by this company
+  private Hashtable miscParams;  //Miscellanuous parameters.  Some are needed by ExpandedCompany
+  private BIGDatabaseFacadeInterface dbFacade;  //Database access
+
+  private FinancialReportForm financialReportForm;  //A Financial Report in which to store cash flow in and out of this company
+  private BalanceSheetForm balanceSheet;
+  private CashFlowForm cashFlowForm;
+
+  private long wip;  //current Work In Progress for this company
+
+  private Log log;
+
+  private NamedVariableDataFacade namedVariableDataFacade;
+
+  private List&lt;EmployeeTypeRecord&gt; personnel;
+
+  /**
+   * Default contructor
+   */
+  public ExpandedCompany()
+<span class="fc" id="L116">  {</span>
+<span class="fc" id="L117">	  log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L118">  }</span>
+
+
+  /**
+   * Contructor used when an &lt;code&gt;ExpandedCompany&lt;/code&gt; is created by an &lt;code&gt;ExpandedGame&lt;/code&gt;.
+   * @param company The &lt;code&gt;Company&lt;/code&gt; object this &lt;code&gt;ExpandedCompany&lt;/code&gt; is being wrapped around.
+   * @param game The &lt;code&gt;ExpandedGame&lt;/code&gt; that created this &lt;code&gt;ExpandedCompany&lt;/code&gt;
+   * @param dbFacade The &lt;code&gt;BIGDatabaseFacade&lt;/code&gt; this &lt;code&gt;ExpandedCompany&lt;/code&gt; should use for database access
+   */
+  public ExpandedCompany(Company company, ExpandedGame game, BIGDatabaseFacadeInterface dbFacade)
+<span class="fc" id="L128">  {</span>
+<span class="fc" id="L129">      this.company = company;</span>
+<span class="fc" id="L130">      this.game = game;</span>
+<span class="fc" id="L131">      this.dbFacade = dbFacade;</span>
+
+<span class="fc" id="L133">	  log = LogFactory.getLog(this.getClass());</span>
+
+      //Create a new FinancialReportForm to store the financial data as it is calculated
+<span class="fc" id="L136">      financialReportForm = new FinancialReportForm();</span>
+<span class="fc" id="L137">	  financialReportForm.setGameID(game.getGame().getGameID());</span>
+<span class="fc" id="L138">	  financialReportForm.setPeriod(game.getGame().getCurrentPeriodNumber());</span>
+<span class="fc" id="L139">	  financialReportForm.setReportDate(game.getGame().getCurrentDateString());</span>
+<span class="fc" id="L140">	  financialReportForm.setPreviousCashOnHand(company.getCashOnHand());</span>
+
+<span class="fc" id="L142">	  cashFlowForm = new CashFlowForm();</span>
+<span class="fc" id="L143">	  cashFlowForm.setPeriod(game.getGame().getCurrentPeriodNumber());</span>
+
+      //Retrieve from the database various object owned by this company
+      try
+      {
+
+<span class="fc bfc" id="L149" title="All 2 branches covered.">		  if(game.getGame().getCurrentPeriodNumber() &gt; 0)</span>
+		  {
+		  	//Get last period's balance sheet and start updating it for the current period
+<span class="nc" id="L152">		  	balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L153">		  	balanceSheet.setPeriod(game.getGame().getCurrentPeriodNumber());</span>
+
+         	//Pay taxes if necessary
+<span class="nc" id="L156">         	int taxes = payTaxesIfYearStart(balanceSheet.getTaxes());</span>
+<span class="nc" id="L157">         	balanceSheet.setTaxes(taxes);</span>
+
+
+		    //Values that will be calculated with all new numbers, such as loans, need to have their current values cleared
+		    //Values that will be recalculated from their present balance sheet value need to be left as it
+<span class="nc" id="L162">		  	balanceSheet.setLoanBalances(0);</span>
+		  }
+
+
+      	  //Get all the active loans for this company
+<span class="fc" id="L167">      	  loans = dbFacade.getLoanDBHandler().getLoans(company, game.getCurrentPeriodNumber());</span>
+
+
+		  //Get misc params (for use in has... methods below)
+<span class="fc" id="L171">		  miscParams = dbFacade.getGameParametersDBHandler().getMiscParameters(game.getGame());</span>
+
+          //Retrieve the WIP value from the Contracts in Progress Report
+<span class="fc" id="L174">          ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+<span class="fc" id="L175">		  wip = contractsInProgress.getTotalRevenueToBeEarned();</span>
+
+<span class="fc" id="L177">		  namedVariableDataFacade = new NamedVariableDataFacadeImpl(null, game.getGame(), dbFacade);</span>
+
+<span class="fc" id="L179">		  personnel = dbFacade.getCompanyPersonnelDBHandler().getCompanyEmployment(game.getGame(), company, game.getCurrentPeriodNumber());</span>
+
+	  }
+<span class="fc" id="L182">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L184">		  log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L186">	  catch(ParametersNotFoundException pnfe)</span>
+	  {
+<span class="nc" id="L188">		  log.fatal(&quot;&quot;, pnfe);</span>
+	  }
+<span class="nc" id="L190">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L192">		  log.fatal(&quot;&quot;, onfe);</span>
+<span class="pc" id="L193">	  }</span>
+<span class="fc" id="L194">  }</span>
+
+  public void assignResponsibilityPenaltyForUnderBilling()
+  {
+	  try
+	  {
+<span class="nc" id="L200">		  ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game.getGame(), game.getGame().getCurrentPeriodNumber() - 1, company);</span>
+<span class="nc" id="L201">		  CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game.getGame(), game.getGame().getCurrentPeriodNumber() - 1, company);</span>
+
+<span class="nc bnc" id="L203" title="All 4 branches missed.">		  if((contractsInProgress.getTotalUnderbilling() &gt; 0) || (completedContracts.getTotalUnbilled() &gt; 0) )</span>
+		  {
+			  //The company has not billed for the complete amount they earned
+<span class="nc" id="L206">			  modifyCAMUpdate(CAMUpdater.BID_RESPONSIBILITY, CAMUpdater.BID_RESPONSIBILITY_UNDERBILLED);</span>
+		  }
+	  }
+<span class="nc" id="L209">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L211">		  log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L213">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L215">		  log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L216">	  }</span>
+<span class="nc" id="L217">  }</span>
+
+
+  /**
+   * Examines each bill submitted by the company this period rejecting those that
+   * are too high and paying those that are reasonable.
+   */
+  public void processIncomingPayments(Customer customer)
+  {
+	  try
+	  {
+		  //This is the list of all jobs this company is currently working on or
+		  //has ever worked on in which the amount of cash collected for the job
+		  //is less than the total contract price for the job
+<span class="nc" id="L231">	  	  Vector unbilledJobs = dbFacade.getJobDBHandler().getUnbilledJobs(game.getGame(), company);</span>
+<span class="nc" id="L232">	  	  Iterator i = unbilledJobs.iterator();</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">	  	  while(i.hasNext())</span>
+	  	  {
+			  //Get the billing form associated with each job
+<span class="nc" id="L236">			  Job j = (Job) i.next();</span>
+
+<span class="nc" id="L238">              BillingForm bf = dbFacade.getBillingDBHandler().getBillingForm(game.getGame(), game.getGame().getCurrentPeriodNumber() - 1, company, j);</span>
+<span class="nc" id="L239">              bf.setJob(j);</span>
+<span class="nc" id="L240">              bf.setContract(dbFacade.getContractsReportsDBHandler().getContract(game.getGame(), game.getGame().getCurrentPeriodNumber() - 1, j, company));</span>
+<span class="nc" id="L241">              bf = customer.processBill(bf, j);</span>
+              //System.out.println(bf.getBillingAmount() + &quot; billing amount&quot;);
+<span class="nc" id="L243">              int retainedAmount = j.calculateRetainedAmount(bf.getBillingAmount());</span>
+<span class="nc" id="L244">              balanceSheet.setCurrentAccountsReceivable(balanceSheet.getCurrentAccountsReceivable() - (bf.getBillingAmount() - retainedAmount));</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">              if(!bf.rejected())</span>
+              {
+                  //Pay the amount
+<span class="nc" id="L248">              	  increaseCashOnHand(bf.getBillingAmount() - retainedAmount, &quot;PAYMENTS&quot;);</span>
+
+              	  //Set the new values into the job
+<span class="nc" id="L251">              	  j.increaseBilledToDate(bf.getBillingAmount());</span>
+<span class="nc" id="L252">              	  j.setRetainedAmount(((int) j.getRetainedAmount()) + retainedAmount);</span>
+<span class="nc" id="L253">          	  	  j.setCompany(this);</span>
+<span class="nc" id="L254">          	  	  j.setGame(game);</span>
+
+			  	  //System.out.println(&quot;retained amount: &quot; + retainedAmount);
+
+<span class="nc" id="L258">			  	  dbFacade.getJobDBHandler().updateJob(game.getGame(), j);</span>
+
+			  	  //Checks if the amount of this bill is ethical or unethical
+<span class="nc bnc" id="L261" title="All 2 branches missed.">			  	  if (customer.ethicalBill(bf, j))</span>
+			  	  {
+<span class="nc" id="L263">				      modifyCAMUpdate(CAMUpdater.ETHICS, CAMUpdater.ETHICS_ETHICAL_BILL);</span>
+				  }
+				  else
+				  {
+<span class="nc" id="L267">				      modifyCAMUpdate(CAMUpdater.ETHICS, CAMUpdater.ETHICS_UNETHICAL_BILL);</span>
+				  }
+
+		  	  }
+		  	  else  // bill was rejected
+		  	  {
+<span class="nc" id="L273">                  balanceSheet.setRetentionReceivable(balanceSheet.getRetentionReceivable() - retainedAmount);</span>
+
+                  // reverse entries in previous period's balance sheet that were revised at time of billing
+
+<span class="nc" id="L277">				  int amountBilled = bf.getBillingAmount();</span>
+<span class="nc" id="L278">				  int oldAmountBilled = bf.getOldAmountBilled();</span>
+
+<span class="nc" id="L280">				  int prevRetention = j.calculateRetainedAmount(oldAmountBilled);</span>
+<span class="nc" id="L281">				  int currRetention = j.calculateRetainedAmount(amountBilled);</span>
+
+<span class="nc" id="L283">				  BalanceSheetForm balanceSheet2 = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L284">         		  ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L285"> 		 	      CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+
+<span class="nc" id="L287">                  balanceSheet2.setUnderbilledAmount(contractsInProgress.getTotalUnderbilling() - oldAmountBilled + amountBilled );  //This new value won't be saved, it's only for this object</span>
+<span class="nc" id="L288">				  balanceSheet2.setUnbilledAmount(completedContracts.getTotalUnbilled());</span>
+
+<span class="nc" id="L290">				  balanceSheet2.setOverbilledAmount(contractsInProgress.getTotalOverbilling() );</span>
+<span class="nc" id="L291">			      balanceSheet2.setCurrentAccountsReceivable(balanceSheet2.getCurrentAccountsReceivable() - (amountBilled - currRetention) + (oldAmountBilled - prevRetention));</span>
+
+<span class="nc" id="L293">				  balanceSheet2.setRetentionReceivable(balanceSheet2.getRetentionReceivable() - currRetention + prevRetention);</span>
+<span class="nc" id="L294">				  balanceSheet2.setPeriod(game.getCurrentPeriodNumber() - 1);</span>
+
+<span class="nc" id="L296">                  dbFacade.getBalanceSheetDBHandler().updateBalanceSheet(game.getGame(), company, balanceSheet2);</span>
+
+<span class="nc" id="L298">				  bf.setOldAmountBilled(bf.getBillingAmount() );</span>
+<span class="nc" id="L299">                  bf.setBillingAmount(0);</span>
+
+			  }
+<span class="nc" id="L302">			  dbFacade.getBillingDBHandler().updateBillingForm(game.getGame(), company, game.getGame().getCurrentPeriodNumber() -1, bf);</span>
+<span class="nc" id="L303">		  }</span>
+	  }
+<span class="nc" id="L305">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L307">		  log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L309">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L311">		  log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L312">	  }</span>
+	  //This amount is be retention for jobs just completed
+<span class="nc" id="L314">	  increaseCashOnHand(balanceSheet.getCurrentAccountsReceivable(), &quot;RETENTION&quot;);</span>
+<span class="nc" id="L315">	  balanceSheet.setCurrentAccountsReceivable(0); //All payments have been received, zero out accounts receivable</span>
+<span class="nc" id="L316">  }</span>
+
+
+  /**
+   * Company's cash-on-hand is reduced by the amount currently in the accounts
+   * payable field of the associated balance sheet.  This field in the balance
+   * sheet is then set to 0.  To meet BIGv3 requirements this method must be
+   * called before work is done on jobs each period;
+   */
+  public void payBills()
+  {
+<span class="fc" id="L327">	  decreaseCashOnHand(balanceSheet.getCurrentAccountsPayable(), &quot;ACCOUNTS_PAYABLE&quot;);</span>
+<span class="fc" id="L328">	  balanceSheet.setCurrentAccountsPayable(0);</span>
+<span class="fc" id="L329">  }</span>
+
+  /**
+   * Charges the company office overhead for the period.
+   * @param overhead The amount of overhead to charge the company.
+   */
+  public void chargeOfficeOverhead(int overhead)
+  {
+	  //If the personnel component is on, ignore the overhead value provided and
+	  //calculate it from payroll.
+	  //if (personnelComponent)
+	  //{
+<span class="fc" id="L341">            EmploymentAggregateData ead = new EmploymentAggregateData(personnel);</span>
+<span class="fc" id="L342">	  		decreaseCashOnHand((int) ead.getTotalPayroll(), &quot;OFFICE_OVERHEAD&quot;);</span>
+<span class="fc" id="L343">	  		financialReportForm.increaseOfficeOverhead((int) ead.getTotalPayroll());</span>
+      //}
+      //else
+      //{
+	  //decreaseCashOnHand(overhead, &quot;OFFICE_OVERHEAD&quot;);
+	  //financialReportForm.increaseOfficeOverhead(overhead);
+	  //}
+<span class="fc" id="L350">  }</span>
+
+  /**
+   * Adds amount to cash-on-hand.
+   * @param amount &lt;code&gt;long&lt;/code&gt; amount to be added to this company's cash on hand
+   */
+  public void increaseCashOnHand(long amount, String source)
+  {
+<span class="fc" id="L358">	  company.increaseCashOnHand(amount);</span>
+<span class="fc bfc" id="L359" title="All 2 branches covered.">	  if (cashFlowForm != null)</span>
+	  {
+<span class="fc" id="L361">		  cashFlowForm.addInflow(amount, source);</span>
+	  }
+<span class="fc" id="L363">  }</span>
+
+  /**
+   * Subtracts amount from cash-on-hand.  Cash-on-hand can be negative.
+   * @param amount &lt;code&gt;long&lt;/code&gt; amount to be deducted from this company's cash on hand
+   */
+  public void decreaseCashOnHand(long amount, String source)
+  {
+<span class="fc" id="L371">	  company.decreaseCashOnHand(amount);</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">	  if (cashFlowForm != null)</span>
+	  {
+<span class="fc" id="L374">		  cashFlowForm.addOutflow(amount, source);</span>
+	  }
+<span class="fc" id="L376">  }</span>
+
+  /**
+   * Updates all the loans held by this company.
+   *
+   * If a loan is marked as approved, normal payments will be made on it.
+   * If a loan is not marked as approved it means the loan is new this period.
+   * It will be marked as approved and payments on it will begin next period.
+   */
+  public void processLoans()
+  {
+<span class="fc" id="L387">	  Loan loan = null;</span>
+<span class="fc" id="L388">	  Iterator i = loans.iterator();</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">	  while(i.hasNext())</span>
+	  {
+<span class="fc" id="L391">		  loan = (Loan) i.next();</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">		  if(loan.isApproved())</span>
+		  {
+			  //Current loan - make a payment on it
+<span class="fc" id="L395">              loan.makePayment();</span>
+
+              //Update the financial report form to show interest and principle payments, and the current balance
+<span class="fc" id="L398">	          financialReportForm.increaseInterestPaidOnLoans(loan.getInterestPaid());</span>
+<span class="fc" id="L399">	          financialReportForm.increaseLoanPrinciplePayments(loan.getPaymentAmount() - loan.getInterestPaid());</span>
+<span class="fc" id="L400">	      	  balanceSheet.setLoanBalances(balanceSheet.getLoanBalances() + loan.getBalance());</span>
+<span class="fc" id="L401">              decreaseCashOnHand(loan.getPaymentAmount(), &quot;LOAN_PAYMENT&quot;);</span>
+		  }
+		  else
+		  {
+<span class="fc" id="L405">			  long amount = loan.getAmount();</span>
+<span class="fc" id="L406">			  increaseCashOnHand(amount, &quot;LOAN&quot;);</span>
+<span class="fc" id="L407">			  loan.setApproved(true);</span>
+<span class="fc" id="L408">	      	  balanceSheet.setLoanBalances(balanceSheet.getLoanBalances() + amount);</span>
+		  }
+
+		  //Store loans for the next period
+<span class="pc bpc" id="L412" title="2 of 4 branches missed.">		  if((loan != null) &amp;&amp; (loan.getPaymentsRemaining() &gt; 0))</span>
+		  {
+			  try
+			  {
+				  //Store the state this loan will be in during the next period
+<span class="fc" id="L417">				  dbFacade.getLoanDBHandler().addLoan(company, game.getCurrentPeriodNumber() + 1, loan);</span>
+			  }
+<span class="nc" id="L419">			  catch(BIGDatabaseFacadeException bigdbe)</span>
+			  {
+<span class="nc" id="L421">				  log.fatal(bigdbe);</span>
+<span class="pc" id="L422">			  }</span>
+		  }
+	  }
+<span class="fc" id="L425">  }</span>
+
+  public void updatePersonnel()
+  {
+	  //Run through each EmployeeTypeRecord, adding the hire and subtracting the fires.  Save
+	  //those that change.
+<span class="nc bnc" id="L431" title="All 2 branches missed.">	  for(EmployeeTypeRecord etr: personnel)</span>
+	  {
+/*		  if(log.isDebugEnabled())
+		  {
+			  log.debug(&quot;Processing personnel type : &quot; + etr.getEmployeeType());
+			  log.debug(&quot;There are currently &quot; + etr.getEmployeeTypeCount() + &quot; in this company&quot;);
+		  } */
+
+<span class="nc" id="L439">		  int newCount = etr.getNewEmployeeTypeCount();</span>
+
+/*		  if(log.isDebugEnabled())
+		  {
+			  log.debug(&quot;There are now &quot; + newCount + &quot; in this company&quot;);
+		  } */
+
+		  //Add records for those with a least one employee
+<span class="nc bnc" id="L447" title="All 2 branches missed.">		  if(newCount &gt; 0)</span>
+		  {
+			  try
+			  {
+<span class="nc" id="L451">				  dbFacade.getCompanyPersonnelDBHandler().addEmployeeTypeRecord(game.getGame(), company, game.getCurrentPeriodNumber()+1, etr.getEmployeeType(), newCount, 0, 0);</span>
+			  }
+<span class="nc" id="L453">			  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  		  {
+<span class="nc" id="L455">			  	  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L456">	  		  }</span>
+		  }
+<span class="nc" id="L458">	  }</span>
+<span class="nc" id="L459">  }</span>
+
+
+  public void applyPersonnelToMosp()
+  {
+	  try
+	  {
+	  	//Get all active jobs
+<span class="nc" id="L467">	  	jobs = dbFacade.getJobDBHandler().getActiveJobs(game.getGame(), company);</span>
+  	  }
+<span class="nc" id="L469">  	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L471">		  log.fatal(bigdbe);</span>
+<span class="nc" id="L472">	  }</span>
+
+
+<span class="nc" id="L475">	  JobMosManager jmm = new JobMosManager(game.getJobMospReqParameters(),</span>
+<span class="nc" id="L476">		   								    game.getMospCostPenalties(),</span>
+		   								    jobs
+		  								   );
+
+	  //Load a scratchsheet with the employee type info.
+<span class="nc" id="L481">	  EmployeeBasePointsScratchSheet scratchSheet = new EmployeeBasePointsScratchSheet();</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">	  for(EmployeeTypeRecord etr: personnel)</span>
+	  {
+<span class="nc bnc" id="L484" title="All 2 branches missed.">		  if(etr.getTotalBasePointsForType() &gt; 0)</span>
+		  {
+<span class="nc" id="L486">	          scratchSheet.addBasePoints(etr.getEmployeeType(), etr.getTotalBasePointsForType());</span>
+		  }
+<span class="nc" id="L488">	  }</span>
+
+<span class="nc bnc" id="L490" title="All 2 branches missed.">	  if(log.isDebugEnabled())</span>
+	  {
+<span class="nc" id="L492">		  log.debug(this.getClass() + &quot;: Employee Generalization Factors: &quot;);</span>
+
+<span class="nc bnc" id="L494" title="All 2 branches missed.">		  for(EmployeeTypeRecord etr: personnel)</span>
+		  {
+<span class="nc" id="L496">			  log.debug(this.getClass() + &quot;: &quot; + etr.getEmployeeType() + &quot; -&gt; &quot; + game.getEmployeeSkillConversionRatioLookup().getEmployeeSkillGeneralization(etr.getEmployeeType()));</span>
+<span class="nc" id="L497">		  }</span>
+	  }
+
+<span class="nc" id="L500">	  EmployeeSkillPointConverter employeeSkillPointConverter = new EmployeeSkillPointConverter();</span>
+<span class="nc" id="L501">	  employeeSkillPointConverter.convert(game.getEmployeeSkillConversionRatioLookup(),</span>
+	    								  scratchSheet,
+	    								  jmm
+	  									 );
+
+<span class="nc bnc" id="L506" title="All 2 branches missed.">	  if(log.isInfoEnabled())</span>
+	  {
+<span class="nc" id="L508">	  	  log.info(this.getClass() + &quot;: Total penalty for incomplete MOSP is &quot; + jmm.getTotalMospPenalty());</span>
+	  }
+
+<span class="nc" id="L511">	  decreaseCashOnHand(jmm.getTotalMospPenalty(), &quot;CONSULTING&quot;);</span>
+<span class="nc" id="L512">	  financialReportForm.increaseConsultingExpenses(jmm.getTotalMospPenalty());</span>
+
+	  //Save the unfinished MOSPs
+<span class="nc" id="L515">	  Map&lt;String,Integer&gt; unfinished = jmm.getFailedMosp();</span>
+
+	  try
+	  {
+<span class="nc bnc" id="L519" title="All 2 branches missed.">	  	  for(String skill : unfinished.keySet())</span>
+	  	  {
+<span class="nc" id="L521">			  log.debug(skill + &quot; &quot; + unfinished.get(skill));</span>
+<span class="nc" id="L522">	  		  dbFacade.getCompanyPersonnelDBHandler().addUnfilledMospEntry(game.getGame(), company, game.getCurrentPeriodNumber(), skill, unfinished.get(skill));</span>
+<span class="nc" id="L523">	  	  }</span>
+	  }
+<span class="nc" id="L525">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L527">		  log.fatal(bigdbe);</span>
+<span class="nc" id="L528">	  }</span>
+
+
+<span class="nc" id="L531">  }</span>
+
+  /**
+   * Does work on each job owned by this company.
+   * The days worked will be those days identified in the &lt;code&gt;ScheduledMonth&lt;/code&gt; objects.
+   * If a job's creation period is equal to the current period that job will only be worked the second month.
+   * @param month1 A &lt;code&gt;ScheduledMonth&lt;/code&gt; of the first month of the period
+   * @param month2 A &lt;code&gt;ScheduledMonth&lt;/code&gt; of the second month of the period
+   *
+   */
+  public void doWorkOnJobs(ScheduledMonth month1, ScheduledMonth month2)
+  {
+	  try
+	  {
+	  	//Get all active jobs
+<span class="nc" id="L546">	  	jobs = dbFacade.getJobDBHandler().getActiveJobs(game.getGame(), company);</span>
+  	  }
+<span class="nc" id="L548">  	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L550">		  log.fatal(bigdbe);</span>
+<span class="nc" id="L551">	  }</span>
+
+<span class="nc bnc" id="L553" title="All 2 branches missed.">	  if(log.isDebugEnabled())</span>
+	  {
+<span class="nc" id="L555">	  	  log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: Number of jobs &quot; + jobs.size());</span>
+	  }
+
+<span class="nc" id="L558">	  Iterator i = jobs.iterator();</span>
+<span class="nc bnc" id="L559" title="All 2 branches missed.">	  while(i.hasNext())</span>
+	  {
+<span class="nc" id="L561">          month1.firstDay();</span>
+<span class="nc" id="L562">          month2.firstDay();</span>
+<span class="nc" id="L563">		  Job job = (Job) i.next();</span>
+
+		  //Set this as the company for each job and the &lt;code&gt;ExpandedGame&lt;/code&gt; that owns this company as the game for each job
+<span class="nc" id="L566">          job.setCompany(this);</span>
+<span class="nc" id="L567">          job.setGame(game);</span>
+
+<span class="nc bnc" id="L569" title="All 2 branches missed.">		  if(log.isDebugEnabled())</span>
+		  {
+<span class="nc" id="L571">			  log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: Beginning work on job &quot; + job.getJobID());</span>
+<span class="nc bnc" id="L572" title="All 2 branches missed.">			  if(job instanceof NegotiatedJob)</span>
+			  {
+<span class="nc" id="L574">				  log.debug(&quot;NEGOTIATED JOB&quot;);</span>
+			  }
+		  }
+
+<span class="nc" id="L578">          job.setActivities(setupActivities(job));</span>
+
+          //job.payIncome(financialReportForm);
+<span class="nc" id="L581">          job.clearActivityStates();</span>
+
+<span class="nc" id="L583">		  job.chargeVariableOverhead(financialReportForm);</span>
+
+<span class="nc" id="L585">		  int jobPeriodCreated = job.getPeriodCreated();</span>
+
+		  // because the current period number is artifically reduced by one on Auto jobs. See comment in file: AutoAwardJobsAction.java
+<span class="nc bnc" id="L588" title="All 2 branches missed.">		  if (job.getIsAuto() ) jobPeriodCreated++;</span>
+
+
+          // for use in method: adjustProductivity (heavy jobs only)
+<span class="nc" id="L592">          PrintWriter out = null;</span>
+
+     /* need to comment this out before uploading to server -- ALSO remove &quot;out.close();&quot; below
+          try {
+             File f = new File(&quot;c:/temp/big/myfile.txt&quot;);
+             out = new PrintWriter(new FileWriter(f));
+          }
+          catch(IOException e) {
+             e.printStackTrace();
+          }                              */
+
+
+          //Work the first month only if the job is not newly assigned (meaning it was created this period)
+<span class="nc bnc" id="L605" title="All 2 branches missed.">          if(jobPeriodCreated != game.getGame().getCurrentPeriodNumber())</span>
+          {
+              //System.out.println(&quot;Working first month&quot;);
+<span class="nc" id="L608">              job.update(month1, financialReportForm, out);</span>
+          }
+
+<span class="nc" id="L611">          Game g = game.getGame();</span>
+<span class="nc" id="L612">          int gametype = g.getGametype();</span>
+
+          //Work the second month if the job was not completed the first month
+<span class="nc bnc" id="L615" title="All 2 branches missed.">          if(job.getIsActive() )</span>
+          {
+		  	  // no work done if it is a Heavy job newly assigned (created this period)
+<span class="nc bnc" id="L618" title="All 4 branches missed.">		  	  if(!(gametype == 2 &amp;&amp; jobPeriodCreated == game.getGame().getCurrentPeriodNumber() ) )</span>
+		  	  {
+<span class="nc" id="L620">		  	     job.update(month2, financialReportForm, out);</span>
+			  }
+		  }
+
+     /* comment this out before uploading to server */
+          // out.close();
+
+<span class="nc" id="L627">		  job.recordDirectCosts(financialReportForm, balanceSheet);</span>
+<span class="nc" id="L628">		  job.payImmediateExpenses();</span>
+<span class="nc" id="L629">		  job.chargeFixedFieldOverhead(financialReportForm);</span>
+<span class="nc" id="L630">		  job.clearOvertime();</span>
+
+		  //If there are not liquidated damages this next call will do nothing
+<span class="nc" id="L633">		  job.chargeLiquidatedDamages(financialReportForm);</span>
+
+		  //Create an estimate for cost to complete
+<span class="nc" id="L636">		  int estCostToComplete = 0;</span>
+
+		  //Overtime must be zeroed out in case any was left in activities
+<span class="nc bnc" id="L639" title="All 2 branches missed.">          for(int j = 0; j &lt; 9; j++)</span>
+      	  {
+<span class="nc" id="L641">		      job.getActivities()[j].setOvertimeDays(0);</span>
+	  	  }
+
+		  try
+		  {
+<span class="nc" id="L646">			  Contract c = dbFacade.getContractsReportsDBHandler().getContract(game.getGame(),</span>
+<span class="nc" id="L647">			  																   game.getGame().getCurrentPeriodNumber() - 1,</span>
+			  																   job,
+			  																   company
+			  																  );
+<span class="nc" id="L651">			  int revenueRecorded = 0;</span>
+<span class="nc" id="L652">			  boolean bigComputesEstCostToComplete = true;</span>
+<span class="nc bnc" id="L653" title="All 2 branches missed.">			  if(c == null)</span>
+			  {
+			  }
+			  else
+			  {
+<span class="nc" id="L658">				  revenueRecorded = c.getRevenuePreviouslyRecorded() + c.getCurrentRevenueRecorded();</span>
+<span class="nc" id="L659">				  bigComputesEstCostToComplete = c.getAutoComputeEstCost();</span>
+<span class="nc" id="L660">				  estCostToComplete = c.getEstimatedCostToComplete();</span>
+			  }
+
+<span class="nc bnc" id="L663" title="All 2 branches missed.">			  if(bigComputesEstCostToComplete)</span>
+			  {
+				  //If BIG is to compute the estimated cost to complete use the JobCostEstimator now
+<span class="nc" id="L666">		  	      estCostToComplete = JobCostEstimator.getEstimatedCost(game.getGame().getCurrentPeriodNumber() + 1, //1 is added because this estimate should not take into account this period, since work has just been completed</span>
+<span class="nc" id="L667">																		game.getGame().convertDateToPeriod(job.getCompletionDeadline()),</span>
+<span class="nc" id="L668">																		game.getGame().getEstimatedPercentageOfLastPeriodWorked(job.getCompletionDeadline()),</span>
+<span class="nc" id="L669">																		job.getActivities(),</span>
+<span class="nc" id="L670">																		game.getWorkdaysPerMonth() * 2,</span>
+<span class="nc" id="L671">																		job.getFixedFieldOverhead(),</span>
+<span class="nc" id="L672">																		job.getVariableFieldCharge(),</span>
+<span class="nc" id="L673">																		job.getLiquidatedDamages()</span>
+		  															   );
+			  }
+			  else
+			  {
+				  //If the players are computing the est cost to complete themselves
+				  //their estimate will be automatically updated by substracting the costs incurred this period
+<span class="nc bnc" id="L680" title="All 2 branches missed.">				  if(estCostToComplete - job.getCurrentCost() &gt; 0)</span>
+				  {
+<span class="nc" id="L682">					  estCostToComplete = estCostToComplete - job.getCurrentCost();</span>
+				  }
+			  }
+
+
+<span class="nc bnc" id="L687" title="All 2 branches missed.">			  if(log.isDebugEnabled())</span>
+			  {
+<span class="nc" id="L689">				  log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: &quot; + job.getJobID() + &quot;, % complete: &quot; + job.getPercentOfJobComplete());</span>
+<span class="nc" id="L690">				  log.debug(&quot;is active: &quot; + job.getIsActive());</span>
+			  }
+
+              //Record retention if the job is complete
+              //Also clear the est cost to complete, since it has to be zero now that the job is complete
+<span class="nc bnc" id="L695" title="All 2 branches missed.">              if(!job.getIsActive())</span>
+              {
+<span class="nc bnc" id="L697" title="All 2 branches missed.">				  if(log.isDebugEnabled())</span>
+				  {
+<span class="nc" id="L699">					  log.debug(&quot;Job &quot; + job.getJobID() + &quot; is complete&quot;);</span>
+<span class="nc" id="L700">				  	  log.debug(&quot;PROCESSING RETENTION&quot;);</span>
+<span class="nc" id="L701">				  	  log.debug(&quot;Job retained amout &quot; + job.getRetainedAmount());</span>
+<span class="nc" id="L702">				  	  log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: &quot; + &quot; Bal sheet Retention Receivable&quot; + balanceSheet.getRetentionReceivable());</span>
+				  }
+<span class="nc" id="L704">				  balanceSheet.setRetentionReceivable(balanceSheet.getRetentionReceivable() - (int) job.getRetainedAmount());</span>
+<span class="nc" id="L705">				  balanceSheet.setCurrentAccountsReceivable(balanceSheet.getCurrentAccountsReceivable() + (int) job.getRetainedAmount());</span>
+<span class="nc" id="L706">				  job.clearRetainedAmount();</span>
+
+<span class="nc bnc" id="L708" title="All 2 branches missed.">				  if(log.isDebugEnabled())</span>
+				  {
+<span class="nc" id="L710">				  	  log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: &quot; + &quot; After updating Bal sheet, Retention Receivable &quot; + balanceSheet.getRetentionReceivable());</span>
+				  }
+
+				  //Job is already complete, no more cost to complete it
+<span class="nc" id="L714">				  estCostToComplete = 0;</span>
+    		  }
+    		  else
+    		  {
+<span class="nc bnc" id="L718" title="All 2 branches missed.">				  if(!(job instanceof NegotiatedJob))</span>
+				  {
+<span class="nc" id="L720">				      assignDaysLatePenalties(job);</span>
+			  	  }
+			  }
+
+			  //Save the current contract info
+<span class="nc" id="L725">		  	  dbFacade.getContractsReportsDBHandler().addCurrentJobInfo(game.getGame(),</span>
+<span class="nc" id="L726">		  																	 game.getGame().getCurrentPeriodNumber(),</span>
+		  																	 company,
+		  																	 job,
+		  																	 estCostToComplete,
+		  																	 revenueRecorded
+  																	   );
+  			 //We now have the contract current.
+  			 //If this is a Negotiated Job that just completed,
+  			 //use the contract cost info to compute share of savings
+  			 //and store that in the bid.  call jobComplete method on NegotiatedJob to do this
+<span class="nc bnc" id="L736" title="All 4 branches missed.">  			 if(!job.getIsActive() &amp;&amp; job instanceof NegotiatedJob)</span>
+  			 {
+				 try
+				 {
+<span class="nc" id="L740">				     job.jobCompleted(dbFacade.getContractsReportsDBHandler().getContract(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, job, company) );</span>
+				 }
+<span class="nc" id="L742">				 catch(Exception e)</span>
+				 {
+<span class="nc" id="L744">					 log.fatal(&quot;&quot;, e);</span>
+<span class="nc" id="L745">				 }</span>
+			 }
+		  }
+<span class="nc" id="L748">		  catch(BIGDatabaseFacadeException bigdbe)</span>
+		  {
+<span class="nc" id="L750">			  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L751">		  }</span>
+
+<span class="nc" id="L753">          game.storeJob(job);</span>
+
+
+          //Remove the job from the list if it is finished.  This is needed for when the doWorkOnJobs method is
+          //called when the game is being finalized because work will be done on all jobs in the list
+          //11/20/02 I don't think this is needed.  It can't hurt but it's probably just wasting clock cycles - K.C.
+<span class="nc bnc" id="L759" title="All 2 branches missed.">          if(!job.getIsActive())</span>
+          {
+<span class="nc" id="L761">			  i.remove();</span>
+		  }
+
+<span class="nc" id="L764">	  }  // end &quot;while(i.hasNext())&quot;  --&gt; on to the next job if any</span>
+<span class="nc" id="L765">  }</span>
+
+
+  private void assignDaysLatePenalties(Job job)
+  {
+		//Check to see if job should be terminated for being vastly overdue
+<span class="nc" id="L771">		long daysLate = financialReportForm.getDaysLate(job) + ((Integer) namedVariableDataFacade.getJobNamedVariableValue(&quot;JOB_DAYS_LATE&quot;, job.getJobID())).intValue();</span>
+
+<span class="nc bnc" id="L773" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L775">		    log.debug(&quot;Job &quot; + job.getJobID() + &quot; is &quot; + daysLate + &quot; days late&quot;);</span>
+		}
+
+<span class="nc bnc" id="L778" title="All 2 branches missed.">		if (daysLate &gt; 210)</span>
+		{
+			//Calculate a percentage of job direct cost between 20%-30% as a penalty
+<span class="nc" id="L781">			Random r = new Random();</span>
+<span class="nc" id="L782">			int percent = r.nextInt(10) + 20;</span>
+
+<span class="nc" id="L784">			long penalty = Math.round(((double)job.getDirectCost()) * (((double)percent) /100));</span>
+<span class="nc bnc" id="L785" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L787">			    log.debug(&quot;Job &quot; + job.getJobID() + &quot; has incurred a penalty of &quot; + penalty + &quot; which is &quot; + percent + &quot; of &quot; + job.getDirectCost());</span>
+			}
+
+<span class="nc" id="L790">			decreaseCashOnHand(penalty, &quot;SETTLEMENT&quot;);</span>
+
+<span class="nc" id="L792">			financialReportForm.increaseSettlementExpenses(penalty);</span>
+
+<span class="nc" id="L794">			game.sendInGameMessageToCompany(new Message(&quot;Company Legal Department&quot;,</span>
+														company,
+<span class="nc" id="L796">			 										    &quot;PJC has decided to sue to recoup their losses from Job &quot; + job.getJobID() + &quot; going so far past its completion deadline.  We've negotiated with them and they've agreed to settle the case for &quot; + NumberConverter.stringValue(penalty) + &quot;.  This is not a lot but it was the best we could do, and it would have been a lot more if we had gone to court.  As part of the settlement we still need to complete the job, but there is no longer a set date for completion.  I would advise however that we complete the job as soon as possible.&lt;br&gt;&lt;br&gt;&quot; + company.getTitle() + &quot; -- Legal Department&quot;,</span>
+<span class="nc" id="L797">														&quot;Settlement on Job &quot; + job.getJobID(),</span>
+<span class="nc" id="L798">														game.getGame().getCurrentPeriodNumber()+1,</span>
+														Message.TEXT_ONLY,
+														-1
+													   )
+										);
+
+<span class="nc" id="L804">		}</span>
+<span class="nc bnc" id="L805" title="All 2 branches missed.">		else if(daysLate &gt; 180)</span>
+		{
+<span class="nc" id="L807">			game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+														company,
+<span class="nc" id="L809">														company.getTitle() + &quot;,&lt;br&gt;&lt;br&gt;We feel we have been more than patient in waiting for work to complete on our job (Job &quot; + job.getJobID() + &quot;).  This job was supposed to be complete on &quot; + job.getCompletionDeadline().toString() + &quot; and is now over 6 months past due!  We have had months of people asking when our building will be complete.  Our business functions are being severely inhibited by the lack of a building we thought would be finished months ago.  We do not feel we should shoulder any more of the financial burden and public humiliation caused by your poor planning.  If this job is not completed within one month, we will be contacting a legal firm and begin exploring our legal options.  This is your final notice.  &lt;br&gt;&lt;br&gt;Sincerely,&lt;br&gt;PJC&quot;,</span>
+														&quot;Job Overdue&quot;,
+<span class="nc" id="L811">														game.getGame().getCurrentPeriodNumber()+1,</span>
+														Message.TEXT_ONLY,
+																		-1
+														)
+											);
+		}
+<span class="nc bnc" id="L817" title="All 2 branches missed.">		else if (daysLate &gt; 120)</span>
+		{
+<span class="nc" id="L819">			game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+														company,
+<span class="nc" id="L821">														company.getTitle() + &quot;,&lt;br&gt;&lt;br&gt;Our job (Job &quot; + job.getJobID() + &quot;) is now over three months past the completion date of &quot; + job.getCompletionDeadline().toString() + &quot;.  We were counting on this project being completed long before now, and the continued lack of its completion is starting to cause us serious problems.  We have had to reorganize our schedule several times already, causing us great incovenience and financial hardship.  We request that you make completing this job your top priority and finish it within one month.&lt;br&gt;&lt;br&gt;Sincerely,&lt;br&gt;PJC&quot;,</span>
+														&quot;Job Overdue&quot;,
+<span class="nc" id="L823">														game.getGame().getCurrentPeriodNumber()+1,</span>
+														Message.TEXT_ONLY,
+														-1
+													   )
+											);
+		}
+<span class="nc bnc" id="L829" title="All 2 branches missed.">		else if (daysLate &gt; 60)</span>
+		{
+<span class="nc" id="L831">			game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+														company,
+<span class="nc" id="L833">														company.getTitle() + &quot;,&lt;br&gt;&lt;br&gt;We are writing to request that you accelerate your schedule for our job (Job &quot; + job.getJobID() + &quot;).  The agreed upon completion deadline was &quot; + job.getCompletionDeadline().toString() + &quot; yet the project is still under construction more than two months later.  While we understand there can be delays due to weather and other factors, we feel there has been sufficient time to get the job completed.  We ask that you finish work on this job as soon as possible. &lt;br&gt;&lt;br&gt;Sincerely,&lt;br&gt;PJC&quot;,</span>
+														&quot;Job Overdue&quot;,
+<span class="nc" id="L835">														game.getGame().getCurrentPeriodNumber()+1,</span>
+														Message.TEXT_ONLY,
+														-1
+													   )
+										   );
+		}
+<span class="nc bnc" id="L841" title="All 2 branches missed.">		else if(daysLate &gt; 30)</span>
+		{
+<span class="nc" id="L843">			game.sendInGameMessageToCompany(new Message(&quot;PJC&quot;,</span>
+														company,
+<span class="nc" id="L845">														company.getTitle() + &quot;,&lt;br&gt;&lt;br&gt;Will our job (Job &quot; + job.getJobID() + &quot;) be completed soon?  The completion date was supposed to be &quot; + job.getCompletionDeadline().toString() + &quot; and we had hoped to start making use of the building by now. &lt;br&gt;&lt;br&gt;Sincerely,&lt;br&gt;PJC&quot;,</span>
+														&quot;Job Overdue&quot;,
+<span class="nc" id="L847">														game.getGame().getCurrentPeriodNumber()+1,</span>
+														Message.TEXT_ONLY,
+														-1
+														)
+											);
+		}
+<span class="nc" id="L853">  }</span>
+
+
+  /**
+   * Gathers and prepares the activities for a job.
+   * Retrieves from the database the list of activities for the job and the list of methods that should be
+   * used on those activities.  A &lt;code&gt;Method&lt;/code&gt; object will be created for each method and an &lt;code&gt;Activity&lt;/code&gt;
+   * object for each activity.  The &lt;code&gt;Activity&lt;/code&gt; objects will be loaded with the &lt;code&gt;Method&lt;/code&gt; objects
+   * and network dependency parameters will be pulled from the &lt;code&gt;ExpandedGame&lt;/code&gt; and loaded into the &lt;code&gt;Activity&lt;/code&gt;
+   * as well.
+   * @param job The &lt;code&gt;Job&lt;/code&gt; for which to prepate activities.
+   * @return Activity[] An array of &lt;code&gt;Activity&lt;/code&gt; objects for the job exactly as they were at the end of the last period
+   */
+  public Activity[] setupActivities(Job job)
+  {
+<span class="nc" id="L868">	  Activity[] activities = null;</span>
+<span class="nc" id="L869">	  int[] currentMethods = null;</span>
+
+      try
+	  {
+<span class="nc" id="L873">	      activities = dbFacade.getActivityDBHandler().getActivities(game.getGame(), job, game.getGame().getCurrentPeriodNumber() - 1);</span>
+	  }
+<span class="nc" id="L875">      catch(ObjectNotFoundException onfe)</span>
+      {
+<span class="nc" id="L877">		  log.fatal(&quot;&quot;, onfe);</span>
+	  }
+<span class="nc" id="L879">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L881">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L882">	  }</span>
+
+	  try
+	  {
+		  //Retrieve the current method id's to be used on the activities
+<span class="nc" id="L887">	      currentMethods = dbFacade.getCurrentMethodDBHandler().getCurrentMethods(game.getGame(), job);</span>
+	  }
+<span class="nc" id="L889">      catch(ObjectNotFoundException onfe)</span>
+      {
+<span class="nc" id="L891">		  log.fatal(&quot;&quot;, onfe);</span>
+	  }
+<span class="nc" id="L893">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L895">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L896">	  }</span>
+
+      //Load the activities with the values they need
+<span class="nc" id="L899">      Method[][] methods = game.getMethods();</span>
+<span class="nc" id="L900">      Hashtable[][] networkDependencies = game.getNetworkDependencies();</span>
+
+<span class="nc" id="L902">      int jobType = job.getJobType();</span>
+<span class="nc bnc" id="L903" title="All 2 branches missed.">      if (jobType &gt; 5) // it's a Heavy job</span>
+      {
+<span class="nc" id="L905">		  jobType = jobType - 5;</span>
+<span class="nc" id="L906">		  methods = game.getMethodsHC();</span>
+<span class="nc" id="L907">		  networkDependencies = game.getNetworkDependenciesHC();</span>
+	  }
+
+	  int stsActivity, stsPercent, ftfActivity, ftfPercent;
+<span class="nc bnc" id="L911" title="All 2 branches missed.">      for(int j = 0; j &lt; 9; j++)</span>
+      {
+          //Changes the effect of uncertainty each time a method is used
+<span class="nc" id="L914">          methods[j][currentMethods[j]-1].reRollCosts();</span>
+<span class="nc" id="L915">	  	  activities[j].setMethod(methods[j][currentMethods[j]-1]);</span>
+
+<span class="nc" id="L917">		  stsActivity = ((Integer) networkDependencies[jobType - 1][j].get(&quot;STSActivity&quot;)).intValue();</span>
+<span class="nc" id="L918">		  stsPercent = ((Integer) networkDependencies[jobType - 1][j].get(&quot;STSPercent&quot;)).intValue();</span>
+<span class="nc" id="L919">		  ftfActivity = ((Integer) networkDependencies[jobType - 1][j].get(&quot;FTFActivity&quot;)).intValue();</span>
+<span class="nc" id="L920">		  ftfPercent = ((Integer) networkDependencies[jobType - 1][j].get(&quot;FTFPercent&quot;)).intValue();</span>
+
+<span class="nc" id="L922">		  activities[j].setStartToStartActivity(stsActivity);</span>
+<span class="nc" id="L923">		  activities[j].setStartToStartPercent(stsPercent);</span>
+<span class="nc" id="L924">		  activities[j].setFinishToFinishActivity(ftfActivity);</span>
+<span class="nc" id="L925">		  activities[j].setFinishToFinishPercent(ftfPercent);</span>
+
+	  }
+<span class="nc" id="L928">	  return activities;</span>
+  }
+
+
+  /**
+   * Saves all changes made to this company and its financial reports, to the database.
+   * Also handles taxes and equity computation
+   */
+  public void saveChanges()
+  {
+     try
+   	 {
+		 //This must come first
+<span class="nc" id="L941">		 addBillingFormsForUnbilledJobs();</span>
+
+<span class="nc" id="L943">		 dbFacade.getFinancialReportDBHandler().addFinancialReport(game.getGame(), company, financialReportForm);</span>
+
+<span class="nc" id="L945">		 IncomeStatementGetter getter = new IncomeStatementGetter(game.getGame(), company, dbFacade);</span>
+
+<span class="nc" id="L947">         BalanceSheetForm prevBalanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game.getGame(), game.getGame().getCurrentPeriodNumber() - 1, company);</span>
+
+<span class="nc" id="L949">         IncomeStatementForm incomeStatement = getter.getIncomeStatementComputeTaxes(game.getGame().getCurrentPeriodNumber());</span>
+
+
+<span class="nc bnc" id="L952" title="All 2 branches missed.">		 if(((game.getGame().getCurrentPeriodNumber() - 1) % 6) == 0)</span>
+		 {
+<span class="nc bnc" id="L954" title="All 2 branches missed.">		    if(log.isDebugEnabled())</span>
+		    {
+<span class="nc" id="L956">			    log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: Tax year: &quot; + incomeStatement.getIncomeTaxes());</span>
+		    }
+<span class="nc" id="L958">         	balanceSheet.setTaxes(incomeStatement.getIncomeTaxes());</span>
+		 }
+		 else
+		 {
+<span class="nc bnc" id="L962" title="All 2 branches missed.">		    if(log.isDebugEnabled())</span>
+		    {
+<span class="nc" id="L964">			    log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: non Tax year: &quot; + (prevBalanceSheet.getTaxes() + incomeStatement.getIncomeTaxes()));</span>
+			}
+<span class="nc" id="L966">         	balanceSheet.setTaxes(prevBalanceSheet.getTaxes() + incomeStatement.getIncomeTaxes());</span>
+		 }
+
+<span class="nc" id="L969">		 balanceSheet.setEquity(incomeStatement.getEndRetainedEarnings());</span>
+
+		 //Set cash after taxes have been paid
+<span class="nc" id="L972">		 balanceSheet.setCashOnHand(company.getCashOnHand());</span>
+<span class="nc bnc" id="L973" title="All 2 branches missed.">		 if(game.getGame().getCurrentPeriodNumber() &gt; 0)</span>
+		 {
+<span class="nc" id="L975">         	dbFacade.getBalanceSheetDBHandler().addBalanceSheet(game.getGame(), company, balanceSheet);</span>
+		 }
+
+<span class="nc" id="L978">         ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game.getGame(), game.getGame().getCurrentPeriodNumber(), company);</span>
+<span class="nc" id="L979">		 company.setWIP(contractsInProgress.getTotalRevenueToBeEarned());</span>
+
+<span class="nc" id="L981">         dbFacade.getCompanyDBHandler().updateCompany(game.getGame(), company);</span>
+<span class="nc" id="L982">         dbFacade.getCashFlowDBHandler().addCashFlowReport(game.getGame(), company, cashFlowForm);</span>
+
+<span class="nc" id="L984">         updateRatios();</span>
+
+     }
+<span class="nc" id="L987">     catch(BIGDatabaseFacadeException bigdbe)</span>
+     {
+<span class="nc" id="L989">         log.fatal(bigdbe);</span>
+     }
+<span class="nc" id="L991">     catch(ObjectNotFoundException onfe)</span>
+     {
+<span class="nc" id="L993">         log.fatal(onfe);</span>
+     }
+<span class="nc" id="L995">     catch(ParametersNotFoundException pnfe)</span>
+     {
+<span class="nc" id="L997">         log.fatal(pnfe);</span>
+<span class="nc" id="L998">     }</span>
+<span class="nc" id="L999">  }</span>
+
+  private void addBillingFormsForUnbilledJobs() throws BIGDatabaseFacadeException
+  {
+<span class="nc" id="L1003">	  Vector unbilledJobs = dbFacade.getJobDBHandler().getUnbilledJobs(game.getGame(), company);</span>
+<span class="nc" id="L1004">	  Vector activeJobs = dbFacade.getJobDBHandler().getActiveJobs(game.getGame(), company);</span>
+
+	  //Search the list of active jobs for this company and add to the unbilled
+	  //list any negotiated jobs that are incomplete, even if all billing is complete.
+	  //Even though the company can no longer bill, the billing form is needed so it is recorded
+	  //that 0 was billed.
+<span class="nc bnc" id="L1010" title="All 2 branches missed.">	  for(Object o : activeJobs)</span>
+	  {
+<span class="nc" id="L1012">		  Job j = (Job) o;</span>
+<span class="nc bnc" id="L1013" title="All 2 branches missed.">		  if(j instanceof NegotiatedJob)</span>
+		  {
+<span class="nc" id="L1015">			  boolean found = false;</span>
+<span class="nc bnc" id="L1016" title="All 2 branches missed.">			  for(Object o2 : unbilledJobs)</span>
+			  {
+<span class="nc" id="L1018">				  Job j2 = (Job) o2;</span>
+<span class="nc bnc" id="L1019" title="All 2 branches missed.">				  if(j.getJobID() == j2.getJobID())</span>
+				  {
+<span class="nc" id="L1021">					  found = true;</span>
+				  }
+<span class="nc" id="L1023">			  }</span>
+<span class="nc bnc" id="L1024" title="All 2 branches missed.">			  if(!found)</span>
+			  {
+<span class="nc" id="L1026">				  unbilledJobs.add(j);</span>
+			  }
+		  }
+<span class="nc" id="L1029">	  }</span>
+
+<span class="nc" id="L1031">	  Iterator i = unbilledJobs.iterator();</span>
+<span class="nc bnc" id="L1032" title="All 2 branches missed.">	  while(i.hasNext())</span>
+	  {
+<span class="nc" id="L1034">		  Job j = (Job) i.next();</span>
+<span class="nc" id="L1035">		  dbFacade.getBillingDBHandler().addBillingForm(game.getGame(), company, game.getGame().getCurrentPeriodNumber(), j);</span>
+<span class="nc" id="L1036">	  }</span>
+<span class="nc" id="L1037">  }</span>
+
+  //Pays taxes if it is the end of the year.  Returns
+  //0 if taxes were paid, or the parameter value for taxes
+  //if taxes were not paid
+  private int payTaxesIfYearStart(int taxes)
+  {
+<span class="nc" id="L1044">  	  boolean yearEnd = false;</span>
+<span class="nc" id="L1045">  	  int periodsToConsider = (game.getGame().getCurrentPeriodNumber() - 1) % 6;  //magic number... 6 periods per year</span>
+<span class="nc bnc" id="L1046" title="All 2 branches missed.">  	  if (periodsToConsider == 0)</span>
+  	  {
+		  //End of year, pay taxes
+<span class="nc" id="L1049">		  decreaseCashOnHand(taxes, &quot;TAXES&quot;);</span>
+<span class="nc" id="L1050">		  taxes = 0;</span>
+
+	  }
+<span class="nc" id="L1053">	  return taxes;</span>
+  }
+
+  //Saves the current ratios in the database
+  private void updateRatios() throws BIGDatabaseFacadeException, ObjectNotFoundException, ParametersNotFoundException
+  {
+<span class="nc bnc" id="L1059" title="All 2 branches missed.">	  if(game.getGame().getCurrentPeriodNumber() &gt; 1)</span>
+	  {
+<span class="nc" id="L1061">      	  BalanceSheetForm balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L1062">	  	  ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L1063">	  	  CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game.getGame(), game.getGame().getCurrentPeriodNumber() -1, company);</span>
+
+<span class="nc" id="L1065">	  	  IncomeStatementGetter getter = new IncomeStatementGetter(game.getGame(), company, dbFacade);</span>
+<span class="nc" id="L1066">	  	  IncomeStatementForm incomeStatement = getter.getIncomeStatementComputeTaxes(game.getGame().getCurrentPeriodNumber() -1);</span>
+
+<span class="nc" id="L1068">	  	  Float[][] ratios = dbFacade.getRatiosDBHandler().getRatios(game.getGame(), game.getGame().getCurrentPeriodNumber() -2, RatiosReportForm.PAST_RATIOS_IN_AVERAGE-1, company);</span>
+
+<span class="nc" id="L1070">	  	  RatiosReportForm ratiosReport = new RatiosReportForm(incomeStatement,</span>
+			      											   balanceSheet,
+			    											   contractsInProgress,
+			    											   completedContracts,
+			    											   ratios
+			   												  );
+
+<span class="nc" id="L1077">      	  Float[] currentRatios = new Float[14];</span>
+<span class="nc" id="L1078">      	  currentRatios[0] = ratiosReport.getCurrentRatio(0);</span>
+<span class="nc" id="L1079">      	  currentRatios[1] = ratiosReport.getReceivableTurns(0);</span>
+<span class="nc" id="L1080">      	  currentRatios[2] = ratiosReport.getPayableTurns(0);</span>
+<span class="nc" id="L1081">      	  currentRatios[3] = ratiosReport.getCashTurns(0);</span>
+<span class="nc" id="L1082">		  currentRatios[4] = ratiosReport.getCashToWIP(0);</span>
+<span class="nc" id="L1083">		  currentRatios[5] = ratiosReport.getEarningsToInterest(0);</span>
+<span class="nc" id="L1084">		  currentRatios[6] = ratiosReport.getDebtToEquity(0);</span>
+<span class="nc" id="L1085">		  currentRatios[7] = ratiosReport.getGrossProfit(0);</span>
+<span class="nc" id="L1086">		  currentRatios[8] = ratiosReport.getNetProfit(0);</span>
+<span class="nc" id="L1087">		  currentRatios[9] = ratiosReport.getReturnOnEquity(0);</span>
+<span class="nc" id="L1088">		  currentRatios[10] = ratiosReport.getReturnOnAssets(0);</span>
+<span class="nc" id="L1089">		  currentRatios[11] = ratiosReport.getCostsToSales(0);</span>
+<span class="nc" id="L1090">		  currentRatios[12] = ratiosReport.getGAToSales(0);</span>
+<span class="nc" id="L1091">		  currentRatios[13] = ratiosReport.getOpExpenseToSales(0);</span>
+
+<span class="nc" id="L1093">		  dbFacade.getRatiosDBHandler().addRatios(game.getGame(), game.getGame().getCurrentPeriodNumber() - 1, company, currentRatios);</span>
+	  }
+<span class="nc" id="L1095">  }</span>
+
+  /**
+   * @return int The current number of jobs held by this company.
+   */
+  public int getNumberOfJobs()
+  {
+<span class="fc" id="L1102">	  Vector jobs = null;</span>
+	  try
+	  {
+	  	//Get all active jobs
+<span class="fc" id="L1106">	  	jobs = dbFacade.getJobDBHandler().getActiveJobs(game.getGame(), company);</span>
+<span class="fc" id="L1107">	  	return jobs.size();</span>
+  	  }
+<span class="fc" id="L1109">  	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="fc" id="L1111">		  log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="fc" id="L1113">	  return 0;</span>
+  }
+
+
+
+  /**
+   * Checks if the company can take on an additional job.  In order to
+   * take on a job, the company must have fewer than the maximum
+   * number of active jobs set as a game parameter.
+   * @return true if the company can take on a job.  false ow
+   */
+  public boolean hasFewerThanMaxJobs()
+  {
+<span class="fc" id="L1126">	  int maxNumberOfJobs = 10;</span>
+
+	  try
+	  {
+<span class="fc" id="L1130">		  maxNumberOfJobs = ((Integer) miscParams.get(&quot;maxJobsPerTeam&quot;)).intValue();</span>
+	  }
+<span class="fc" id="L1132">	  catch(NullPointerException npe)</span>
+	  {
+		  // Use the default of 10 if the Misc Parameters are unavailable
+<span class="fc" id="L1135">	  }</span>
+
+<span class="fc bfc" id="L1137" title="All 2 branches covered.">	  if ((getNumberOfJobs() + 1) &gt; maxNumberOfJobs)</span>
+	  {
+<span class="fc" id="L1139">		  return false;</span>
+	  }
+	  else
+	  {
+<span class="fc" id="L1143">		  return true;</span>
+	  }
+
+  }
+
+  /**
+   * Adds a new job to this company's list of jobs.
+   * This method is called during the update process to assign the company
+   * a job it just won by having the best bid.
+   * Work is done on this job only in the second month of the period in which it is created.
+   * The methods selected in the bid are set to be the initial methods to be used on the job.
+   * &lt;br&gt;&lt;br&gt;Additionally this method will update this company's current
+   * WIP value to include the amount of the bid.  The WIP value will not be changed
+   * in the database by this method; that change will not take place until
+   * the Financial Report Form for this company for this period is saved.
+   */
+  public void awardJob(Job job, Bid bid)
+  {
+<span class="pc bpc" id="L1161" title="1 of 2 branches missed.">	  if (jobs != null)</span>
+	  {
+<span class="fc" id="L1163">		  jobs.add(job);</span>
+	  }
+
+	  //Add an entry for this job's current methods in the database
+	  try
+	  {
+<span class="fc" id="L1169">		  dbFacade.getCurrentMethodDBHandler().addCurrentMethods(game.getGame(), job, bid.getMethods());</span>
+	  }
+<span class="nc" id="L1171">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1173">		  log.fatal(&quot;Cannot create entry for current methods for job &quot; + job.getJobID());</span>
+<span class="nc" id="L1174">		  log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="fc" id="L1175">	  }</span>
+
+<span class="fc" id="L1177">	  wip += bid.getBidAmount();</span>
+<span class="fc" id="L1178">  }</span>
+
+
+  /**
+   * Sets the company this &lt;code&gt;ExpandedCompany&lt;/code&gt; is a wrapper to.
+   * &lt;br&gt;&lt;br&gt;
+   * Note: Since all jobs and loans in this &lt;code&gt;ExpandedCompany&lt;/code&gt; are set to those
+   * of the &lt;code&gt;Company&lt;/code&gt; used to create this &lt;code&gt;ExpandedCompany&lt;/code&gt; you could
+   * probably mess things up pretty bad by calling this method at the wrong time.
+   */
+  public void setCompany(Company company)
+  {
+<span class="fc" id="L1190">	  this.company = company;</span>
+<span class="fc" id="L1191">  }</span>
+
+  public Company getCompany()
+  {
+<span class="fc" id="L1195">	  return company;</span>
+  }
+
+  public FinancialReportForm getFinancialReport()
+  {
+<span class="fc" id="L1200">	  return financialReportForm;</span>
+  }
+
+
+  /**
+   * Process this company's consulting reports purchases this period.
+   * Subtract each purchase amount from the company's cash on hand and
+   * increase the consulting costs in &lt;code&gt;financialReportForm&lt;/code&gt;
+   * accordingly.  This method is invoked during period updates and
+   * game finalization.
+   */
+  public void processConsultingCosts()
+  {
+<span class="nc" id="L1213">	  Hashtable consultingCosts = null;</span>
+
+	  try
+	  {
+<span class="nc" id="L1217">		  consultingCosts = dbFacade.getGameParametersDBHandler().getConsultingCostsParameters(game.getGame());</span>
+	  }
+<span class="nc" id="L1219">	  catch (Exception pnfe)</span>
+	  {
+<span class="nc" id="L1221">		  log.fatal(&quot;Error retrieving consulting costs parameters: &quot; + company.getCompanyID());</span>
+<span class="nc" id="L1222">		  log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L1223">	  }</span>
+
+
+	  try
+	  {
+		  /*
+			purchaseMap is indexed by report ID, its entries are the number
+			of reports (which might be zero) purchased of each type during
+			this period.
+
+			Report IDs are:
+			COMPLETE_LIST_OF_BIDS = 0;
+			CONSTRUCTION_DEMAND = 1;
+			LABOR_AVAILABILITY = 2;
+			MATERIAL_COST_INDEX = 3;
+			WEATHER_FORECAST = 4;
+
+			If this company purchased 3 Complete List of Bid Reports (each for a
+			different period) and the Weather Forecast this period, purchaseMap
+			looks like this: {3,0,0,0,1}
+		  */
+<span class="nc" id="L1244">		  int[] purchaseMap = dbFacade.getReportLedgerDBHandler().getPurchasesForPeriod(company.getCompanyID(), game.getCurrentPeriodNumber());</span>
+
+<span class="nc bnc" id="L1246" title="All 2 branches missed.">		  for (int i = 0; i &lt; purchaseMap.length; i++)</span>
+		  {
+<span class="nc bnc" id="L1248" title="All 4 branches missed.">			  if (null != purchaseMap &amp;&amp; 0 != purchaseMap[i])</span>
+			  {
+<span class="nc" id="L1250">				  int reportCost = getReportCost(i, consultingCosts);</span>
+
+				 // System.out.println(&quot;    Period &quot; + game.getCurrentPeriodNumber() +
+					//				 &quot;, Spent $&quot; + reportCost * purchaseMap[i] + &quot; on Report &quot; + i);
+
+<span class="nc" id="L1255">				  decreaseCashOnHand(reportCost * purchaseMap[i], &quot;CONSULTING&quot;);</span>
+<span class="nc" id="L1256">				  dbFacade.getCompanyDBHandler().updateCompany(game.getGame(), company);</span>
+<span class="nc" id="L1257">				  financialReportForm.increaseConsultingExpenses(reportCost * purchaseMap[i]);</span>
+			  }
+		  }
+
+	  }
+<span class="nc" id="L1262">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1264">		  log.fatal(&quot;Error processing consulting costs for company &quot; + company.getCompanyID());</span>
+<span class="nc" id="L1265">		  log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L1267">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L1269">		  log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L1270">	  }</span>
+<span class="nc" id="L1271">  }</span>
+
+
+	/**
+	 * Determine the cost of a report, identified by &lt;code&gt;reportID&lt;/code&gt;
+	 *
+	 * @param reportId the ID of the report
+	 * @param costs the &lt;code&gt;Hashtable&lt;/code&gt; containing the
+	 *        report costs from the database.
+	 */
+    private int getReportCost(int reportID, Hashtable costs)
+    {
+<span class="nc bnc" id="L1283" title="All 2 branches missed.">        if (reportID == ConsultingReportsAction.COMPLETE_LIST_OF_BIDS)</span>
+        {
+<span class="nc" id="L1285">            return ((Integer) costs.get(&quot;Complete_List_Of_Bids&quot;)).intValue();</span>
+        }
+<span class="nc bnc" id="L1287" title="All 2 branches missed.">        else if (reportID == ConsultingReportsAction.CONSTRUCTION_DEMAND)</span>
+        {
+<span class="nc" id="L1289">            return ((Integer) costs.get(&quot;Market_Demand&quot;)).intValue();</span>
+        }
+<span class="nc bnc" id="L1291" title="All 2 branches missed.">        else if (reportID == ConsultingReportsAction.LABOR_AVAILABILITY)</span>
+        {
+<span class="nc" id="L1293">            return ((Integer) costs.get(&quot;Labor_Availability&quot;)).intValue();</span>
+        }
+<span class="nc bnc" id="L1295" title="All 2 branches missed.">        else if (reportID == ConsultingReportsAction.MATERIAL_COST_INDEX)</span>
+        {
+<span class="nc" id="L1297">            return ((Integer) costs.get(&quot;Material_Cost_Index&quot;)).intValue();</span>
+        }
+<span class="nc bnc" id="L1299" title="All 2 branches missed.">        else if (reportID == ConsultingReportsAction.WEATHER_FORECAST)</span>
+        {
+<span class="nc" id="L1301">            return ((Integer) costs.get(&quot;Weather_Forecast&quot;)).intValue();</span>
+        }
+<span class="nc bnc" id="L1303" title="All 2 branches missed.">        else if (reportID == ConsultingReportsAction.CAM_REPORT)</span>
+        {
+<span class="nc" id="L1305">            return ((Integer) costs.get(&quot;CAM_Report&quot;)).intValue();</span>
+        }
+        else
+        {
+<span class="nc" id="L1309">            return 0;</span>
+        }
+    }
+
+    /**
+     *  Creates a &lt;code&gt;CAMUpdater&lt;/code&gt; and uses it to
+     *  update the CAMs for this company.  When this
+     *  method completes the stored updates to each metric
+     *  will be added to that metric and current updates set to zero.
+     */
+	public void updateCAMs()
+	{
+<span class="nc" id="L1321">		CAMUpdater camUpdater = new CAMUpdater(game.getGame(), dbFacade);</span>
+<span class="nc" id="L1322">		camUpdater.updateMetrics(company, game.getGame().getCurrentPeriodNumber());</span>
+<span class="nc" id="L1323">	}</span>
+
+	/**
+	 *  Modifies that amount that will be added to a metric when the period
+	 *  update completes.
+	 *  @param metric The metric whose update value will be modified.
+	 *                Values for this parameter are define as static ints
+	 *				  in &lt;code&gt;edu.calpoly.lib.multimedia.big.game.CAMUpdater&lt;/code&gt;
+	 *  @param amount The amount by which to modify the metric.
+	 */
+	public void modifyCAMUpdate(int metric, int amount)
+	{
+<span class="pc bpc" id="L1335" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L1337">			log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: Updating metric &quot; + metric + &quot; with amount &quot; + amount);</span>
+		}
+		try
+		{
+<span class="nc" id="L1341">			dbFacade.getCAMDBHandler().updateCAM(company, metric, amount);</span>
+		}
+<span class="fc" id="L1343">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="fc" id="L1345">			log.fatal(&quot;&quot;, bigdbe);</span>
+		}
+<span class="nc" id="L1347">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L1349">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="pc" id="L1350">		}</span>
+<span class="fc" id="L1351">	}</span>
+
+
+	/**
+	 * Returns true if the value of bidAmount added to the this company's
+	 * current WIP value is less than or equal to the WIP bond limit for this company.
+	 * Returns false if bidAmount added to the current WIP value will exceed
+	 * the WIP bond limit
+	 */
+	public boolean jobWithinWIPLimit(long bidAmount)
+	{
+<span class="fc bfc" id="L1362" title="All 2 branches covered.">		if ( (bidAmount + wip) &lt;= company.getWIPLimit() )</span>
+		{
+<span class="fc" id="L1364">			return true;</span>
+		}
+<span class="fc" id="L1366">		return false;</span>
+	}
+
+
+	/**
+	 * Returns true if the value of bidAmount is less than or equal to the per job bond limit
+	 * for this company.  Returns false if the per job limit is exceeded.
+	 */
+	public boolean jobWithinPerJobLimit(long bidAmount)
+	{
+<span class="fc bfc" id="L1376" title="All 2 branches covered.">		if (bidAmount &lt;= company.getPerJobLimit())</span>
+		{
+<span class="fc" id="L1378">			return true;</span>
+		}
+<span class="fc" id="L1380">		return false;</span>
+	}
+
+	/**
+	 * Reevaluates bond limits for this company.
+	 * Consult requirements doc for specifics on how bond limits are recomputed
+	 */
+	public void reevaluateBondLimits()
+	{
+<span class="nc" id="L1389">		Vector cashOnHandValues = null;</span>
+<span class="nc" id="L1390">		CAMReportForm cams = null;</span>
+		try
+		{
+<span class="nc" id="L1393">			cashOnHandValues = dbFacade.getUtilityDBHandler().getPreviousPeriodsCashOnHand(company.getCompanyID(), 3, game.getCurrentPeriodNumber()-1);</span>
+<span class="nc" id="L1394">			cams = new CAMReportForm(dbFacade.getCAMDBHandler().getCAMs(company, game.getCurrentPeriodNumber() - 1));</span>
+		}
+<span class="nc" id="L1396">		catch (BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L1398">			log.fatal(&quot;&quot;, bigdbe);</span>
+		}
+<span class="nc" id="L1400">		catch (ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L1402">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L1403">		}</span>
+
+		long currentCash;
+		long prevCash;
+		long prevCash2;
+<span class="nc" id="L1408">		double cashAvg = 0;</span>
+		long newWIPLimit;
+
+<span class="nc bnc" id="L1411" title="All 2 branches missed.">		if(cashOnHandValues.size() &lt; 1)</span>
+		{
+			//If there's an error ignore the reeval
+<span class="nc" id="L1414">			log.error(&quot;Company &quot; + company.getCompanyID() + &quot;: Error: No cash-on-hand for computing bond limits&quot;);</span>
+<span class="nc" id="L1415">			return;</span>
+		}
+<span class="nc bnc" id="L1417" title="All 2 branches missed.">		else if(cashOnHandValues.size() == 1)</span>
+		{
+<span class="nc" id="L1419">			cashAvg = (double) ((Long) cashOnHandValues.elementAt(0)).longValue();</span>
+		}
+<span class="nc bnc" id="L1421" title="All 2 branches missed.">		else if(cashOnHandValues.size() == 2)</span>
+		{
+<span class="nc" id="L1423">			currentCash = ((Long) cashOnHandValues.elementAt(0)).longValue();</span>
+<span class="nc" id="L1424">			prevCash = ((Long) cashOnHandValues.elementAt(1)).longValue();</span>
+
+<span class="nc" id="L1426">			cashAvg = (.4d *  (double) prevCash) + (.6d * (double) currentCash);</span>
+		}
+<span class="nc bnc" id="L1428" title="All 2 branches missed.">		else if(cashOnHandValues.size() &gt; 2)</span>
+		{
+<span class="nc" id="L1430">			currentCash = ((Long) cashOnHandValues.elementAt(0)).longValue();</span>
+<span class="nc" id="L1431">			prevCash = ((Long) cashOnHandValues.elementAt(1)).longValue();</span>
+<span class="nc" id="L1432">			prevCash2 = ((Long) cashOnHandValues.elementAt(2)).longValue();</span>
+
+<span class="nc" id="L1434">			cashAvg = (.1d * (double) prevCash2) + (.3d *  (double) prevCash) + (.6d * (double) currentCash);</span>
+		}
+
+<span class="nc bnc" id="L1437" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L1439">			log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: Cash avg: &quot; + cashAvg);</span>
+		}
+
+<span class="nc" id="L1442">		double loanBalanceAdjustment = (double)balanceSheet.getLoanBalances() * .9d;</span>
+<span class="nc" id="L1443">		double loanAdjustedCashAvg = cashAvg - loanBalanceAdjustment;</span>
+
+<span class="nc bnc" id="L1445" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L1447">			log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: Loan Adj Cash avg: &quot; + loanAdjustedCashAvg);</span>
+		}
+
+<span class="nc" id="L1450">		newWIPLimit = Math.round((double) loanAdjustedCashAvg / ((double) company.getWIPLimitPercent() / 100d));</span>
+		//System.out.println(&quot;New WIP Limit: &quot; + newWIPLimit);
+<span class="nc" id="L1452">		newWIPLimit = newWIPLimit - (newWIPLimit % 100000);</span>
+		//System.out.println(&quot;New WIP Limit: &quot; + newWIPLimit);
+<span class="nc" id="L1454">		newWIPLimit = BondLimitConstraints.applyWIPLimitMinimum(newWIPLimit);</span>
+
+<span class="nc bnc" id="L1456" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L1458">			log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: New WIP Limit: &quot; + newWIPLimit);</span>
+		}
+
+<span class="nc" id="L1461">		company.setWIPLimit(newWIPLimit);</span>
+
+
+<span class="nc" id="L1464">		int financialLiquidity = 3;</span>
+<span class="nc" id="L1465">		int financialSuccess = 3;</span>
+<span class="nc" id="L1466">		int pace = 3;</span>
+
+<span class="nc bnc" id="L1468" title="All 2 branches missed.">		if(cams == null)</span>
+		{
+			//If there's an error ignore the reeval
+<span class="nc" id="L1471">			log.error(&quot;Company &quot; + company.getCompanyID() + &quot;: Error: No cash-on-hand for computing bond limits&quot;);</span>
+<span class="nc" id="L1472">			return;</span>
+		}
+
+<span class="nc" id="L1475">		financialLiquidity = cams.getFinancialLiquidity();</span>
+<span class="nc" id="L1476">		financialSuccess = cams.getFinancialSuccess();</span>
+<span class="nc" id="L1477">		pace = cams.getPace();</span>
+
+<span class="nc bnc" id="L1479" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L1481">			log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: financial liquiduty: &quot; + financialLiquidity);</span>
+<span class="nc" id="L1482">			log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: financialSuccess: &quot; + financialSuccess);</span>
+<span class="nc" id="L1483">			log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: pace: &quot; + pace);</span>
+		}
+
+<span class="nc" id="L1486">		int newPerJobLimitPercent = company.getPerJobLimitAsWIPPercent();</span>
+<span class="nc bnc" id="L1487" title="All 2 branches missed.">		if(financialLiquidity &lt; 2)</span>
+		{
+<span class="nc" id="L1489">			newPerJobLimitPercent -= 5;</span>
+		}
+<span class="nc bnc" id="L1491" title="All 2 branches missed.">		else if(financialLiquidity == 2)</span>
+		{
+<span class="nc" id="L1493">			newPerJobLimitPercent -= 2;</span>
+		}
+<span class="nc bnc" id="L1495" title="All 2 branches missed.">		else if(financialLiquidity == 3)</span>
+		{
+<span class="nc" id="L1497">			newPerJobLimitPercent += 1;</span>
+		}
+<span class="nc bnc" id="L1499" title="All 2 branches missed.">		else if(financialLiquidity == 4)</span>
+		{
+<span class="nc" id="L1501">			newPerJobLimitPercent += 3;</span>
+		}
+<span class="nc bnc" id="L1503" title="All 2 branches missed.">		else if(financialLiquidity &gt; 4)</span>
+		{
+<span class="nc" id="L1505">			newPerJobLimitPercent += 5;</span>
+		}
+
+<span class="nc bnc" id="L1508" title="All 2 branches missed.">		if(financialSuccess &lt; 2)</span>
+		{
+<span class="nc" id="L1510">			newPerJobLimitPercent -= 5;</span>
+		}
+<span class="nc bnc" id="L1512" title="All 2 branches missed.">		else if(financialSuccess == 2)</span>
+		{
+<span class="nc" id="L1514">			newPerJobLimitPercent -= 2;</span>
+		}
+<span class="nc bnc" id="L1516" title="All 2 branches missed.">		else if(financialSuccess == 3)</span>
+		{
+<span class="nc" id="L1518">			newPerJobLimitPercent += 1;</span>
+		}
+<span class="nc bnc" id="L1520" title="All 2 branches missed.">		else if(financialSuccess == 4)</span>
+		{
+<span class="nc" id="L1522">			newPerJobLimitPercent += 3;</span>
+		}
+<span class="nc bnc" id="L1524" title="All 2 branches missed.">		else if(financialSuccess &gt; 4)</span>
+		{
+<span class="nc" id="L1526">			newPerJobLimitPercent += 5;</span>
+		}
+
+<span class="nc bnc" id="L1529" title="All 2 branches missed.">		if(pace &lt; 2)</span>
+		{
+<span class="nc" id="L1531">			newPerJobLimitPercent -= 5;</span>
+		}
+<span class="nc bnc" id="L1533" title="All 2 branches missed.">		else if(pace == 2)</span>
+		{
+<span class="nc" id="L1535">			newPerJobLimitPercent -= 2;</span>
+		}
+<span class="nc bnc" id="L1537" title="All 2 branches missed.">		else if(pace == 3)</span>
+		{
+<span class="nc" id="L1539">			newPerJobLimitPercent += 1;</span>
+		}
+<span class="nc bnc" id="L1541" title="All 2 branches missed.">		else if(pace == 4)</span>
+		{
+<span class="nc" id="L1543">			newPerJobLimitPercent += 3;</span>
+		}
+<span class="nc bnc" id="L1545" title="All 2 branches missed.">		else if(pace &gt; 4)</span>
+		{
+<span class="nc" id="L1547">			newPerJobLimitPercent += 5;</span>
+<span class="nc" id="L1548">		}		log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: newPerJobLimitPercent: &quot; + newPerJobLimitPercent);</span>
+
+
+<span class="nc" id="L1551">		newPerJobLimitPercent = Math.min(100, newPerJobLimitPercent);</span>
+<span class="nc" id="L1552">		newPerJobLimitPercent = Math.max(30, newPerJobLimitPercent);</span>
+<span class="nc" id="L1553">		company.setPerJobLimitAsWIPPercent(newPerJobLimitPercent);</span>
+
+<span class="nc" id="L1555">		log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: newPerJobLimitPercent: &quot; + newPerJobLimitPercent);</span>
+
+<span class="nc" id="L1557">		long newPerJobLimit = Math.round((double) newWIPLimit * ( ((double) newPerJobLimitPercent) / 100d));</span>
+<span class="nc" id="L1558">		log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: newPerJobLimit: &quot; + newPerJobLimit);</span>
+<span class="nc" id="L1559">		newPerJobLimit = BondLimitConstraints.applyPerJobLimitMinimum(newPerJobLimit);</span>
+<span class="nc" id="L1560">		company.setPerJobLimit(newPerJobLimit);</span>
+
+<span class="nc" id="L1562">		log.debug(&quot;Company &quot; + company.getCompanyID() + &quot;: newPerJobLimit: &quot; + newPerJobLimit);</span>
+
+		try
+		{
+<span class="nc" id="L1566">			dbFacade.getCompanyDBHandler().updateCompany(game.getGame(), company);</span>
+		}
+<span class="nc" id="L1568">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L1570">			log.fatal(&quot;&quot;, bigdbe);</span>
+		}
+<span class="nc" id="L1572">		catch (ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L1574">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L1575">		}</span>
+
+<span class="nc" id="L1577">        game.sendInGameMessageToCompany(new Message(&quot;TBC&quot;,</span>
+					  					  		    company,
+<span class="nc" id="L1579">													&quot;We have recently reviewed your company and reset your bond limits as follows:  Your WIP Limit is now &quot; + NumberConverter.stringValue(newWIPLimit) + &quot;, and your Per Job Limit is now &quot; + NumberConverter.stringValue(newPerJobLimit) + &quot;.  We will re-evaluate your bond limits periodically based on the success of your company.&quot;,</span>
+													&quot;Bond Limit Re-evaluation&quot;,
+<span class="nc" id="L1581">													game.getGame().getCurrentPeriodNumber(),</span>
+													Message.TEXT_ONLY,
+													-1
+												   )
+									   );
+
+<span class="nc" id="L1587">	}</span>
+
+	/**
+	 *  Returns a &lt;code&gt;Hashtable&lt;/code&gt; of metrics
+	 *  for this company.  The metrics will be returned
+	 *  for the current period minus, that is the period number
+	 *  returned from a call to Game.getCurrentPeriodNumber() - 1.
+	 */
+	public Hashtable getCAMs()
+	{
+		try
+		{
+<span class="nc" id="L1599">			return dbFacade.getCAMDBHandler().getCAMs(company, game.getCurrentPeriodNumber() - 1);</span>
+		}
+<span class="nc" id="L1601">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L1603">			log.fatal(&quot;&quot;, bigdbe);</span>
+		}
+<span class="fc" id="L1605">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="fc" id="L1607">			log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L1608">		}</span>
+
+<span class="fc" id="L1610">		return null;</span>
+	}
+
+	/**
+	 *  When the Auto Billing game component is turned on, will determine
+	 *  amount for billing and add it to a Billing Form, ready for submittal
+	 *  to processIncomingPayments() in ExpandedCompany.java as part of period update.
+	 */
+	public void autoBillingOnJobs(Game game)
+	{
+	  int billingAmount;
+	  try
+	  {
+		  //This is the list of all jobs this company is currently working on or
+		  //has ever worked on in which the amount of cash collected for the job
+		  //is less than the total contract price for the job
+<span class="nc" id="L1626">	  	  Vector unbilledJobs = dbFacade.getJobDBHandler().getUnbilledJobs(game, company);</span>
+<span class="nc" id="L1627">	  	  Iterator i = unbilledJobs.iterator();</span>
+<span class="nc bnc" id="L1628" title="All 2 branches missed.">	  	  while(i.hasNext())</span>
+	  	  {
+<span class="nc" id="L1630">			  Job j = (Job) i.next();</span>
+              //System.out.println(&quot;Job Number Equals &quot; + j.getJobID() );
+
+              //Cannot bill in period during which the job was created (no contract yet - job will be assigned to company during this period update).
+              //Work on job will be done during this update, and you can't bill for that work until the next period update.
+<span class="nc bnc" id="L1635" title="All 2 branches missed.">              if (game.getCurrentPeriodNumber() != j.getPeriodCreated() + 1 )</span>
+              {
+			     //Get the billing form associated with this job
+<span class="nc" id="L1638">                 BillingForm bf = dbFacade.getBillingDBHandler().getBillingForm(game, game.getCurrentPeriodNumber() - 1, company, j);</span>
+<span class="nc" id="L1639">                 bf.setJob(j);</span>
+<span class="nc" id="L1640">                 bf.setContract(dbFacade.getContractsReportsDBHandler().getContract(game, game.getCurrentPeriodNumber() - 1, j, company) );</span>
+
+/*
+        //Code from a previous attempt -- it worked okay -- formula for billingAmount now much more compact  -- Note use of ContractsInProgressReportForm and setting of pointer to the current contract
+                 ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, game.getCurrentPeriodNumber() -1, company);
+
+                 //ContractsInProgressReportForm is comprised of data for many different contracts with a pointer maintained to the current contract.
+                 //This will set the pointer to the current job's contract
+                 bf.setContractsInProgressReport(contractsInProgress);
+
+                 int billedToDate = contractsInProgress.getBilledToDate();
+                 int billingAmount = (int) Math.round(((float) (j.getJobSize() + j.getChangeOrderLus() - j.getLusRemaining())) / ((float) (j.getJobSize() + j.getChangeOrderLus())) * (j.getBidAmount() + j.getChangeOrderPrice())) - billedToDate;
+*/
+
+<span class="nc" id="L1654">         		 ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, game.getCurrentPeriodNumber() -1, company);</span>
+<span class="nc" id="L1655"> 		 	     CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, game.getCurrentPeriodNumber() -1, company);</span>
+
+<span class="nc bnc" id="L1657" title="All 2 branches missed.">				 if (!bf.isJobComplete() )</span>
+<span class="nc" id="L1658">                     billingAmount = NumberConverter.intValue(bf.getProgressReportBillingEstimate() );</span>
+
+                 else {
+					 // ContractsInProgressReportForm is comprised of data for many different contracts with a pointer maintained to the
+					 // current contract. This will set the pointer to the current job's contract.
+<span class="nc" id="L1663">					 bf.setCompletedContractsReport(completedContracts);</span>
+
+<span class="nc" id="L1665">					 billingAmount = completedContracts.getUnbilledPortionOfContract();</span>
+				 }
+
+                 //System.out.println(&quot;Billing Amount Equals &quot; + billingAmount);
+
+<span class="nc" id="L1670">                 bf.setBillingAmount(billingAmount);</span>
+
+<span class="nc" id="L1672">				 int currRetention = j.calculateRetainedAmount(bf.getBillingAmount());</span>
+
+				 //Previous period's Balance Sheet
+<span class="nc" id="L1675">				 BalanceSheetForm prevPerBalanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, game.getCurrentPeriodNumber() -1, company);</span>
+
+<span class="nc" id="L1677">				 prevPerBalanceSheet.setUnderbilledAmount(contractsInProgress.getTotalUnderbilling() - bf.getBillingAmount());  //This new value won't be saved, it's only for this object</span>
+<span class="nc" id="L1678">				 prevPerBalanceSheet.setUnbilledAmount(completedContracts.getTotalUnbilled());</span>
+<span class="nc" id="L1679">				 prevPerBalanceSheet.setOverbilledAmount(contractsInProgress.getTotalOverbilling() + completedContracts.getTotalOverbilled());</span>
+
+				 //Note: Last period's ending Balance Sheet has already been copied and used to create this period's BalanceSheetForm (Line # 146 &amp; 147)
+				 //ready to receive updates for the current period.  Therefore, any changes made to prevPerBalanceSheet must also be made to &quot;balanceSheet,&quot;
+				 //the current period's BalanceSheetForm object.
+
+<span class="nc" id="L1685">			 	 prevPerBalanceSheet.setCurrentAccountsReceivable(prevPerBalanceSheet.getCurrentAccountsReceivable() + (bf.getBillingAmount() - currRetention) );</span>
+<span class="nc" id="L1686">				 balanceSheet.setCurrentAccountsReceivable(balanceSheet.getCurrentAccountsReceivable() + (bf.getBillingAmount() - currRetention) );</span>
+
+<span class="nc" id="L1688">				 prevPerBalanceSheet.setRetentionReceivable(prevPerBalanceSheet.getRetentionReceivable() + currRetention );</span>
+<span class="nc" id="L1689">				 balanceSheet.setRetentionReceivable(balanceSheet.getRetentionReceivable() + currRetention );</span>
+
+<span class="nc" id="L1691">				 prevPerBalanceSheet.setPeriod(game.getCurrentPeriodNumber() - 1);</span>
+
+<span class="nc" id="L1693">				 dbFacade.getBillingDBHandler().updateBillingForm(game, company, game.getCurrentPeriodNumber() -1, bf);</span>
+<span class="nc" id="L1694">				 dbFacade.getBalanceSheetDBHandler().updateBalanceSheet(game, company, prevPerBalanceSheet);</span>
+		      }
+<span class="nc" id="L1696">          }</span>
+      }
+<span class="nc" id="L1698">	  catch(BIGDatabaseFacadeException bigdbe)</span>
+	  {
+<span class="nc" id="L1700">		  log.fatal(&quot;&quot;, bigdbe);</span>
+	  }
+<span class="nc" id="L1702">	  catch(ObjectNotFoundException onfe)</span>
+	  {
+<span class="nc" id="L1704">		  log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L1705">	  }</span>
+
+<span class="nc" id="L1707">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

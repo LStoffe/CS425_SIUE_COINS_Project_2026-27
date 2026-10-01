@@ -1,0 +1,72 @@
+<!--
+    core-values.html
+    This page allows the company to change their Core Values displayed in the company menu.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Edit Core Values</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Edit Core Values</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-3xl">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Core Values Edit Window
+      </h3>
+
+      <!-- Form name and action -->
+      <form name="coreValuesForm" method="post" th:action="@{/company/published-info/core-values}" class="space-y-6">
+
+        <!-- Textarea -->
+        <div>
+          <label for="coreValues" class="block font-semibold mb-2">
+            Type Your Text Here
+          </label>
+          <textarea
+            id="coreValues"
+            name="coreValues"
+            rows="12"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 font-sans resize-y"
+          ></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-between pt-4">
+            <a th:href="@{/company/published-info-menu}"
+                class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block">
+            Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+                Submit
+            </button>
+        </div>
+
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,1004 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MaterialCostIndexParametersForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">MaterialCostIndexParametersForm.java</span></div><h1>MaterialCostIndexParametersForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import java.util.Hashtable;
+
+/**
+ * ActionForm used to hold the statistics for the naterial cost index game parameters (min, max, standard deviation, and median values) per period.
+ * &lt;code&gt;MaterialCostIndexParametersForm&lt;/code&gt; can hold information on 12 periods.
+ *
+ * &lt;br&gt;
+ * &lt;code&gt;MaterialCostIndexParametersForm&lt;/code&gt; deals with the statistic values both as Strings and ints.  The numbers need to be Strings
+ * to communicate with the HTML form.  Ints are needed for practical use of the values. To access the values as String simple get and set
+ * methods are provided.  To access the values as ints, methods are provided that return and take as a parameter arrays of ints, 12 long.
+ * The index value of the int in the array corresponds with the period number that int is for.
+ *
+ *
+ *
+ * @author Kevin Craig, modified by Dara Manker
+ *
+ * @version $Revision: 1.1 $ $Date: 2001/10/08 02:17:13 $
+ */
+
+<span class="fc" id="L27">public class MaterialCostIndexParametersForm extends ActionForm</span>
+{
+	//Developers Note:  All array lengths must be hard coded to 12 because there are 12 of each type of method.
+	//To change this number this whole class must be modified
+	//The initial conversion from strings to ints takes place during the validate method because the conversion also has
+	//the effect of validating that the strings contain numeric values
+
+<span class="fc" id="L34">	private boolean makeDefaults = false;</span>
+
+<span class="fc" id="L36">	private int[] medians = new int[12];</span>
+<span class="fc" id="L37">	private int[] stddevs = new int[12];</span>
+<span class="fc" id="L38">	private int[] mins = new int[12];</span>
+<span class="fc" id="L39">	private int[] maxes = new int[12];</span>
+
+<span class="fc" id="L41">    private String[] medianStrings = new String[12];</span>
+<span class="fc" id="L42">    private String[] stddevStrings = new String[12];</span>
+<span class="fc" id="L43">    private String[] minStrings = new String[12];</span>
+<span class="fc" id="L44">    private String[] maxStrings = new String[12];</span>
+
+
+    //**************** Public Methods ******************
+
+    /**
+     * Returns an array of 12 ints representing the median number of jobs value for the 12 periods.
+     */
+    public int[] getMedians()
+    {
+<span class="fc" id="L54">		stringsToInts(medianStrings, medians);</span>
+
+<span class="fc" id="L56">        return medians;</span>
+	}
+
+    /**
+     * Returns an array of 12 ints representing the standard deviation of the number of jobs value for the 12 periods.
+     */
+    public int[] getStddevs()
+    {
+<span class="fc" id="L64">		stringsToInts(stddevStrings, stddevs);</span>
+
+<span class="fc" id="L66">		return stddevs;</span>
+	}
+
+    /**
+     * Returns an array of 12 ints representing the minimum number of jobs value for the 12 periods.
+     */
+    public int[] getMins()
+    {
+<span class="fc" id="L74">		stringsToInts(minStrings, mins);</span>
+
+<span class="fc" id="L76">		return mins;</span>
+	}
+
+    /**
+     * Returns an array of 12 ints representing the maximum number of jobs value for the 12 periods.
+     * @throws NumberFormatException One of the max String does not contain a value that is a decimal number
+     */
+    public int[] getMaxes()
+    {
+<span class="fc" id="L85">		stringsToInts(maxStrings, maxes);</span>
+
+<span class="fc" id="L87">		return maxes;</span>
+	}
+
+    /**
+     * Populates the action form with median number of jobs per period values for 12 periods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array medians must have length 12.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param medians int array containing median values for the 12 period
+     */
+    public void setMedians(int[] medians)
+    {
+<span class="fc" id="L100">		this.medians = medians;</span>
+
+<span class="fc" id="L102">		intsToStrings(medians, medianStrings);</span>
+<span class="fc" id="L103">	}</span>
+
+    /**
+     * Populates the action form with standard deviation of number of jobs per period values for 12 periods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array stddevs must have length 12.
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param medians int array containing standard deviation values for the 12 periods
+     */
+    public void setStddevs(int[] stddevs)
+    {
+<span class="fc" id="L115">		this.stddevs = stddevs;</span>
+
+<span class="fc" id="L117">		intsToStrings(stddevs, stddevStrings);</span>
+<span class="fc" id="L118">	}</span>
+
+    /**
+     * Populates the action form with minimum number of jobs per period values for 12 periods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array mins must have length 12.
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param medians int array containing minimum values for the 12 periods
+     */
+    public void setMins(int[] mins)
+    {
+<span class="fc" id="L130">		this.mins = mins;</span>
+
+
+<span class="fc" id="L133">		intsToStrings(mins, minStrings);</span>
+<span class="fc" id="L134">	}</span>
+
+    /**
+     * Populates the action form with maximum number of jobs per period values for 12 periods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array maxes must have length 12.
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param medians int array containing maximum values for the 12 periods
+     */
+    public void setMaxes(int[] maxes)
+    {
+<span class="fc" id="L146">		this.maxes = maxes;</span>
+
+<span class="fc" id="L148">		intsToStrings(maxes, maxStrings);</span>
+<span class="fc" id="L149">	}</span>
+
+    /**
+     * Populates a hashtable with all of the naterial cost index parameters for the 12 periods from the action form.
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param parameters Hashtable containing all naterial cost index parameter values for the 12 periods. Keys to the hashtable are in the form &quot;Median#&quot;, &quot;Stddev#&quot;, &quot;Min#&quot;, &quot;Max#&quot;, where &quot;#&quot; is the period number.
+     */
+    public Hashtable setAllParameters()
+    {
+<span class="fc" id="L158">		Hashtable parameters = new Hashtable();</span>
+
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        for(int i=0;i&lt;12;i++)</span>
+        {
+<span class="fc" id="L162">		   parameters.put(&quot;Median&quot; + i+1, new Integer(this.medians[i]));</span>
+<span class="fc" id="L163">		   parameters.put(&quot;StdDev&quot; + i+1, new Integer(this.stddevs[i]));</span>
+<span class="fc" id="L164">		   parameters.put(&quot;Min&quot; + i+1, new Integer(this.mins[i]));</span>
+<span class="fc" id="L165">		   parameters.put(&quot;Max&quot; + i+1, new Integer(this.maxes[i]));</span>
+	    }
+
+<span class="fc" id="L168">		return parameters;</span>
+	}
+
+
+    /**
+     * Populates the action form with all of the naterial cost index parameters for the 12 periods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The hashtable is in the form output by BIGDatabaseFacade.getMaterialCostIndexParameters(Game game).
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param parameters Hashtable containing all naterial cost index parameter values for the 12 periods
+     */
+    public void setAllParameters(Hashtable parameters)
+    {
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        for(int i=0;i&lt;12;i++)</span>
+        {
+<span class="fc" id="L184">		   this.medians[i] = ((Integer) parameters.get(&quot;Median&quot; + i+1)).intValue();</span>
+<span class="fc" id="L185">		   this.stddevs[i] = ((Integer) parameters.get(&quot;StdDev&quot; + i+1)).intValue();</span>
+<span class="fc" id="L186">		   this.mins[i] = ((Integer) parameters.get(&quot;Min&quot; + i+1)).intValue();</span>
+<span class="fc" id="L187">		   this.maxes[i] = ((Integer) parameters.get(&quot;Max&quot; + i+1)).intValue();</span>
+	    }
+
+<span class="fc" id="L190">		intsToStrings(medians, medianStrings);</span>
+<span class="fc" id="L191">		intsToStrings(stddevs, stddevStrings);</span>
+<span class="fc" id="L192">		intsToStrings(mins, minStrings);</span>
+<span class="fc" id="L193">		intsToStrings(maxes, maxStrings);</span>
+<span class="fc" id="L194">	}</span>
+
+
+    /**
+     * Reset fields to their initial values
+     */
+    public void reset()
+    {
+<span class="fc" id="L202">		makeDefaults = false;</span>
+<span class="fc" id="L203">	}</span>
+
+
+	/**
+	 * Ensures all values are non-null, all number strings contain only numeric characters,
+     * all number are greater than or equal to zero, and that for each period the mins are less than or equal to the max.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+
+<span class="fc" id="L213">        ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L215">        boolean nullParams = false;</span>
+<span class="fc" id="L216">        boolean validNumbers = true;</span>
+<span class="fc" id="L217">        boolean positiveNumbers = true;</span>
+<span class="fc" id="L218">        boolean minsValid = true;</span>
+
+        //First make sure none of the Strings are null
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        for(int i = 0; i &lt; 12; i++)</span>
+        {
+<span class="pc bpc" id="L223" title="1 of 4 branches missed.">			if((medianStrings[i].trim() == null) || (medianStrings[i].trim().length() &lt; 1))</span>
+<span class="fc" id="L224">				nullParams = true;</span>
+<span class="pc bpc" id="L225" title="2 of 4 branches missed.">		    if((stddevStrings[i].trim() == null) || (stddevStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L226">		    	nullParams = true;</span>
+<span class="pc bpc" id="L227" title="2 of 4 branches missed.">			if((minStrings[i].trim() == null) || (minStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L228">				nullParams = true;</span>
+<span class="pc bpc" id="L229" title="2 of 4 branches missed.">			if((maxStrings[i].trim() == null) || (maxStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L230">				nullParams = true;</span>
+		}
+
+<span class="fc bfc" id="L233" title="All 2 branches covered.">		if (nullParams) //nullParams == true</span>
+		{
+<span class="fc" id="L235">			errors.add(&quot;nullParameters&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+		else           //nullParams == false
+		{
+			//Next make sure all of the Strings contain only numeric characters.
+<span class="fc bfc" id="L240" title="All 2 branches covered.">			for(int i = 0; i &lt; 12; i++)</span>
+			{
+				//Check that the strings are valid numbers by trying to convert them to ints and checking for a NumberFormatException
+				//Note that this also populated the int arrays
+				try
+				{
+<span class="fc" id="L246">					medians[i] = Integer.parseInt(medianStrings[i]);</span>
+<span class="fc" id="L247">					stddevs[i] = Integer.parseInt(stddevStrings[i]);</span>
+<span class="fc" id="L248">					mins[i] = Integer.parseInt(minStrings[i]);</span>
+<span class="fc" id="L249">					maxes[i] = Integer.parseInt(maxStrings[i]);</span>
+				}
+<span class="fc" id="L251">				catch(NumberFormatException nfe)</span>
+				{
+<span class="fc" id="L253">					validNumbers = false;</span>
+<span class="fc" id="L254">				}</span>
+			}
+		}
+
+<span class="pc bpc" id="L258" title="1 of 4 branches missed.">		if(!validNumbers &amp;&amp; !nullParams) //validNumbers == false AND nullParams == false</span>
+		{
+<span class="fc" id="L260">			errors.add(&quot;numberFormat&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+<span class="fc bfc" id="L262" title="All 2 branches covered.">		else if(!nullParams)				//validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all the numbers are positive or zero
+<span class="fc bfc" id="L265" title="All 2 branches covered.">			for(int i = 0; i &lt; 12; i++)</span>
+			{
+<span class="fc bfc" id="L267" title="All 2 branches covered.">				if(medians[i] &lt; 0)</span>
+<span class="fc" id="L268">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">				if(stddevs[i] &lt; 0)</span>
+<span class="nc" id="L270">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">				if(mins[i] &lt; 0)</span>
+<span class="nc" id="L272">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">				if(maxes[i] &lt; 0)</span>
+<span class="nc" id="L274">					positiveNumbers = false;</span>
+			}
+		}
+
+<span class="pc bpc" id="L278" title="2 of 6 branches missed.">		if(!positiveNumbers &amp;&amp; validNumbers &amp;&amp; !nullParams) //positiveNumbers = false AND nullParams == false AND validNumbers == true</span>
+		{
+<span class="fc" id="L280">			errors.add(&quot;negativeValue&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+<span class="fc bfc" id="L283" title="All 4 branches covered.">		if(validNumbers &amp;&amp; !nullParams)  //validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all min values are greater than or equal to their corresponding max value
+<span class="fc bfc" id="L286" title="All 2 branches covered.">			for(int i = 0; i &lt; 12; i++)</span>
+			{
+<span class="fc bfc" id="L288" title="All 2 branches covered.">				if(mins[i] &gt; maxes[i])</span>
+				{
+<span class="fc" id="L290">					minsValid = false;</span>
+				}
+
+			}
+		}
+
+<span class="pc bpc" id="L296" title="2 of 6 branches missed.">		if(!minsValid &amp;&amp; validNumbers &amp;&amp; !nullParams)  //minsValid == false AND validNumbers == true AND nullParams == false</span>
+		{
+<span class="fc" id="L298">			errors.add(&quot;minmax&quot;, new ActionMessage(&quot;error.parameters.minmax&quot;));</span>
+		}
+
+<span class="fc" id="L301">		return errors;</span>
+	}
+
+//**************************** Private Methods *********************************
+
+    /* Converts a set of strings into ints, stored in an array
+     * Param: stringValues - Array of strings to be converted into ints
+     * Param: intValues - Array of ints where the int values of the Strings will be stored
+     * Precondition: intValues and stringValues must have equal length
+     */
+	private void stringsToInts(String[] stringValues, int[] intValues)
+	{
+
+<span class="fc bfc" id="L314" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc" id="L316">			intValues[i] = Integer.parseInt(stringValues[i]);</span>
+
+		}
+
+<span class="fc" id="L320">	}</span>
+
+    /* Converts a set of ints into into strings, stored in the appropriate variable
+     * Param: intValues - Array of ints to be converted into Strings
+     * Param: stringValues - Array of Strings where the String value of the ints will be stored
+     * Precondition: intValues and stringValues must have equal length
+     */
+	private void intsToStrings(int[] intValues, String[] stringValues)
+	{
+<span class="fc bfc" id="L329" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc" id="L331">			stringValues[i] = Integer.toString(intValues[i]);</span>
+
+		}
+
+
+<span class="fc" id="L336">	}</span>
+
+
+//**************************** Set &amp; Get Methods ************************
+
+    public boolean getMakeDefaults()
+    {
+<span class="fc" id="L343">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L348">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L349">	}</span>
+
+	//These get and set method all correspond to certain indexs in the Strings arrays rather that the varibles their names imply
+
+	public String getMaterialCostIndexMedian1()
+	{
+<span class="fc" id="L355">		return medianStrings[0];</span>
+	}
+
+	public void setMaterialCostIndexMedian1(String MaterialCostIndexMedian1)
+	{
+<span class="fc" id="L360">		medianStrings[0] = MaterialCostIndexMedian1;</span>
+<span class="fc" id="L361">	}</span>
+
+	public String getMaterialCostIndexMedian2()
+	{
+<span class="nc" id="L365">		return medianStrings[1];</span>
+	}
+
+	public void setMaterialCostIndexMedian2(String MaterialCostIndexMedian2)
+	{
+<span class="nc" id="L370">		medianStrings[1] = MaterialCostIndexMedian2;</span>
+<span class="nc" id="L371">	}</span>
+
+	public String getMaterialCostIndexMedian3()
+	{
+<span class="nc" id="L375">		return medianStrings[2];</span>
+	}
+
+	public void setMaterialCostIndexMedian3(String MaterialCostIndexMedian3)
+	{
+<span class="nc" id="L380">		medianStrings[2] = MaterialCostIndexMedian3;</span>
+<span class="nc" id="L381">	}</span>
+
+	public String getMaterialCostIndexMedian4()
+	{
+<span class="nc" id="L385">		return medianStrings[3];</span>
+	}
+
+	public void setMaterialCostIndexMedian4(String MaterialCostIndexMedian4)
+	{
+<span class="nc" id="L390">		medianStrings[3] = MaterialCostIndexMedian4;</span>
+<span class="nc" id="L391">	}</span>
+
+	public String getMaterialCostIndexMedian5()
+	{
+<span class="nc" id="L395">		return medianStrings[4];</span>
+	}
+
+	public void setMaterialCostIndexMedian5(String MaterialCostIndexMedian5)
+	{
+<span class="nc" id="L400">		medianStrings[4] = MaterialCostIndexMedian5;</span>
+<span class="nc" id="L401">	}</span>
+
+	public String getMaterialCostIndexMedian6()
+	{
+<span class="fc" id="L405">		return medianStrings[5];</span>
+	}
+
+	public void setMaterialCostIndexMedian6(String MaterialCostIndexMedian6)
+	{
+<span class="fc" id="L410">		medianStrings[5] = MaterialCostIndexMedian6;</span>
+<span class="fc" id="L411">	}</span>
+
+	public String getMaterialCostIndexMedian7()
+	{
+<span class="nc" id="L415">		return medianStrings[6];</span>
+	}
+
+	public void setMaterialCostIndexMedian7(String MaterialCostIndexMedian7)
+	{
+<span class="nc" id="L420">		medianStrings[6] = MaterialCostIndexMedian7;</span>
+<span class="nc" id="L421">	}</span>
+
+	public String getMaterialCostIndexMedian8()
+	{
+<span class="nc" id="L425">		return medianStrings[7];</span>
+	}
+
+	public void setMaterialCostIndexMedian8(String MaterialCostIndexMedian8)
+	{
+<span class="nc" id="L430">		medianStrings[7] = MaterialCostIndexMedian8;</span>
+<span class="nc" id="L431">	}</span>
+
+	public String getMaterialCostIndexMedian9()
+	{
+<span class="nc" id="L435">		return medianStrings[8];</span>
+	}
+
+	public void setMaterialCostIndexMedian9(String MaterialCostIndexMedian9)
+	{
+<span class="nc" id="L440">		medianStrings[8] = MaterialCostIndexMedian9;</span>
+<span class="nc" id="L441">	}</span>
+
+	public String getMaterialCostIndexMedian10()
+	{
+<span class="nc" id="L445">		return medianStrings[9];</span>
+	}
+
+	public void setMaterialCostIndexMedian10(String MaterialCostIndexMedian10)
+	{
+<span class="nc" id="L450">		medianStrings[9] = MaterialCostIndexMedian10;</span>
+<span class="nc" id="L451">	}</span>
+
+	public String getMaterialCostIndexMedian11()
+	{
+<span class="nc" id="L455">		return medianStrings[10];</span>
+	}
+
+	public void setMaterialCostIndexMedian11(String MaterialCostIndexMedian11)
+	{
+<span class="nc" id="L460">		medianStrings[10] = MaterialCostIndexMedian11;</span>
+<span class="nc" id="L461">	}</span>
+
+	public String getMaterialCostIndexMedian12()
+	{
+<span class="fc" id="L465">		return medianStrings[11];</span>
+	}
+
+	public void setMaterialCostIndexMedian12(String MaterialCostIndexMedian12)
+	{
+<span class="fc" id="L470">		medianStrings[11] = MaterialCostIndexMedian12;</span>
+<span class="fc" id="L471">	}</span>
+
+	public String getMaterialCostIndexStddev1()
+	{
+<span class="nc" id="L475">		return stddevStrings[0];</span>
+	}
+
+	public void setMaterialCostIndexStddev1(String MaterialCostIndexStddev1)
+	{
+<span class="nc" id="L480">		stddevStrings[0] = MaterialCostIndexStddev1;</span>
+<span class="nc" id="L481">	}</span>
+
+	public String getMaterialCostIndexStddev2()
+	{
+<span class="fc" id="L485">		return stddevStrings[1];</span>
+	}
+
+	public void setMaterialCostIndexStddev2(String MaterialCostIndexStddev2)
+	{
+<span class="fc" id="L490">		stddevStrings[1] = MaterialCostIndexStddev2;</span>
+<span class="fc" id="L491">	}</span>
+
+	public String getMaterialCostIndexStddev3()
+	{
+<span class="nc" id="L495">		return stddevStrings[2];</span>
+	}
+
+	public void setMaterialCostIndexStddev3(String MaterialCostIndexStddev3)
+	{
+<span class="nc" id="L500">		stddevStrings[2] = MaterialCostIndexStddev3;</span>
+<span class="nc" id="L501">	}</span>
+
+	public String getMaterialCostIndexStddev4()
+	{
+<span class="nc" id="L505">		return stddevStrings[3];</span>
+	}
+
+	public void setMaterialCostIndexStddev4(String MaterialCostIndexStddev4)
+	{
+<span class="nc" id="L510">		stddevStrings[3] = MaterialCostIndexStddev4;</span>
+<span class="nc" id="L511">	}</span>
+
+	public String getMaterialCostIndexStddev5()
+	{
+<span class="nc" id="L515">		return stddevStrings[4];</span>
+	}
+
+	public void setMaterialCostIndexStddev5(String MaterialCostIndexStddev5)
+	{
+<span class="nc" id="L520">		stddevStrings[4] = MaterialCostIndexStddev5;</span>
+<span class="nc" id="L521">	}</span>
+
+	public String getMaterialCostIndexStddev6()
+	{
+<span class="nc" id="L525">		return stddevStrings[5];</span>
+	}
+
+	public void setMaterialCostIndexStddev6(String MaterialCostIndexStddev6)
+	{
+<span class="nc" id="L530">		stddevStrings[5] = MaterialCostIndexStddev6;</span>
+<span class="nc" id="L531">	}</span>
+
+	public String getMaterialCostIndexStddev7()
+	{
+<span class="nc" id="L535">		return stddevStrings[6];</span>
+	}
+
+	public void setMaterialCostIndexStddev7(String MaterialCostIndexStddev7)
+	{
+<span class="nc" id="L540">		stddevStrings[6] = MaterialCostIndexStddev7;</span>
+<span class="nc" id="L541">	}</span>
+
+	public String getMaterialCostIndexStddev8()
+	{
+<span class="nc" id="L545">		return stddevStrings[7];</span>
+	}
+
+	public void setMaterialCostIndexStddev8(String MaterialCostIndexStddev8)
+	{
+<span class="nc" id="L550">		stddevStrings[7] = MaterialCostIndexStddev8;</span>
+<span class="nc" id="L551">	}</span>
+
+	public String getMaterialCostIndexStddev9()
+	{
+<span class="nc" id="L555">		return stddevStrings[8];</span>
+	}
+
+	public void setMaterialCostIndexStddev9(String MaterialCostIndexStddev9)
+	{
+<span class="nc" id="L560">		stddevStrings[8] = MaterialCostIndexStddev9;</span>
+<span class="nc" id="L561">	}</span>
+
+	public String getMaterialCostIndexStddev10()
+	{
+<span class="nc" id="L565">		return stddevStrings[9];</span>
+	}
+
+	public void setMaterialCostIndexStddev10(String MaterialCostIndexStddev10)
+	{
+<span class="nc" id="L570">		stddevStrings[9] = MaterialCostIndexStddev10;</span>
+<span class="nc" id="L571">	}</span>
+
+	public String getMaterialCostIndexStddev11()
+	{
+<span class="nc" id="L575">		return stddevStrings[10];</span>
+	}
+
+	public void setMaterialCostIndexStddev11(String MaterialCostIndexStddev11)
+	{
+<span class="nc" id="L580">		stddevStrings[10] = MaterialCostIndexStddev11;</span>
+<span class="nc" id="L581">	}</span>
+
+	public String getMaterialCostIndexStddev12()
+	{
+<span class="nc" id="L585">		return stddevStrings[11];</span>
+	}
+
+	public void setMaterialCostIndexStddev12(String MaterialCostIndexStddev12)
+	{
+<span class="nc" id="L590">		stddevStrings[11] = MaterialCostIndexStddev12;</span>
+<span class="nc" id="L591">	}</span>
+
+	public String getMaterialCostIndexMin1()
+	{
+<span class="nc" id="L595">		return minStrings[0];</span>
+	}
+
+	public void setMaterialCostIndexMin1(String MaterialCostIndexMin1)
+	{
+<span class="fc" id="L600">		minStrings[0] = MaterialCostIndexMin1;</span>
+<span class="fc" id="L601">	}</span>
+
+	public String getMaterialCostIndexMin2()
+	{
+<span class="nc" id="L605">		return minStrings[1];</span>
+	}
+
+	public void setMaterialCostIndexMin2(String MaterialCostIndexMin2)
+	{
+<span class="nc" id="L610">		minStrings[1] = MaterialCostIndexMin2;</span>
+<span class="nc" id="L611">	}</span>
+
+	public String getMaterialCostIndexMin3()
+	{
+<span class="fc" id="L615">		return minStrings[2];</span>
+	}
+
+	public void setMaterialCostIndexMin3(String MaterialCostIndexMin3)
+	{
+<span class="fc" id="L620">		minStrings[2] = MaterialCostIndexMin3;</span>
+<span class="fc" id="L621">	}</span>
+
+	public String getMaterialCostIndexMin4()
+	{
+<span class="nc" id="L625">		return minStrings[3];</span>
+	}
+
+	public void setMaterialCostIndexMin4(String MaterialCostIndexMin4)
+	{
+<span class="nc" id="L630">		minStrings[3] = MaterialCostIndexMin4;</span>
+<span class="nc" id="L631">	}</span>
+
+	public String getMaterialCostIndexMin5()
+	{
+<span class="nc" id="L635">		return minStrings[4];</span>
+	}
+
+	public void setMaterialCostIndexMin5(String MaterialCostIndexMin5)
+	{
+<span class="nc" id="L640">		minStrings[4] = MaterialCostIndexMin5;</span>
+<span class="nc" id="L641">	}</span>
+
+	public String getMaterialCostIndexMin6()
+	{
+<span class="nc" id="L645">		return minStrings[5];</span>
+	}
+
+	public void setMaterialCostIndexMin6(String MaterialCostIndexMin6)
+	{
+<span class="nc" id="L650">		minStrings[5] = MaterialCostIndexMin6;</span>
+<span class="nc" id="L651">	}</span>
+
+	public String getMaterialCostIndexMin7()
+	{
+<span class="nc" id="L655">		return minStrings[6];</span>
+	}
+
+	public void setMaterialCostIndexMin7(String MaterialCostIndexMin7)
+	{
+<span class="nc" id="L660">		minStrings[6] = MaterialCostIndexMin7;</span>
+<span class="nc" id="L661">	}</span>
+
+	public String getMaterialCostIndexMin8()
+	{
+<span class="nc" id="L665">		return minStrings[7];</span>
+	}
+
+	public void setMaterialCostIndexMin8(String MaterialCostIndexMin8)
+	{
+<span class="nc" id="L670">		minStrings[7] = MaterialCostIndexMin8;</span>
+<span class="nc" id="L671">	}</span>
+
+	public String getMaterialCostIndexMin9()
+	{
+<span class="nc" id="L675">		return minStrings[8];</span>
+	}
+
+	public void setMaterialCostIndexMin9(String MaterialCostIndexMin9)
+	{
+<span class="nc" id="L680">		minStrings[8] = MaterialCostIndexMin9;</span>
+<span class="nc" id="L681">	}</span>
+
+	public String getMaterialCostIndexMin10()
+	{
+<span class="nc" id="L685">		return minStrings[9];</span>
+	}
+
+	public void setMaterialCostIndexMin10(String MaterialCostIndexMin10)
+	{
+<span class="nc" id="L690">		minStrings[9] = MaterialCostIndexMin10;</span>
+<span class="nc" id="L691">	}</span>
+
+	public String getMaterialCostIndexMin11()
+	{
+<span class="nc" id="L695">		return minStrings[10];</span>
+	}
+
+	public void setMaterialCostIndexMin11(String MaterialCostIndexMin11)
+	{
+<span class="nc" id="L700">		minStrings[10] = MaterialCostIndexMin11;</span>
+<span class="nc" id="L701">	}</span>
+
+	public String getMaterialCostIndexMin12()
+	{
+<span class="nc" id="L705">		return minStrings[11];</span>
+	}
+
+	public void setMaterialCostIndexMin12(String MaterialCostIndexMin12)
+	{
+<span class="nc" id="L710">		minStrings[11] = MaterialCostIndexMin12;</span>
+<span class="nc" id="L711">	}</span>
+
+	public String getMaterialCostIndexMax1()
+	{
+<span class="nc" id="L715">		return maxStrings[0];</span>
+	}
+
+	public void setMaterialCostIndexMax1(String MaterialCostIndexMax1)
+	{
+<span class="fc" id="L720">		maxStrings[0] = MaterialCostIndexMax1;</span>
+<span class="fc" id="L721">	}</span>
+
+	public String getMaterialCostIndexMax2()
+	{
+<span class="nc" id="L725">		return maxStrings[1];</span>
+	}
+
+	public void setMaterialCostIndexMax2(String MaterialCostIndexMax2)
+	{
+<span class="nc" id="L730">		maxStrings[1] = MaterialCostIndexMax2;</span>
+<span class="nc" id="L731">	}</span>
+
+	public String getMaterialCostIndexMax3()
+	{
+<span class="nc" id="L735">		return maxStrings[2];</span>
+	}
+
+	public void setMaterialCostIndexMax3(String MaterialCostIndexMax3)
+	{
+<span class="nc" id="L740">		maxStrings[2] = MaterialCostIndexMax3;</span>
+<span class="nc" id="L741">	}</span>
+
+	public String getMaterialCostIndexMax4()
+	{
+<span class="fc" id="L745">		return maxStrings[3];</span>
+	}
+
+	public void setMaterialCostIndexMax4(String MaterialCostIndexMax4)
+	{
+<span class="fc" id="L750">		maxStrings[3] = MaterialCostIndexMax4;</span>
+<span class="fc" id="L751">	}</span>
+
+	public String getMaterialCostIndexMax5()
+	{
+<span class="nc" id="L755">		return maxStrings[4];</span>
+	}
+
+	public void setMaterialCostIndexMax5(String MaterialCostIndexMax5)
+	{
+<span class="nc" id="L760">		maxStrings[4] = MaterialCostIndexMax5;</span>
+<span class="nc" id="L761">	}</span>
+
+	public String getMaterialCostIndexMax6()
+	{
+<span class="nc" id="L765">		return maxStrings[5];</span>
+	}
+
+	public void setMaterialCostIndexMax6(String MaterialCostIndexMax6)
+	{
+<span class="nc" id="L770">		maxStrings[5] = MaterialCostIndexMax6;</span>
+<span class="nc" id="L771">	}</span>
+
+	public String getMaterialCostIndexMax7()
+	{
+<span class="nc" id="L775">		return maxStrings[6];</span>
+	}
+
+	public void setMaterialCostIndexMax7(String MaterialCostIndexMax7)
+	{
+<span class="nc" id="L780">		maxStrings[6] = MaterialCostIndexMax7;</span>
+<span class="nc" id="L781">	}</span>
+
+	public String getMaterialCostIndexMax8()
+	{
+<span class="nc" id="L785">		return maxStrings[7];</span>
+	}
+
+	public void setMaterialCostIndexMax8(String MaterialCostIndexMax8)
+	{
+<span class="nc" id="L790">		maxStrings[7] = MaterialCostIndexMax8;</span>
+<span class="nc" id="L791">	}</span>
+
+	public String getMaterialCostIndexMax9()
+	{
+<span class="nc" id="L795">		return maxStrings[8];</span>
+	}
+
+	public void setMaterialCostIndexMax9(String MaterialCostIndexMax9)
+	{
+<span class="nc" id="L800">		maxStrings[8] = MaterialCostIndexMax9;</span>
+<span class="nc" id="L801">	}</span>
+
+	public String getMaterialCostIndexMax10()
+	{
+<span class="nc" id="L805">		return maxStrings[9];</span>
+	}
+
+	public void setMaterialCostIndexMax10(String MaterialCostIndexMax10)
+	{
+<span class="nc" id="L810">		maxStrings[9] = MaterialCostIndexMax10;</span>
+<span class="nc" id="L811">	}</span>
+
+	public String getMaterialCostIndexMax11()
+	{
+<span class="nc" id="L815">		return maxStrings[10];</span>
+	}
+
+	public void setMaterialCostIndexMax11(String MaterialCostIndexMax11)
+	{
+<span class="nc" id="L820">		maxStrings[10] = MaterialCostIndexMax11;</span>
+<span class="nc" id="L821">	}</span>
+
+	public String getMaterialCostIndexMax12()
+	{
+<span class="nc" id="L825">		return maxStrings[11];</span>
+	}
+
+	public void setMaterialCostIndexMax12(String MaterialCostIndexMax12)
+	{
+<span class="nc" id="L830">		maxStrings[11] = MaterialCostIndexMax12;</span>
+<span class="nc" id="L831">	}</span>
+
+	//********************************  Unit Test *****************************
+
+	public static void main(String args[])
+	{
+
+<span class="nc" id="L838">		MaterialCostIndexParametersForm materialCostIndexParamsForm = new MaterialCostIndexParametersForm();</span>
+
+        //Create arrays of 12 ints and pass them to the MaterialCostIndexParameters set methods.  This will trigger the int to string conversions.
+        //Retrieve the int arrays triggering the String to int conversion.  Compare the int arrays retrieved to those originally entered.
+        //If they are the same then the unit test passed.
+
+<span class="nc" id="L844">		int[] initMedians = new int[12];</span>
+<span class="nc" id="L845">		int[] initStddevs = new int[12];</span>
+<span class="nc" id="L846">		int[] initMins = new int[12];</span>
+<span class="nc" id="L847">		int[] initMaxes = new int[12];</span>
+
+<span class="nc" id="L849">		int[] finalMedians = new int[12];</span>
+<span class="nc" id="L850">		int[] finalStddevs = new int[12];</span>
+<span class="nc" id="L851">		int[] finalMins = new int[12];</span>
+<span class="nc" id="L852">		int[] finalMaxes = new int[12];</span>
+
+<span class="nc bnc" id="L854" title="All 2 branches missed.">		for (int i=0; i &lt; 12; i++)</span>
+		{
+<span class="nc" id="L856">			initMedians[i] = i;</span>
+<span class="nc" id="L857">			initStddevs[i] = i - 10;</span>
+<span class="nc" id="L858">			initMins[i] = i * i;</span>
+<span class="nc" id="L859">			initMaxes[i] = i % 2;</span>
+		}
+
+
+<span class="nc" id="L863">		materialCostIndexParamsForm.setMedians(initMedians);</span>
+<span class="nc" id="L864">		materialCostIndexParamsForm.setStddevs(initStddevs);</span>
+<span class="nc" id="L865">		materialCostIndexParamsForm.setMins(initMins);</span>
+<span class="nc" id="L866">		materialCostIndexParamsForm.setMaxes(initMaxes);</span>
+
+<span class="nc" id="L868">		finalMedians = materialCostIndexParamsForm.getMedians();</span>
+<span class="nc" id="L869">		finalStddevs = materialCostIndexParamsForm.getStddevs();</span>
+<span class="nc" id="L870">		finalMins = materialCostIndexParamsForm.getMins();</span>
+<span class="nc" id="L871">		finalMaxes = materialCostIndexParamsForm.getMaxes();</span>
+
+
+<span class="nc" id="L874">		boolean unitTestPassed = true;</span>
+
+		//Test that the initial and final median values are the same
+<span class="nc" id="L877"> 		System.out.println(&quot;The initial medians were: &quot;);</span>
+<span class="nc bnc" id="L878" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L880">			System.out.print(initMedians[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L882"> 		System.out.println(&quot;\nAfter being converted to strings and back the medians are: &quot;);</span>
+<span class="nc bnc" id="L883" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L885">			System.out.print(finalMedians[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L888">		boolean mediansEqual = true;</span>
+
+<span class="nc bnc" id="L890" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 12; i++)</span>
+	 	{
+<span class="nc bnc" id="L892" title="All 2 branches missed.">			if(!(initMedians[i] == finalMedians[i]))</span>
+<span class="nc" id="L893">				mediansEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L896" title="All 2 branches missed."> 		if (mediansEqual)</span>
+<span class="nc" id="L897"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L900">			unitTestPassed = false;</span>
+<span class="nc" id="L901"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+		//Test that the initial and final stddev values are the same
+<span class="nc" id="L906"> 		System.out.println(&quot;The initial stddevs were: &quot;);</span>
+<span class="nc bnc" id="L907" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L909">			System.out.print(initStddevs[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L911"> 		System.out.println(&quot;\nAfter being converted to strings and back the stddevs are: &quot;);</span>
+<span class="nc bnc" id="L912" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L914">			System.out.print(finalStddevs[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L917">		boolean stddevsEqual = true;</span>
+
+<span class="nc bnc" id="L919" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 12; i++)</span>
+	 	{
+<span class="nc bnc" id="L921" title="All 2 branches missed.">			if(!(initStddevs[i] == finalStddevs[i]))</span>
+<span class="nc" id="L922">				stddevsEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L925" title="All 2 branches missed."> 		if (stddevsEqual)</span>
+<span class="nc" id="L926"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L929">			unitTestPassed = false;</span>
+<span class="nc" id="L930"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+
+		//Test that the initial and final min values are the same
+<span class="nc" id="L936"> 		System.out.println(&quot;The initial mins were: &quot;);</span>
+<span class="nc bnc" id="L937" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L939">			System.out.print(initMins[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L941"> 		System.out.println(&quot;\nAfter being converted to strings and back the mins are: &quot;);</span>
+<span class="nc bnc" id="L942" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L944">			System.out.print(finalMins[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L947">		boolean minsEqual = true;</span>
+
+<span class="nc bnc" id="L949" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 12; i++)</span>
+	 	{
+<span class="nc bnc" id="L951" title="All 2 branches missed.">			if(!(initMins[i] == finalMins[i]))</span>
+<span class="nc" id="L952">				minsEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L955" title="All 2 branches missed."> 		if (minsEqual)</span>
+<span class="nc" id="L956"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L959">			unitTestPassed = false;</span>
+<span class="nc" id="L960"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+		//Test that the initial and final max values are the same
+<span class="nc" id="L965"> 		System.out.println(&quot;The initial maxes were: &quot;);</span>
+<span class="nc bnc" id="L966" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L968">			System.out.print(initMaxes[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L970"> 		System.out.println(&quot;\nAfter being converted to strings and back the maxes are: &quot;);</span>
+<span class="nc bnc" id="L971" title="All 2 branches missed."> 		for (int i = 0; i &lt; 12; i++)</span>
+ 		{
+<span class="nc" id="L973">			System.out.print(finalMaxes[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L976">		boolean maxesEqual = true;</span>
+
+<span class="nc bnc" id="L978" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 12; i++)</span>
+	 	{
+<span class="nc bnc" id="L980" title="All 2 branches missed.">			if(!(initMaxes[i] == finalMaxes[i]))</span>
+<span class="nc" id="L981">				maxesEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L984" title="All 2 branches missed."> 		if (maxesEqual)</span>
+<span class="nc" id="L985"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L988">			unitTestPassed = false;</span>
+<span class="nc" id="L989"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+
+<span class="nc bnc" id="L994" title="All 2 branches missed.">		if (unitTestPassed)</span>
+<span class="nc" id="L995">			System.out.println(&quot;Unit test completed successfully!&quot;);</span>
+		else
+<span class="nc" id="L997">			System.out.println(&quot;Unit test failed&quot;);</span>
+
+<span class="nc" id="L999">	}</span>
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

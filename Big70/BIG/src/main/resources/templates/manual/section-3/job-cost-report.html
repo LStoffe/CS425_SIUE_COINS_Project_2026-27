@@ -1,0 +1,82 @@
+<!--
+  job-cost-report.html
+  Section 3.1 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>3.1 Job Cost Report</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            3.1 Job Cost Report
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The job cost report is the starting place for much of the data contained in other reports. 
+            This report lists each job you are working on and lists the total cost incurred on the job in the previous period. 
+            The job costs are also broken down into the following categories:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>
+                Labor Cost
+            </li>
+            <li>
+                Materials Cost
+            </li>
+            <li>
+                Subcontractor Cos
+            </li>
+            <li>
+                Field Overhead
+            </li>
+            <li>
+                Liquidated Damages
+            </li>
+        </ul>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Note that the costs appearing on this report are those that can be directly attributed to a job. Any cost not appearing on this report is a main office expense. 
+            Also keep in mind that this report shows costs accrued, not cash paid. The materials and subcontractor costs appearing on this report will not be paid out of cash until the next period.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/accounting-reports}" class="font-semibold hover:underline">
+        ← Section 3 Summary
+    </a>
+    <a th:href="@{/manual/cash-flow-report}" class="font-semibold hover:underline">
+        Next → 3.2 Cash Flow Report
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

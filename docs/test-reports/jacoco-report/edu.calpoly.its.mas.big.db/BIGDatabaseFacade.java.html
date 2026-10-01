@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BIGDatabaseFacade.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">BIGDatabaseFacade.java</span></div><h1>BIGDatabaseFacade.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Hashtable;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import javax.sql.DataSource;
+
+import edu.calpoly.its.mas.big.users.admin.Admin;
+import edu.calpoly.its.mas.big.reports.FinancialReportForm;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.company.Bid;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+//Need all BIGv3 database classes
+import edu.calpoly.lib.multimedia.big.db.*;
+
+
+/**
+ * Implementation of &lt;code&gt;BIGDatabaseFacadeInterface&lt;/code&gt;.  See &lt;code&gt;BIGDatabaseFacadeInterface&lt;/code&gt;.
+ * &lt;br&gt;&lt;br&gt;
+ * A connection to the database will be established automatically whenever a method is called that needs to access it.
+ * By default this connection will be closed as soon as the method finishes.  Optionally the database connection can be held
+ * until the user requests its release using the close() method.  This will save overhead if multiple database accesses are needed.
+ * &lt;br&gt;&lt;br&gt;
+ * &lt;b&gt;Note:&lt;/b&gt;All components of BIG should access the database via the BIGDatabaseFacade and never directly.
+ * &lt;br&gt;
+ * &lt;br&gt;
+ * &lt;b&gt; NOTE-4/2/2004: it seems the connection is held until the close()
+ * method is called, no matter what.  Always call the close() method whenever you
+ * finish with an instance of BIGDatabaseFacade.&lt;/b&gt;
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.1 $ $Date: 2002/03/14 18:53:05 $
+ */
+public class BIGDatabaseFacade implements BIGDatabaseFacadeInterface
+{
+   private DataSource dataSource;
+   private Connection connection;
+   private Statement stmt;
+   private static SqlMapClient sqlMap;
+   private static Log log;
+<span class="pc" id="L53">   boolean holdConnection = false;</span>
+
+   /**
+    * Constructor for BIGDatabaseFacade.
+    * Uses the iBatis sqlMaps.xml configuration file to setup &lt;code&gt;SqlMapClient&lt;/code&gt;
+    */
+   public BIGDatabaseFacade()
+<span class="fc" id="L60">   {</span>
+<span class="fc" id="L61">       initializeClass();</span>
+<span class="fc" id="L62">  	   this.dataSource = sqlMap.getDataSource();</span>
+<span class="fc" id="L63">   }</span>
+
+   /**
+    * Constructor for BIGDatabaseFacade
+    * @param data A javax.sql.DataSource associated with the database
+    */
+   public BIGDatabaseFacade(DataSource dataSource)
+<span class="nc" id="L70">   {</span>
+<span class="nc" id="L71">       this.dataSource = dataSource;</span>
+<span class="nc" id="L72">       initializeClass();</span>
+<span class="nc" id="L73">       this.dataSource = sqlMap.getDataSource();</span>
+<span class="nc" id="L74">   }</span>
+
+  /**
+   * Constructor for BIGDatabaseFacade that allows user to specify whether or not to hold the database connection
+   * or release it after every method call.  This saves the overhead of having to establish a connection each time
+   * when multiple methods of the &lt;code&gt;BIGDatabaseFacade&lt;/code&gt; are going to be called in sequence.
+   * @param data A javax.sql.DataSource associated with the database
+   * @param holdConnection true if connection should be held until BIGDatabaseFacade.close() is called.  False
+   *        if the connection should be released after each method call.
+   */
+   public BIGDatabaseFacade(DataSource dataSource, boolean holdConnection)
+<span class="nc" id="L85">   {</span>
+<span class="nc" id="L86">        this.dataSource = dataSource;</span>
+<span class="nc" id="L87">	    this.holdConnection = holdConnection;</span>
+	    // never hold connections open.
+<span class="nc" id="L89">	    this.holdConnection = false;</span>
+<span class="nc" id="L90">        initializeClass();</span>
+<span class="nc" id="L91">        this.dataSource = sqlMap.getDataSource();</span>
+<span class="nc" id="L92">   }</span>
+
+
+   // called by the constructors
+   private void initializeClass()
+   {
+<span class="fc" id="L98">	    log = LogFactory.getLog(this.getClass());</span>
+
+<span class="fc" id="L100">		BIGGetSqlMapClient singleton = BIGGetSqlMapClient.getInstance();</span>
+<span class="fc" id="L101">		sqlMap = singleton.sqlMap();</span>
+
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">	    if(log.isDebugEnabled())</span>
+	    {
+<span class="nc" id="L105">			log.debug(this.getClass() + &quot;: object 'dbFacade' created successfully&quot;);</span>
+	    }
+<span class="fc" id="L107">   }</span>
+
+
+  /**
+   * Initializes a connection to the database and prepares a &lt;code&gt;Statement&lt;/code&gt;
+   */
+  private void prepare() throws BIGDatabaseFacadeException
+  {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">	 if (connection == null)</span>
+	 {
+	 	try
+	 	{
+<span class="fc" id="L119">	 	   connection = dataSource.getConnection();</span>
+<span class="fc" id="L120">	 	   stmt = connection.createStatement();</span>
+     	}
+<span class="nc" id="L122">     	catch (SQLException sqle)</span>
+     	{
+<span class="nc" id="L124">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L125">	 	}</span>
+	 }
+<span class="fc" id="L127">  }</span>
+
+
+  /**
+   * Releases connection to the database if &lt;code&gt;holdConnection&lt;/code&gt; is set to false.
+   */
+  private void release() throws BIGDatabaseFacadeException
+  {
+	 try
+     {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">		if (stmt != null) stmt.close();</span>
+<span class="fc" id="L138">		stmt = null;</span>
+
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		if (connection != null) connection.close();</span>
+<span class="fc" id="L141">		connection = null;</span>
+	 }
+<span class="fc" id="L143">     catch (SQLException sqle)</span>
+     {
+<span class="fc" id="L145">		throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L146">	 }</span>
+<span class="fc" id="L147">  }</span>
+
+
+  /**
+   * Closes this object's connection to the database.  Should be called whenever the client code is done
+   * with the database or will not be using it for a while.  A new connection is established if another database access method
+   * is called.
+   */
+  public void close() throws BIGDatabaseFacadeException
+  {
+<span class="fc" id="L157">	  holdConnection = false;</span>
+<span class="fc" id="L158">	  release();</span>
+<span class="fc" id="L159">  }</span>
+
+
+  //**************************  Methods from the BIGDatabaseFacadeInterface Interface  *******************************
+  //See interface for method specifications
+
+    public CurrentMethodDBHandler getCurrentMethodDBHandler() throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L167">		prepare();</span>
+
+
+<span class="fc" id="L170">		return new DefaultCurrentMethodDBHandler(connection);</span>
+	}
+
+    public JobDBHandler getJobDBHandler() throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L175">		prepare();</span>
+
+
+<span class="fc" id="L178">		return new DefaultJobDBHandler(connection, sqlMap);</span>
+	}
+
+    public LoanDBHandler getLoanDBHandler() throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L183">		prepare();</span>
+
+
+<span class="fc" id="L186">		return new DefaultLoanDBHandler(connection);</span>
+	}
+
+	public PeriodDBHandler getPeriodDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L191">		prepare();</span>
+
+<span class="fc" id="L193">		return new DefaultPeriodDBHandler(connection);</span>
+	}
+
+	public GameParametersDBHandler getGameParametersDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L198">		prepare();</span>
+
+<span class="fc" id="L200">		return new DefaultGameParametersDBHandler(connection, sqlMap);</span>
+	}
+
+	public MemberNamesDBHandler getMemberNamesDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L205">		prepare();</span>
+
+<span class="fc" id="L207">		return new DefaultMemberNamesDBHandler(connection);</span>
+	}
+
+	public BidDBHandler getBidDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L212">		prepare();</span>
+
+<span class="fc" id="L214">		return new DefaultBidDBHandler(connection, sqlMap);</span>
+	}
+
+	public CompanyDBHandler getCompanyDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L219">		prepare();</span>
+
+<span class="fc" id="L221">		return new DefaultCompanyDBHandler(connection, sqlMap);</span>
+	}
+
+	public AdminDBHandler getAdminDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L226">		prepare();</span>
+
+<span class="fc" id="L228">		return new DefaultAdminDBHandler(connection, sqlMap);</span>
+	}
+
+	public GameDBHandler getGameDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L233">		prepare();</span>
+
+<span class="fc" id="L235">		return new DefaultGameDBHandler(connection, sqlMap);</span>
+	}
+
+	public ActivityDBHandler getActivityDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L240">		prepare();</span>
+
+<span class="fc" id="L242">		return new DefaultActivityDBHandler(connection);</span>
+	}
+
+	public RetentionDBHandler getRetentionDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L247">		prepare();</span>
+
+<span class="nc" id="L249">		return new DefaultRetentionDBHandler(connection);</span>
+	}
+
+	public FinancialReportDBHandler getFinancialReportDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L254">		prepare();</span>
+
+<span class="fc" id="L256">		return new DefaultFinancialReportDBHandler(connection);</span>
+	}
+
+	public ReportLedgerDBHandler getReportLedgerDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L261">		prepare();</span>
+
+<span class="nc" id="L263">		return new DefaultReportLedgerDBHandler(connection);</span>
+	}
+
+	public OvertimeDBHandler getOvertimeDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L268">		prepare();</span>
+
+<span class="fc" id="L270">		return new DefaultOvertimeDBHandler(connection);</span>
+	}
+
+	public BalanceSheetDBHandler getBalanceSheetDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L275">		prepare();</span>
+
+<span class="nc" id="L277">		return new DefaultBalanceSheetDBHandler(connection);</span>
+	}
+
+	public ContractsReportsDBHandler getContractsReportsDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L282">		prepare();</span>
+
+<span class="fc" id="L284">		return new DefaultContractsReportsDBHandler(connection);</span>
+	}
+
+	public IncomeDBHandler getIncomeDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L289">		prepare();</span>
+
+<span class="nc" id="L291">		return new DefaultIncomeDBHandler(connection);</span>
+	}
+
+	public CashFlowDBHandler getCashFlowDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L296">		prepare();</span>
+
+<span class="nc" id="L298">		return new DefaultCashFlowDBHandler(connection);</span>
+	}
+
+	public BillingDBHandler getBillingDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L303">		prepare();</span>
+
+<span class="nc" id="L305">		return new DefaultBillingDBHandler(connection);</span>
+	}
+
+	public RatiosDBHandler getRatiosDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L310">		prepare();</span>
+
+<span class="nc" id="L312">		return new DefaultRatiosDBHandler(connection);</span>
+	}
+
+	public CCCDBHandler getCCCDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L317">		prepare();</span>
+
+<span class="nc" id="L319">		return new DefaultCCCDBHandler(connection);</span>
+	}
+
+	public CAMDBHandler getCAMDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L324">		prepare();</span>
+
+<span class="nc" id="L326">		return new DefaultCAMDBHandler(connection);</span>
+	}
+
+	public InboxDBHandler getInboxDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L331">		prepare();</span>
+
+<span class="nc" id="L333">		return new DefaultInboxDBHandler(connection);</span>
+	}
+
+	public UtilityDBHandler getUtilityDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L338">		prepare();</span>
+
+<span class="nc" id="L340">		return new DefaultUtilityDBHandler(connection);</span>
+	}
+
+	public CustomerDBHandler getCustomerDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L345">		prepare();</span>
+
+<span class="fc" id="L347">		return new DefaultCustomerDBHandler(connection);</span>
+	}
+
+	public NegotiationDBHandler getNegotiationDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L352">		prepare();</span>
+
+<span class="nc" id="L354">		return new DefaultNegotiationDBHandler(connection);</span>
+	}
+
+	public ComponentsDBHandler getComponentsDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L359">		prepare();</span>
+
+<span class="nc" id="L361">		return new DefaultComponentsDBHandler(connection);</span>
+	}
+
+	public EstimatingComponentDBHandler getEstimatingComponentDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L366">		prepare();</span>
+
+<span class="fc" id="L368">		return new DefaultEstimatingComponentDBHandler(connection);</span>
+	}
+
+	public GradingTemplateDBHandler getGradingTemplateDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L373">		return new GradingTemplateIBatisImplDBHandler(sqlMap);</span>
+	}
+
+	public AutomaticPeriodUpdateDBHandler getAutomaticUpdatePolicyDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L378">		return new AutomaticPeriodUpdateIBatisImplDBHandler(sqlMap);</span>
+	}
+
+	public PersonnelParametersDBHandler getPersonnelParametersDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L383">		return new PersonnelParametersIBatisImplDBHandler(sqlMap);</span>
+	}
+
+    public EquipmentParametersDBHandler getEquipmentParametersDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L388">		return new EquipmentParametersIBatisImplDBHandler(sqlMap);</span>
+	}
+
+	public CompanyPersonnelDBHandler getCompanyPersonnelDBHandler() throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L393">		return new CompanyPersonnelIBatisImplDBHandler(sqlMap);</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

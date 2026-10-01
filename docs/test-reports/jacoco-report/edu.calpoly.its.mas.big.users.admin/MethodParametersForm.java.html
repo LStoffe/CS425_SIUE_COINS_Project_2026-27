@@ -1,0 +1,1191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MethodParametersForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">MethodParametersForm.java</span></div><h1>MethodParametersForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.admin;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+/**
+ * ActionForm used to hold the game parameters for the 5 methods of an activity.
+ *
+ * The method parameters can be accessed as Strings, using the String get and set method provided,
+ * or as arrays.  Separate get and set methods are provided to deal with the parameters in int form.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.15 $ $Date: 2002/02/04 22:57:57 $
+ */
+<span class="fc" id="L20">public class MethodParametersForm extends ActionForm</span>
+{
+	//Developers Note:  All arrays are hardcoded to length 5 because there are 5 get and 5 set methods
+	// for each parameter type and this number cannot be changed.
+
+<span class="fc" id="L25">	private boolean makeDefaults = false;</span>
+
+<span class="fc" id="L27">	private String activityTypeName = null; //The name of the activity these methods are for</span>
+	private int activityTypeID;
+
+<span class="fc" id="L30">	private int[] productivities = new int[5];</span>
+<span class="fc" id="L31">	private int[] laborCosts = new int[5];</span>
+<span class="fc" id="L32">	private int[] materialsCosts = new int[5];</span>
+<span class="fc" id="L33">	private int[] equipmentCosts = new int[5];</span>
+<span class="fc" id="L34">	private int[] subcontractorCosts = new int[5];</span>
+<span class="fc" id="L35">	private int[] uncertaintyRanges = new int[5];</span>
+<span class="fc" id="L36">	private int[] weatherSensitivities =  new int[5];</span>
+<span class="fc" id="L37">	private boolean[] subcontracted = new boolean[5];</span>
+
+<span class="fc" id="L39">	private String[] methodNames = new String[5];</span>
+<span class="fc" id="L40">	private String[] productivityStrings = new String[5];</span>
+<span class="fc" id="L41">	private String[] laborCostStrings = new String[5];</span>
+<span class="fc" id="L42">	private String[] materialsCostStrings = new String[5];</span>
+<span class="fc" id="L43">	private String[] equipmentCostStrings = new String[5];</span>
+<span class="fc" id="L44">	private String[] subcontractorCostStrings = new String[5];</span>
+<span class="fc" id="L45">	private String[] uncertaintyRangeStrings = new String[5];</span>
+<span class="fc" id="L46">	private String[] weatherSensitivityStrings = new String[5];</span>
+<span class="fc" id="L47">	private String[] subOrSelfStrings = new String[5];</span>
+
+
+//****************************** Public Methods *************************
+
+    /**
+     * Returns an array of 5 String representing the names of the 5 methods.
+     */
+    public String[] getMethodNames()
+    {
+<span class="fc" id="L57">		return methodNames;</span>
+	}
+
+    /**
+     * Returns an array of 5 ints representing the productivies of the 5 methods.
+     */
+    public int[] getProductivities()
+    {
+<span class="fc" id="L65">		stringsToInts(productivityStrings, productivities);</span>
+<span class="fc" id="L66">   		return productivities;</span>
+    }
+
+    /**
+     * Returns an array of 5 ints representing the labor costs of the 5 methods.
+     */
+    public int[] getLaborCosts()
+    {
+<span class="fc" id="L74">	    stringsToInts(laborCostStrings, laborCosts);</span>
+<span class="fc" id="L75">	    return laborCosts;</span>
+    }
+
+    /**
+     * Returns an array of 5 ints representing the materials costs of the 5 methods.
+     */
+    public int[] getMaterialsCosts()
+    {
+<span class="fc" id="L83">	    stringsToInts(materialsCostStrings, materialsCosts);</span>
+<span class="fc" id="L84">	    return materialsCosts;</span>
+    }
+
+    /**
+     * Returns an array of 5 ints representing the equipment costs of the 5 methods.
+     */
+    public int[] getEquipmentCosts()
+    {
+<span class="fc" id="L92">	    stringsToInts(equipmentCostStrings, equipmentCosts);</span>
+<span class="fc" id="L93">	    return equipmentCosts;</span>
+    }
+
+    /**
+     * Returns an array of 5 ints representing the subcontractor costs of the 5 methods.
+     */
+    public int[] getSubcontractorCosts()
+    {
+<span class="fc" id="L101">	    stringsToInts(subcontractorCostStrings, subcontractorCosts);</span>
+<span class="fc" id="L102">	    return subcontractorCosts;</span>
+    }
+
+    /**
+	 * Returns an array of 5 ints representing the uncertainty ranges of the 5 methods.
+	 */
+	public int[] getUncertaintyRanges()
+	{
+<span class="fc" id="L110">		stringsToInts(uncertaintyRangeStrings, uncertaintyRanges);</span>
+<span class="fc" id="L111">		return uncertaintyRanges;</span>
+	}
+
+    /**
+     * Returns an array of 5 ints representing the weather sensitivities of the 5 methods.
+     * The ints are codes for the weather sensitivity using the following system:&lt;br&gt;
+     * &lt;ul&gt;
+     *  &lt;li&gt;0 - Not sensitive to either temperature or rainfall - &quot;neither&quot; &lt;/li&gt;
+     *  &lt;li&gt;1 - Sensitive to temperature only - &quot;temperature&quot; &lt;/li&gt;
+     *  &lt;li&gt;2 - Sensitive to rainfall only - &quot;rainfall&quot; &lt;/li&gt;
+     *  &lt;li&gt;3 - Sensitive to both temperature and rainfall - &quot;both&quot; &lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    public int[] getWeatherSensitivities()
+    {
+<span class="fc" id="L126">	    weatherSensitivityStringsToInts(weatherSensitivityStrings, weatherSensitivities);</span>
+<span class="fc" id="L127">	    return weatherSensitivities;</span>
+	}
+
+
+    public boolean[] getSubcontracted()
+    {
+<span class="fc" id="L133">		subOrSelfStringsToBooleans(subOrSelfStrings, subcontracted);</span>
+<span class="fc" id="L134">		return subcontracted;</span>
+	}
+
+    /**
+     * Populates the action form with names for the 5 methods.
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array productivities must have length 5.&lt;br&gt;
+     * @param methodNames String array containing names for the 5 methods
+     */
+    public void setMethodNames(String[] methodNames)
+    {
+<span class="fc" id="L145">		this.methodNames = methodNames;</span>
+<span class="fc" id="L146">	}</span>
+
+    /**
+     * Populates the action form with productivities for the 5 methods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array productivities must have length 5.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param productivities int array containing productivity values for the 5 methods
+     */
+    public void setProductivities(int[] productivities)
+    {
+<span class="fc" id="L158">		this.productivities = productivities;</span>
+<span class="fc" id="L159">                intsToStrings(productivities, productivityStrings);</span>
+<span class="fc" id="L160">	}</span>
+
+    /**
+     * Populates the action form with labor costs for the 5 methods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array laborCosts must have length 5.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param laborCosts int array containing labor costs for the 5 methods
+     */
+    public void setLaborCosts(int[] laborCosts)
+    {
+<span class="fc" id="L172">		this.laborCosts = laborCosts;</span>
+<span class="fc" id="L173">		intsToStrings(laborCosts, laborCostStrings);</span>
+<span class="fc" id="L174">	}</span>
+
+    /**
+     * Populates the action form with materials costs for the 5 methods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array materialsCosts must have length 5.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param materialsCosts int array containing materials costs for the 5 methods
+     */
+    public void setMaterialsCosts(int[] materialsCosts)
+    {
+<span class="fc" id="L186">		this.materialsCosts = materialsCosts;</span>
+<span class="fc" id="L187">		intsToStrings(materialsCosts, materialsCostStrings);</span>
+<span class="fc" id="L188">	}</span>
+
+    /**
+     * Populates the action form with equipment costs for the 5 methods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array equipmentCosts must have length 5.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param equipmentCosts int array containing equipment costs for the 5 methods
+     */
+    public void setEquipmentCosts(int[] equipmentCosts)
+    {
+<span class="fc" id="L200">		this.equipmentCosts = equipmentCosts;</span>
+<span class="fc" id="L201">		intsToStrings(equipmentCosts, equipmentCostStrings);</span>
+<span class="fc" id="L202">	}</span>
+
+    /**
+     * Populates the action form with subcontractor costs for the 5 methods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array  subcontractorCosts must have length 5.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param  subcontractorCosts int array containing subcontractor costs for the 5 methods
+     */
+    public void setSubcontractorCosts(int[] subcontractorCosts)
+    {
+<span class="fc" id="L214">		this.subcontractorCosts = subcontractorCosts;</span>
+<span class="fc" id="L215">		intsToStrings(subcontractorCosts, subcontractorCostStrings);</span>
+<span class="fc" id="L216">	}</span>
+
+
+    /**
+     * Populates the action form with uncertainty ranges for the 5 methods.
+     * The values as String will automatically be set to match the ints
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array uncertaintyRanges must have length 5.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param uncertaintyRanges int array containing uncertainty ranges for the 5 methods
+     */
+    public void setUncertaintyRanges(int[] uncertaintyRanges)
+    {
+<span class="fc" id="L229">		this.uncertaintyRanges = uncertaintyRanges;</span>
+<span class="fc" id="L230">		intsToStrings(uncertaintyRanges, uncertaintyRangeStrings);</span>
+<span class="fc" id="L231">	}</span>
+
+    /**
+     * Populates the action form with weather sensitivities for the 5 methods.
+     * The values as String will be set to the corresponding String value for the int given:&lt;br&gt;
+     * &lt;ul&gt;
+     *  &lt;li&gt;0 - Not sensitive to either temperature or rainfall - &quot;neither&quot; &lt;/li&gt;
+     *  &lt;li&gt;1 - Sensitive to temperature only - &quot;temperature&quot; &lt;/li&gt;
+     *  &lt;li&gt;2 - Sensitive to rainfall only - &quot;rainfall&quot; &lt;/li&gt;
+     *  &lt;li&gt;3 - Sensitive to both temperature and rainfall - &quot;both&quot; &lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;The array weatherSensitivities must have length 5.&lt;br&gt;
+     * &lt;b&gt;Precondition:&lt;/b&gt;All int values must be &gt;= 0 &lt;br&gt;
+     * @param weatherSensitivities int array containing weather sensitivities for the 5 methods
+     */
+    public void setWeatherSensitivities(int[] weatherSensitivities)
+    {
+<span class="fc" id="L249">		this.weatherSensitivities = weatherSensitivities;</span>
+<span class="fc" id="L250">		weatherSensitivityIntsToStrings(weatherSensitivities, weatherSensitivityStrings);</span>
+<span class="fc" id="L251">	}</span>
+
+
+    public void setSubcontracted(boolean[] subcontracted)
+    {
+<span class="fc" id="L256">		this.subcontracted = subcontracted;</span>
+<span class="fc" id="L257">		booleansToSubOrSelfStrings(subcontracted, subOrSelfStrings);</span>
+<span class="fc" id="L258">	}</span>
+
+
+    /**
+     *  Resets fields to their initial values
+     */
+    public void reset()
+    {
+<span class="fc" id="L266">		makeDefaults = false;</span>
+<span class="fc" id="L267">	}</span>
+
+	/**
+	 * Ensures that all values are non-null, that all number strings contain only numeric characters,
+     * and that all numbers are greater than or equal to zero
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L275">		ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L277">        boolean nullParams = false;</span>
+<span class="fc" id="L278">        boolean validNumbers = true;</span>
+<span class="fc" id="L279">        boolean positiveNumbers = true;</span>
+
+        //First make sure none of the Strings are null
+<span class="fc bfc" id="L282" title="All 2 branches covered.">        for(int i = 0; i &lt; 5; i++)</span>
+        {
+<span class="pc bpc" id="L284" title="1 of 4 branches missed.">			if((methodNames[i].trim() == null) || (methodNames[i].trim().length() &lt; 1))</span>
+<span class="fc" id="L285">				nullParams = true;</span>
+<span class="pc bpc" id="L286" title="2 of 4 branches missed.">		    if((productivityStrings[i].trim() == null) || (productivityStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L287">		    	nullParams = true;</span>
+<span class="pc bpc" id="L288" title="2 of 4 branches missed.">			if((laborCostStrings[i].trim() == null) || (laborCostStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L289">				nullParams = true;</span>
+<span class="pc bpc" id="L290" title="2 of 4 branches missed.">			if((materialsCostStrings[i].trim() == null) || (materialsCostStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L291">				nullParams = true;</span>
+<span class="pc bpc" id="L292" title="2 of 4 branches missed.">			if((equipmentCostStrings[i].trim() == null) || (equipmentCostStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L293">				nullParams = true;</span>
+<span class="pc bpc" id="L294" title="2 of 4 branches missed.">			if((subcontractorCostStrings[i].trim() == null) || (subcontractorCostStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L295">				nullParams = true;</span>
+<span class="pc bpc" id="L296" title="2 of 4 branches missed.">			if((uncertaintyRangeStrings[i].trim() == null) || (uncertaintyRangeStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L297">			    nullParams = true;</span>
+<span class="pc bpc" id="L298" title="2 of 4 branches missed.">			if((weatherSensitivityStrings[i].trim() == null) || (weatherSensitivityStrings[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L299">			    nullParams = true;</span>
+		}
+
+<span class="fc bfc" id="L302" title="All 2 branches covered.">		if (nullParams) //nullParams == true</span>
+		{
+<span class="fc" id="L304">			errors.add(&quot;nullParameters&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+		else           //nullParams == false
+		{
+			//Next make sure all of the number Strings contain only numeric characters.
+<span class="fc bfc" id="L309" title="All 2 branches covered.">			for(int i = 0; i &lt; 5; i++)</span>
+			{
+				//Check that the strings that should represent numbers only contain numberic characters by trying to convert them to ints and checking for a NumberFormatException
+				//Note that this also populated the int arrays
+				try
+				{
+<span class="fc" id="L315">					productivities[i] = Integer.parseInt(productivityStrings[i]);</span>
+<span class="fc" id="L316">					laborCosts[i] = Integer.parseInt(laborCostStrings[i]);</span>
+<span class="fc" id="L317">					materialsCosts[i] = Integer.parseInt(materialsCostStrings[i]);</span>
+<span class="fc" id="L318">					equipmentCosts[i] = Integer.parseInt(equipmentCostStrings[i]);</span>
+<span class="fc" id="L319">					subcontractorCosts[i] = Integer.parseInt(subcontractorCostStrings[i]);</span>
+<span class="fc" id="L320">					uncertaintyRanges[i] = Integer.parseInt(uncertaintyRangeStrings[i]);</span>
+				}
+<span class="fc" id="L322">				catch(NumberFormatException nfe)</span>
+				{
+<span class="fc" id="L324">					validNumbers = false;</span>
+<span class="fc" id="L325">				}</span>
+			}
+		}
+
+<span class="pc bpc" id="L329" title="1 of 4 branches missed.">		if(!validNumbers &amp;&amp; !nullParams) //validNumbers == false AND nullParams == false</span>
+		{
+<span class="fc" id="L331">			errors.add(&quot;numberFormat&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+<span class="fc bfc" id="L333" title="All 2 branches covered.">		else if(!nullParams)				//validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all the numbers are positive or zero
+<span class="fc bfc" id="L336" title="All 2 branches covered.">			for(int i = 0; i &lt; 5; i++)</span>
+			{
+<span class="fc bfc" id="L338" title="All 2 branches covered.">				if(productivities[i] &lt; 0)</span>
+<span class="fc" id="L339">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L340" title="1 of 2 branches missed.">				if(laborCosts[i] &lt; 0)</span>
+<span class="nc" id="L341">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L342" title="1 of 2 branches missed.">				if(materialsCosts[i] &lt; 0)</span>
+<span class="nc" id="L343">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">				if(equipmentCosts[i] &lt; 0)</span>
+<span class="nc" id="L345">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">				if(subcontractorCosts[i] &lt; 0)</span>
+<span class="nc" id="L347">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">				if(uncertaintyRanges[i] &lt; 0)</span>
+<span class="nc" id="L349">					positiveNumbers = false;</span>
+<span class="pc bpc" id="L350" title="1 of 2 branches missed.">				if(weatherSensitivities[i] &lt; 0)</span>
+<span class="nc" id="L351">					positiveNumbers = false;</span>
+			}
+		}
+
+<span class="pc bpc" id="L355" title="2 of 6 branches missed.">		if(!positiveNumbers &amp;&amp; validNumbers &amp;&amp; !nullParams) //positiveNumbers = false AND nullParams == false AND validNumbers == true</span>
+		{
+<span class="fc" id="L357">			errors.add(&quot;negativeValue&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+
+<span class="fc" id="L361">		return errors;</span>
+	}
+
+
+//****************************** Private Methods ************************
+
+    /* Converts a set of strings into ints, stored in an array
+     * Param: stringValues - Array of strings to be converted into ints
+     * Param: intValues - Array of ints where the values as ints will be stored
+     * Precondition: intValues and stringValues must have equal length
+     */
+	private void stringsToInts(String[] stringValues, int[] intValues)
+	{
+<span class="fc bfc" id="L374" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc" id="L376">			intValues[i] = Integer.parseInt(stringValues[i]);</span>
+
+		}
+<span class="fc" id="L379">	}</span>
+
+    /* Converts a set of ints into strings, stored in the appropriate variable
+     * Param: intValues - Array of ints to be converted into Strings
+     * Param: stringValues - Array of Strings where the values as Strings will be stored
+     * Precondition: intValues and stringValues must have equal length
+     */
+	private void intsToStrings(int[] intValues, String[] stringValues)
+	{
+<span class="fc bfc" id="L388" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc" id="L390">			stringValues[i] = Integer.toString(intValues[i]);</span>
+
+		}
+<span class="fc" id="L393">	}</span>
+
+
+
+	private void subOrSelfStringsToBooleans(String[] stringValues, boolean[] booleanValues)
+	{
+<span class="fc bfc" id="L399" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc bfc" id="L401" title="All 2 branches covered.">			if(stringValues[i].equals(&quot;subcontracted&quot;))</span>
+			{
+<span class="fc" id="L403">				booleanValues[i] = true;</span>
+			}
+			else
+			{
+<span class="fc" id="L407">				booleanValues[i] = false;</span>
+			}
+
+		}
+<span class="fc" id="L411">	}</span>
+
+
+	private void booleansToSubOrSelfStrings(boolean[] booleanValues, String[] stringValues)
+	{
+<span class="fc bfc" id="L416" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc bfc" id="L418" title="All 2 branches covered.">			if(booleanValues[i])</span>
+			{
+<span class="fc" id="L420">				stringValues[i] = &quot;subcontracted&quot;;</span>
+			}
+			else
+			{
+<span class="fc" id="L424">				stringValues[i] = &quot;self-performed&quot;;</span>
+			}
+
+		}
+<span class="fc" id="L428">	}</span>
+
+
+	/* Converts a set of weather sensitivity values from strings to ints using the rules described
+	 * under the setWeatherSensitivities method above.
+	 * Param: stringValues - Array of weather sensitivity strings to be converted into ints
+	 * Param: intValues - Array of ints where the values as ints will be stored
+	 * Precondition: intValues and stringValues must have equal length
+	 * Precondition: stringValues can only contain the strings &quot;Rainfall&quot;, &quot;Temperature&quot;, &quot;Both&quot;, and &quot;Neither&quot;
+	 */
+	private void weatherSensitivityStringsToInts(String[] stringValues, int[] intValues)
+	{
+<span class="fc bfc" id="L440" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc bfc" id="L442" title="All 2 branches covered.">			if (stringValues[i].equals(&quot;neither&quot;))</span>
+<span class="fc" id="L443">				intValues[i] = 0;</span>
+<span class="fc bfc" id="L444" title="All 2 branches covered.">			else if (stringValues[i].equals(&quot;temperature&quot;))</span>
+<span class="fc" id="L445">				intValues[i] = 1;</span>
+<span class="fc bfc" id="L446" title="All 2 branches covered.">			else if (stringValues[i].equals(&quot;rainfall&quot;))</span>
+<span class="fc" id="L447">			    intValues[i] = 2;</span>
+<span class="pc bpc" id="L448" title="1 of 2 branches missed.">			else if (stringValues[i].equals(&quot;both&quot;))</span>
+<span class="fc" id="L449">			    intValues[i] = 3;</span>
+		}
+<span class="fc" id="L451">	}</span>
+
+
+	/* Converts a set of weather sensitivity values from ints to strings using the rules described
+	 * under the getWeatherSensitivities method above.
+	 * Param: intValues - Array of weather sensitivity ints to be converted into strings
+	 * Param: stringValues - Array of Strings where the values as Strings will be stored
+	 * Precondition: intValues and stringValues must have equal length
+	 * Precondition: for each value x, in intValues, 0 &lt;= x &lt;= 3
+	 */
+	private void weatherSensitivityIntsToStrings(int[] intValues, String[] stringValues)
+	{
+<span class="fc bfc" id="L463" title="All 2 branches covered.">		for (int i = 0; i &lt; stringValues.length; i++)</span>
+		{
+<span class="fc bfc" id="L465" title="All 2 branches covered.">			if (intValues[i] == 0)</span>
+<span class="fc" id="L466">				stringValues[i] = &quot;neither&quot;;</span>
+<span class="fc bfc" id="L467" title="All 2 branches covered.">		 	else if (intValues[i] == 1)</span>
+<span class="fc" id="L468">		 		stringValues[i] = &quot;temperature&quot;;</span>
+<span class="fc bfc" id="L469" title="All 2 branches covered.">		 	else if (intValues[i] == 2)</span>
+<span class="fc" id="L470">		 		stringValues[i] = &quot;rainfall&quot;;</span>
+<span class="pc bpc" id="L471" title="1 of 2 branches missed.">		 	else if (intValues[i] == 3)</span>
+<span class="fc" id="L472">		 		stringValues[i] = &quot;both&quot;;</span>
+
+		}
+<span class="fc" id="L475">	}</span>
+
+//****************************** Get and Set Methods ********************
+
+    public boolean getMakeDefaults()
+    {
+<span class="fc" id="L481">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L486">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L487">	}</span>
+
+    public String getActivityTypeName()
+    {
+<span class="fc" id="L491">		return activityTypeName;</span>
+	}
+
+	public void setActivityTypeName(String activityTypeName)
+	{
+<span class="fc" id="L496">		this.activityTypeName = activityTypeName;</span>
+<span class="fc" id="L497">	}</span>
+
+	public int getActivityTypeID()
+	{
+<span class="fc" id="L501">		return activityTypeID;</span>
+	}
+
+	public void setActivityTypeID(int activityTypeID)
+	{
+<span class="fc" id="L506">		this.activityTypeID = activityTypeID;</span>
+<span class="fc" id="L507">	}</span>
+
+    //Note: The following get &amp; set methods correspond to locations in the String arrays, not to variables of the names they imply
+
+    //Method Names
+	public String getMethodName1()
+	{
+<span class="fc" id="L514">		return methodNames[0];</span>
+	}
+
+	public void setMethodName1(String methodName1)
+	{
+<span class="fc" id="L519">        	methodNames[0] = methodName1;</span>
+<span class="fc" id="L520">	}</span>
+
+	public String getMethodName2()
+	{
+<span class="fc" id="L524">		return methodNames[1];</span>
+	}
+
+	public void setMethodName2(String methodName2)
+	{
+<span class="fc" id="L529">		methodNames[1] = methodName2;</span>
+<span class="fc" id="L530">	}</span>
+
+	public String getMethodName3()
+	{
+<span class="fc" id="L534">		return methodNames[2];</span>
+	}
+
+	public void setMethodName3(String methodName3)
+	{
+<span class="fc" id="L539">		methodNames[2] = methodName3;</span>
+<span class="fc" id="L540">	}</span>
+
+	public String getMethodName4()
+	{
+<span class="fc" id="L544">		return methodNames[3];</span>
+	}
+
+	public void setMethodName4(String methodName4)
+	{
+<span class="fc" id="L549">		methodNames[3] = methodName4;</span>
+<span class="fc" id="L550">	}</span>
+
+	public String getMethodName5()
+	{
+<span class="fc" id="L554">		return methodNames[4];</span>
+	}
+
+	public void setMethodName5(String methodName5)
+	{
+<span class="fc" id="L559">		methodNames[4] = methodName5;</span>
+<span class="fc" id="L560">	}</span>
+
+
+    //Productivities
+    public String getProductivity1()
+    {
+<span class="fc" id="L566">		return productivityStrings[0];</span>
+	}
+
+	public void setProductivity1(String productivity1)
+	{
+<span class="fc" id="L571">		productivityStrings[0] = productivity1;</span>
+<span class="fc" id="L572">	}</span>
+
+	public String getProductivity2()
+	{
+<span class="nc" id="L576">		return productivityStrings[1];</span>
+	}
+
+	public void setProductivity2(String productivity2)
+	{
+<span class="nc" id="L581">		productivityStrings[1] = productivity2;</span>
+<span class="nc" id="L582">	}</span>
+
+	public String getProductivity3()
+	{
+<span class="nc" id="L586">		return productivityStrings[2];</span>
+	}
+
+	public void setProductivity3(String productivity3)
+	{
+<span class="nc" id="L591">		productivityStrings[2] = productivity3;</span>
+<span class="nc" id="L592">	}</span>
+
+	public String getProductivity4()
+	{
+<span class="nc" id="L596">		return productivityStrings[3];</span>
+	}
+
+	public void setProductivity4(String productivity4)
+	{
+<span class="nc" id="L601">		productivityStrings[3] = productivity4;</span>
+<span class="nc" id="L602">	}</span>
+
+	public String getProductivity5()
+	{
+<span class="nc" id="L606">		return productivityStrings[4];</span>
+	}
+
+	public void setProductivity5(String productivity5)
+	{
+<span class="nc" id="L611">		productivityStrings[4] = productivity5;</span>
+<span class="nc" id="L612">	}</span>
+
+
+	//Labor Costs
+	public String getLaborCost1()
+	{
+<span class="fc" id="L618">		return laborCostStrings[0];</span>
+	}
+
+	public void setLaborCost1(String laborCost1)
+	{
+<span class="nc" id="L623">		laborCostStrings[0] = laborCost1;</span>
+<span class="nc" id="L624">	}</span>
+
+	public String getLaborCost2()
+	{
+<span class="nc" id="L628">		return laborCostStrings[1];</span>
+	}
+
+	public void setLaborCost2(String laborCost2)
+	{
+<span class="nc" id="L633">		laborCostStrings[1] = laborCost2;</span>
+<span class="nc" id="L634">	}</span>
+
+	public String getLaborCost3()
+	{
+<span class="nc" id="L638">		return laborCostStrings[2];</span>
+	}
+
+	public void setLaborCost3(String laborCost3)
+	{
+<span class="nc" id="L643">		laborCostStrings[2] = laborCost3;</span>
+<span class="nc" id="L644">	}</span>
+
+	public String getLaborCost4()
+	{
+<span class="nc" id="L648">		return laborCostStrings[3];</span>
+	}
+
+	public void setLaborCost4(String laborCost4)
+	{
+<span class="nc" id="L653">		laborCostStrings[3] = laborCost4;</span>
+<span class="nc" id="L654">	}</span>
+
+	public String getLaborCost5()
+	{
+<span class="nc" id="L658">		return laborCostStrings[4];</span>
+	}
+
+	public void setLaborCost5(String laborCost5)
+	{
+<span class="nc" id="L663">		laborCostStrings[4] = laborCost5;</span>
+<span class="nc" id="L664">	}</span>
+
+
+	//Materials Costs
+	public String getMaterialsCost1()
+	{
+<span class="fc" id="L670">		return materialsCostStrings[0];</span>
+	}
+
+	public void setMaterialsCost1(String materialsCost1)
+	{
+<span class="nc" id="L675">		materialsCostStrings[0] = materialsCost1;</span>
+<span class="nc" id="L676">	}</span>
+
+	public String getMaterialsCost2()
+	{
+<span class="nc" id="L680">		return materialsCostStrings[1];</span>
+	}
+
+	public void setMaterialsCost2(String materialsCost2)
+	{
+<span class="nc" id="L685">		materialsCostStrings[1] = materialsCost2;</span>
+<span class="nc" id="L686">	}</span>
+
+	public String getMaterialsCost3()
+	{
+<span class="nc" id="L690">		return materialsCostStrings[2];</span>
+	}
+
+	public void setMaterialsCost3(String materialsCost3)
+	{
+<span class="nc" id="L695">		materialsCostStrings[2] = materialsCost3;</span>
+<span class="nc" id="L696">	}</span>
+
+	public String getMaterialsCost4()
+	{
+<span class="nc" id="L700">		return materialsCostStrings[3];</span>
+	}
+
+	public void setMaterialsCost4(String materialsCost4)
+	{
+<span class="nc" id="L705">		materialsCostStrings[3] = materialsCost4;</span>
+<span class="nc" id="L706">	}</span>
+
+	public String getMaterialsCost5()
+	{
+<span class="nc" id="L710">		return materialsCostStrings[4];</span>
+	}
+
+	public void setMaterialsCost5(String materialsCost5)
+	{
+<span class="nc" id="L715">		materialsCostStrings[4] = materialsCost5;</span>
+<span class="nc" id="L716">	}</span>
+
+
+	//Equipment Costs
+	public String getEquipmentCost1()
+	{
+<span class="fc" id="L722">		return equipmentCostStrings[0];</span>
+	}
+
+	public void setEquipmentCost1(String equipmentCost1)
+	{
+<span class="nc" id="L727">		equipmentCostStrings[0] = equipmentCost1;</span>
+<span class="nc" id="L728">	}</span>
+
+	public String getEquipmentCost2()
+	{
+<span class="nc" id="L732">		return equipmentCostStrings[1];</span>
+	}
+
+	public void setEquipmentCost2(String equipmentCost2)
+	{
+<span class="nc" id="L737">		equipmentCostStrings[1] = equipmentCost2;</span>
+<span class="nc" id="L738">	}</span>
+
+	public String getEquipmentCost3()
+	{
+<span class="nc" id="L742">		return equipmentCostStrings[2];</span>
+	}
+
+	public void setEquipmentCost3(String equipmentCost3)
+	{
+<span class="nc" id="L747">		equipmentCostStrings[2] = equipmentCost3;</span>
+<span class="nc" id="L748">	}</span>
+
+	public String getEquipmentCost4()
+	{
+<span class="nc" id="L752">		return equipmentCostStrings[3];</span>
+	}
+
+	public void setEquipmentCost4(String equipmentCost4)
+	{
+<span class="nc" id="L757">		equipmentCostStrings[3] = equipmentCost4;</span>
+<span class="nc" id="L758">	}</span>
+
+	public String getEquipmentCost5()
+	{
+<span class="nc" id="L762">		return equipmentCostStrings[4];</span>
+	}
+
+	public void setEquipmentCost5(String equipmentCost5)
+	{
+<span class="nc" id="L767">		equipmentCostStrings[4] = equipmentCost5;</span>
+<span class="nc" id="L768">	}</span>
+
+
+	//Subcontractor Costs
+	public String getSubcontractorCost1()
+	{
+<span class="fc" id="L774">		return subcontractorCostStrings[0];</span>
+	}
+
+	public void setSubcontractorCost1(String subcontractorCost1)
+	{
+<span class="nc" id="L779">		subcontractorCostStrings[0] = subcontractorCost1;</span>
+<span class="nc" id="L780">	}</span>
+
+	public String getSubcontractorCost2()
+	{
+<span class="nc" id="L784">		return subcontractorCostStrings[1];</span>
+	}
+
+	public void setSubcontractorCost2(String subcontractorCost2)
+	{
+<span class="nc" id="L789">		subcontractorCostStrings[1] = subcontractorCost2;</span>
+<span class="nc" id="L790">	}</span>
+
+	public String getSubcontractorCost3()
+	{
+<span class="nc" id="L794">		return subcontractorCostStrings[2];</span>
+	}
+
+	public void setSubcontractorCost3(String subcontractorCost3)
+	{
+<span class="nc" id="L799">		subcontractorCostStrings[2] = subcontractorCost3;</span>
+<span class="nc" id="L800">	}</span>
+
+	public String getSubcontractorCost4()
+	{
+<span class="nc" id="L804">		return subcontractorCostStrings[3];</span>
+	}
+
+	public void setSubcontractorCost4(String subcontractorCost4)
+	{
+<span class="nc" id="L809">		subcontractorCostStrings[3] = subcontractorCost4;</span>
+<span class="nc" id="L810">	}</span>
+
+	public String getSubcontractorCost5()
+	{
+<span class="nc" id="L814">		return subcontractorCostStrings[4];</span>
+	}
+
+	public void setSubcontractorCost5(String subcontractorCost5)
+	{
+<span class="nc" id="L819">		subcontractorCostStrings[4] = subcontractorCost5;</span>
+<span class="nc" id="L820">	}</span>
+
+
+
+	//Uncertainty ranges
+	public String getUncertaintyRange1()
+	{
+<span class="fc" id="L827">		return uncertaintyRangeStrings[0];</span>
+	}
+
+	public void setUncertaintyRange1(String uncertaintyRange1)
+	{
+<span class="nc" id="L832">		uncertaintyRangeStrings[0] = uncertaintyRange1;</span>
+<span class="nc" id="L833">	}</span>
+
+	public String getUncertaintyRange2()
+	{
+<span class="nc" id="L837">		return uncertaintyRangeStrings[1];</span>
+	}
+
+	public void setUncertaintyRange2(String uncertaintyRange2)
+	{
+<span class="nc" id="L842">		uncertaintyRangeStrings[1] = uncertaintyRange2;</span>
+<span class="nc" id="L843">	}</span>
+
+	public String getUncertaintyRange3()
+	{
+<span class="nc" id="L847">		return uncertaintyRangeStrings[2];</span>
+	}
+
+	public void setUncertaintyRange3(String uncertaintyRange3)
+	{
+<span class="nc" id="L852">		uncertaintyRangeStrings[2] = uncertaintyRange3;</span>
+<span class="nc" id="L853">	}</span>
+
+	public String getUncertaintyRange4()
+	{
+<span class="nc" id="L857">		return uncertaintyRangeStrings[3];</span>
+	}
+
+	public void setUncertaintyRange4(String uncertaintyRange4)
+	{
+<span class="nc" id="L862">		uncertaintyRangeStrings[3] = uncertaintyRange4;</span>
+<span class="nc" id="L863">	}</span>
+
+	public String getUncertaintyRange5()
+	{
+<span class="nc" id="L867">		return uncertaintyRangeStrings[4];</span>
+	}
+
+	public void setUncertaintyRange5(String uncertaintyRange5)
+	{
+<span class="nc" id="L872">		uncertaintyRangeStrings[4] = uncertaintyRange5;</span>
+<span class="nc" id="L873">	}</span>
+
+
+	//Weather sensitivities
+	public String getWeatherSensitivity1()
+	{
+<span class="fc" id="L879">		return weatherSensitivityStrings[0];</span>
+	}
+
+	public void setWeatherSensitivity1(String weatherSensitivity1)
+	{
+<span class="nc" id="L884">		weatherSensitivityStrings[0] = weatherSensitivity1;</span>
+<span class="nc" id="L885">	}</span>
+
+	public String getWeatherSensitivity2()
+	{
+<span class="nc" id="L889">		return weatherSensitivityStrings[1];</span>
+	}
+
+	public void setWeatherSensitivity2(String weatherSensitivity2)
+	{
+<span class="nc" id="L894">		weatherSensitivityStrings[1] = weatherSensitivity2;</span>
+<span class="nc" id="L895">	}</span>
+
+	public String getWeatherSensitivity3()
+	{
+<span class="nc" id="L899">		return weatherSensitivityStrings[2];</span>
+	}
+
+	public void setWeatherSensitivity3(String weatherSensitivity3)
+	{
+<span class="nc" id="L904">		weatherSensitivityStrings[2] = weatherSensitivity3;</span>
+<span class="nc" id="L905">	}</span>
+
+	public String getWeatherSensitivity4()
+	{
+<span class="nc" id="L909">		return weatherSensitivityStrings[3];</span>
+	}
+
+	public void setWeatherSensitivity4(String weatherSensitivity4)
+	{
+<span class="nc" id="L914">		weatherSensitivityStrings[3] = weatherSensitivity4;</span>
+<span class="nc" id="L915">	}</span>
+
+	public String getWeatherSensitivity5()
+	{
+<span class="nc" id="L919">		return weatherSensitivityStrings[4];</span>
+	}
+
+	public void setWeatherSensitivity5(String weatherSensitivity5)
+	{
+<span class="nc" id="L924">		weatherSensitivityStrings[4] = weatherSensitivity5;</span>
+<span class="nc" id="L925">	}</span>
+
+
+	//Weather sensitivities
+	public String getSubcontracted1()
+	{
+<span class="nc" id="L931">		return subOrSelfStrings[0];</span>
+	}
+
+	public void setSubcontracted1(String subOrSelfStrings1)
+	{
+<span class="fc" id="L936">		subOrSelfStrings[0] = subOrSelfStrings1;</span>
+<span class="fc" id="L937">	}</span>
+
+	public String getSubcontracted2()
+	{
+<span class="nc" id="L941">		return subOrSelfStrings[1];</span>
+	}
+
+	public void setSubcontracted2(String subOrSelfStrings2)
+	{
+<span class="fc" id="L946">		subOrSelfStrings[1] = subOrSelfStrings2;</span>
+<span class="fc" id="L947">	}</span>
+
+	public String getSubcontracted3()
+	{
+<span class="nc" id="L951">		return subOrSelfStrings[2];</span>
+	}
+
+	public void setSubcontracted3(String subOrSelfStrings3)
+	{
+<span class="fc" id="L956">		subOrSelfStrings[2] = subOrSelfStrings3;</span>
+<span class="fc" id="L957">	}</span>
+
+	public String getSubcontracted4()
+	{
+<span class="nc" id="L961">		return subOrSelfStrings[3];</span>
+	}
+
+	public void setSubcontracted4(String subOrSelfStrings4)
+	{
+<span class="fc" id="L966">		subOrSelfStrings[3] = subOrSelfStrings4;</span>
+<span class="fc" id="L967">	}</span>
+
+	public String getSubcontracted5()
+	{
+<span class="nc" id="L971">		return subOrSelfStrings[4];</span>
+	}
+
+	public void setSubcontracted5(String subOrSelfStrings5)
+	{
+<span class="fc" id="L976">		subOrSelfStrings[4] = subOrSelfStrings5;</span>
+<span class="fc" id="L977">	}</span>
+
+
+	//********************************  Unit Test *****************************
+
+	public static void main(String args[])
+	{
+
+<span class="nc" id="L985">		MethodParametersForm methodForm = new MethodParametersForm();</span>
+
+        //Create arrays of 5 ints and pass them to the MethodParameters set methods.  This will trigger the int to string conversions.
+        //Retrieve the int arrays triggering the String to int conversion.  Compare the int arrays retrieved to those originally entered.
+        //If they are the same then the unit test passed.
+
+<span class="nc" id="L991">		int[] initProductivities = new int[5];</span>
+<span class="nc" id="L992">		int[] initLaborCosts = new int[5];</span>
+<span class="nc" id="L993">		int[] initMaterialsCosts = new int[5];</span>
+<span class="nc" id="L994">		int[] initUncertaintyRanges = new int[5];</span>
+<span class="nc" id="L995">		int[] initWeatherSensitivities = new int[5];</span>
+
+<span class="nc" id="L997">		int[] finalProductivities = new int[5];</span>
+<span class="nc" id="L998">		int[] finalLaborCosts = new int[5];</span>
+<span class="nc" id="L999">		int[] finalMaterialsCosts = new int[5];</span>
+<span class="nc" id="L1000">		int[] finalUncertaintyRanges = new int[5];</span>
+<span class="nc" id="L1001">		int[] finalWeatherSensitivities = new int[5];</span>
+
+<span class="nc bnc" id="L1003" title="All 2 branches missed.">		for (int i=0; i &lt; 5; i++)</span>
+		{
+<span class="nc" id="L1005">			initProductivities[i] = i;</span>
+<span class="nc" id="L1006">			initLaborCosts[i] = i - 10;</span>
+<span class="nc" id="L1007">			initMaterialsCosts[i] = i * i;</span>
+<span class="nc" id="L1008">			initUncertaintyRanges[i] = i % 2;</span>
+<span class="nc" id="L1009">			initWeatherSensitivities[i] = i % 4;</span>
+<span class="nc" id="L1010">			finalProductivities[i] = i;</span>
+<span class="nc" id="L1011">			finalLaborCosts[i] = i - 10;</span>
+<span class="nc" id="L1012">			finalMaterialsCosts[i] = i * i;</span>
+<span class="nc" id="L1013">			finalUncertaintyRanges[i] = i % 2;</span>
+<span class="nc" id="L1014">			finalWeatherSensitivities[i] = i % 4;</span>
+		}
+
+
+<span class="nc" id="L1018">		methodForm.setProductivities(finalProductivities);</span>
+<span class="nc" id="L1019">		methodForm.setLaborCosts(finalLaborCosts);</span>
+<span class="nc" id="L1020">		methodForm.setMaterialsCosts(finalMaterialsCosts);</span>
+<span class="nc" id="L1021">		methodForm.setUncertaintyRanges(finalUncertaintyRanges);</span>
+<span class="nc" id="L1022">		methodForm.setWeatherSensitivities(finalWeatherSensitivities);</span>
+
+<span class="nc" id="L1024">		finalProductivities = methodForm.getProductivities();</span>
+<span class="nc" id="L1025">		finalLaborCosts = methodForm.getLaborCosts();</span>
+<span class="nc" id="L1026">		finalMaterialsCosts = methodForm.getMaterialsCosts();</span>
+<span class="nc" id="L1027">		finalUncertaintyRanges = methodForm.getUncertaintyRanges();</span>
+<span class="nc" id="L1028">		finalWeatherSensitivities = methodForm.getWeatherSensitivities();</span>
+
+
+<span class="nc" id="L1031">		boolean unitTestPassed = true;</span>
+
+		//Test that the initial and final productivity values are the same
+<span class="nc" id="L1034"> 		System.out.println(&quot;The initial productivities were: &quot;);</span>
+<span class="nc bnc" id="L1035" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1037">			System.out.print(initProductivities[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L1039"> 		System.out.println(&quot;\nAfter being converted to strings and back the productivities are: &quot;);</span>
+<span class="nc bnc" id="L1040" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1042">			System.out.print(finalProductivities[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L1045">		boolean productivitiesEqual = true;</span>
+
+<span class="nc bnc" id="L1047" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 5; i++)</span>
+	 	{
+<span class="nc bnc" id="L1049" title="All 2 branches missed.">			if(!(initProductivities[i] == finalProductivities[i]))</span>
+<span class="nc" id="L1050">				productivitiesEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L1053" title="All 2 branches missed."> 		if (productivitiesEqual)</span>
+<span class="nc" id="L1054"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L1057">			unitTestPassed = false;</span>
+<span class="nc" id="L1058"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+		//Test that the initial and final labor cost values are the same
+<span class="nc" id="L1063"> 		System.out.println(&quot;The initial labor costs were: &quot;);</span>
+<span class="nc bnc" id="L1064" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1066">			System.out.print(initLaborCosts[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L1068"> 		System.out.println(&quot;\nAfter being converted to strings and back the labor costs are: &quot;);</span>
+<span class="nc bnc" id="L1069" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1071">			System.out.print(finalLaborCosts[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L1074">		boolean laborCostsEqual = true;</span>
+
+<span class="nc bnc" id="L1076" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 5; i++)</span>
+	 	{
+<span class="nc bnc" id="L1078" title="All 2 branches missed.">			if(!(initLaborCosts[i] == finalLaborCosts[i]))</span>
+<span class="nc" id="L1079">				laborCostsEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L1082" title="All 2 branches missed."> 		if (laborCostsEqual)</span>
+<span class="nc" id="L1083"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L1086">			unitTestPassed = false;</span>
+<span class="nc" id="L1087"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+
+		//Test that the initial and final materials costs values are the same
+<span class="nc" id="L1093"> 		System.out.println(&quot;The initial materials costs were: &quot;);</span>
+<span class="nc bnc" id="L1094" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1096">			System.out.print(initMaterialsCosts[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L1098"> 		System.out.println(&quot;\nAfter being converted to strings and back the materials costs are: &quot;);</span>
+<span class="nc bnc" id="L1099" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1101">			System.out.print(finalMaterialsCosts[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L1104">		boolean materialsCostsEqual = true;</span>
+
+<span class="nc bnc" id="L1106" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 5; i++)</span>
+	 	{
+<span class="nc bnc" id="L1108" title="All 2 branches missed.">			if(!(initMaterialsCosts[i] == finalMaterialsCosts[i]))</span>
+<span class="nc" id="L1109">				materialsCostsEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L1112" title="All 2 branches missed."> 		if (materialsCostsEqual)</span>
+<span class="nc" id="L1113"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L1116">			unitTestPassed = false;</span>
+<span class="nc" id="L1117"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+		//Test that the initial and final uncertainty range values are the same
+<span class="nc" id="L1122"> 		System.out.println(&quot;The initial uncertainty ranges were: &quot;);</span>
+<span class="nc bnc" id="L1123" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1125">			System.out.print(initUncertaintyRanges[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L1127"> 		System.out.println(&quot;\nAfter being converted to strings and back the uncertainty ranges are: &quot;);</span>
+<span class="nc bnc" id="L1128" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1130">			System.out.print(finalUncertaintyRanges[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L1133">		boolean uncertaintyRangesEqual = true;</span>
+
+<span class="nc bnc" id="L1135" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 5; i++)</span>
+	 	{
+<span class="nc bnc" id="L1137" title="All 2 branches missed.">			if(!(initUncertaintyRanges[i] == finalUncertaintyRanges[i]))</span>
+<span class="nc" id="L1138">				uncertaintyRangesEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L1141" title="All 2 branches missed."> 		if (uncertaintyRangesEqual)</span>
+<span class="nc" id="L1142"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L1145">			unitTestPassed = false;</span>
+<span class="nc" id="L1146"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+		//Test that the initial and final weather sensitivity values are the same
+<span class="nc" id="L1151"> 		System.out.println(&quot;The initial weather sensitivities were: &quot;);</span>
+<span class="nc bnc" id="L1152" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1154">			System.out.print(initWeatherSensitivities[i] + &quot; &quot;);</span>
+		}
+<span class="nc" id="L1156"> 		System.out.println(&quot;\nAfter being converted to strings and back the weather sensitivities are: &quot;);</span>
+<span class="nc bnc" id="L1157" title="All 2 branches missed."> 		for (int i = 0; i &lt; 5; i++)</span>
+ 		{
+<span class="nc" id="L1159">			System.out.print(finalWeatherSensitivities[i] + &quot; &quot;);</span>
+		}
+
+<span class="nc" id="L1162">		boolean weatherSensitivitiesEqual = true;</span>
+
+<span class="nc bnc" id="L1164" title="All 2 branches missed.">	 	for (int i = 0; i &lt; 5; i++)</span>
+	 	{
+<span class="nc bnc" id="L1166" title="All 2 branches missed.">			if(!(initWeatherSensitivities[i] == finalWeatherSensitivities[i]))</span>
+<span class="nc" id="L1167">				weatherSensitivitiesEqual = false;</span>
+		}
+
+<span class="nc bnc" id="L1170" title="All 2 branches missed."> 		if (weatherSensitivitiesEqual)</span>
+<span class="nc" id="L1171"> 			System.out.println(&quot;\nPassed\n&quot;);</span>
+ 		else
+ 		{
+<span class="nc" id="L1174">			unitTestPassed = false;</span>
+<span class="nc" id="L1175"> 			System.out.println(&quot;\nFailed\n&quot;);</span>
+		}
+
+
+<span class="nc bnc" id="L1179" title="All 2 branches missed.">		if (unitTestPassed)</span>
+<span class="nc" id="L1180">			System.out.println(&quot;Unit test completed successfully!&quot;);</span>
+		else
+<span class="nc" id="L1182">			System.out.println(&quot;Unit test failed&quot;);</span>
+
+<span class="nc" id="L1184">	}</span>
+
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

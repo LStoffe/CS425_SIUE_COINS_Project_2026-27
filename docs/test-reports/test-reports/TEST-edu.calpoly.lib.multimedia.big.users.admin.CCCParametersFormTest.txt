@@ -1,0 +1,6 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.CCCParametersFormTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 sec
+
+Testcase: testRoundTripAndValidateOk took 0.004 sec
+Testcase: testGetSetMakeDefaults took 0 sec
+Testcase: testValidateDetectsMinGreaterThanMax took 0.001 sec

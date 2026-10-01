@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultFinancialReportDBHandlerTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.112 sec
+
+Testcase: testGetFinancialReportThrowsWhenNoRows took 0.065 sec
+Testcase: testAddFinancialReportSucceeds took 0.014 sec
+Testcase: testGetFinancialReportReturnsForm took 0.027 sec
+Testcase: testRemoveFinancialReportsSucceeds took 0 sec

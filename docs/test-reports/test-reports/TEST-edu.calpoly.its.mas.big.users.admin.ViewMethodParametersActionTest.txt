@@ -1,0 +1,5 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.ViewMethodParametersActionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.658 sec
+
+Testcase: testCancelledReturnsCancelledForward took 0.572 sec
+Testcase: testSuccessWithMockedDb took 0.081 sec

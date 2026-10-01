@@ -1,0 +1,218 @@
+<!--
+    Company Navbar Fragment
+    Use this in pages accessed only by Company with:
+    <div th:replace="fragments/navbar-company :: navbar"></div>
+-->
+
+<nav th:fragment="navbar"
+     class="main-navbar flex items-center justify-between p-4 shadow fixed top-0 left-0 w-full z-50 bg-white">
+    <div class="flex items-center space-x-4">
+      <span class="text-2xl font-bold text-black">COINS</span>
+      <a th:href="@{/company/company-menu}" class="text-black hover:text-amber-600 transition-colors font-bold">
+        Company Menu
+      </a>
+
+
+      <!-- Financial Reports  -->
+      <div class="relative group">
+        <a th:href="@{/company/financial-reports-menu}" 
+           class="text-black hover:text-amber-600 transition-colors duration-200 font-bold flex items-center">
+          Financial Reports
+          <svg class="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </a>
+        
+        <!-- Dropdown Menu -->
+        <div class="absolute left-0 mt-3 w-60 bg-white/95 backdrop-blur-sm
+                    rounded-2xl shadow-xl ring-1 ring-black/5 p-2
+                    opacity-0 invisible translate-y-2
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 ease-out z-50">
+      
+          <div class="space-y-1">
+            <a th:href="@{/company/financial-reports/balance-sheet}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Balance Sheet</a>
+            <a th:href="@{/company/financial-reports/income-statement}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Income Statement</a>
+            <a th:href="@{/company/financial-reports/completed-contracts}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Completed Contracts</a>
+            <a th:href="@{/company/financial-reports/contracts-in-progress}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Contracts in Progress</a>
+            <a th:href="@{/company/financial-reports/job-cost-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Job Cost Report</a>
+            <a th:href="@{/company/financial-reports/cash-flow-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Cash Flow Report</a>
+            <a th:href="@{/company/financial-reports/ratios-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Ratios Report</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Financial Services -->
+      <div class="relative group">
+        <a th:href="@{/company/financial-services-menu}" 
+            class="text-black hover:text-amber-600 transition-colors duration-200 font-bold flex items-center">
+          Financial Services
+          <svg class="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </a>
+
+        <!-- Dropdown Menu -->
+        <div class="absolute left-0 mt-3 w-60 bg-white/95 backdrop-blur-sm
+                    rounded-2xl shadow-xl ring-1 ring-black/5 p-2
+                    opacity-0 invisible translate-y-2
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 ease-out z-50">
+
+          <div class="space-y-1">
+            <a th:href="@{/company/financial-services/request-a-loan}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Request a Loan</a>
+            <a th:href="@{/company/financial-services/manage-personnel}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Manage Personnel</a>
+            <a th:href="@{/company/financial-services/view-personnel-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">View Personnel Report</a>
+          </div>
+        </div>
+      </div>
+
+  
+      <!-- Project Management -->
+      <div class="relative group">
+        <a th:href="@{/company/project-management-menu}" 
+          class="text-black hover:text-amber-600 transition-colors duration-200 font-bold flex items-center">
+        Project Management
+        <svg class="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 9l-7 7-7-7"></path>
+        </svg>
+        </a>
+
+        <!-- Dropdown Menu -->
+        <div class="absolute left-0 mt-3 w-60 bg-white/95 backdrop-blur-sm
+                    rounded-2xl shadow-xl ring-1 ring-black/5 p-2
+                    opacity-0 invisible translate-y-2
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 ease-out z-50">
+
+          <div class="space-y-1">
+            <a th:href="@{/company/project-management/progress-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Progress Report</a>
+            <a th:href="@{/company/project-management/reschedule-methods}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Reschedule Methods</a>
+            <a th:href="@{/company/project-management/bill-for-work-completed}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Bill for Work Completed</a>
+            <a th:href="@{/company/project-management/payments-received}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Payments Received</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Bidding -->
+      <div class="relative group">
+        <a th:href="@{/company/bidding-menu}" 
+          class="text-black hover:text-amber-600 transition-colors duration-200 font-bold flex items-center">
+        Bidding
+        <svg class="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 9l-7 7-7-7"></path>
+        </svg>
+        </a>
+
+        <!-- Dropdown Menu -->
+        <div class="absolute left-0 mt-3 w-60 bg-white/95 backdrop-blur-sm
+                    rounded-2xl shadow-xl ring-1 ring-black/5 p-2
+                    opacity-0 invisible translate-y-2
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 ease-out z-50">
+
+          <div class="space-y-1">
+            <a th:href="@{/company/bidding/report-from-bid-opening}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Report from Bid Opening</a>
+            <a th:href="@{/company/bidding/complete-list-of-bids-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Complete List of Bids Report</a>
+            <a th:href="@{/company/bidding/bid-on-a-job}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Bid on a Job</a>
+            <a th:href="@{/company/bidding/schedule-estimates}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Schedule Estimates</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!--  Consulting Services -->
+      <div class="relative group">
+        <a th:href="@{/company/consulting-services-menu}" 
+          class="text-black hover:text-amber-600 transition-colors duration-200 font-bold flex items-center">
+        Consulting Services
+        <svg class="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 9l-7 7-7-7"></path>
+        </svg>
+        </a>
+
+        <!-- Dropdown Menu -->
+        <div class="absolute left-0 mt-3 w-60 bg-white/95 backdrop-blur-sm
+                    rounded-2xl shadow-xl ring-1 ring-black/5 p-2
+                    opacity-0 invisible translate-y-2
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 ease-out z-50">
+
+          <div class="space-y-1">
+            <a th:href="@{/company/consulting-services/labor-availability}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Labor Availability</a>
+            <a th:href="@{/company/consulting-services/materials-cost-index}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Materials Cost Index</a>
+            <a th:href="@{/company/consulting-services/weather-forecast}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Weather Forecast</a>
+            <a th:href="@{/company/consulting-services/future-demand}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Future Demand</a>
+            <a th:href="@{/company/consulting-services/appraisal-metrics}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Appraisal Metrics</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!--  Published Info -->
+      <div class="relative group">
+        <a th:href="@{/company/published-info-menu}" 
+        class="text-black hover:text-amber-600 transition-colors duration-200 font-bold flex items-center">
+        Published Info
+        <svg class="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 9l-7 7-7-7"></path>
+        </svg>
+        </a>
+
+        <!-- Dropdown Menu -->
+        <div class="absolute left-0 mt-3 w-60 bg-white/95 backdrop-blur-sm
+                    rounded-2xl shadow-xl ring-1 ring-black/5 p-2
+                    opacity-0 invisible translate-y-2
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 ease-out z-50">
+
+          <div class="space-y-1">
+            <a th:href="@{/company/published-info/mission-statement}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Mission Statement</a>
+            <a th:href="@{/company/published-info/core-values}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Core Values</a>
+            <a th:href="@{/company/published-info/company-url}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Company URL</a>
+            <a th:href="@{/company/published-info/productivity-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Productivity Report</a>
+            <a th:href="@{/company/published-info/network-dependencies-report}" class="block px-4 py-2 text-sm text-gray-700 rounded-lg transition-colors duration-150 hover:bg-amber-50 hover:text-amber-600">Network Dependencies Report</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!--
+      This feature is planned as a new module and may be added if we have the neccessary time before the project deadline.
+      <a href="#" class="text-black hover:text-amber-600 transition-colors font-bold">
+        Equipment
+      </a>
+      -->
+      
+
+      <a th:href="@{/manual/manual-toc}" class="text-black hover:text-amber-600 transition-colors font-bold">
+        User Manual
+      </a>
+    </div>
+
+    
+    <div class="flex items-center space-x-4">
+      <span class="text-black font-bold"
+            th:if="${session.username != null}"
+            th:text="${'Logged in as: ' + session.username}">
+        Logged in as
+      </span>
+      <a th:href="@{/logout}" class="text-black hover:text-amber-600 transition-colors font-bold">
+        Logout
+      </a>
+    </div>
+  </nav>

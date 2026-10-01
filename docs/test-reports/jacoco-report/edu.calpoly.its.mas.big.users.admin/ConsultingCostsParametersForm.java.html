@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsultingCostsParametersForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">ConsultingCostsParametersForm.java</span></div><h1>ConsultingCostsParametersForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+import java.util.Hashtable;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+/**
+ * ActionForm used to hold the game parameters for the fees to view consulting reports for a game.
+ * &lt;br&gt;
+ * Each individual report cost can be accessed as a string through get and set method or all 5
+ * can be retrieved at once in a &lt;code&gt;Hashtable&lt;/code&gt; of &lt;code&gt;Integer&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.3 $ $Date: 2001/10/19 19:34:54 $
+ */
+<span class="fc" id="L21">public class ConsultingCostsParametersForm extends ActionForm</span>
+{
+<span class="fc" id="L23">	private boolean makeDefaults = false;</span>
+
+	private String laborAvailability;
+	private String materialsCostIndex;
+	private String weatherForecast;
+	private String marketAnalysis;
+	private String completeListOfBids;
+	private String camReport;
+
+
+
+//****************************** Public Methods *************************
+
+    /**
+     * Returns the array of Hashtables.  The activity type id for each array is its array index plus one.
+     * (ie the Hashtable in index 0 is the network dependency parameters for activity type 1)
+     */
+	public Hashtable getConsultingCosts()
+	{
+<span class="fc" id="L42">		Hashtable parameters = new Hashtable(5);</span>
+<span class="fc" id="L43">		parameters.put(&quot;Labor_Availability&quot;, new Integer(laborAvailability));</span>
+<span class="fc" id="L44">		parameters.put(&quot;Material_Cost_Index&quot;, new Integer(materialsCostIndex));</span>
+<span class="fc" id="L45">		parameters.put(&quot;Weather_Forecast&quot;, new Integer(weatherForecast));</span>
+<span class="fc" id="L46">		parameters.put(&quot;Market_Demand&quot;, new Integer(marketAnalysis));</span>
+<span class="fc" id="L47">		parameters.put(&quot;Complete_List_Of_Bids&quot;, new Integer(completeListOfBids));</span>
+<span class="fc" id="L48">		parameters.put(&quot;CAM_Report&quot;, new Integer(camReport));</span>
+
+<span class="fc" id="L50">		return parameters;</span>
+	}
+
+    public void setConsultingCosts(Hashtable parameters)
+    {
+<span class="fc" id="L55">		laborAvailability = ((Integer) parameters.get(&quot;Labor_Availability&quot;)).toString();</span>
+<span class="fc" id="L56">		materialsCostIndex = ((Integer) parameters.get(&quot;Material_Cost_Index&quot;)).toString();</span>
+<span class="fc" id="L57">		weatherForecast = ((Integer) parameters.get(&quot;Weather_Forecast&quot;)).toString();</span>
+<span class="fc" id="L58">		marketAnalysis = ((Integer) parameters.get(&quot;Market_Demand&quot;)).toString();</span>
+<span class="fc" id="L59">		completeListOfBids = ((Integer) parameters.get(&quot;Complete_List_Of_Bids&quot;)).toString();</span>
+<span class="fc" id="L60">		camReport = ((Integer) parameters.get(&quot;CAM_Report&quot;)).toString();</span>
+<span class="fc" id="L61">	}</span>
+
+
+	/**
+	 * Ensures that all values are non-null, that all number strings contain only numeric characters,
+     * and that all numbers are non-negative
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L70">		ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L72">		int laborAvailabilityInt = 0;</span>
+<span class="fc" id="L73">		int materialsCostIndexInt = 0;</span>
+<span class="fc" id="L74">		int weatherForecastInt = 0;</span>
+<span class="fc" id="L75">		int marketAnalysisInt = 0;</span>
+<span class="fc" id="L76">		int completeListOfBidsInt = 0;</span>
+<span class="fc" id="L77">		int camReportInt = 0;</span>
+
+        //Ensure all values are non-null
+<span class="pc bpc" id="L80" title="2 of 4 branches missed.">        if ( (laborAvailability.trim()) == null || (laborAvailability.trim().length() &lt; 1) )</span>
+<span class="nc" id="L81">        	errors.add(&quot;laborAvailability&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        if ( (materialsCostIndex.trim()) == null || (materialsCostIndex.trim().length() &lt; 1) )</span>
+<span class="nc" id="L83">        	errors.add(&quot;materialsCostIndex&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+<span class="pc bpc" id="L84" title="2 of 4 branches missed.">        if ( (weatherForecast.trim()) == null || (weatherForecast.trim().length() &lt; 1) )</span>
+<span class="nc" id="L85">        	errors.add(&quot;weatherForecast&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+<span class="pc bpc" id="L86" title="2 of 4 branches missed.">        if ( (marketAnalysis.trim()) == null || (marketAnalysis.trim().length() &lt; 1) )</span>
+<span class="nc" id="L87">        	errors.add(&quot;marketAnalysis&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">        if ( (completeListOfBids.trim()) == null || (completeListOfBids.trim().length() &lt; 1) )</span>
+<span class="nc" id="L89">        	errors.add(&quot;completeListOfBids&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+<span class="pc bpc" id="L90" title="2 of 4 branches missed.">        if ( (camReport.trim()) == null || (camReport.trim().length() &lt; 1) )</span>
+<span class="nc" id="L91">        	errors.add(&quot;camReport&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+
+        //Ensure all number strings contain only numeric characters
+        try
+        {
+<span class="fc" id="L96">			laborAvailabilityInt = Integer.parseInt(laborAvailability);</span>
+		}
+<span class="nc" id="L98">		catch (NumberFormatException e)</span>
+		{
+<span class="nc" id="L100">			errors.add(&quot;laborAvailability&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+<span class="fc" id="L101">		}</span>
+
+		try
+		{
+<span class="fc" id="L105">			materialsCostIndexInt = Integer.parseInt(materialsCostIndex);</span>
+		}
+<span class="nc" id="L107">		catch (NumberFormatException e)</span>
+		{
+<span class="nc" id="L109">			errors.add(&quot;materialsCostIndexInt&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+<span class="fc" id="L110">		}</span>
+
+		try
+		{
+<span class="fc" id="L114">			weatherForecastInt = Integer.parseInt(weatherForecast);</span>
+		}
+<span class="nc" id="L116">		catch (NumberFormatException e)</span>
+		{
+<span class="nc" id="L118">			errors.add(&quot;weatherForecast&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+<span class="fc" id="L119">		}</span>
+
+		try
+		{
+<span class="fc" id="L123">			marketAnalysisInt = Integer.parseInt(marketAnalysis);</span>
+		}
+<span class="nc" id="L125">		catch (NumberFormatException e)</span>
+		{
+<span class="nc" id="L127">			errors.add(&quot;marketAnalysis&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+<span class="fc" id="L128">		}</span>
+
+		try
+		{
+<span class="fc" id="L132">			completeListOfBidsInt = Integer.parseInt(completeListOfBids);</span>
+		}
+<span class="nc" id="L134">		catch (NumberFormatException e)</span>
+		{
+<span class="nc" id="L136">			errors.add(&quot;completeListOfBids&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+<span class="fc" id="L137">		}</span>
+
+		try
+		{
+<span class="fc" id="L141">			camReportInt = Integer.parseInt(camReport);</span>
+		}
+<span class="nc" id="L143">		catch (NumberFormatException e)</span>
+		{
+<span class="nc" id="L145">			errors.add(&quot;camReport&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+<span class="fc" id="L146">		}</span>
+
+		//Ensure no numbers are negative
+<span class="fc bfc" id="L149" title="All 2 branches covered.">		if (laborAvailabilityInt &lt; 0)</span>
+<span class="fc" id="L150">			errors.add(&quot;laborAvailability&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">		if (materialsCostIndexInt &lt; 0)</span>
+<span class="nc" id="L152">			errors.add(&quot;materialsCostIndex&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">		if (weatherForecastInt &lt; 0)</span>
+<span class="fc" id="L154">			errors.add(&quot;weatherForecase&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">		if (marketAnalysisInt &lt; 0)</span>
+<span class="nc" id="L156">			errors.add(&quot;marketAnalysis&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">		if (completeListOfBidsInt &lt; 0)</span>
+<span class="nc" id="L158">			errors.add(&quot;compelteListOfBids&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">		if (camReportInt &lt; 0)</span>
+<span class="fc" id="L160">			errors.add(&quot;camReport&quot;, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+
+
+<span class="fc" id="L163">		return errors;</span>
+	}
+
+//****************************** Simple Get and Set Methods *************************
+
+	public boolean getMakeDefaults()
+	{
+<span class="fc" id="L170">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L175">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L176">	}</span>
+
+	public String getLaborAvailability()
+	{
+<span class="nc" id="L180">		return laborAvailability;</span>
+	}
+
+	public void setLaborAvailability(String laborAvailability)
+	{
+<span class="fc" id="L185">		this.laborAvailability = laborAvailability;</span>
+<span class="fc" id="L186">	}</span>
+
+	public String getMaterialsCostIndex()
+	{
+<span class="nc" id="L190">		return materialsCostIndex;</span>
+	}
+
+	public void setMaterialsCostIndex(String materialsCostIndex)
+	{
+<span class="nc" id="L195">		this.materialsCostIndex = materialsCostIndex;</span>
+<span class="nc" id="L196">	}</span>
+
+	public String getWeatherForecast()
+	{
+<span class="nc" id="L200">		return weatherForecast;</span>
+	}
+
+	public void setWeatherForecast(String weatherForecast)
+	{
+<span class="fc" id="L205">		this.weatherForecast = weatherForecast;</span>
+<span class="fc" id="L206">	}</span>
+
+	public String getMarketAnalysis()
+	{
+<span class="nc" id="L210">		return marketAnalysis;</span>
+	}
+
+	public void setMarketAnalysis()
+	{
+<span class="nc" id="L215">		this.marketAnalysis = marketAnalysis;</span>
+<span class="nc" id="L216">	}</span>
+
+	public String getCompleteListOfBids()
+	{
+<span class="nc" id="L220">		return completeListOfBids;</span>
+	}
+
+	public void setCompleteListOfBids(String completeListOfBids)
+	{
+<span class="nc" id="L225">		this.completeListOfBids = completeListOfBids;</span>
+<span class="nc" id="L226">	}</span>
+
+	public String getCamReport()
+	{
+<span class="nc" id="L230">		return camReport;</span>
+	}
+
+	public void setCamReport(String camReport)
+	{
+<span class="fc" id="L235">		this.camReport = camReport;</span>
+<span class="fc" id="L236">	}</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

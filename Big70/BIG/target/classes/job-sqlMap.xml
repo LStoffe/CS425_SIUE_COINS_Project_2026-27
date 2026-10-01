@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+  PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+  "http://www.ibatis.com/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="Job">
+
+  <select id="getTotalJobCount" resultClass="int" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT count(jobid)
+    FROM job 
+    WHERE gameid=#value#
+    
+    ]]>		               
+  </select>
+
+  <select id="getTotalJobCountForCompany" resultClass="int" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT count(jobid)
+    FROM job 
+    WHERE gameid=#gameid#
+    AND companyid=#companyid#
+    
+    ]]>		               
+  </select>
+  
+  <select id="getTotalJobCountForCompanyByType" resultClass="int" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT count(jobid)
+    FROM job 
+    WHERE gameid=#gameid#
+    AND companyid=#companyid#
+    AND type_modifier = #type_modifier#;
+    
+    ]]>		               
+  </select>  
+ 
+   <select id="getTotalNegotiatedJobCountForCompany" resultClass="int" parameterClass="map">
+     <![CDATA[
+  
+     SELECT count(negotiated_job.jobid)
+     FROM negotiated_job, bid 
+     WHERE negotiated_job.gameid=#gameid#
+     AND negotiated_job.companyid=#companyid#
+     AND state = 103
+     AND negotiated_job.jobid = bid.jobid
+     AND negotiated_job.companyid = bid.companyid
+     
+     ]]>		               
+  </select>
+
+
+</sqlMap>

@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Contract.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.reports</a> &gt; <span class="el_source">Contract.java</span></div><h1>Contract.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.reports;
+
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Holds info a single job in the contracts in progress report or completed contracts report.
+ * The &lt;code&gt;get&lt;/code&gt; method names correspond roughly with the fields required in the BIGv3 SRS,
+ * requirement 1.2.9 Contracts in Progress Report, and 1.2.10 Completed Contracts Report.
+ * (The fields in 1.2.10 are a subset of those in 1.2.9 with the word &quot;Final&quot; added before some of them.)
+ *
+ * @author Kevin Craig
+ */
+public class Contract
+{
+	private Log log;
+
+	private int jobID;
+	private int jobTypeID;
+	private int periodID;  //period this contract is for
+	private int originalContract;
+	private int changeOrders;
+	private int adjustedContract;
+	private int estimatedCostToComplete;
+	private int billedToDate;
+	private int currentCost;
+	private int previousCosts;
+    private int revenueRecorded;
+    private int jobTypeModifier;
+
+	private int estimatedTotalCost;
+	private boolean autoComputeEstCost;
+
+	private boolean negotiated;
+
+	private NegotiatedJob negotiatedJob;
+
+	public Contract(int jobID,
+					     int jobTypeID,
+					     int jobTypeModifier,
+					     int originalContract,
+					     int changeOrders,
+					     int estimatedCostToComplete,
+					     boolean autoComputeEstCost,
+					     int billedToDate,
+					     int currentCost,
+					     int previousCosts,
+					     int revenueRecorded)
+<span class="fc" id="L53">	{</span>
+<span class="fc" id="L54">		this.jobID = jobID;</span>
+<span class="fc" id="L55">		this.jobTypeID = jobTypeID;</span>
+<span class="fc" id="L56">		this.jobTypeModifier = jobTypeModifier;</span>
+<span class="fc" id="L57">		this.originalContract = originalContract;</span>
+<span class="fc" id="L58">		this.changeOrders = changeOrders;</span>
+<span class="fc" id="L59">		this.adjustedContract = changeOrders + originalContract;</span>
+<span class="fc" id="L60">		this.estimatedCostToComplete = estimatedCostToComplete;</span>
+<span class="fc" id="L61">		this.autoComputeEstCost = autoComputeEstCost;</span>
+<span class="fc" id="L62">		this.billedToDate = billedToDate;</span>
+<span class="fc" id="L63">		this.currentCost = currentCost;</span>
+<span class="fc" id="L64">		this.previousCosts = previousCosts;</span>
+<span class="fc" id="L65">		this.revenueRecorded = revenueRecorded;</span>
+
+<span class="fc" id="L67">		this.estimatedTotalCost = estimatedCostToComplete + currentCost + previousCosts;</span>
+
+<span class="fc" id="L69">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L70">	}</span>
+
+	public int getPeriodID()
+	{
+<span class="fc" id="L74">		return periodID;</span>
+	}
+
+	public void setPeriodID(int periodID)
+	{
+<span class="fc" id="L79">		this.periodID = periodID;</span>
+<span class="fc" id="L80">	}</span>
+
+    public boolean getNegotiated()
+    {
+<span class="fc" id="L84">		return negotiated;</span>
+	}
+
+	public void setNegotiated(boolean negotiated)
+	{
+<span class="fc" id="L89">		this.negotiated = negotiated;</span>
+<span class="fc" id="L90">	}</span>
+
+    public NegotiatedJob getNegotiatedJob()
+    {
+<span class="fc" id="L94">		return negotiatedJob;</span>
+	}
+
+	public void setNegotiatedJob(NegotiatedJob negotiatedJob)
+	{
+<span class="fc" id="L99">		this.negotiatedJob = negotiatedJob;</span>
+<span class="fc" id="L100">	}</span>
+
+	public int getJobID()
+	{
+<span class="fc" id="L104">		return jobID;</span>
+	}
+
+	public int getJobTypeID()
+	{
+<span class="fc" id="L109">		return jobTypeID;</span>
+	}
+
+	public int getJobTypeModifier()
+	{
+<span class="fc" id="L114">		return jobTypeModifier;</span>
+	}
+
+	public boolean getAutoComputeEstCost()
+	{
+<span class="fc" id="L119">		return autoComputeEstCost;</span>
+	}
+
+	public int getOriginalContract()
+	{
+<span class="fc" id="L124">		return originalContract;</span>
+	}
+
+	public int getChangeOrders()
+	{
+<span class="fc" id="L129">		return changeOrders;</span>
+	}
+
+	public int getAdjustedContract()
+	{
+<span class="fc" id="L134">		return adjustedContract;</span>
+	}
+
+	public int getCostIncurred()
+	{
+<span class="fc" id="L139">		return getCurrentCostIncurred() + getPreviousCostIncurred();</span>
+	}
+
+	public int getEstimatedCostToComplete()
+	{
+<span class="fc" id="L144">		return estimatedCostToComplete;</span>
+	}
+
+	public int getEstimatedTotalCost()
+	{
+<span class="fc" id="L149">		return estimatedTotalCost;</span>
+	}
+
+    public int getEstimatedTotalGrossMargin()
+    {
+<span class="fc" id="L154">		return adjustedContract - estimatedTotalCost;</span>
+	}
+
+    public float getEstimatedTotalGrossMarginPercent()
+    {
+<span class="fc" id="L159">		return ((float) getEstimatedTotalGrossMargin()) / ((float) adjustedContract);</span>
+	}
+
+    public float getPercentWorkComplete()
+    {
+<span class="fc" id="L164">		return ((float) getCostIncurred()) / ((float) getEstimatedTotalCost());</span>
+	}
+
+    public int getBilledToDate()
+    {
+<span class="fc" id="L169">		return billedToDate;</span>
+	}
+
+	public int getUnbilledPortionOfContract()
+	{
+<span class="fc" id="L174">		return getAdjustedContract() - getBilledToDate();</span>
+	}
+
+	public int getRevenueEarned()
+	{
+<span class="fc" id="L179">		return getCurrentRevenueEarned() + getPreviousRevenueEarned();</span>
+	}
+
+	public int getRevenueToBeEarned()
+	{
+<span class="fc" id="L184">		return getAdjustedContract() - getRevenueEarned();</span>
+	}
+
+	public int getOverbilling()
+	{
+<span class="fc bfc" id="L189" title="All 2 branches covered.">		if (getBilledToDate() &gt; getRevenueEarned())</span>
+		{
+<span class="fc" id="L191">			return getBilledToDate() - getRevenueEarned();</span>
+		}
+		else
+		{
+<span class="fc" id="L195">			return 0;</span>
+		}
+	}
+
+	public int getUnderbilling()
+	{
+<span class="fc bfc" id="L201" title="All 2 branches covered.">		if (getBilledToDate() &lt; getRevenueEarned())</span>
+		{
+<span class="fc" id="L203">			return getRevenueEarned() - getBilledToDate();</span>
+		}
+		else
+		{
+<span class="fc" id="L207">			return 0;</span>
+		}
+	}
+
+    public int getGrossMarginEarned()
+    {
+<span class="fc" id="L213">		return getRevenueEarned() - getCostIncurred();</span>
+	}
+
+	public float getGrossMarginEarnedPercent()
+	{
+<span class="fc" id="L218">		return ((float) getGrossMarginEarned()) / ((float) getRevenueEarned());</span>
+	}
+
+    public int getRevenuePreviouslyRecorded()
+    {
+<span class="fc" id="L223">		return revenueRecorded;</span>
+	}
+
+	public int getCurrentRevenueRecorded()
+	{
+<span class="fc" id="L228">		return getRevenueEarned() - getRevenuePreviouslyRecorded();</span>
+	}
+
+	public float getCurrentPercentWorkComplete()
+	{
+<span class="fc" id="L233">		return ((float) getCurrentCostIncurred()) / ((float) getEstimatedTotalCost());</span>
+	}
+
+    public int getCurrentCostIncurred()
+    {
+<span class="fc" id="L238">		return currentCost;</span>
+	}
+
+    public int getCurrentRevenueEarned()
+    {
+<span class="fc bfc" id="L243" title="All 2 branches covered.">		if(getNegotiated())</span>
+		{
+<span class="fc bfc" id="L245" title="All 2 branches covered.">			if(getCostIncurred() &gt; negotiatedJob.getAgreedCost())</span>
+			{
+/*				if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot;: Returning current revenue for at or over cost negotiated job: &quot; + (int) (negotiatedJob.getMaxPrice() - getRevenuePreviouslyRecorded()));
+				} */
+<span class="fc" id="L251">				return (int) (negotiatedJob.getMaxPrice() - getRevenuePreviouslyRecorded());</span>
+			}
+			else
+			{
+				//If this contract is for the period the job completed, add in the share of savings
+<span class="fc" id="L256">				long shareOfSavings = negotiatedJob.getShareOfSavings(getCostIncurred());</span>
+<span class="fc" id="L257">				int currentRevenue = (int) (negotiatedJob.getCostPlusProfit(getCostIncurred()) - getRevenuePreviouslyRecorded());</span>
+
+				// log.debug(this.getClass() + &quot; ContractPeriod : &quot; + periodID + &quot; PeriodCompleted: &quot; + negotiatedJob.getPeriodCompleted());
+
+
+<span class="pc bpc" id="L262" title="1 of 4 branches missed.">				if((periodID &gt;= negotiatedJob.getPeriodCompleted()) &amp;&amp; (negotiatedJob.getPeriodCompleted() &gt; 0))</span>
+				{
+/*					if(log.isDebugEnabled())
+					{
+						log.debug(this.getClass() + &quot;: Current revenue includes share of savings&quot;);
+					} */
+<span class="fc" id="L268">					currentRevenue += shareOfSavings;</span>
+				}
+
+/*				if(log.isDebugEnabled())
+				{
+					log.debug(this.getClass() + &quot;: Returning current revenue for undercost negotiated job: &quot; + currentRevenue);
+				} */
+<span class="fc" id="L275">			    return currentRevenue;</span>
+			}
+		}
+		else
+		{
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(this.getClass() + &quot;: Returning current revenue for big job: &quot; + Math.round(getAdjustedContract() * getCurrentPercentWorkComplete()));
+			} */
+<span class="fc" id="L284">		    return Math.round(getAdjustedContract() * getCurrentPercentWorkComplete());</span>
+		}
+	}
+
+    public int getCurrentGrossMargin()
+    {
+<span class="fc" id="L290">		return getCurrentRevenueEarned() - getCurrentCostIncurred();</span>
+	}
+
+	public float getCurrentGrossMarginPercent()
+	{
+<span class="fc bfc" id="L295" title="All 2 branches covered.">		if (getCurrentRevenueEarned() &lt; 1)</span>
+		{
+<span class="fc" id="L297">			return 0;</span>
+		}
+		else
+		{
+<span class="fc" id="L301">			return ((float) getCurrentGrossMargin()) / ((float) getCurrentRevenueEarned());</span>
+		}
+	}
+
+	public float getPreviousPercentWorkComplete()
+	{
+<span class="fc" id="L307">		return ((float) getPreviousCostIncurred()) / ((float) getEstimatedTotalCost());</span>
+	}
+
+    public int getPreviousCostIncurred()
+    {
+<span class="fc" id="L312">		return previousCosts;</span>
+	}
+
+    public int getPreviousRevenueEarned()
+    {
+<span class="fc bfc" id="L317" title="All 2 branches covered.">		if(getNegotiated())</span>
+		{
+<span class="fc" id="L319">			return revenueRecorded;</span>
+		}
+		else
+		{
+<span class="fc" id="L323">		    return Math.round(getAdjustedContract() * getPreviousPercentWorkComplete());</span>
+		}
+	}
+
+    public int getPreviousGrossMargin()
+    {
+<span class="fc" id="L329">		return getPreviousRevenueEarned() - getPreviousCostIncurred();</span>
+	}
+
+	public float getPreviousGrossMarginPercent()
+	{
+<span class="fc bfc" id="L334" title="All 2 branches covered.">		if (getPreviousRevenueEarned() &lt; 1)</span>
+		{
+<span class="fc" id="L336">			return 0;</span>
+		}
+		else
+		{
+<span class="fc" id="L340">			return ((float) getPreviousGrossMargin()) / ((float) getPreviousRevenueEarned());</span>
+		}
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

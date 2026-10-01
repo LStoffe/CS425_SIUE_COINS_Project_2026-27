@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmploymentAggregateData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.personnel</a> &gt; <span class="el_source">EmploymentAggregateData.java</span></div><h1>EmploymentAggregateData.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.personnel;
+
+//JDK imports
+import java.util.List;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+/**
+ * Analyzes a list of &lt;code&gt;EmploymentTypeRecord&lt;/code&gt;s to produce aggregate employment data.
+ */
+public class EmploymentAggregateData
+{
+	private int totalEmployees;
+	private long totalPayrollPerPeriod;
+	private long newTotalPayrollPerPeriod;
+
+	public EmploymentAggregateData(List&lt;EmployeeTypeRecord&gt; employeeTypeRecords)
+<span class="fc" id="L19">	{</span>
+<span class="fc" id="L20">		analyze(employeeTypeRecords);</span>
+<span class="fc" id="L21">	}</span>
+
+	public int getTotalEmployees()
+	{
+<span class="fc" id="L25">		return totalEmployees;</span>
+	}
+
+	public long getTotalPayroll()
+	{
+<span class="fc" id="L30">		return totalPayrollPerPeriod;</span>
+	}
+
+	public String getFormattedTotalPayroll()
+	{
+<span class="fc" id="L35">		return NumberConverter.stringValue(totalPayrollPerPeriod);</span>
+	}
+
+	public long getNewTotalPayroll()
+	{
+<span class="fc" id="L40">		return newTotalPayrollPerPeriod;</span>
+	}
+
+	public String getFormattedNewTotalPayroll()
+	{
+<span class="fc" id="L45">		return NumberConverter.stringValue(newTotalPayrollPerPeriod);</span>
+	}
+
+
+	private void analyze(List&lt;EmployeeTypeRecord&gt; employeeTypeRecords)
+	{
+<span class="fc" id="L51">		totalEmployees = 0;</span>
+<span class="fc" id="L52">		totalPayrollPerPeriod = 0;</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		for(EmployeeTypeRecord etr : employeeTypeRecords)</span>
+		{
+<span class="fc" id="L55">			totalEmployees += etr.getEmployeeTypeCount();</span>
+<span class="fc" id="L56">			totalPayrollPerPeriod += etr.getEmployeeTypeTotalCost();</span>
+<span class="fc" id="L57">			newTotalPayrollPerPeriod += etr.getNewEmployeeTypeTotalCost();</span>
+<span class="fc" id="L58">		}</span>
+<span class="fc" id="L59">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

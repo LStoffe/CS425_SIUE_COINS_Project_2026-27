@@ -1,0 +1,72 @@
+<!--
+  retention.html
+  Section 5.3 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.3 Retention</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.3 Retention
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            A common practice in the construction industry is to retain an amount from payments for some percentage of a job until the job is complete. 
+            For example, if a job had a retention policy of 5% for 50%, that would mean 5% of each payment from the customer to your company is retained by them, or held back, until the job is 50% complete. 
+            After the job is more than 50% complete you will receive the full amount of each payment. 
+            When the job is 100% percent complete, as part of your final payment you will be paid in full to include all amounts that were previously retained.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            When you submit a bill the amount that will be retained is subtracted from that bill and placed into your retention receivable account. 
+            The sum of this account is shown on the Balance Sheet. The remainder of the bill goes into accounts receviable until the bill is paid. 
+            When a job completes, any amounts retained by the customer become receviable and will automatically be paid to you as cash within one period. There is no need to rebill for retained amounts.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Retention does not have a profound effect on your company, but it is something to keep in mind when budgeting your cash.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/change-orders}" class="font-semibold hover:underline">
+        ← 5.2 Change Orders
+    </a>
+    <a th:href="@{/manual/subcontracting}" class="font-semibold hover:underline">
+        Next → 5.4 Subcontracting
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OvertimeForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">OvertimeForm.java</span></div><h1>OvertimeForm.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+import java.util.Hashtable;
+import java.util.TreeMap;
+import java.util.Vector;
+import java.util.Iterator;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+import edu.calpoly.its.mas.big.game.Activity;
+import edu.calpoly.its.mas.big.game.Job;
+
+/**
+ * &lt;code&gt;ActionForm&lt;/code&gt; which holds the overtime days requested for
+ * each of the nine activities for one of a company's active jobs.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.12 $ $Date: 2002/03/14 20:10:06 $
+ */
+<span class="fc" id="L25">public class OvertimeForm extends ActionForm {</span>
+	private Job job;
+
+<span class="fc" id="L28">	private int[] overtime = new int[9];</span>
+<span class="fc" id="L29">	private String[] overtimeStrings = new String[9];</span>
+
+	/**
+	 * Set the &lt;code&gt;Job&lt;/code&gt; for which this &lt;code&gt;OvertimeForm&lt;/code&gt;
+	 * contains overtime values.
+	 *
+	 * @param job the job associated with this form
+	 */
+	public void setJob(Job job)
+	{
+<span class="nc" id="L39">		this.job = job;</span>
+<span class="nc" id="L40">	}</span>
+
+	/**
+	 * Get the &lt;code&gt;Job&lt;/code&gt; for which this &lt;code&gt;OvertimeForm&lt;/code&gt;
+	 * contains overtime values.
+	 *
+	 * @returns the job associated with this form
+	 */
+	public Job getJob()
+	{
+<span class="nc" id="L50">		return job;</span>
+	}
+
+	/**
+	 * Set all nine overtime values at once, populating both the int
+	 * and String arrays of overtime values
+	 *
+	 * @param overtime int array of overtime values (9 elements)
+	 */
+	public void setOvertimeArray(int[] overtime)
+	{
+<span class="fc" id="L61">		this.overtime = overtime;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		for (int i = 0; i &lt; 9; i++) {</span>
+<span class="fc" id="L63">			overtimeStrings[i] = String.valueOf(overtime[i]);</span>
+		}
+<span class="fc" id="L65">	}</span>
+
+	/**
+	 * Return the overtime values as an int array.
+	 *
+	 * @returns int[] of overtime values (indexed by activityId - 1)
+	 */
+	public int[] getOvertimeArray()
+	{
+<span class="fc" id="L74">		return overtime;</span>
+	}
+
+	/**
+	 * Get the number of overtime days requested for a particular
+	 * activity.
+	 *
+	 * @param avtivityID int activity number (1-9)
+	 * @returns String representation of overtime value for the
+	 *          specified activity.
+	 */
+	public String getOvertime(int activityID)
+	{
+<span class="fc" id="L87">		return overtimeStrings[activityID-1];</span>
+	}
+
+	/**
+	 * Set a single overtime value.  Overtime value is represented
+	 * as a String for the benefit of HTML form validation.
+	 *
+	 * @param activityID activity identifier (1-9)
+	 * @param overtimeDays the number of overtime days as a &lt;code&gt;String&lt;/code&gt;
+	 */
+	public void setOvertime(int activityID, String overtimeDays)
+	{
+<span class="fc" id="L99">		overtimeStrings[activityID-1] = overtimeDays;</span>
+<span class="fc" id="L100">	}</span>
+
+
+	/**
+	 * Ensure that all overtime day values for the job held within this
+	 * &lt;code&gt;OvertimeForm&lt;/code&gt; are integer values greater than 0.
+	 * During this verification, the integer array is populated with
+	 * the integer values, for later use in &lt;code&gt;RequestOvertimesAction&lt;/code&gt;.
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L111">		ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L113">        boolean nullParams = false;</span>
+<span class="fc" id="L114">		boolean integerParseError = false;</span>
+<span class="fc" id="L115">		boolean negativeFound = false;</span>
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">		for (int i = 0; i &lt; 9; i++) {</span>
+<span class="fc" id="L118">			String overtimeDays = (String) overtimeStrings[i];</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">			if ((overtimeDays == null) ||</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">				(overtimeDays.trim().length() &lt; 1)) {</span>
+<span class="fc" id="L122">				nullParams = true;</span>
+			} else {
+				try {
+<span class="fc" id="L125">					overtime[i] = Integer.parseInt(overtimeDays);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">					if (overtime[i] &lt; 0) {</span>
+<span class="fc" id="L127">						negativeFound = true;</span>
+					}
+<span class="fc" id="L129">				} catch (NumberFormatException nfe) {</span>
+<span class="fc" id="L130">					integerParseError = true;</span>
+<span class="fc" id="L131">				}</span>
+			}
+		}
+
+
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		if (nullParams == true) {</span>
+<span class="fc" id="L137">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">		if (integerParseError == true) {</span>
+<span class="fc" id="L141">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+
+<span class="fc bfc" id="L144" title="All 2 branches covered.">		if (negativeFound == true) {</span>
+<span class="fc" id="L145">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.parameters.number.negative&quot;));</span>
+		}
+
+<span class="fc" id="L148">		return errors;</span>
+	}
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

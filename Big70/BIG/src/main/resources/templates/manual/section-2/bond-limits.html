@@ -1,0 +1,113 @@
+<!--
+  bond-limits.html
+  Section 2.4 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>2.4 Bond Limits</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            2.4 Bond Limits
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Due to government regulations, the Public Job Customer must choose the contractor that submits the lowest bid that is realistic for a job, regardless of their past history. 
+            In reality, choosing a contractor you are not sure of poses the risk that the contractor might not (or might not be able to) complete the job for some reason 
+            (e.g. bankruptcy, legal troubles, refusal to honor the contract) or might complete the job to an inadequate level of quality. The contractor may leave the job incomplete, requiring additional work, or requiring work to be redone. 
+            Worse for the customer is that they may have already paid the contractor for some of the work and even worse than that, the contractor may have been overbilling. 
+            The customer may be put in a position where they must pay more than the contract price of the job in order to get a new contractor who can complete or redo the work.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            One way customers protect themselves against a bad contractor is to require contractors be bonded for their work. Bonds are purchased by contractors to give their customers assurance that the work will get done for the price agreed upon. 
+            A bond in this sense works like insurance for the customer.
+            If the contractor fails to meet contractual requirements, the bonding company reimburses the customer for the amount needed to get someone else to finish the job, up to the amount of the bond.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            In BIG, your company automatically will work all jobs until completion, even if it bankrupts your company (and you can keep playing BIG even if bankrupt). 
+            However a simplified version of bonding is implemented in BIG as an exercise in cash management and as realistic restriction on the size of jobs your company is eligible for. 
+            All public jobs require your company have a bond (private jobs in BIG never require a bond). Bonds will be provided to your company automatically each time you bid on a public job, provided the bid is within the your company's bond limits
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            BIG's bonding company, TBC (The Bonding Company), places two restrictions on your company that you must meet in order to get bonded. 
+            These limits are a Per Job limit and a Work-In-Progress (WIP) limit. The Per Job limit is the maximum amount you may bid on a single job. If you submit any bid that is greater than your Per Job bond limit it will be rejected automatically 
+            because the job will not be bonded. The WIP limit is the maximum dollar amount of all the work you may have in progress at a given time. This includes private jobs, which do not require a bond themselves. 
+            If you submit a bid that when added to your current WIP amount (shown on Contracts in Progress Report and Ratios Report) will exceed your WIP limit, that bid will be rejected for lack of a bond.
+            If you submit more than one bid in a single period, keep in mind that getting one of the jobs may make you ineligible for the others because of the WIP limit. 
+            Jobs are awarded in the order of their job number, so if you only get one of the bids you submit, it will be the one for the job with the lowest number.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            High bond limits have definite advantages. Having a high WIP limit means you can take on more jobs. Having a high Per Job limits means you can take on larger, often more profitable jobs. 
+            There are fewer companies who can bid on large jobs, so having a high Per Job limit puts you above the rest of the pack.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Raising your bond limits may quickly become one of your top priorities. TBC reevaluates your bond limits every few periods and will raise them if it believes you are capable of completing more work. 
+            It may also lower your bond limits if it believes you are not capable of handling as much work. Here are some tips to get your bond limits raised:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>
+                Keep plenty of cash-on-hand. This is the single most important thing you can do to get high bond limits. A large amount of liquid assets gives TBC confidence that you will be able to pay your workers and suppliers and keep jobs running smoothly.
+            </li>
+            <li>
+                Complete your jobs on time. Failure to complete a job by its deadline is an indicator that your company is struggling with its current jobs and cannot handle larger ones.
+            </li>
+            <li>
+                Make a net profit. Demonstrating solvency shows TBC that you will be around to finish your jobs.
+            </li>
+        </ul>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/submitting-bids}" class="font-semibold hover:underline">
+        ← 2.3 Submitting Bids
+    </a>
+    <a th:href="@{/manual/negotiation-offers}" class="font-semibold hover:underline">
+        Next → 2.5 Negotiation Offers
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

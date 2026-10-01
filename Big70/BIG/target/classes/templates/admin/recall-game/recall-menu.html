@@ -1,0 +1,106 @@
+<!--
+  recall-menu.html
+  Menu for options related to an already created game.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Game Menu</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+  
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold text-black mb-4">COINS</h1>
+    <h2 class="text-3xl text-black mb-6">Game Menu</h2>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex justify-center px-6 py-10 bg-white mb-20">
+    <div class="bg-white backdrop-blur-sm p-10 rounded-2xl shadow-lg w-full max-w-md mb-10">
+      
+      <!-- Game Info -->
+        <div class="mb-8 pb-6 border-b border-gray-200 text-center">
+            <h3 class="text-2xl font-bold mb-6 text-black text-center">Current Game</h3>
+            <div class="space-y-2 text-left px-4">
+            <div class="text-base"><span class="font-semibold">Name:</span> Test (Building Game Only)</div>
+            <div class="text-base"><span class="font-semibold">Start Year:</span> 1999</div>
+            <div class="text-base"><span class="font-semibold">Current Period:</span> 2</div>
+            </div>
+        </div>
+
+      <h3 class="text-2xl font-bold mb-6 text-black text-center">Game Options:</h3>
+
+      <!-- Game Management Buttons -->
+      <div class="flex flex-col space-y-4 mb-6">
+        <a th:href="@{/admin/add-new-company}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Add a New Company
+        </a>
+
+        <a th:href="@{/admin/view-companies}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          List All Companies
+        </a>
+
+        <a th:href="@{/admin/game-parameters}" 
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Set Game Parameters
+        </a>
+
+        <a th:href="@{/admin/game-components}"  
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Game Components
+        </a>
+
+        <a th:href="@{/admin/auto-add-building-jobs}"  
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Auto-Add Building Jobs
+        </a>
+
+        <a th:href="@{/admin/grading-template}"  
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Modify Grading Template
+        </a>
+
+        <a th:href="@{/admin/view-automatic-update-policy}"  
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          Configure Automatic Updates
+        </a>
+
+        <a th:href="@{/admin/period-reports}"  
+          class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+          View Period Reports
+        </a>
+      </div>
+
+        <!-- Danger Zone -->
+        <div class="flex flex-col space-y-4 mb-6">
+            <h4 class="text-2xl font-bold mb-6 text-black text-center">Danger Zone:</h4>
+            
+            <a th:href="@{/admin/advance-period}"   
+            class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+            Advance Period
+            </a>
+
+            <a th:href="@{/admin/end-game}"  
+            class="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 rounded-lg transition-colors">
+            End Game
+            </a>
+        </div>
+      
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

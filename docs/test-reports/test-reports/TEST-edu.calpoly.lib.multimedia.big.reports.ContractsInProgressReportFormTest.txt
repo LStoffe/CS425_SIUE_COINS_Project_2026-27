@@ -1,0 +1,30 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportFormTest
+Tests run: 15, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.087 sec
+
+Testcase: testGetTotalBilledUnbilledOverbillingUnderbilling took 0.075 sec
+Testcase: testGetTotalPreviousGrossMarginEarnedPercentWhenPositive took 0.001 sec
+	FAILED
+null
+junit.framework.AssertionFailedError
+	at edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportFormTest.testGetTotalPreviousGrossMarginEarnedPercentWhenPositive(ContractsInProgressReportFormTest.java:121)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testGetTotalCurrentRevenueRecordedAndGrossMarginPercents took 0 sec
+Testcase: testGetSetCompanyName took 0 sec
+Testcase: testNextContractWhenNoMore took 0 sec
+Testcase: testEmptyContractsVector took 0 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testTotalsAndPercentEdgeCases took 0.001 sec
+Testcase: testAllCurrentContractDelegates took 0 sec
+	FAILED
+expected:<20000> but was:<-20000>
+junit.framework.AssertionFailedError: expected:<20000> but was:<-20000>
+	at edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportFormTest.testAllCurrentContractDelegates(ContractsInProgressReportFormTest.java:138)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testConstructorWithContracts took 0 sec
+Testcase: testGetTotalRevenueToBeEarned took 0 sec
+Testcase: testGetContractAt took 0 sec
+Testcase: testGetTotalBilledUnderbillingOverbilling took 0 sec
+Testcase: testGetTotalRevenuePreviouslyRecorded took 0 sec
+Testcase: testIterationAndCurrentContractAccessors took 0 sec

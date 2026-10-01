@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NegotiatedJob.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">NegotiatedJob.java</span></div><h1>NegotiatedJob.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.game;
+
+
+//BIGv2 imports
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.users.company.Bid;
+
+//BIGv3 imports
+import edu.calpoly.lib.multimedia.big.reports.Contract;
+
+//JDK imports
+import java.util.Date;
+import java.util.Iterator;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Extends functionality of the &lt;code&gt;Job&lt;/code&gt; class
+ * to handle aspects unique to jobs that are negotiated.
+ */
+public class NegotiatedJob extends Job
+{
+	public static final int NEW = 100;
+	public static final int NEGOTIATION_FAILED = 102;
+	public static final int NEGOTIATION_SUCCEEDED = 103;
+	public static final int NEGOTIATION_CANCELLED = 104;
+	public static final int COST_REJECTED = 105;
+	public static final int PERCENT_PROFIT_REJECTED	= 106;
+
+	private int agreedProfit;
+	private long agreedCost;
+	private int state;
+
+	private Log log;
+
+	public NegotiatedJob(Job j, int agreedProfit, long agreedCost, int state)
+	{
+<span class="fc" id="L40">		super(j.getJobID(),</span>
+<span class="fc" id="L41">		      j.getLiquidatedDamages(),</span>
+<span class="fc" id="L42">		      j.getCompletionDate(),</span>
+<span class="fc" id="L43">		      j.getCompletionDeadline(),</span>
+<span class="fc" id="L44">		      j.getJobSize(),</span>
+<span class="fc" id="L45">		      j.getPercentRetained(),</span>
+<span class="fc" id="L46">		      j.getPercentOfJob(),</span>
+<span class="fc" id="L47">		      j.getDirectCost(),</span>
+<span class="fc" id="L48">		      j.getRetainedAmount(),</span>
+<span class="fc" id="L49">		      j.getLusRemaining(),</span>
+<span class="fc" id="L50">		      j.getPeriodCompleted(),</span>
+<span class="fc" id="L51">		      j.getPeriodCreated(),</span>
+<span class="fc" id="L52">		      j.getIsActive(),</span>
+<span class="fc" id="L53">		      j.getIsAuto(),</span>
+<span class="fc" id="L54">		      j.getJobType(),</span>
+<span class="fc" id="L55">		      j.getEstimatedWorkdays(),</span>
+<span class="fc" id="L56">		      j.getMethodScalingFactor(),</span>
+<span class="fc" id="L57">		      j.getChangeOrderPrice(),</span>
+<span class="fc" id="L58">		      j.getChangeOrderLus(),</span>
+<span class="fc" id="L59">		      j.getFixedFieldOverhead(),</span>
+<span class="fc" id="L60">		      j.getVariableFieldOverhead(),</span>
+<span class="fc" id="L61">		      j.getAmountRetainedFromSubcontractors(),</span>
+<span class="fc" id="L62">		      j.getBilledToDate(),</span>
+<span class="fc" id="L63">		      j.getTypeModifier()</span>
+			 );
+
+<span class="fc" id="L66">		setRetentionID(j.getRetentionID());</span>
+<span class="fc" id="L67">		setActivities(j.getActivities());</span>
+<span class="fc" id="L68">		setCustomer(j.getCustomer());</span>
+<span class="fc" id="L69">		setCompaniesAllowedToBid(j.getCompaniesAllowedToBid());</span>
+<span class="fc" id="L70">		this.agreedProfit = agreedProfit;</span>
+<span class="fc" id="L71">		this.agreedCost = agreedCost;</span>
+<span class="fc" id="L72">		this.state = state;</span>
+
+<span class="fc" id="L74">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L75">	}</span>
+
+
+	public int getAgreedProfit()
+	{
+<span class="fc" id="L80">		return agreedProfit;</span>
+	}
+
+	public String getAgreedProfitString()
+	{
+<span class="fc" id="L85">		Integer wholePart = new Integer(agreedProfit / 10);</span>
+<span class="fc" id="L86">		Integer partialPart = new Integer(agreedProfit % 10);</span>
+<span class="fc" id="L87">		return wholePart.toString() + &quot;.&quot; + partialPart.toString();</span>
+	}
+
+	public void setAgreedProfit(int agreedProfit)
+	{
+<span class="fc" id="L92">		this.agreedProfit = agreedProfit;</span>
+<span class="fc" id="L93">	}</span>
+
+	public long getAgreedCost()
+	{
+<span class="fc" id="L97">		return agreedCost + getChangeOrderPrice();</span>
+	}
+
+	public void setAgreedCost(long agreedCost)
+	{
+<span class="fc" id="L102">		this.agreedCost = agreedCost;</span>
+<span class="fc" id="L103">	}</span>
+
+	public int getState()
+	{
+<span class="fc" id="L107">		return state;</span>
+	}
+
+	public void setState(int state)
+	{
+<span class="nc" id="L112">		this.state = state;</span>
+<span class="nc" id="L113">	}</span>
+
+	/**
+	 * Returns the maximum amount of gross income
+	 * the company may get from this job.
+	 * This amount is equal to the agreed cost of the
+	 * job plus the agreed profit.
+	 */
+	public long getMaxPrice()
+	{
+<span class="fc" id="L123">		return getCostPlusProfit(getAgreedCost());</span>
+	}
+
+
+	public long getCostPlusProfit(long cost)
+	{
+<span class="fc" id="L129">		double profit = (double) getAgreedProfit();</span>
+<span class="fc" id="L130">		profit = profit /1000; //The percent profit value is 10x the actual value.</span>
+							   //Divide by 1000 (10*100) for this factor of 10 and 100 to convert from percent to decimal
+<span class="fc" id="L132">		double percent = 1 + profit;  //The total amount is 100 percent plus the profit percent</span>
+
+<span class="fc" id="L134">		return Math.round(((double) cost) * percent);</span>
+	}
+
+
+  /**
+	* Overrides method from Job.  There should be a Vector of
+	* up to one player submitted Bid and some CCC bids, set through the setBids method, that is the
+	* Bid from the company that negotiated this job.  This method
+	* simply declares the player Bid the winner, or a CCC bid the winner if
+	* no player submitted bid exists.
+	*/
+  public void determineBidWinner()
+  {
+<span class="nc" id="L147">	  boolean companyBidFound = false;</span>
+<span class="nc" id="L148">	  Bid lowBid = null;</span>
+<span class="nc" id="L149">	  Iterator bidIterator = bids.iterator();</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">	  while(bidIterator.hasNext())</span>
+	  {
+<span class="nc" id="L152">		  Bid theBid = (Bid) bidIterator.next();</span>
+
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		  if (theBid.getCompanyID() &gt; -1)</span>
+		  {
+			  //System.out.println(&quot;Bid on negotiated job found for company &quot; + theBid.getCompanyID());
+			  //This is the chosen company... the only one who's not a CCC
+<span class="nc" id="L158">			  companyBidFound = true;</span>
+<span class="nc" id="L159">			  theBid.setOutcomeCode(1);</span>
+<span class="nc" id="L160">			  lowBid = theBid;</span>
+		  }
+		  else
+		  {
+<span class="nc" id="L164">			  theBid.setOutcomeCode(7);</span>
+		  }
+
+<span class="nc" id="L167">	  }</span>
+	  //If the company didn't bid, just set the winner to be the first CCC
+<span class="nc bnc" id="L169" title="All 2 branches missed.">	  if(!companyBidFound)</span>
+	  {
+<span class="nc" id="L171">		  lowBid = (Bid) bids.iterator().next();</span>
+<span class="nc" id="L172">		  lowBid.setOutcomeCode(1);</span>
+	  }
+
+
+
+	  // Associate the winning company with this job, leaving &lt;code&gt;company&lt;/code&gt;
+	  // null if a CCC placed the winning bid;
+<span class="nc bnc" id="L179" title="All 2 branches missed.">	  if (lowBid.getCompanyID() &gt; -1)</span>
+	  {
+<span class="nc" id="L181">		  company = game.getExpandedCompany(lowBid.getCompanyID());</span>
+	      //System.out.println(&quot;Company for negotiated job set to &quot; + lowBid.getCompanyID());
+<span class="nc" id="L183">          game.getExpandedCompany(lowBid.getCompanyID()).awardJob(this, lowBid);</span>
+
+          //Give this company name recognition credit for getting this job
+<span class="nc" id="L186">          int nameRecognitionBonus = Math.round(((float) jobSize) / ((float) CAMUpdater.NAME_RECOGNITION_GET_JOB_MODIFIER));</span>
+<span class="nc" id="L187">          game.modifyCAMUpdate(company, CAMUpdater.NAME_RECOGNITION, nameRecognitionBonus);</span>
+
+          //Give this company job type credit for getting this job
+<span class="nc" id="L190">		  giveJobTypeCredit(CAMUpdater.JOB_TYPE_AWARD_BONUS);</span>
+
+<span class="nc" id="L192">		  bidAmount = getMaxPrice();</span>
+<span class="nc" id="L193">		  lowBid.setBidAmount(getMaxPrice());</span>
+	  }
+<span class="nc" id="L195">	  game.storeBids(this, bids);</span>
+
+<span class="nc" id="L197">    }</span>
+
+
+
+    // do nothing for negotiated jobs
+    public void chargeBiddingExpense(int expense)
+    {
+<span class="nc" id="L204">    }</span>
+
+    // do nothing for negotiated jobs
+    public void determineResponsibility()
+    {
+<span class="nc" id="L209">    }</span>
+
+    public void jobCompleted(Contract contract)
+    {
+<span class="nc" id="L213">		long shareOfSavings = getShareOfSavings(contract.getCostIncurred() + getCurrentCost());</span>
+<span class="nc" id="L214">		long newAmount = getCostPlusProfit(Math.min(contract.getCostIncurred() + getCurrentCost(), getAgreedCost() ) );</span>
+
+<span class="nc bnc" id="L216" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L218">			log.debug(&quot;negotiated job completed&quot;);</span>
+<span class="nc" id="L219">			log.debug(&quot;agreed cost &quot; + getAgreedCost());</span>
+<span class="nc" id="L220">			log.debug(&quot;costIncurred&quot; + contract.getCostIncurred() + getCurrentCost());</span>
+<span class="nc" id="L221">			log.debug(&quot;new amount &quot; + newAmount);</span>
+		}
+
+<span class="nc" id="L224">		newAmount += shareOfSavings;</span>
+
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L228">			log.debug(&quot;new amount + share of savings = &quot; + newAmount);</span>
+		}
+
+<span class="nc" id="L231">		game.updateBid(company.getCompany(), this, newAmount);</span>
+<span class="nc" id="L232">    }</span>
+
+	/**
+	 * Returns the share of savings on this negotiated job.
+	 * Share of savings is calculated in the following manner:
+	 * If the job is not complete, or the cost of the job
+	 * exceeds the maximum agreed cost of the job,
+	 * then the share of savings is $0.
+	 * If the cost of the job is less than the maximum agreed cost,
+	 * and the job is complete, then the share of savings is equals
+	 * to 25% of the maximum cost of the job minus the actual cost of the job.
+	 *
+	 * @param cost Total cost of the job so far.
+	 */
+    public long getShareOfSavings(long cost)
+    {
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">		if(getIsActive())</span>
+		{
+<span class="nc" id="L250">			return 0;</span>
+		}
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">		else if(getAgreedCost() &lt;= cost)</span>
+		{
+<span class="nc" id="L254">			return 0;</span>
+		}
+		else
+		{
+<span class="fc" id="L258">			long savings = getAgreedCost() - cost;</span>
+<span class="fc" id="L259">			long shareOfSavings = Math.round(.25d * ((double) savings) );</span>
+
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L263">				log.debug(&quot;Agreed Cost: &quot; + getAgreedCost());</span>
+<span class="nc" id="L264">				log.debug(&quot;Cost Incurred: &quot; + cost);</span>
+<span class="nc" id="L265">				log.debug(&quot;Savings: &quot; + savings);</span>
+<span class="nc" id="L266">				log.debug(&quot;Share of Savings: &quot; + shareOfSavings);</span>
+			}
+
+<span class="fc" id="L269">			return shareOfSavings;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

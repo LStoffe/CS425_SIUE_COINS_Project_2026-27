@@ -1,0 +1,119 @@
+<!--
+  bidding-form.html
+  Section 2.2 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 2">
+    <title>2.2 Bidding Form</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            2.2 Bidding Form
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Once you have a schedule and have identified your methods, you are ready to estimate the bid amount. Your bid should cover the direct costs of the job, operating expenses of the company, contingency allowances, and profit. 
+            The BIG Bid Estimate Form can be used plan your bid. 
+            List all of the methods that will be used and fill in the labor and material costs associated with those methods to get your total direct job cost. The other costs that must be considered are:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2 text-lg text-black">
+            <li>
+                <strong>Field Overhead</strong> – In addition to direct job costs, there will be job overhead expenses for the work done on jobs. This overhead comes in two parts: a fixed amount charged every workday and a percentage of the direct cost of the job charged every period that any work is done on the job. The fixed amount per workday is <em>$(Fixed Field Overhead)*</em>. The per-period amount is equal to <em>(Variable Field Overhead)*%</em> of the direct cost of the job.
+            </li>
+            <li>
+                <strong>Office Overhead</strong> – Every period you will incur G&amp;A overhead costs regardless of how many jobs you have. These costs amount to a minimum of <em>(a set amount of money)*</em> each period. To earn a profit, your company must recover job costs and also cover this general cost of doing business.
+            </li>
+            <li>
+                <strong>Loan Interest Expense</strong> – If you are currently making (or will soon be making) loan payments, you must cover the interest expense for those loans. The current APR is <em>(percent)*%</em>.
+            </li>
+            <li>
+                <strong>Contingency Allowance</strong> – The actual cost of a job may be more than your estimated cost. To account for this, you may add an extra amount to your bid to cover increased labor or material costs. The downside is that an overly cautious bid may be higher than competitors’ bids.
+            </li>
+            <li>
+                <strong>Overtime Labor Cost</strong> – If you expect overtime will be needed to complete the job, this expense should be covered in the bid. For overtime work, labor cost per CU and subcontractor cost per CU are increased by a factor of <em>(x)*</em>.
+            </li>
+            <li>
+                <strong>Liquidated Damages</strong> – Another contingency allowance. You may add a few days’ worth of liquidated damages to your bid in case the job exceeds its required completion date.
+            </li>
+            <li>
+                <strong>Consulting Costs</strong> – If you choose to purchase consulting reports, your bid must include enough income to cover their costs.
+            </li>
+            <li>
+                <strong>Bidding Expense</strong> – Covers the expense of preparing this bid and possibly others if you do not win the job. In BIG, the bidding expense equals a <em>(percentage)*</em> of the bid subtotal. The bid subtotal includes everything except the bidding expense itself.
+            </li>
+            <li>
+                <strong>Profit</strong> – The amount of profit you believe you can reasonably earn on the job.
+            </li>
+        </ul>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            If BIG's Estimator created your estimate schedule, the cost estimate only includes the direct costs to perform the methods and the field overhead. 
+            It is your job to add on a portion of office costs, add a contingency allowance (if any), and determine the amount of profit to be included.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Your instructor may give you more information on how to bid and may provide you with an alternative tool to estimate bid amounts. In that case you should always use your instructor's tool rather then this Bid Estimate Form.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <a th:href="@{/images/bid-estimate-form.png}" target="_blank" class="text-lg text-black leading-relaxed hover:underline font-bold">
+            Click Here to View the Bid Estimate Form for Building Jobs.
+        </a>
+    </section>
+
+    <section class="mb-6">
+        <a th:href="@{/images/heavy-bid-estimate-form.png}" target="_blank" class="text-lg text-black leading-relaxed hover:underline font-bold">
+            Click Here to View the Bid Estimate Form for Heavy Jobs.
+        </a>
+    </section>
+    
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed">
+            Some games are configured for Heavy Construction and utilize Unit Price Bidding to determine bid winners. In those cases you will use a different Bid Estimate Form.
+        </p>
+    </section>
+
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/scheduling-methods}" class="font-semibold hover:underline">
+        ← 2.1 Scheduling Methods
+    </a>
+    <a th:href="@{/manual/submitting-bids}" class="font-semibold hover:underline">
+        Next → 2.3 Submitting Bids
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

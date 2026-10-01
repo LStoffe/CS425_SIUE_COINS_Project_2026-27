@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeleteCompanyConfirmAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">DeleteCompanyConfirmAction.java</span></div><h1>DeleteCompanyConfirmAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Vector;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Confirms user really wishes to delete a company.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.10 $ $Date: 2002/02/19 18:30:46 $
+ */
+<span class="fc" id="L38">public class DeleteCompanyConfirmAction extends BIGAction</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+					   			 ActionForm form,
+					   	 	     HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L45">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L48">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="fc" id="L51">		ActionMessages errors = new ActionMessages();</span>
+
+        //Get the parameter off the end of the URL
+<span class="fc" id="L54">		String index = (String) request.getParameter(&quot;companyIndex&quot;);</span>
+
+<span class="fc" id="L56">        HttpSession session = request.getSession();</span>
+
+<span class="fc" id="L58">        Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="fc" id="L59">        Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc bfc" id="L61" title="All 2 branches covered.">		if (game.getCurrentPeriodNumber() &lt; 1) //Cannot delete companies once a game has started</span>
+		{
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        	if(company == null)</span>
+        	{
+<span class="fc" id="L65">        		Vector companies = (Vector) session.getAttribute(&quot;companies&quot;);</span>
+
+<span class="fc" id="L67">	    		int companyIndex = (new Integer(index)).intValue();</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        		if (companies != null)</span>
+        		{
+<span class="fc" id="L71">					company = (Company) companies.elementAt(companyIndex);</span>
+<span class="fc" id="L72">					session.setAttribute(&quot;company&quot;, company);</span>
+				}
+				else
+				{
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L78">						log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;noCompanyFound\&quot;&quot;);</span>
+					}
+<span class="fc" id="L80">					return (mapping.findForward(&quot;noCompanyFound&quot;));</span>
+				}
+<span class="fc" id="L82">			}</span>
+		}
+		else
+		{
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">			if(log.isWarnEnabled())</span>
+			{
+<span class="fc" id="L88">				log.debug(this.getClass() + &quot; attempt to delete a company from game &quot; + game.getGameID() + &quot;, but game has already started&quot;);</span>
+			}
+
+<span class="fc" id="L91">			errors.add(&quot;unknown&quot;, new ActionMessage(&quot;error.unknown&quot;));</span>
+		}
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		if (!errors.isEmpty())</span>
+		{
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L98">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+			// Report any errors we have discovered back to the original form
+<span class="fc" id="L101">			saveErrors(request, errors);</span>
+<span class="fc" id="L102">			saveToken(request);</span>
+<span class="fc" id="L103">			return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L109">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="fc" id="L111">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

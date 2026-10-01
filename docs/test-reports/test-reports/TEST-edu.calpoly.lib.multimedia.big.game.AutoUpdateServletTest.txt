@@ -1,0 +1,4 @@
+Testsuite: edu.calpoly.lib.multimedia.big.game.AutoUpdateServletTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+
+Testcase: testServletCanBeInstantiated took 0.015 sec

@@ -1,0 +1,7 @@
+Testsuite: edu.calpoly.lib.multimedia.big.game.NameGeneratorTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+
+Testcase: testGenerateCustomerNameReturnsCustomer took 0.002 sec
+Testcase: testGenerateComputerControlledContractorNameMultipleCalls took 0.007 sec
+Testcase: testGenerateComputerControlledContractorNameContainsReasonableParts took 0 sec
+Testcase: testGenerateComputerControlledContractorNameReturnsNonEmpty took 0 sec

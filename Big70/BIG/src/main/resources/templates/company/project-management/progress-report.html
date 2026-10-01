@@ -1,0 +1,94 @@
+<!--
+    progress-report.html
+    This page displays the company's progress report as part of its project management functions.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Progress Report</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Progress Report</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <!-- Report Header -->
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold mb-2" th:text="${username}">Company Name</h3>
+        <h4 class="text-xl font-semibold mb-2">Progress Report</h4>
+      </div>
+
+      <!-- Active Jobs -->
+      <div th:if="${!#lists.isEmpty(jobs)}">
+        <div th:each="job : ${jobs}" class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+          <h5 class="text-lg font-semibold mb-4">
+            Job #<span th:text="${job.jobid}">0</span> —
+            <span th:text="${job.job_type_name}">Job Type</span>
+          </h5>
+          <ul class="space-y-2 text-gray-700">
+            <li>
+              <span class="font-medium">Job Size:</span>
+              <span th:text="${job['job_lu_size']}">0</span> CUs
+            </li>
+            <li>
+              <span class="font-medium">Labor Units Remaining:</span>
+              <span th:text="${job['lus_remaining']}">0</span>
+            </li>
+            <li>
+              <span class="font-medium">Completion Deadline:</span>
+              <span th:text="${job['completion_deadline']}">N/A</span>
+            </li>
+            <li>
+              <span class="font-medium">Period Awarded:</span>
+              <span th:text="${job['period_awarded']}">0</span>
+            </li>
+            <li>
+              <span class="font-medium">Current Method:</span>
+              <span th:text="${job.method_name}">Standard</span>
+            </li>
+            <li>
+              <span class="font-medium">Progress:</span>
+              <span th:text="${job.progress} + '%'">0%</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- No Jobs State -->
+      <div th:if="${#lists.isEmpty(jobs)}" 
+           class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg text-center">
+        <p class="text-lg text-gray-800 font-medium">
+          No active jobs this period.
+        </p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/company/project-management-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Project Management
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

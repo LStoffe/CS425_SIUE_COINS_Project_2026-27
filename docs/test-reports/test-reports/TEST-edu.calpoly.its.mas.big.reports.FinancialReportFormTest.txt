@@ -1,0 +1,35 @@
+Testsuite: edu.calpoly.its.mas.big.reports.FinancialReportFormTest
+Tests run: 32, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 sec
+
+Testcase: testIncreaseSubcontractorCostForJob took 0.004 sec
+Testcase: testIncreaseRetainageReceivedForJob took 0 sec
+Testcase: testGetLiquidatedDamagesForJobWithJobParam took 0 sec
+Testcase: testIncreaseDirectMaterialsCostForJob took 0 sec
+Testcase: testIncreaseDirectEquipmentCostForJob took 0 sec
+Testcase: testGetSetCompanyName took 0 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testGetSetBiddingExpenses took 0.002 sec
+Testcase: testGetSetOfficeOverhead took 0 sec
+Testcase: testIncreaseOfficeOverhead took 0 sec
+Testcase: testJobsLeftWithEmptyList took 0 sec
+Testcase: testJobsLeftWithOneJob took 0 sec
+Testcase: testCurrentJobAccessorsWithJobFinancialInfoList took 0 sec
+Testcase: testGetJobTypeAndTypeModifierFromCurrentJob took 0 sec
+Testcase: testCallingCurrentJobGetterBeforeNextJobThrows took 0 sec
+Testcase: testIncreaseInterestPaidOnLoans took 0 sec
+Testcase: testGetSetPreviousCashOnHand took 0 sec
+Testcase: testIncreaseBiddingExpenses took 0 sec
+Testcase: testGetLiquidatedDamagesForJob took 0 sec
+Testcase: testGetSetSettlementExpenses took 0 sec
+Testcase: testGetSetLoanPrinciplePayments took 0.001 sec
+Testcase: testGetSetInterestPaidOnLoans took 0 sec
+Testcase: testIncreasePaymentsReceivedForJob took 0 sec
+Testcase: testIncrementDaysLateForJob took 0 sec
+Testcase: testIncreaseSettlementExpenses took 0 sec
+Testcase: testGetSetConsultingExpenses took 0 sec
+Testcase: testIncreaseConsultingExpenses took 0 sec
+Testcase: testIncreaseLoanPrinciplePayments took 0 sec
+Testcase: testConstructorWithParameters took 0 sec
+Testcase: testIncreaseDirectLaborCostForJob took 0 sec
+Testcase: testIncreaseFieldOverheadForJob took 0 sec
+Testcase: testGetJobInfoList took 0 sec

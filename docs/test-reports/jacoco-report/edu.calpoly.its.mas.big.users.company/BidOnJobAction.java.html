@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BidOnJobAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">BidOnJobAction.java</span></div><h1>BidOnJobAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.company;
+
+//Servlet imports
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+
+//BIG imports
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.CurrentMethodDBHandler;
+
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+<span class="fc" id="L38">public class BidOnJobAction extends Action</span>
+{
+    public ActionForward execute(ActionMapping mapping,
+								 ActionForm form,
+								 HttpServletRequest request,
+								 HttpServletResponse response)
+    {
+<span class="fc" id="L45">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L48">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		// Will be either: 'Retract Bid' or 'Submit Bid'
+<span class="fc" id="L52">		String action = request.getParameter(&quot;submit&quot;);</span>
+
+        // Process request if it was not cancelled
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if(!isCancelled(request)) {</span>
+
+<span class="fc" id="L57">	        ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L59">            ServletContext context = servlet.getServletContext();</span>
+<span class="fc" id="L60">            HttpSession session = request.getSession();</span>
+<span class="fc" id="L61">	        Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="fc" id="L63">            LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+
+            // If for any reason the company should not be allowed to login, route the
+            // company to an error message page.
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">	        if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="fc" id="L69">		       return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L71">            Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+<span class="nc" id="L73">			BidOnJobForm bidOnJobForm = (BidOnJobForm) form;</span>
+
+     		//If the user pressed the &quot;Calculate Totals&quot; button
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			if(	request.getParameter(&quot;calculate&quot;) != null )</span>
+			{
+<span class="nc" id="L78">                double[] totals = new double[9];</span>
+<span class="nc" id="L79">                int[] quantities = bidOnJobForm.getQuantities();</span>
+<span class="nc" id="L80">                double[] unitPrices = bidOnJobForm.getUnitPrices();</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                for(int i = 0; i &lt; 9; i++)</span>
+				{
+<span class="nc" id="L84">					totals[i] = quantities[i] * unitPrices[i];</span>
+				}
+<span class="nc" id="L86">				bidOnJobForm.setTotals(totals);</span>
+<span class="nc" id="L87">				session.setAttribute(&quot;bidOnJobForm&quot;, bidOnJobForm);</span>
+
+<span class="nc bnc" id="L89" title="All 2 branches missed.">				if (!errors.isEmpty())</span>
+				{
+<span class="nc bnc" id="L91" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L93">						log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+					}
+
+					// Report any errors we have discovered back to the original form
+<span class="nc" id="L97">					saveErrors(request, errors);</span>
+<span class="nc" id="L98">	 	    		saveToken(request);</span>
+<span class="nc" id="L99">	 	    		return (new ActionForward(mapping.getInput()));</span>
+				}
+				else
+				{
+<span class="nc bnc" id="L103" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L105">						log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;calculated\&quot;&quot;);</span>
+					}
+<span class="nc" id="L107">					return mapping.findForward(&quot;calculated&quot;);</span>
+				}
+			}
+
+<span class="nc" id="L111">			Job job = null;</span>
+<span class="nc" id="L112">            BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request), true);</span>
+
+            try
+            {
+<span class="nc" id="L116">      			job = dbFacade.getJobDBHandler().getJob(game, bidOnJobForm.getJobID());</span>
+
+				//If the job is private two checks must be done
+				//before accepting the bid.
+				//First if the job is negotiated, then the
+				//state of the job must be NegotiatedJob.NEGOTIATION_SUCCEEDED
+				//Addtionally the company making this request must be on the allowed
+				//company list for the job.
+				//If either of this cases fail this Action has been
+				//accessed illegitimately and an error can be returned right away
+<span class="nc bnc" id="L126" title="All 2 branches missed.">				if(job.getTypeModifier() == Job.PRIVATE)</span>
+				{
+
+<span class="nc bnc" id="L129" title="All 2 branches missed.">					if(job instanceof NegotiatedJob)</span>
+					{
+<span class="nc bnc" id="L131" title="All 2 branches missed.">						if(log.isDebugEnabled())</span>
+						{
+<span class="nc" id="L133">							log.debug(this.getClass() + &quot; Job &quot; + job.getJobID() + &quot; is negotiated&quot;);</span>
+						}
+<span class="nc" id="L135">						NegotiatedJob nj = (NegotiatedJob) job;</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">						if(nj.getState() != NegotiatedJob.NEGOTIATION_SUCCEEDED)</span>
+						{
+<span class="nc bnc" id="L138" title="All 2 branches missed.">							if(log.isDebugEnabled())</span>
+							{
+<span class="nc" id="L140">								log.debug(this.getClass() + &quot;Negotiated not succeedded, company may not bid&quot;);</span>
+							}
+<span class="nc" id="L142">							dbFacade.close();</span>
+<span class="nc" id="L143">							errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.bid.notAllowed&quot;));</span>
+<span class="nc" id="L144">            	        	saveErrors(request, errors);</span>
+<span class="nc" id="L145">            	        	saveToken(request);</span>
+<span class="nc" id="L146">            	        	return (new ActionForward(mapping.getInput()));</span>
+						}
+						else
+						{
+<span class="nc bnc" id="L150" title="All 2 branches missed.">							if(log.isDebugEnabled())</span>
+							{
+<span class="nc" id="L152">								log.debug(this.getClass() + &quot; Negotiation succeeded, company can bid&quot;);</span>
+							}
+						}
+<span class="nc" id="L155">					}</span>
+					else
+					{
+<span class="nc bnc" id="L158" title="All 2 branches missed.">						if(log.isDebugEnabled())</span>
+						{
+<span class="nc" id="L160">							log.debug(this.getClass() + &quot; Job &quot; + job.getJobID() + &quot; is not negotiated&quot;);</span>
+						}
+					}
+
+<span class="nc bnc" id="L164" title="All 2 branches missed.">					if(!job.isCompanyAllowedToBid(company.getCompanyID()))</span>
+					{
+<span class="nc bnc" id="L166" title="All 2 branches missed.">						if(log.isDebugEnabled())</span>
+						{
+<span class="nc" id="L168">							log.debug(this.getClass() + &quot; company &quot; + company.getCompanyID() + &quot; may NOT bid on job &quot; + job.getJobID());</span>
+						}
+<span class="nc" id="L170">						dbFacade.close();</span>
+<span class="nc" id="L171">						errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.bid.notAllowed&quot;));</span>
+<span class="nc" id="L172">            	        saveErrors(request, errors);</span>
+<span class="nc" id="L173">            	        saveToken(request);</span>
+<span class="nc" id="L174">            	        return (new ActionForward(mapping.getInput()));</span>
+					}
+					else
+					{
+<span class="nc bnc" id="L178" title="All 2 branches missed.">						if(log.isDebugEnabled())</span>
+						{
+<span class="nc" id="L180">							log.debug(this.getClass() + &quot; company &quot; + company.getCompanyID() + &quot; may bid on job &quot; + job.getJobID());</span>
+						}
+					}
+				}
+			}
+<span class="nc" id="L185">			catch(Exception e)</span>
+			{
+<span class="nc" id="L187">				log.fatal(&quot;Unable to get job information for jobid &quot; + bidOnJobForm.getJobID(), e);</span>
+<span class="nc" id="L188">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+			}
+			finally
+			{
+				try
+				{
+<span class="nc" id="L194"> 	       	 		dbFacade.close();</span>
+				}
+<span class="nc" id="L196">				catch (BIGDatabaseFacadeException e)</span>
+				{
+<span class="nc" id="L198">					log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L199"> 					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L200">				}</span>
+			}
+
+            try
+            {
+<span class="nc bnc" id="L205" title="All 2 branches missed.">				if(job.getTypeModifier() == Job.HEAVY)</span>
+				{
+				    //In case the user does not do &quot;Calculate Totals&quot; before &quot;Submitting&quot; the Bid
+<span class="nc" id="L208">                    double[] totals = new double[9];</span>
+<span class="nc" id="L209">                    int[] quantities = bidOnJobForm.getQuantities();</span>
+<span class="nc" id="L210">                    double[] unitPrices = bidOnJobForm.getUnitPrices();</span>
+
+<span class="nc bnc" id="L212" title="All 2 branches missed.">                    for(int i = 0; i &lt; 9; i++)</span>
+				    {
+<span class="nc" id="L214">				        totals[i] = quantities[i] * unitPrices[i];</span>
+				    }
+<span class="nc" id="L216">				    bidOnJobForm.setTotals(totals);</span>
+
+<span class="nc" id="L218">                    double theTotalBid = 0;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                    for (int i = 0; i &lt; 9; i++)</span>
+                    {
+<span class="nc" id="L221">			            theTotalBid = theTotalBid + totals[i];</span>
+		            }
+<span class="nc" id="L223">		            bidOnJobForm.setTheTotalBid(theTotalBid);</span>
+<span class="nc" id="L224">		            bidOnJobForm.setBidAmountLong( (long) theTotalBid);</span>
+			    }
+
+<span class="nc" id="L227">				Bid bid = new Bid(game.getGameID(), company.getCompanyID(), bidOnJobForm.getJobID(), bidOnJobForm.getBidAmountLong(), bidOnJobForm.getTheTotalBid(), bidOnJobForm.getUnitPrices(), 0);</span>
+<span class="nc" id="L228">				bid.setMethods(bidOnJobForm.getMethods());</span>
+
+<span class="nc bnc" id="L230" title="All 2 branches missed.">				if (action.equals(&quot;Retract Bid&quot;))</span>
+				{
+
+<span class="nc bnc" id="L233" title="All 2 branches missed.">				    if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L235">						log.debug(this.getClass() + &quot; Removing Bid: &quot; + game.getGameID() + &quot;, &quot; + job.getJobID() + &quot;, &quot; + company.getCompanyID());</span>
+					}
+<span class="nc" id="L237">					dbFacade.getBidDBHandler().removeBid(game.getGameID(), job.getJobID(), company.getCompanyID());</span>
+
+					// TODO: bounce to an informative page...
+				}
+<span class="nc bnc" id="L241" title="All 4 branches missed.">				else if (action.equals(&quot;Submit Bid&quot;) || action.equals(&quot;Submit&quot;))</span>
+				{
+					// If the bid is not there, this will throw an ObjectNotFoundException which will be caught below
+<span class="nc" id="L244">					dbFacade.getBidDBHandler().updateBid(game, job, company, bid);</span>
+				}
+
+<span class="nc" id="L247">                dbFacade.close();</span>
+            }
+<span class="nc" id="L249">            catch(ObjectNotFoundException onfe)</span>
+            {
+
+				// If the bid wasn't there, try adding it
+				try
+				{
+<span class="nc bnc" id="L255" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L257">						log.debug(this.getClass() + &quot; Adding Bid: &quot; + game.getGameID() + &quot;, &quot; + job.getJobID() + &quot;, &quot; + company.getCompanyID());</span>
+					}
+
+<span class="nc" id="L260">					Bid bid = new Bid(game.getGameID(), company.getCompanyID(), bidOnJobForm.getJobID(), bidOnJobForm.getBidAmountLong(), bidOnJobForm.getTheTotalBid(), bidOnJobForm.getUnitPrices(), 0);</span>
+<span class="nc" id="L261">					bid.setMethods(bidOnJobForm.getMethods());</span>
+
+<span class="nc" id="L263">					dbFacade.getBidDBHandler().addBid(game, job, company, bid);</span>
+
+<span class="nc" id="L265">					dbFacade.close();</span>
+
+				}
+<span class="nc" id="L268">				catch (BIGDatabaseFacadeException bigdbe)</span>
+				{
+					// Now we have a problem
+<span class="nc" id="L271">					log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L272">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L273">				}</span>
+
+            }
+<span class="nc" id="L276">            catch(BIGDatabaseFacadeException bigdbe)</span>
+            {
+                // Problem with the database
+<span class="nc" id="L279">				log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L280">                errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+            }
+			finally
+			{
+				try
+				{
+<span class="nc" id="L286"> 	       	 		dbFacade.close();</span>
+				}
+<span class="nc" id="L288">				catch (BIGDatabaseFacadeException e)</span>
+				{
+<span class="nc" id="L290">					log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L291"> 					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L292">				}</span>
+			}
+
+<span class="nc bnc" id="L295" title="All 2 branches missed.">            if (!errors.isEmpty())</span>
+            {
+<span class="nc bnc" id="L297" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L299">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+                // Report any errors we have discovered back to the original form
+<span class="nc" id="L303">                saveErrors(request, errors);</span>
+<span class="nc" id="L304">                saveToken(request);</span>
+<span class="nc" id="L305">                return (new ActionForward(mapping.getInput()));</span>
+            }
+            else
+            {
+<span class="nc bnc" id="L309" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L311">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="nc" id="L313">                return (mapping.findForward(&quot;success&quot;));</span>
+            }
+        }
+        else
+        {  // Request was cancelled
+
+<span class="nc bnc" id="L319" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L321">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L323">            return (mapping.findForward(&quot;cancelled&quot;));</span>
+        }
+
+    }
+}
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

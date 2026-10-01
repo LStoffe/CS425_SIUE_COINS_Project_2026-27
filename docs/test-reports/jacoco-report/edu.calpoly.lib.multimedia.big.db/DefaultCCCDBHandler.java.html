@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultCCCDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">DefaultCCCDBHandler.java</span></div><h1>DefaultCCCDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.db.DefaultDBHandler;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.game.ComputerControlledContractor;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+
+//Database imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;CCCDBHandler&lt;/code&gt;.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class DefaultCCCDBHandler extends DefaultDBHandler implements CCCDBHandler
+{
+
+    public DefaultCCCDBHandler(Connection connection)
+    {
+<span class="fc" id="L35">		super(connection);</span>
+<span class="fc" id="L36">	}</span>
+
+  	public Vector getCCCs(Game game) throws BIGDatabaseFacadeException
+  	{
+<span class="fc" id="L40">		Vector cccs = new Vector();</span>
+
+<span class="fc" id="L42">		String select = &quot;SELECT cccid, fitness, name FROM computer_controlled_contractors &quot; +</span>
+						&quot;WHERE gameid = ? AND current = TRUE&quot;;
+
+<span class="fc" id="L45">		String selectPrefs = &quot;SELECT preference FROM ccc_job_type_preferences &quot; +</span>
+							 &quot;WHERE cccid = ? ORDER BY job_type_id&quot;;
+
+		try
+		{
+<span class="fc" id="L50">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L51">			pstmt.setInt(1, game.getGameID());</span>
+
+<span class="fc" id="L53">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L57">				PreparedStatement prefsPstmt = connection.prepareStatement(selectPrefs, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L58">				prefsPstmt.setInt(1, rset.getInt(&quot;cccid&quot;));</span>
+
+<span class="fc" id="L60">				ResultSet prefRset = prefsPstmt.executeQuery();</span>
+<span class="fc" id="L61">				Vector prefs = new Vector();</span>
+
+<span class="fc bfc" id="L63" title="All 2 branches covered.">				while(prefRset.next())</span>
+				{
+<span class="fc" id="L65">					prefs.add(new Integer(prefRset.getInt(&quot;preference&quot;)));</span>
+				}
+<span class="fc" id="L67">				prefRset.close();</span>
+
+<span class="fc" id="L69">				int[] prefInts = new int[prefs.size()];</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">				for(int i = 0; i &lt; prefInts.length; i++)</span>
+				{
+<span class="fc" id="L72">					prefInts[i] = ((Integer) prefs.elementAt(i)).intValue();</span>
+				}
+
+<span class="fc" id="L75">				cccs.add(new ComputerControlledContractor(rset.getInt(&quot;cccid&quot;),</span>
+<span class="fc" id="L76">														  rset.getString(&quot;name&quot;),</span>
+<span class="fc" id="L77">														  rset.getInt(&quot;fitness&quot;),</span>
+														  prefInts
+														 )
+						);
+<span class="fc" id="L81">			}</span>
+<span class="fc" id="L82">			rset.close();</span>
+		}
+<span class="fc" id="L84">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L86">			close();</span>
+<span class="fc" id="L87">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L88">		}</span>
+
+<span class="fc" id="L90">		return cccs;</span>
+	}
+
+  	public Vector getAllCCCs(Game game) throws BIGDatabaseFacadeException
+  	{
+<span class="fc" id="L95">		Vector cccs = new Vector();</span>
+
+<span class="fc" id="L97">		String select = &quot;SELECT cccid, fitness, name FROM computer_controlled_contractors &quot; +</span>
+						&quot;WHERE gameid = ? &quot;;
+
+<span class="fc" id="L100">		String selectPrefs = &quot;SELECT preference FROM ccc_job_type_preferences &quot; +</span>
+							 &quot;WHERE cccid = ? ORDER BY job_type_id&quot;;
+
+		try
+		{
+<span class="fc" id="L105">			PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L106">			pstmt.setInt(1, game.getGameID());</span>
+
+<span class="fc" id="L108">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">			while(rset.next())</span>
+			{
+<span class="fc" id="L112">				PreparedStatement prefsPstmt = connection.prepareStatement(selectPrefs, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L113">				prefsPstmt.setInt(1, rset.getInt(&quot;cccid&quot;));</span>
+
+<span class="fc" id="L115">				ResultSet prefRset = prefsPstmt.executeQuery();</span>
+<span class="fc" id="L116">				Vector prefs = new Vector();</span>
+
+<span class="fc bfc" id="L118" title="All 2 branches covered.">				while(prefRset.next())</span>
+				{
+<span class="fc" id="L120">					prefs.add(new Integer(prefRset.getInt(&quot;preference&quot;)));</span>
+				}
+<span class="fc" id="L122">				prefRset.close();</span>
+
+<span class="fc" id="L124">				int[] prefInts = new int[prefs.size()];</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">				for(int i = 0; i &lt; prefInts.length; i++)</span>
+				{
+<span class="fc" id="L127">					prefInts[i] = ((Integer) prefs.elementAt(i)).intValue();</span>
+				}
+
+<span class="fc" id="L130">				cccs.add(new ComputerControlledContractor(rset.getInt(&quot;cccid&quot;),</span>
+<span class="fc" id="L131">														  rset.getString(&quot;name&quot;),</span>
+<span class="fc" id="L132">														  rset.getInt(&quot;fitness&quot;),</span>
+														  prefInts
+														 )
+						);
+<span class="fc" id="L136">			}</span>
+<span class="fc" id="L137">			rset.close();</span>
+		}
+<span class="nc" id="L139">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L141">			close();</span>
+<span class="nc" id="L142">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L143">		}</span>
+
+<span class="fc" id="L145">		return cccs;</span>
+	}
+
+  	public Vector setCCCs(Game game, Vector cccs) throws BIGDatabaseFacadeException
+  	{
+<span class="fc" id="L150">		Vector rejectedCCCs = new Vector();</span>
+
+<span class="fc" id="L152">		String getCCCID = &quot;SELECT nextval('big_cccid_sequence') &quot;;</span>
+<span class="fc" id="L153">		String insertPrefs = &quot;INSERT INTO ccc_job_type_preferences (cccid, job_type_id, preference) &quot; +</span>
+							 &quot; VALUES (?, ?, ?) &quot;;
+<span class="fc" id="L155">		String insertCCC = &quot;INSERT INTO computer_controlled_contractors (cccid, gameid, fitness, name, current)	&quot; +</span>
+						   &quot;VALUES (?, ?, ?, ?, ?) &quot;;
+
+<span class="fc" id="L158">		String markAllNoncurrent = &quot;UPDATE computer_controlled_contractors SET current = FALSE WHERE gameid = ?&quot;;</span>
+
+<span class="fc" id="L160">		String markCCCCurrent = &quot;UPDATE computer_controlled_contractors SET current = TRUE WHERE cccid = ?&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L164">			PreparedStatement pstmt = connection.prepareStatement(markAllNoncurrent);</span>
+<span class="fc" id="L165">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L166">			pstmt.executeUpdate();</span>
+
+<span class="fc bfc" id="L168" title="All 2 branches covered.">			for(int i = 0; i &lt; cccs.size(); i++)</span>
+			{
+<span class="fc" id="L170">				ComputerControlledContractor ccc = (ComputerControlledContractor) cccs.elementAt(i);</span>
+
+				//if (uniqueCCCName(game.getGameID(), ccc.getName()))
+				//{
+<span class="fc bfc" id="L174" title="All 2 branches covered.">					if(ccc.getCCCID() &lt; 1)</span>
+					{
+						//Create a cccid for this ccc
+<span class="fc" id="L177">						pstmt = connection.prepareStatement(getCCCID);</span>
+<span class="fc" id="L178">						ResultSet rset = pstmt.executeQuery();</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">						if(rset.next())</span>
+						{
+<span class="fc" id="L181">							ccc.setCCCID(rset.getInt(1));</span>
+						}
+						else
+						{
+<span class="nc" id="L185">							close();</span>
+<span class="nc" id="L186">							throw new BIGDatabaseFacadeException(&quot;Cannot get next value from big_cccid_sequence&quot;);</span>
+						}
+<span class="fc" id="L188">						rset.close();</span>
+
+						//Insert this ccc
+<span class="fc" id="L191">						pstmt = connection.prepareStatement(insertCCC);</span>
+<span class="fc" id="L192">						pstmt.setInt(1, ccc.getCCCID());</span>
+<span class="fc" id="L193">						pstmt.setInt(2, game.getGameID());</span>
+<span class="fc" id="L194">						pstmt.setInt(3, ccc.getFitness());</span>
+<span class="fc" id="L195">						pstmt.setString(4, ccc.getName());</span>
+<span class="fc" id="L196">						pstmt.setBoolean(5, true);</span>
+
+<span class="fc" id="L198">						pstmt.executeUpdate();</span>
+
+
+						//Insert the job type prefs for this ccc
+<span class="fc" id="L202">						int[] prefs = ccc.getJobTypePreferences();</span>
+
+<span class="fc" id="L204">						pstmt = connection.prepareStatement(insertPrefs);</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">						for(int j = 0; j &lt; prefs.length; j++)</span>
+						{
+<span class="fc" id="L207">							pstmt.setInt(1, ccc.getCCCID());</span>
+<span class="fc" id="L208">							pstmt.setInt(2, j+1);</span>
+<span class="fc" id="L209">							pstmt.setInt(3, prefs[j]);</span>
+
+<span class="fc" id="L211">							pstmt.executeUpdate();</span>
+						}
+
+<span class="fc" id="L214">					}</span>
+					else
+					{
+<span class="fc" id="L217">						pstmt = connection.prepareStatement(markCCCCurrent);</span>
+<span class="fc" id="L218">						pstmt.setInt(1, ccc.getCCCID());</span>
+<span class="fc" id="L219">						pstmt.executeUpdate();</span>
+					}
+				//}
+				//else
+				//{
+				//	rejectedCCCs.add(ccc);
+				//}
+			}
+		}
+<span class="nc" id="L228">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L230">			close();</span>
+<span class="nc" id="L231">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L232">		}</span>
+
+<span class="fc" id="L234">		return rejectedCCCs;</span>
+	}
+
+	//Returns true if there is no row in the COMPUTER_CONTROLLED_CONTRACTORS table
+	//with the gameid/name combination specified
+	private boolean uniqueCCCName(int gameid, String name) throws SQLException
+	{
+<span class="nc" id="L241">		String select = &quot;SELECT cccid FROM computer_controlled_contractor WHERE gameid = ? &quot; +</span>
+						&quot;AND lower(name) = lower(?)&quot;;
+
+<span class="nc" id="L244">		PreparedStatement pstmt = connection.prepareStatement(select, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="nc" id="L245">		pstmt.setInt(1, gameid);</span>
+<span class="nc" id="L246">		pstmt.setString(2, name);</span>
+
+<span class="nc" id="L248">		ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="nc bnc" id="L250" title="All 2 branches missed.">		if(rset.next())</span>
+		{
+<span class="nc" id="L252">			rset.close();</span>
+			//System.out.println(name + &quot; is NOT a unique name in &quot; + gameid);
+<span class="nc" id="L254">			return false;</span>
+		}
+		else
+		{
+<span class="nc" id="L258">			rset.close();</span>
+			//System.out.println(name + &quot; is a unique name in &quot; + gameid);
+<span class="nc" id="L260">			return true;</span>
+		}
+
+	}
+
+  	public void removeCCCs(int gameid) throws BIGDatabaseFacadeException
+  	{
+<span class="fc" id="L267">		String removeJobPrefs = &quot;DELETE FROM ccc_job_type_preferences WHERE cccid = ANY &quot; +</span>
+								&quot;(SELECT cccid FROM computer_controlled_contractors &quot; +
+								&quot;WHERE gameid = ?)&quot;;
+<span class="fc" id="L270">		String removeCCCs = &quot;DELETE FROM computer_controlled_contractors WHERE gameid = ?&quot;;</span>
+
+		try
+		{
+			//Remove all job type prefs
+<span class="fc" id="L275">			PreparedStatement pstmt = connection.prepareStatement(removeJobPrefs);</span>
+<span class="fc" id="L276">			pstmt.setInt(1, gameid);</span>
+<span class="fc" id="L277">			pstmt.executeUpdate();</span>
+
+			//Remove all CCCs
+<span class="fc" id="L280">			pstmt = connection.prepareStatement(removeCCCs);</span>
+<span class="fc" id="L281">			pstmt.setInt(1, gameid);</span>
+<span class="fc" id="L282">			pstmt.executeUpdate();</span>
+
+<span class="fc" id="L284">			pstmt.close();</span>
+		}
+<span class="nc" id="L286">		catch (SQLException sqle)</span>
+		{
+<span class="nc" id="L288">			close();</span>
+<span class="nc" id="L289">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L290">		}</span>
+<span class="fc" id="L291">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

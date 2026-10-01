@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+<sqlMap>
+
+
+<!--  *=====*  SELECT statements  *=====*  -->
+
+
+  <select id="getListOfCrews" resultClass="edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentMethodsBean"  >  
+    <![CDATA[
+
+    SELECT 	 equip_method_crews.cal_trans_code,
+                 equip_method_crews.method,
+                 equip_method_crews.is_primary,
+                 equip_method_crews.number_required,
+                 equip_method_crews.percent_time_used,
+
+    	 	 equip_available.category                     as category,
+    	 	 equip_available.brand                        as brand,
+    	 	 equip_available.model                        as model_master,
+    	 	 equip_available.productivity_per_hour        as productivity_hour,
+    	 	 equip_available.cal_trans_rate               as ct_rate,
+    	 	 equip_available.percent_ct_per_hour          as percent_ct_hour
+
+    FROM 	 equip_method_crews
+    
+    INNER JOIN   equip_available
+    
+    ON           equip_method_crews.cal_trans_code=equip_available.cal_trans_code
+    
+    ORDER BY     equip_method_crews.method
+
+    ]]>
+  </select>
+
+
+  <select id="getPrimaryProductivity" resultClass="java.lang.String"  >  
+    <![CDATA[
+
+    SELECT 	 cal_trans_code
+
+    FROM 	 equip_method_crews
+    
+    WHERE        is_primary = 't' AND method = #value#
+
+    ]]>
+  </select>
+
+
+  <select id="getMethodProductivity" resultClass="java.lang.Integer"  >  
+    <![CDATA[
+
+    SELECT 	 productivity_per_hour
+
+    FROM 	 equip_available
+    
+    WHERE        cal_trans_code = #value#
+
+    ]]>
+  </select>
+
+
+  <select id="getCompanyNewEquipment" parameterClass="java.util.Map" resultClass="java.lang.String"  >  
+    <![CDATA[
+
+    SELECT 	 cal_trans_code
+
+    FROM 	 new_equip_available
+    
+    WHERE        company_id = #companyID# AND is_on_project = 't' AND project_numb = #jobID#
+
+    ]]>
+  </select>
+
+
+  <select id="getCompanyUsedEquipment" parameterClass="java.util.Map" resultClass="java.lang.String"  >  
+    <![CDATA[
+
+    SELECT 	 cal_trans_code
+
+    FROM 	 used_equip_available
+    
+    WHERE        company_id = #companyID# AND is_on_project = 't' AND project_numb = #jobID#
+
+    ]]>
+  </select>
+
+
+  <select id="getCompanyRentalEquipment" parameterClass="java.util.Map" resultClass="java.lang.String"  >  
+    <![CDATA[
+
+    SELECT 	 cal_trans_code
+
+    FROM 	 rental_equip_available
+    
+    WHERE        company_id = #companyID# AND is_on_project = 't' AND project_numb = #jobID#
+
+    ]]>
+  </select>
+
+
+
+
+
+
+
+
+<!--  *=====*  UPDATE statements  *=====*  -->
+
+
+  <update id="updateMethodProdCost" parameterClass="map">
+    <![CDATA[
+
+    UPDATE equip_method_prod_cost  SET productivity_per_hour = #productivity#,
+                                       total_cost_per_hour   = #totalCost#
+    				        
+    WHERE  method = #methodNumber#
+
+    ]]>	  
+  </update>
+
+
+  <update id="updateMethodTable" parameterClass="map">
+    <![CDATA[
+
+    UPDATE method  SET productivity  = #productivity#,
+                       equipmentcost = #equipCostPerCU#
+    				        
+    WHERE methodid = #methodID# AND activity_type_id = #activityType# AND gameid = #gameID# AND adminid = #adminID#
+
+    ]]>	  
+  </update>
+
+
+
+
+
+
+
+
+
+
+<!--  *=====*  INSERT statements  *=====*  -->
+
+
+
+
+
+
+
+
+
+<!--  *=====*  DELETE statements  *=====*  -->
+
+
+
+
+
+
+
+
+
+
+</sqlMap>

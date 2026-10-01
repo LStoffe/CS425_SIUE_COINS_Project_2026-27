@@ -1,0 +1,5 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.RatiosReportActionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.664 sec
+
+Testcase: testEarlyExitWhenReportPeriodLessThanOne took 0.658 sec
+Testcase: testLoginFailureWhenNoGame took 0 sec

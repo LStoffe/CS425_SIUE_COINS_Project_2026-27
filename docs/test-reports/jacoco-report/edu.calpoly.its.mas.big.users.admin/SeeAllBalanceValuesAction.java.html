@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SeeAllBalanceValuesAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">SeeAllBalanceValuesAction.java</span></div><h1>SeeAllBalanceValuesAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.ArrayList;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm;
+import edu.calpoly.lib.multimedia.big.reports.ContractsInProgressReportForm;
+import edu.calpoly.lib.multimedia.big.reports.CompletedContractsReportForm;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Handles a request to see the balance sheet values (A = L + E) for all companies in all games.
+ * Only the head administrator is able to perform this action.
+ *
+ */
+<span class="fc" id="L48">public class SeeAllBalanceValuesAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L56">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L59">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L65">			ActionMessages errors = new ActionMessages();</span>
+
+			//Check to make sure the user who made the request is the head admin
+<span class="fc" id="L68">	        HttpSession session = request.getSession();</span>
+<span class="fc" id="L69">	        Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">	        if(!admin.getIsHeadAdmin())  //User is not the head admin</span>
+	        {
+<span class="nc" id="L73">	        	errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.user.permission&quot;));</span>
+			}
+			else  //User is the head admin
+			{
+				// Get a list of all companies in all games
+<span class="fc" id="L78">				BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+				try
+				{
+                    //list of all games
+<span class="fc" id="L82">                    Vector gameidVector = dbFacade.getGameDBHandler().getAllGames();</span>
+<span class="pc bpc" id="L83" title="2 of 4 branches missed.">         			if((gameidVector != null) &amp;&amp; (gameidVector.size() != 0))</span>
+         			{
+<span class="fc" id="L85">						List listOfAllBalShts = new ArrayList();</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">             			for (Enumeration e = gameidVector.elements(); e.hasMoreElements();  )</span>
+             			{
+<span class="fc" id="L88">		        			Game game = (Game) e.nextElement();</span>
+		        			//list of all companies in this game
+<span class="fc" id="L90">		        			Vector companies = dbFacade.getCompanyDBHandler().getCompanies(game);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">							for(int i = 0; i &lt; companies.size(); i++)</span>
+							{
+								// if a game has not yet been started, and has companies added to it, this routine will hang because
+								// there is no balance sheet created yet for the company.  Note: period = 0 for games not yet started.
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">								if (game.getCurrentPeriodNumber() &gt; 0)</span>
+         						{
+<span class="fc" id="L97">									Company company = (Company) companies.get(i);</span>
+<span class="fc" id="L98">									BalanceSheetForm balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, game.getCurrentPeriodNumber() - 1, company);</span>
+<span class="fc" id="L99">									ContractsInProgressReportForm contractsInProgress = dbFacade.getContractsReportsDBHandler().getContractsInProgressReport(game, game.getCurrentPeriodNumber() - 1, company);</span>
+<span class="fc" id="L100"> 		 	      					CompletedContractsReportForm completedContracts = dbFacade.getContractsReportsDBHandler().getCompletedContractsReport(game, game.getCurrentPeriodNumber() - 1, company);</span>
+
+<span class="fc" id="L102">				  					balanceSheet.setUnderbilledAmount(contractsInProgress.getTotalUnderbilling() );</span>
+<span class="fc" id="L103">				  					balanceSheet.setUnbilledAmount(completedContracts.getTotalUnbilled() );</span>
+<span class="fc" id="L104">				  					balanceSheet.setOverbilledAmount(contractsInProgress.getTotalOverbilling() );</span>
+
+<span class="fc" id="L106">									balanceSheet.setGameid(game.getGameID() );</span>
+<span class="fc" id="L107">									balanceSheet.setCompanyid(company.getCompanyID() );</span>
+<span class="fc" id="L108">									balanceSheet.setCurrentPeriodNum(game.getCurrentPeriodNumber() - 1 );</span>
+<span class="fc" id="L109">									balanceSheet.setUsername(company.getUsername() );</span>
+<span class="fc" id="L110">									balanceSheet.setPassword(company.getPassword() );</span>
+
+<span class="fc" id="L112">									listOfAllBalShts.add(balanceSheet);</span>
+								}
+							}
+<span class="fc" id="L115">             			}</span>
+<span class="fc" id="L116">             			session.setAttribute(&quot;listOfAllBalShts&quot;, listOfAllBalShts);</span>
+<span class="fc" id="L117">             			log.debug(&quot;Size of List is: &quot; + listOfAllBalShts.size() + &quot; items.&quot;);</span>
+	      			}
+				}
+<span class="nc" id="L120">				catch(BIGDatabaseFacadeException BIGDbe)</span>
+				{
+					//Error with the database
+<span class="nc" id="L123">					log.fatal(&quot;&quot;, BIGDbe);</span>
+<span class="nc" id="L124">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L126">				catch (ObjectNotFoundException onfe)</span>
+				{
+<span class="nc" id="L128">					log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L129">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+				}
+				finally
+				{
+					try
+					{
+<span class="fc" id="L135">				   		dbFacade.close();</span>
+					}
+<span class="nc" id="L137">					catch (BIGDatabaseFacadeException e)</span>
+					{
+<span class="nc" id="L139">						log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L140">				 		errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="fc" id="L141">					}</span>
+				}
+			}
+
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L147" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L149">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L153">				saveErrors(request, errors);</span>
+<span class="nc" id="L154">	 	    	saveToken(request);</span>
+<span class="nc" id="L155">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L161">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="fc" id="L163">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L170">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L172">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

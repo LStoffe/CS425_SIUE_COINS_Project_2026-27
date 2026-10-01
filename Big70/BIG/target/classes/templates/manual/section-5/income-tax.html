@@ -1,0 +1,86 @@
+<!--
+  income-tax.html.html
+  Section 5.10 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.10 Income Tax</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.10 Income Tax
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            You must pay a flat income tax of (x)*% on all profit made each year. 
+            The amount of tax you owe is deducted from your gross profit before it becomes equity each period. These amounts accumulate as a liability on your balance sheet until the end of each year when taxes are paid. 
+            At this point your tax owed becomes zero and your cash-on-hand is reduced by whatever the amount was you owed. This occurs whenever the period goes from a Nov/Dec period to a Jan/Feb period.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            How taxes are recorded on the statement of earnings can be confusing. 
+            A statement of earnings is generated each period, but the final amount of taxes you owe is not known until the last day of the year. 
+            The value appearing on the balance sheet is actually an estimate of what you expect to owe based on your current earnings. 
+            However, it is possible to make money at the start of the year but lose money later on, in which case the taxes shown on the balance sheet would be incorrect because overall you have made less money for the year.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Example:</strong> Assume the tax rate is 35%. Your profit for the year through period 4 is $100,000. However in period 5 you lose $150,000.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            At the end of period 4 the balance sheet would say your taxes are .35 * $100,000 or $35,000. Each period the statement of earnings would show the amount of tax incurred on the amount made that period.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            At the end of period 5 your profit for the year is ($50,000) so your expected tax owed is zero (you expect no profit for the year). 
+            To make everything balance the income statement will show the adjustment between the current balance sheet tax estimate and the previous one, or ($35,000). 
+            This may seem unintuitive but the statement of earning can show a negative amount for taxes. This is because the amount on the statement of earnings is the correction of an estimate, not the actual amount of tax you owe.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/overbilling}" class="font-semibold hover:underline">
+        ← 5.9 Overbilling
+    </a>
+    <a th:href="@{/manual/company-appraisal-metrics}" class="font-semibold hover:underline">
+        Next → 5.11 Company Appraisal Metrics
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

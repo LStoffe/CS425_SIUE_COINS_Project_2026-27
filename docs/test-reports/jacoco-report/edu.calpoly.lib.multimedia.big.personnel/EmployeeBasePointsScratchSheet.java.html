@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmployeeBasePointsScratchSheet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.personnel</a> &gt; <span class="el_source">EmployeeBasePointsScratchSheet.java</span></div><h1>EmployeeBasePointsScratchSheet.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.personnel;
+
+//JDK imports
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Class to keep track of how many base points
+ * each employee type has remaining during the calculations
+ * that convert employee base points to Main Office Skill points for a
+ * Main Office Skill.  As points are used up they can
+ * be &quot;scratched&quot; off the sheet.
+ *
+ * TODO: Journal how points are used so that the results can be dumped
+ * to the database later.
+ */
+public class EmployeeBasePointsScratchSheet
+{
+	private Map&lt;String, Integer&gt; scratchSheet;
+	private Log log;
+
+	public EmployeeBasePointsScratchSheet()
+<span class="fc" id="L29">	{</span>
+<span class="fc" id="L30">		scratchSheet = new HashMap&lt;String, Integer&gt;();</span>
+<span class="fc" id="L31">		log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L32">	}</span>
+
+	/**
+	 * Returns the current base points remaining
+	 * for an employee type.  All points must previously been
+	 * added through a call to &lt;code&gt;addBasePoints&lt;/code&gt;.
+	 * If not points have been added for an employee type
+	 * a call to this method for that type will always return 0.
+	 */
+	public int getPointsRemaining(String employeeType)
+	{
+<span class="fc" id="L43">		Integer points = scratchSheet.get(employeeType);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">		if(points == null)</span>
+		{
+<span class="fc" id="L46">			return 0;</span>
+		}
+		else
+		{
+<span class="fc" id="L50">			return points.intValue();</span>
+		}
+	}
+
+	/**
+	 * Adds base points for an employee type.
+	 */
+	public void addBasePoints(String employeeType, int points)
+	{
+<span class="fc" id="L59">		Integer currentPoints = scratchSheet.get(employeeType);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">		if(currentPoints == null)</span>
+		{
+<span class="fc" id="L62">			currentPoints = new Integer(0);</span>
+		}
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(this.getClass() + &quot; marking &quot; + points + &quot; base points for employee type &quot; + employeeType + &quot; on the scratchsheet&quot;);
+		} */
+
+<span class="fc" id="L70">		scratchSheet.put(employeeType, new Integer(currentPoints.intValue() + points));</span>
+<span class="fc" id="L71">	}</span>
+
+	/**
+	 * Reduces base points for an employee type.  If base points
+	 * are reduced to 0 or lower, the employee type is removed from the
+	 * list of employee type returned by the
+	 * &lt;code&gt;getEmployeeTypesWithPoints&lt;/code&gt; method.
+	 */
+	public void reduceBasePoints(String employeeType, int points)
+	{
+<span class="fc" id="L81">		Integer currentPoints = scratchSheet.get(employeeType);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">		if(currentPoints == null)</span>
+		{
+<span class="fc" id="L84">			currentPoints = new Integer(0);</span>
+		}
+
+<span class="fc" id="L87">		int newPoints = currentPoints.intValue() - points;</span>
+
+/*		if(log.isDebugEnabled())
+		{
+			log.debug(this.getClass() + &quot; scratching off &quot; + points + &quot; base points for employee type &quot; + employeeType + &quot; from the scratchsheet&quot;);
+			log.debug(this.getClass() + &quot; new amount of points is &quot; + newPoints);
+		} */
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		if(newPoints &gt; 0)</span>
+		{
+<span class="fc" id="L97">			scratchSheet.put(employeeType, new Integer(newPoints));</span>
+		}
+		else
+		{
+<span class="fc" id="L101">			scratchSheet.remove(employeeType);</span>
+/*			if(log.isDebugEnabled())
+			{
+				log.debug(this.getClass() + &quot; employee type &quot; + employeeType + &quot; has been removed from scratchsheet&quot;);
+			} */
+
+		}
+<span class="fc" id="L108">	}</span>
+
+	/**
+	 * Returns a &lt;code&gt;List&lt;/code&gt; of the employee types who still have base points remaining
+	 */
+	public List&lt;String&gt; getEmployeeTypesWithPoints()
+	{
+<span class="fc" id="L115">		return new ArrayList(scratchSheet.keySet());</span>
+	}
+
+	/**
+	 * return true if there is at least one employee left with base points, false if not
+	 */
+	public boolean employeesLeftWithBasePoints()
+	{
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		return (scratchSheet.keySet().size() &gt; 0);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

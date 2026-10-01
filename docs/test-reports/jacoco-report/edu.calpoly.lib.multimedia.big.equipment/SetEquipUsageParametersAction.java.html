@@ -1,0 +1,1356 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetEquipUsageParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.equipment</a> &gt; <span class="el_source">SetEquipUsageParametersAction.java</span></div><h1>SetEquipUsageParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.equipment;
+
+//BIG imports
+import edu.calpoly.lib.multimedia.big.equipment.javaBeans.EquipmentUsageParameters;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.ExpandedGame;
+
+//JDK imports
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Vector;
+import java.util.Iterator;
+import java.lang.Integer;
+import java.lang.Float;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletContext;
+
+//Struts imports
+import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts.Globals;
+import org.apache.struts2.interceptor.ServletRequestAware;
+import org.apache.struts2.util.ServletContextAware;
+import org.apache.struts2.interceptor.SessionAware;
+import org.apache.struts2.interceptor.ApplicationAware;
+
+//iBATIS imports
+import com.ibatis.common.resources.Resources;
+import com.ibatis.sqlmap.client.SqlMapClient;
+import com.ibatis.sqlmap.client.SqlMapClientBuilder;
+
+// Old Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class SetEquipUsageParametersAction extends ActionSupport implements ServletRequestAware, ServletContextAware, SessionAware, ApplicationAware
+{
+    private Log log;
+    private SqlMapClient sqlMap;
+    private Map sessionMap;
+    private Map applicationMap;
+	private HttpServletRequest servletRequest;
+	private ServletContext servletContext;
+<span class="nc" id="L58">	private String oneItem = null;</span>
+	private String modelName;
+	private String rental_term;
+	private Vector jobs;
+	private Iterator iterator;
+	private int adminID;
+<span class="nc" id="L64">	private String[] ct_code = new String[1000];</span>
+<span class="nc" id="L65">	private String[] ct_rate = new String[1000];</span>
+<span class="nc" id="L66">	private String[] percent_ct_hour = new String[1000];</span>
+<span class="nc" id="L67">	private String[] productivity_hour = new String[1000];</span>
+<span class="nc" id="L68">	private String[] cost_hour = new String[1000];</span>
+<span class="nc" id="L69">	private String[] deployment_cost = new String[1000];</span>
+<span class="nc" id="L70">	private String[] decommission_cost = new String[1000];</span>
+<span class="nc" id="L71">	private String[] equip_numb = new String[1000];</span>
+<span class="nc" id="L72">	private String[] year = new String[1000];</span>
+<span class="nc" id="L73">	private String[] model = new String[1000];</span>
+<span class="nc" id="L74">	private String[] price_to_buy = new String[1000];</span>
+<span class="nc" id="L75">	private String[] cash_paid = new String[1000];</span>
+<span class="nc" id="L76">	private String[] loan_amount = new String[1000];</span>
+<span class="nc" id="L77">	private String[] price_to_rent = new String[1000];</span>
+<span class="nc" id="L78">	private String[] description = new String[1000];</span>
+<span class="nc" id="L79">	private String[] move_to_market = new String[1000];</span>
+<span class="nc" id="L80">	private String[] is_in_market = new String[1000];</span>
+<span class="nc" id="L81">	private String[] deleteMe = new String[1000];</span>
+<span class="nc" id="L82">	private String[] removeMe = new String[1000];</span>
+<span class="nc" id="L83">	private String[] rentme = new String[1000];</span>
+<span class="nc" id="L84">	private String[] serial_numb = new String[1000];</span>
+<span class="nc" id="L85">	private String[] hrs_of_use = new String[1000];</span>
+<span class="nc" id="L86">	private String[] condition = new String[1000];</span>
+<span class="nc" id="L87">	private String[] projNumb = new String[1000];</span>
+
+	public SetEquipUsageParametersAction()
+<span class="nc" id="L90">    {</span>
+<span class="nc" id="L91">		log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L94">			log.debug(this.getClass() + &quot; - Object Constructed - SetEquipUsageParametersAction&quot;);</span>
+		}
+<span class="nc" id="L96">    }</span>
+
+    public void setServletRequest(HttpServletRequest servletRequest) {
+<span class="nc" id="L99">		this.servletRequest = servletRequest;</span>
+<span class="nc" id="L100">	}</span>
+
+    public void setServletContext(ServletContext servletContext) {
+<span class="nc" id="L103">		this.servletContext = servletContext;</span>
+<span class="nc" id="L104">	}</span>
+
+	public void setSession(Map sessionMap) {
+<span class="nc" id="L107">        this.sessionMap = sessionMap;</span>
+<span class="nc" id="L108">    }</span>
+
+	public void setApplication(Map applicationMap) {
+<span class="nc" id="L111">		this.applicationMap = applicationMap;</span>
+<span class="nc" id="L112">	}</span>
+
+	private void doInitial()
+	{
+<span class="nc" id="L116">        HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L117">        Game g = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="nc" id="L118">        adminID = g.getAdminID();</span>
+
+<span class="nc" id="L120">		sqlMap = (SqlMapClient) applicationMap.get(&quot;sqlMap&quot;);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">		if (sqlMap == null)</span>
+		{
+			try
+			{
+<span class="nc" id="L125">				sqlMap = SqlMapClientBuilder.buildSqlMapClient(Resources.getResourceAsReader(&quot;sqlMaps.xml&quot;));</span>
+<span class="nc" id="L126">				applicationMap.put(&quot;sqlMap&quot;, sqlMap);</span>
+			}
+<span class="nc" id="L128">        	catch (Exception e)</span>
+        	{
+<span class="nc" id="L130">	       		e.printStackTrace();</span>
+<span class="nc" id="L131">           		throw new RuntimeException (&quot;Error initializing SetEquipUsageParametersAction class. Cause: &quot; + e);</span>
+<span class="nc" id="L132">        	}</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L135">				log.debug(this.getClass() + &quot; --&gt; iBATIS SqlMapClient created successfully&quot;);</span>
+			}
+		}
+<span class="nc" id="L138">	}</span>
+
+
+/* ** MASTER Equipment LIST Methods ** */
+
+    // Display (view) the master list of equipment
+	public String masterEquipList()
+	{
+<span class="nc" id="L146">        doInitial();</span>
+<span class="nc" id="L147">        List&lt;Object&gt; masterEquipList = new ArrayList&lt;Object&gt;();</span>
+		try
+		{
+<span class="nc" id="L150">			masterEquipList = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getMasterEquip&quot;, null );</span>
+		}
+<span class="nc" id="L152">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L154">			e.printStackTrace();</span>
+<span class="nc" id="L155">			throw new RuntimeException (&quot;Error executing sqlMap query getMasterEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L156">		}</span>
+<span class="nc" id="L157">        sessionMap.put(&quot;masterEquipList&quot;, masterEquipList);</span>
+<span class="nc" id="L158">        return &quot;success&quot;;</span>
+    }
+
+    // Modify (edit) some values for the master list of equipment
+	public String modifyMasterEquipList()
+	{
+<span class="nc" id="L164">		doInitial();</span>
+<span class="nc" id="L165">        List&lt;Object&gt; equip = (List&lt;Object&gt;) sessionMap.get(&quot;masterEquipList&quot;);</span>
+<span class="nc" id="L166">        int numbEquip = equip.size();   // need to know how many rows in the table</span>
+<span class="nc" id="L167">		Map m = new HashMap();</span>
+
+		try
+		{
+<span class="nc bnc" id="L171" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {   // one pass for each row in the table</span>
+<span class="nc" id="L172">				m.put(&quot;ct_code&quot;, ct_code[i]);</span>
+<span class="nc" id="L173">				m.put(&quot;ct_rate&quot;, Float.parseFloat(ct_rate[i]) );</span>
+<span class="nc" id="L174">				m.put(&quot;percent_ct_hour&quot;, Integer.parseInt(percent_ct_hour[i]) );</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				if (productivity_hour[i] == null ) productivity_hour[i] = &quot;0&quot;;</span>
+<span class="nc" id="L176">				m.put(&quot;productivity_hour&quot;, Integer.parseInt(productivity_hour[i]) );</span>
+<span class="nc" id="L177">				m.put(&quot;deployment_cost&quot;, Integer.parseInt(deployment_cost[i]) );</span>
+<span class="nc" id="L178">				m.put(&quot;decommission_cost&quot;, Integer.parseInt(decommission_cost[i]) );</span>
+
+<span class="nc" id="L180">				sqlMap.update(&quot;updateMasterEquipList&quot;, m);  // this updates a single record in the database</span>
+			}
+		}
+<span class="nc" id="L183">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L185">			e.printStackTrace();</span>
+<span class="nc" id="L186">			throw new RuntimeException (&quot;Error executing sqlMap updateMasterEquipList. Cause: &quot; + e);</span>
+<span class="nc" id="L187">		}</span>
+
+<span class="nc" id="L189">		return &quot;success&quot;;</span>
+	}
+
+    // gets a list of CT codes from Master Equipment List
+	public String getCTcodesMasterList()
+	{
+<span class="nc" id="L195">		doInitial();</span>
+<span class="nc" id="L196">		ArrayList&lt;String&gt; ctcodes = new ArrayList&lt;String&gt;();</span>
+		try
+		{
+<span class="nc" id="L199">			ctcodes = (ArrayList&lt;String&gt;) sqlMap.queryForList(&quot;getCTcodes&quot;, null );</span>
+		}
+<span class="nc" id="L201">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L203">			e.printStackTrace();</span>
+<span class="nc" id="L204">			throw new RuntimeException (&quot;Error executing sqlMap query getCTcodes. Cause: &quot; + e);</span>
+<span class="nc" id="L205">		}</span>
+
+<span class="nc" id="L207">        int numbCTcodes = ctcodes.size();   // need to know how many CT codes we have</span>
+<span class="nc" id="L208">        ArrayList&lt;String&gt; ctcodesRevised = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        for (int i=0; i&lt;numbCTcodes; i++) {</span>
+<span class="nc" id="L211">		   ctcodesRevised.add( '&quot;' + ctcodes.get(i) + '&quot;' );   // for autocompleter - need to put double quotes around the string values</span>
+	    }
+
+<span class="nc" id="L214">        sessionMap.put(&quot;ctcodes&quot;, ctcodesRevised);</span>
+<span class="nc" id="L215">        HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L216">        String whoAmI = (String) session.getAttribute(&quot;whoAmI&quot;);</span>
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">		if (&quot;new&quot;.equals(whoAmI) )  return &quot;new&quot;;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		if (&quot;used&quot;.equals(whoAmI) ) return &quot;used&quot;;</span>
+<span class="nc" id="L220">		return &quot;rental&quot;;</span>
+	}
+
+
+/* ** NEW Equipment LIST Methods ** */
+
+    // Display (view) the list of all NEW equipment
+	public String newEquipList()
+	{
+<span class="nc" id="L229">        doInitial();</span>
+<span class="nc" id="L230">        List&lt;Object&gt; newEquipList = new ArrayList&lt;Object&gt;();</span>
+		try
+		{
+<span class="nc" id="L233">			newEquipList = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getNewEquip&quot;, adminID );</span>
+		}
+<span class="nc" id="L235">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L237">			e.printStackTrace();</span>
+<span class="nc" id="L238">			throw new RuntimeException (&quot;Error executing sqlMap query getNewEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L239">		}</span>
+<span class="nc" id="L240">        sessionMap.put(&quot;newEquipList&quot;, newEquipList);</span>
+<span class="nc" id="L241">        return &quot;success&quot;;</span>
+    }
+
+
+    // Make Changes to the list of all NEW equipment
+	public String modifyNewEquipList()
+	{
+<span class="nc" id="L248">		doInitial();</span>
+
+		// need to know how many rows are in the table
+<span class="nc" id="L251">		HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L252">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L254" title="All 2 branches missed.">      if (numbEquip != 0) {</span>
+        // first, do an update to save all data (which may or may not have been altered)
+<span class="nc" id="L256">		Map m = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L259" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {   // one pass for each row in the table</span>
+<span class="nc" id="L260">				m.put(&quot;year&quot;, year[i]);</span>
+<span class="nc" id="L261">				m.put(&quot;model&quot;, model[i]);</span>
+<span class="nc" id="L262">				m.put(&quot;price_to_buy&quot;, Integer.parseInt(price_to_buy[i]) );</span>
+<span class="nc" id="L263">				m.put(&quot;description&quot;, description[i]);</span>
+
+<span class="nc bnc" id="L265" title="All 2 branches missed.">				if (&quot;true&quot;.equals( move_to_market[i] )) {</span>
+<span class="nc" id="L266">				   m.put(&quot;is_in_market&quot;, new Boolean(true) );</span>
+<span class="nc" id="L267">				   m.put(&quot;productivity_hour&quot;, Float.parseFloat(productivity_hour[i]) );</span>
+<span class="nc" id="L268">				   m.put(&quot;cost_hour&quot;, Float.parseFloat(cost_hour[i]) );</span>
+			    }
+			    else {
+<span class="nc" id="L271">				   m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L272">				   m.put(&quot;productivity_hour&quot;, 0);</span>
+<span class="nc" id="L273">				   m.put(&quot;cost_hour&quot;, 0);</span>
+			    }
+<span class="nc" id="L275">				m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L277">				sqlMap.update(&quot;updateNewEquipList&quot;, m);  // this updates a single record in the database</span>
+
+			}
+		}
+<span class="nc" id="L281">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L283">			e.printStackTrace();</span>
+<span class="nc" id="L284">			throw new RuntimeException (&quot;Error executing sqlMap updateNewEquipList. Cause: &quot; + e);</span>
+<span class="nc" id="L285">		}</span>
+
+		// now go back through the list and do a check to see which ones need to be deleted
+<span class="nc" id="L288">		Map m1 = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L291" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">				if (&quot;true&quot;.equals( deleteMe[i] )) {</span>
+<span class="nc" id="L293">					m1.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+<span class="nc" id="L294">					sqlMap.delete(&quot;deleteNewEquip&quot;, m1);</span>
+				}
+			}
+		}
+<span class="nc" id="L298">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L300">			e.printStackTrace();</span>
+<span class="nc" id="L301">			throw new RuntimeException (&quot;Error executing sqlMap deleteNewEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L302">		}</span>
+      } // end of if
+<span class="nc" id="L304">        return &quot;success&quot;;</span>
+    }
+
+
+    // add a new record to the NEW equipment list
+	public String insertNewEquipList()
+	{
+<span class="nc" id="L311">		doInitial();</span>
+		try
+		{
+<span class="nc" id="L314">			oneItem = (String) sqlMap.queryForObject(&quot;getMaxEquipNumb&quot;);</span>
+<span class="nc" id="L315">			modelName = (String) sqlMap.queryForObject(&quot;getModelFromCTcode&quot;, ct_code[0] );</span>
+		}
+<span class="nc" id="L317">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L319">			e.printStackTrace();</span>
+<span class="nc" id="L320">			throw new RuntimeException (&quot;Error executing sqlMap query getMaxEquipNumb &amp; getModelFromCTcode. Cause: &quot; + e);</span>
+<span class="nc" id="L321">		}</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">        if (oneItem == null) equip_numb[0] = &quot;N100&quot;;</span>
+        else {
+<span class="nc" id="L324">           int maxEquipNum = Integer.parseInt( oneItem.substring(1) );  // remove first char of string &amp; convert to Int</span>
+<span class="nc" id="L325">           maxEquipNum += 1;</span>
+<span class="nc" id="L326">           equip_numb[0] = &quot;N&quot; + Integer.toString(maxEquipNum);</span>
+		}
+
+<span class="nc" id="L329">		Map m = new HashMap();</span>
+<span class="nc" id="L330">		m.put(&quot;equip_numb&quot;, equip_numb[0]);</span>
+<span class="nc" id="L331">		m.put(&quot;adminID&quot;, adminID);</span>
+<span class="nc" id="L332">		m.put(&quot;ct_code&quot;, ct_code[0]);</span>
+<span class="nc" id="L333">		m.put(&quot;year&quot;, year[0]);</span>
+<span class="nc" id="L334">		m.put(&quot;model&quot;, modelName );</span>
+<span class="nc" id="L335">		m.put(&quot;price_to_buy&quot;, Integer.parseInt(price_to_buy[0]) );</span>
+<span class="nc" id="L336">		m.put(&quot;description&quot;, description[0]);</span>
+<span class="nc" id="L337">		m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+
+		// default values necessary for all new records
+<span class="nc" id="L340">		m.put(&quot;company_id&quot;, 0 );</span>
+<span class="nc" id="L341">		m.put(&quot;project_numb&quot;, 0 );</span>
+<span class="nc" id="L342">		m.put(&quot;cost_per_hour&quot;, 0 );</span>
+<span class="nc" id="L343">		m.put(&quot;productivity_per_hour&quot;, 0 );</span>
+<span class="nc" id="L344">		m.put(&quot;cash_paid&quot;, 0 );</span>
+<span class="nc" id="L345">		m.put(&quot;loan_amount&quot;, 0 );</span>
+<span class="nc" id="L346">		m.put(&quot;is_in_fleet&quot;, new Boolean(false) );</span>
+<span class="nc" id="L347">		m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+
+		try
+		{
+<span class="nc" id="L351">			sqlMap.insert(&quot;insertNewEquip&quot;, m);</span>
+		}
+<span class="nc" id="L353">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L355">			e.printStackTrace();</span>
+<span class="nc" id="L356">			throw new RuntimeException (&quot;Error executing sqlMap insertNewEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L357">		}</span>
+<span class="nc" id="L358">		return &quot;success&quot;;</span>
+	}
+
+
+/* ** USED Equipment LIST Methods ** */
+
+    // Display (view) the list of all USED equipment
+	public String usedEquipList()
+	{
+<span class="nc" id="L367">        doInitial();</span>
+<span class="nc" id="L368">        List&lt;Object&gt; usedEquipList = new ArrayList&lt;Object&gt;();</span>
+		try
+		{
+<span class="nc" id="L371">			usedEquipList = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getUsedEquip&quot;, adminID );</span>
+		}
+<span class="nc" id="L373">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L375">			e.printStackTrace();</span>
+<span class="nc" id="L376">			throw new RuntimeException (&quot;Error executing sqlMap query getUsedEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L377">		}</span>
+<span class="nc" id="L378">        sessionMap.put(&quot;usedEquipList&quot;, usedEquipList);</span>
+<span class="nc" id="L379">        return &quot;success&quot;;</span>
+    }
+
+
+    // Make Changes to the list of all USED equipment
+	public String modifyUsedEquipList()
+	{
+<span class="nc" id="L386">	   doInitial();</span>
+
+	   // need to know how many rows are in the table
+<span class="nc" id="L389">	   HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L390">       int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L392" title="All 2 branches missed.">      if (numbEquip != 0) {</span>
+        // first, do an update to save all data (which may or may not have been altered)
+<span class="nc" id="L394">		Map m = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L397" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {   // one pass for each row in the table</span>
+<span class="nc" id="L398">				m.put(&quot;year&quot;, year[i]);</span>
+<span class="nc" id="L399">				m.put(&quot;model&quot;, model[i]);</span>
+<span class="nc" id="L400">				m.put(&quot;serial_numb&quot;, serial_numb[i]);</span>
+<span class="nc" id="L401">				m.put(&quot;hrs_of_use&quot;, Integer.parseInt(hrs_of_use[i]) );</span>
+<span class="nc" id="L402">				m.put(&quot;condition&quot;, condition[i]);</span>
+<span class="nc" id="L403">				m.put(&quot;price_to_buy&quot;, Integer.parseInt(price_to_buy[i]) );</span>
+<span class="nc" id="L404">				m.put(&quot;description&quot;, description[i]);</span>
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">				if (&quot;true&quot;.equals( move_to_market[i] )) {</span>
+<span class="nc" id="L407">				   m.put(&quot;is_in_market&quot;, new Boolean(true) );</span>
+<span class="nc" id="L408">				   m.put(&quot;productivity_hour&quot;, Float.parseFloat(productivity_hour[i]) );</span>
+<span class="nc" id="L409">				   m.put(&quot;cost_hour&quot;, Float.parseFloat(cost_hour[i]) );</span>
+			    }
+			    else {
+<span class="nc" id="L412">				   m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L413">				   m.put(&quot;productivity_hour&quot;, 0);</span>
+<span class="nc" id="L414">				   m.put(&quot;cost_hour&quot;, 0);</span>
+			    }
+<span class="nc" id="L416">				m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L418">				sqlMap.update(&quot;updateUsedEquipList&quot;, m);  // this updates a single record in the database</span>
+			}
+		}
+<span class="nc" id="L421">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L423">			e.printStackTrace();</span>
+<span class="nc" id="L424">			throw new RuntimeException (&quot;Error executing sqlMap updateUsedEquipList. Cause: &quot; + e);</span>
+<span class="nc" id="L425">		}</span>
+
+		// now go back through the list and do a check to see which ones need to be deleted
+<span class="nc" id="L428">		Map m1 = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L431" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L432" title="All 2 branches missed.">				if (&quot;true&quot;.equals( deleteMe[i] )) {</span>
+<span class="nc" id="L433">					m1.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+<span class="nc" id="L434">					sqlMap.delete(&quot;deleteUsedEquip&quot;, m1);</span>
+				}
+			}
+		}
+<span class="nc" id="L438">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L440">			e.printStackTrace();</span>
+<span class="nc" id="L441">			throw new RuntimeException (&quot;Error executing sqlMap deleteUsedEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L442">		}</span>
+      } // end of if
+<span class="nc" id="L444">        return &quot;success&quot;;</span>
+    }
+
+
+    // add a new record to the USED equipment list
+	public String insertUsedEquipList()
+	{
+<span class="nc" id="L451">		doInitial();</span>
+		try
+		{
+<span class="nc" id="L454">			oneItem = (String) sqlMap.queryForObject(&quot;getMaxEquipNumbUsed&quot;);</span>
+<span class="nc" id="L455">			modelName = (String) sqlMap.queryForObject(&quot;getModelFromCTcode&quot;, ct_code[0] );</span>
+		}
+<span class="nc" id="L457">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L459">			e.printStackTrace();</span>
+<span class="nc" id="L460">			throw new RuntimeException (&quot;Error executing sqlMap query getMaxEquipNumb &amp; getModelFromCTcode. Cause: &quot; + e);</span>
+<span class="nc" id="L461">		}</span>
+<span class="nc bnc" id="L462" title="All 2 branches missed.">        if (oneItem == null) equip_numb[0] = &quot;U100&quot;;</span>
+        else {
+<span class="nc" id="L464">           int maxEquipNum = Integer.parseInt( oneItem.substring(1) );  // remove first char of string &amp; convert to Int</span>
+<span class="nc" id="L465">           maxEquipNum += 1;</span>
+<span class="nc" id="L466">           equip_numb[0] = &quot;U&quot; + Integer.toString(maxEquipNum);</span>
+		}
+
+<span class="nc" id="L469">		Map m = new HashMap();</span>
+<span class="nc" id="L470">		m.put(&quot;equip_numb&quot;, equip_numb[0]);</span>
+<span class="nc" id="L471">		m.put(&quot;adminID&quot;, adminID);</span>
+<span class="nc" id="L472">		m.put(&quot;ct_code&quot;, ct_code[0]);</span>
+<span class="nc" id="L473">		m.put(&quot;year&quot;, year[0]);</span>
+<span class="nc" id="L474">		m.put(&quot;model&quot;, modelName );</span>
+<span class="nc" id="L475">	    m.put(&quot;serial_numb&quot;, serial_numb[0]);</span>
+<span class="nc" id="L476">		m.put(&quot;hrs_of_use&quot;, Integer.parseInt(hrs_of_use[0]) );</span>
+<span class="nc" id="L477">		m.put(&quot;condition&quot;, condition[0]);</span>
+<span class="nc" id="L478">		m.put(&quot;price_to_buy&quot;, Integer.parseInt(price_to_buy[0]) );</span>
+<span class="nc" id="L479">		m.put(&quot;description&quot;, description[0]);</span>
+<span class="nc" id="L480">		m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+
+		// default values necessary for all new records
+<span class="nc" id="L483">		m.put(&quot;company_id&quot;, 0 );</span>
+<span class="nc" id="L484">		m.put(&quot;project_numb&quot;, 0 );</span>
+<span class="nc" id="L485">		m.put(&quot;cost_per_hour&quot;, 0 );</span>
+<span class="nc" id="L486">		m.put(&quot;productivity_per_hour&quot;, 0 );</span>
+<span class="nc" id="L487">		m.put(&quot;cash_paid&quot;, 0 );</span>
+<span class="nc" id="L488">		m.put(&quot;loan_amount&quot;, 0 );</span>
+<span class="nc" id="L489">		m.put(&quot;is_in_fleet&quot;, new Boolean(false) );</span>
+<span class="nc" id="L490">		m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+
+		try
+		{
+<span class="nc" id="L494">			sqlMap.insert(&quot;insertUsedEquip&quot;, m);</span>
+		}
+<span class="nc" id="L496">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L498">			e.printStackTrace();</span>
+<span class="nc" id="L499">			throw new RuntimeException (&quot;Error executing sqlMap insertUsedEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L500">		}</span>
+<span class="nc" id="L501">		return &quot;success&quot;;</span>
+	}
+
+
+/* ** RENTAL Equipment LIST Methods ** */
+
+    // Display (view) the list of all RENTAL equipment
+	public String rentalEquipList()
+	{
+<span class="nc" id="L510">        doInitial();</span>
+<span class="nc" id="L511">        List&lt;Object&gt; rentalEquipList = new ArrayList&lt;Object&gt;();</span>
+		try
+		{
+<span class="nc" id="L514">			rentalEquipList = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getRentalEquip&quot;, adminID );</span>
+		}
+<span class="nc" id="L516">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L518">			e.printStackTrace();</span>
+<span class="nc" id="L519">			throw new RuntimeException (&quot;Error executing sqlMap query getRentalEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L520">		}</span>
+<span class="nc" id="L521">        sessionMap.put(&quot;rentalEquipList&quot;, rentalEquipList);</span>
+<span class="nc" id="L522">        return &quot;success&quot;;</span>
+    }
+
+
+    // Make Changes to the list of all RENTAL equipment
+	public String modifyRentalEquipList()
+	{
+<span class="nc" id="L529">		doInitial();</span>
+
+		// need to know how many rows are in the table
+<span class="nc" id="L532">		HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L533">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L535" title="All 2 branches missed.">      if (numbEquip != 0) {</span>
+        // first, do an update to save all data (which may or may not have been altered)
+<span class="nc" id="L537">		Map m = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L540" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {   // one pass for each row in the table</span>
+<span class="nc" id="L541">				m.put(&quot;model&quot;, model[i]);</span>
+<span class="nc" id="L542">				m.put(&quot;condition&quot;, condition[i]);</span>
+<span class="nc" id="L543">				m.put(&quot;price_to_rent&quot;, Integer.parseInt(price_to_rent[i]) );</span>
+<span class="nc" id="L544">				m.put(&quot;description&quot;, description[i]);</span>
+
+<span class="nc bnc" id="L546" title="All 2 branches missed.">				if (&quot;true&quot;.equals( move_to_market[i] )) {</span>
+<span class="nc" id="L547">				   m.put(&quot;is_in_market&quot;, new Boolean(true) );</span>
+<span class="nc" id="L548">				   m.put(&quot;productivity_hour&quot;, Float.parseFloat(productivity_hour[i]) );</span>
+<span class="nc" id="L549">				   m.put(&quot;cost_hour&quot;, Float.parseFloat(cost_hour[i]) );</span>
+			    }
+			    else {
+<span class="nc" id="L552">				   m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L553">				   m.put(&quot;productivity_hour&quot;, 0);</span>
+<span class="nc" id="L554">				   m.put(&quot;cost_hour&quot;, 0);</span>
+			    }
+<span class="nc" id="L556">				m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L558">				sqlMap.update(&quot;updateRentalEquipList&quot;, m);  // this updates a single record in the database</span>
+			}
+		}
+<span class="nc" id="L561">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L563">			e.printStackTrace();</span>
+<span class="nc" id="L564">			throw new RuntimeException (&quot;Error executing sqlMap updateRentalEquipList. Cause: &quot; + e);</span>
+<span class="nc" id="L565">		}</span>
+
+		// now go back through the list and do a check to see which ones need to be deleted
+<span class="nc" id="L568">		Map m1 = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L571" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L572" title="All 2 branches missed.">				if (&quot;true&quot;.equals( deleteMe[i] )) {</span>
+<span class="nc" id="L573">					m1.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+<span class="nc" id="L574">					sqlMap.delete(&quot;deleteRentalEquip&quot;, m1);</span>
+				}
+			}
+		}
+<span class="nc" id="L578">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L580">			e.printStackTrace();</span>
+<span class="nc" id="L581">			throw new RuntimeException (&quot;Error executing sqlMap deleteRentalEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L582">		}</span>
+      } // end of if
+<span class="nc" id="L584">        return &quot;success&quot;;</span>
+    }
+
+
+    // add a new record to the RENTAL equipment list
+	public String insertRentalEquipList()
+	{
+<span class="nc" id="L591">		doInitial();</span>
+		try
+		{
+<span class="nc" id="L594">			oneItem = (String) sqlMap.queryForObject(&quot;getMaxEquipNumbRental&quot;);</span>
+<span class="nc" id="L595">			modelName = (String) sqlMap.queryForObject(&quot;getModelFromCTcode&quot;, ct_code[0] );</span>
+		}
+<span class="nc" id="L597">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L599">			e.printStackTrace();</span>
+<span class="nc" id="L600">			throw new RuntimeException (&quot;Error executing sqlMap query getMaxEquipNumb &amp; getModelFromCTcode. Cause: &quot; + e);</span>
+<span class="nc" id="L601">		}</span>
+<span class="nc bnc" id="L602" title="All 2 branches missed.">        if (oneItem == null) equip_numb[0] = &quot;R100&quot;;</span>
+        else {
+<span class="nc" id="L604">           int maxEquipNum = Integer.parseInt( oneItem.substring(1) );  // remove first char of string &amp; convert to Int</span>
+<span class="nc" id="L605">           maxEquipNum += 1;</span>
+<span class="nc" id="L606">           equip_numb[0] = &quot;R&quot; + Integer.toString(maxEquipNum);</span>
+		}
+
+<span class="nc" id="L609">		Map m = new HashMap();</span>
+<span class="nc" id="L610">		m.put(&quot;equip_numb&quot;, equip_numb[0]);</span>
+<span class="nc" id="L611">		m.put(&quot;adminID&quot;, adminID);</span>
+<span class="nc" id="L612">		m.put(&quot;ct_code&quot;, ct_code[0]);</span>
+<span class="nc" id="L613">		m.put(&quot;model&quot;, modelName );</span>
+<span class="nc" id="L614">		m.put(&quot;condition&quot;, condition[0]);</span>
+<span class="nc" id="L615">		m.put(&quot;price_to_rent&quot;, Integer.parseInt(price_to_rent[0]) );</span>
+<span class="nc" id="L616">		m.put(&quot;description&quot;, description[0]);</span>
+<span class="nc" id="L617">		m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+
+		// default values necessary for all new records
+<span class="nc" id="L620">		m.put(&quot;company_id&quot;, 0 );</span>
+<span class="nc" id="L621">		m.put(&quot;project_numb&quot;, 0 );</span>
+<span class="nc" id="L622">		m.put(&quot;cost_per_hour&quot;, 0 );</span>
+<span class="nc" id="L623">		m.put(&quot;productivity_per_hour&quot;, 0 );</span>
+<span class="nc" id="L624">		m.put(&quot;is_in_fleet&quot;, new Boolean(false) );</span>
+<span class="nc" id="L625">		m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+
+		try
+		{
+<span class="nc" id="L629">			sqlMap.insert(&quot;insertRentalEquip&quot;, m);</span>
+		}
+<span class="nc" id="L631">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L633">			e.printStackTrace();</span>
+<span class="nc" id="L634">			throw new RuntimeException (&quot;Error executing sqlMap insertRentalEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L635">		}</span>
+<span class="nc" id="L636">		return &quot;success&quot;;</span>
+	}
+
+
+/* ** NEW Equipment MARKETPLACE Methods ** */
+
+    // Make Changes to the NEW equipment MARKETPLACE
+	public String modifyNewEquipMarketplace()
+	{
+<span class="nc" id="L645">		doInitial();</span>
+
+		// need to know how many rows are in the table
+<span class="nc" id="L648">		HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L649">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L651" title="All 2 branches missed.">      if (numbEquip != 0) {</span>
+        // first, do an update to save all data (which may or may not have been altered)
+<span class="nc" id="L653">		Map m = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L656" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {   // one pass for each row in the table</span>
+<span class="nc" id="L657">				m.put(&quot;price_to_buy&quot;, Integer.parseInt(price_to_buy[i]) );</span>
+<span class="nc" id="L658">				m.put(&quot;description&quot;, description[i]);</span>
+<span class="nc" id="L659">				m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L661">				sqlMap.update(&quot;updateNewEquipMarketplace&quot;, m);  // this updates a single record in the database</span>
+			}
+		}
+<span class="nc" id="L664">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L666">			e.printStackTrace();</span>
+<span class="nc" id="L667">			throw new RuntimeException (&quot;Error executing sqlMap updateNewEquipMarketplace. Cause: &quot; + e);</span>
+<span class="nc" id="L668">		}</span>
+
+		// now go back through the list and do a check to see which ones need to be removed
+<span class="nc" id="L671">		Map m1 = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L674" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L675" title="All 2 branches missed.">				if (&quot;true&quot;.equals( removeMe[i] )) {</span>
+<span class="nc" id="L676">					m1.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+<span class="nc" id="L677">					m1.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L678">					sqlMap.update(&quot;updateRemoveFromNewEquipMarketplace&quot;, m1);</span>
+				}
+			}
+		}
+<span class="nc" id="L682">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L684">			e.printStackTrace();</span>
+<span class="nc" id="L685">			throw new RuntimeException (&quot;Error executing sqlMap updateRemoveFromNewEquipMarketplace. Cause: &quot; + e);</span>
+<span class="nc" id="L686">		}</span>
+      } // end of if
+<span class="nc" id="L688">		return &quot;success&quot;;</span>
+	}
+
+
+    // Validation for COMPANY purchase equipment from the NEW or USED equipment MARKETPLACE
+	public void validateCompanyPurchaseNewOrUsedEquipmentMarket()
+	{
+		// need to know how many rows are in the table
+<span class="nc" id="L696">		HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L697">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L699" title="All 2 branches missed.">        if (numbEquip != 0) {</span>
+<span class="nc bnc" id="L700" title="All 2 branches missed.">           for (int i=0; i&lt;numbEquip; i++) {</span>
+
+              // there is something in one of the fields
+<span class="nc bnc" id="L703" title="All 6 branches missed.">              if ( removeMe[i].equals(&quot;true&quot;) || !cash_paid[i].equals(&quot;&quot;) || !loan_amount[i].equals(&quot;&quot;) ) {</span>
+
+                 // forgot to check the box
+<span class="nc bnc" id="L706" title="All 2 branches missed.">                 if ( removeMe[i].equals(&quot;false&quot;) ) addActionError(&quot;You must check the box if you wish to purchase equipment&quot;);</span>
+
+                 // they didn't pay all cash
+<span class="nc bnc" id="L709" title="All 4 branches missed.">                 if ( !(cash_paid[i].equals(price_to_buy[i]) &amp;&amp; loan_amount[i].equals(&quot;&quot;) ) ) {</span>
+
+                    // they left the cash amount blank
+<span class="nc bnc" id="L712" title="All 2 branches missed.">                    if ( cash_paid[i].equals(&quot;&quot;) ) {</span>
+<span class="nc" id="L713">                       cash_paid[i] = &quot;0&quot;;</span>
+<span class="nc" id="L714">                       addActionError(&quot;You can't purchase equipment without making at least a 25% cash payment&quot;);</span>
+                    }
+                    // they left the loan amount blank
+<span class="nc bnc" id="L717" title="All 2 branches missed.">                    if ( loan_amount[i].equals(&quot;&quot;) ) {</span>
+<span class="nc" id="L718">                       loan_amount[i] = &quot;0&quot;;</span>
+<span class="nc" id="L719">                       addActionError(&quot;You need to pay all cash or borrow some money to complete this purchase&quot;);</span>
+                    }
+                    // cash payment must be at least 25% of purchase price
+<span class="nc bnc" id="L722" title="All 2 branches missed.">                    if ( Integer.parseInt(cash_paid[i]) &lt; (0.25 * Integer.parseInt(price_to_buy[i]) ) ) addActionError(&quot;Cash paid must be at least 25% of Price&quot;);</span>
+
+                    // cash plus loan must equal price
+<span class="nc bnc" id="L725" title="All 2 branches missed.">                    if ( Integer.parseInt(price_to_buy[i]) != Integer.parseInt(cash_paid[i]) + Integer.parseInt(loan_amount[i]) ) addActionError(&quot;Cash paid + Loan must equal Price&quot;);</span>
+
+			     } // end of &quot;did not pay all cash
+		      } // end of &quot;there is something here&quot;
+           }  // end of --&gt; for (int i=0; i&lt;numbEquip; i++)
+	    }  // end of --&gt; if (numbEquip != 0)
+<span class="nc" id="L731">	}</span>
+
+
+    // COMPANY purchase equipment from the NEW or USED equipment MARKETPLACE
+	public String companyPurchaseNewOrUsedEquipmentMarket()
+	{
+<span class="nc" id="L737">		doInitial();</span>
+
+<span class="nc" id="L739">        HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L740">        String newOrUsed = (String) session.getAttribute(&quot;newOrUsed&quot;);</span>
+<span class="nc" id="L741">        Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc" id="L742">        int companyID = company.getCompanyID();</span>
+
+		// need to know how many rows are in the table
+<span class="nc" id="L745">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L747" title="All 2 branches missed.">        if (numbEquip != 0) {</span>
+<span class="nc" id="L748">		   Map m = new HashMap();</span>
+		   try
+		   {
+<span class="nc bnc" id="L751" title="All 2 branches missed.">              for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L752" title="All 2 branches missed.">                 if ( removeMe[i].equals(&quot;true&quot;) ) {</span>
+<span class="nc bnc" id="L753" title="All 2 branches missed.">					if ( loan_amount[i].equals(&quot;&quot;) ) loan_amount[i] = &quot;0&quot;;</span>
+<span class="nc" id="L754">				    m.put(&quot;company_id&quot;, companyID);</span>
+<span class="nc" id="L755">				    m.put(&quot;cash_paid&quot;, Integer.parseInt(cash_paid[i]) );</span>
+<span class="nc" id="L756">				    m.put(&quot;loan_amount&quot;, Integer.parseInt(loan_amount[i]) );</span>
+<span class="nc" id="L757">				    m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L758">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(true) );</span>
+<span class="nc" id="L759">				    m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+<span class="nc" id="L760">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc bnc" id="L762" title="All 2 branches missed.">				    if ( newOrUsed.equals(&quot;new&quot;) ) sqlMap.update(&quot;updateNewEquipMarketplaceCompany&quot;, m);</span>
+<span class="nc" id="L763">				    else                           sqlMap.update(&quot;updateUsedEquipMarketplaceCompany&quot;, m);</span>
+
+                 } // end of if
+              } // end of for loop
+           }
+<span class="nc" id="L768">		   catch(SQLException e)</span>
+		   {
+<span class="nc" id="L770">			   e.printStackTrace();</span>
+<span class="nc" id="L771">			   throw new RuntimeException (&quot;Error executing sqlMap update_New_Or_Used_EquipMarketplaceCompany. Cause: &quot; + e);</span>
+<span class="nc" id="L772">		   }</span>
+        } // end of if
+
+<span class="nc" id="L775">		return &quot;success&quot;;</span>
+	}
+
+
+/* ** USED Equipment MARKETPLACE Methods ** */
+
+    // Make Changes to the USED equipment MARKETPLACE
+	public String modifyUsedEquipMarketplace()
+	{
+<span class="nc" id="L784">		doInitial();</span>
+
+		// need to know how many rows are in the table
+<span class="nc" id="L787">		HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L788">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L790" title="All 2 branches missed.">      if (numbEquip != 0) {</span>
+        // first, do an update to save all data (which may or may not have been altered)
+<span class="nc" id="L792">		Map m = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L795" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {   // one pass for each row in the table</span>
+<span class="nc" id="L796">				m.put(&quot;price_to_buy&quot;, Integer.parseInt(price_to_buy[i]) );</span>
+<span class="nc" id="L797">				m.put(&quot;description&quot;, description[i]);</span>
+<span class="nc" id="L798">				m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L800">				sqlMap.update(&quot;updateUsedEquipMarketplace&quot;, m);  // this updates a single record in the database</span>
+			}
+		}
+<span class="nc" id="L803">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L805">			e.printStackTrace();</span>
+<span class="nc" id="L806">			throw new RuntimeException (&quot;Error executing sqlMap updateUsedEquipMarketplace. Cause: &quot; + e);</span>
+<span class="nc" id="L807">		}</span>
+
+		// now go back through the list and do a check to see which ones need to be removed
+<span class="nc" id="L810">		Map m1 = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L813" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L814" title="All 2 branches missed.">				if (&quot;true&quot;.equals( removeMe[i] )) {</span>
+<span class="nc" id="L815">					m1.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+<span class="nc" id="L816">					m1.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L817">					sqlMap.update(&quot;updateRemoveFromUsedEquipMarketplace&quot;, m1);</span>
+				}
+			}
+		}
+<span class="nc" id="L821">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L823">			e.printStackTrace();</span>
+<span class="nc" id="L824">			throw new RuntimeException (&quot;Error executing sqlMap updateRemoveFromUsedEquipMarketplace. Cause: &quot; + e);</span>
+<span class="nc" id="L825">		}</span>
+      } // end of if
+<span class="nc" id="L827">		return &quot;success&quot;;</span>
+	}
+
+
+
+/* ** RENTAL Equipment MARKETPLACE Methods ** */
+
+    // Make Changes to the RENTAL equipment MARKETPLACE
+	public String modifyRentalEquipMarketplace()
+	{
+<span class="nc" id="L837">		doInitial();</span>
+
+		// need to know how many rows are in the table
+<span class="nc" id="L840">		HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L841">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+<span class="nc bnc" id="L843" title="All 2 branches missed.">      if (numbEquip != 0) {</span>
+        // first, do an update to save all data (which may or may not have been altered)
+<span class="nc" id="L845">		Map m = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L848" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {   // one pass for each row in the table</span>
+<span class="nc" id="L849">				m.put(&quot;price_to_rent&quot;, Integer.parseInt(price_to_rent[i]) );</span>
+<span class="nc" id="L850">				m.put(&quot;description&quot;, description[i]);</span>
+<span class="nc" id="L851">				m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L853">				sqlMap.update(&quot;updateRentalEquipMarketplace&quot;, m);  // this updates a single record in the database</span>
+			}
+		}
+<span class="nc" id="L856">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L858">			e.printStackTrace();</span>
+<span class="nc" id="L859">			throw new RuntimeException (&quot;Error executing sqlMap updateRentalEquipMarketplace. Cause: &quot; + e);</span>
+<span class="nc" id="L860">		}</span>
+
+		// now go back through the list and do a check to see which ones need to be removed
+<span class="nc" id="L863">		Map m1 = new HashMap();</span>
+		try
+		{
+<span class="nc bnc" id="L866" title="All 2 branches missed.">			for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L867" title="All 2 branches missed.">				if (&quot;true&quot;.equals( removeMe[i] )) {</span>
+<span class="nc" id="L868">					m1.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+<span class="nc" id="L869">					m1.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L870">					sqlMap.update(&quot;updateRemoveFromRentalEquipMarketplace&quot;, m1);</span>
+				}
+			}
+		}
+<span class="nc" id="L874">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L876">			e.printStackTrace();</span>
+<span class="nc" id="L877">			throw new RuntimeException (&quot;Error executing sqlMap updateRemoveFromRentalEquipMarketplace. Cause: &quot; + e);</span>
+<span class="nc" id="L878">		}</span>
+      } // end of if
+<span class="nc" id="L880">		return &quot;success&quot;;</span>
+	}
+
+
+    // COMPANY rent equipment from the RENTAL equipment MARKETPLACE
+	public String companyRentRentalEquipmentMarket()
+	{
+		// need to know how many rows are in the table
+<span class="nc" id="L888">		HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L889">        int numbEquip = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+<span class="nc" id="L890">        Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc" id="L891">        int companyID = company.getCompanyID();</span>
+
+<span class="nc bnc" id="L893" title="All 2 branches missed.">        if (numbEquip != 0) {</span>
+<span class="nc" id="L894">		   doInitial();</span>
+<span class="nc" id="L895">           Map m = new HashMap();</span>
+           // check to see if any items have been selected for rental
+<span class="nc bnc" id="L897" title="All 2 branches missed.">           for (int i=0; i&lt;numbEquip; i++)   {</span>
+<span class="nc bnc" id="L898" title="All 2 branches missed.">			  if ( rentme[i] != null ) {</span>
+<span class="nc bnc" id="L899" title="All 4 branches missed.">				 switch(rentme[i]) {</span>
+					case &quot;day&quot;:
+<span class="nc" id="L901">					   rental_term = &quot;day&quot;;</span>
+<span class="nc" id="L902">					   break;</span>
+					case &quot;week&quot;:
+<span class="nc" id="L904">					   rental_term = &quot;week&quot;;</span>
+<span class="nc" id="L905">					   break;</span>
+					case &quot;month&quot;:
+<span class="nc" id="L907">					   rental_term = &quot;month&quot;;</span>
+					   break;
+			     }
+
+		         try
+		         {
+<span class="nc" id="L913">					m.put(&quot;company_id&quot;, companyID);</span>
+<span class="nc" id="L914">					m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+<span class="nc" id="L915">					m.put(&quot;rental_term&quot;, rental_term );</span>
+<span class="nc" id="L916">				    m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L917">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(true) );</span>
+<span class="nc" id="L918">				    m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+<span class="nc" id="L919">					sqlMap.update(&quot;updateRentalEquipMarketplaceCompany&quot;, m);</span>
+		         }
+<span class="nc" id="L921">		         catch(SQLException e)</span>
+		         {
+<span class="nc" id="L923">			        e.printStackTrace();</span>
+<span class="nc" id="L924">			        throw new RuntimeException (&quot;Error executing sqlMap updateRentalEquipMarketplaceCompany. Cause: &quot; + e);</span>
+<span class="nc" id="L925">		         }</span>
+
+		      }  // end of if
+           }  // end of for loop
+        }  // end of if
+<span class="nc" id="L930">		return &quot;success&quot;;</span>
+	}
+
+
+/* ** Company Fleet Methods ** */
+
+
+    // Display (view) a Company's Fleet
+	public String viewCompanyFleet()
+	{
+<span class="nc" id="L940">        load3tables();</span>
+
+<span class="nc" id="L942">        return &quot;success&quot;;</span>
+    }
+
+
+    // Load three tables' values into three session objects
+	public void load3tables()
+	{
+<span class="nc" id="L949">        doInitial();</span>
+<span class="nc" id="L950">        List&lt;Object&gt; newEquipList = new ArrayList&lt;Object&gt;();</span>
+<span class="nc" id="L951">        List&lt;Object&gt; usedEquipList = new ArrayList&lt;Object&gt;();</span>
+<span class="nc" id="L952">        List&lt;Object&gt; rentalEquipList = new ArrayList&lt;Object&gt;();</span>
+
+		try
+		{
+<span class="nc" id="L956">			newEquipList    = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getNewEquip&quot;, adminID );</span>
+<span class="nc" id="L957">			usedEquipList   = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getUsedEquip&quot;, adminID );</span>
+<span class="nc" id="L958">			rentalEquipList = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getRentalEquip&quot;, adminID );</span>
+		}
+<span class="nc" id="L960">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L962">			e.printStackTrace();</span>
+<span class="nc" id="L963">			throw new RuntimeException (&quot;Error executing sqlMap query getNewEquip, getUsedEquip or getRentalEquip. Cause: &quot; + e);</span>
+<span class="nc" id="L964">		}</span>
+
+<span class="nc" id="L966">        sessionMap.put(&quot;newEquipList&quot;, newEquipList);</span>
+<span class="nc" id="L967">        sessionMap.put(&quot;usedEquipList&quot;, usedEquipList);</span>
+<span class="nc" id="L968">        sessionMap.put(&quot;rentalEquipList&quot;, rentalEquipList);</span>
+
+<span class="nc" id="L970">        HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L971">		Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc" id="L972">		int companyID = company.getCompanyID();</span>
+
+<span class="nc" id="L974">		sessionMap.put(&quot;companyID&quot;, companyID);</span>
+
+<span class="nc" id="L976">    }</span>
+
+
+    // COMPANY returns equipment to the equipment MARKETPLACE
+	public String companyFleetChange()
+	{
+<span class="nc" id="L982">		doInitial();</span>
+
+<span class="nc" id="L984">        HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L985">        Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc" id="L986">        int companyID = company.getCompanyID();</span>
+
+        // total of all rows in the table (all 3 categories)
+<span class="nc" id="L989">        int valueOfI = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+        // need to know how many rows in each category
+<span class="nc" id="L992">        int endOfA = (int) session.getAttribute(&quot;endOfA&quot;);</span>
+<span class="nc" id="L993">        int endOfB = (int) session.getAttribute(&quot;endOfB&quot;);</span>
+<span class="nc" id="L994">        int endOfC = (int) session.getAttribute(&quot;endOfC&quot;);</span>
+
+<span class="nc" id="L996">        String failMe = (String) session.getAttribute(&quot;failMe&quot;);</span>
+<span class="nc bnc" id="L997" title="All 2 branches missed.">        if ( failMe.equals(&quot;yes&quot;) ) return &quot;fail&quot;;</span>
+
+<span class="nc bnc" id="L999" title="All 2 branches missed.">        if ( valueOfI != 0 ) {  // there are some items in the company's fleet</span>
+<span class="nc" id="L1000">           Map m = new HashMap();</span>
+
+           try
+           {
+<span class="nc bnc" id="L1004" title="All 2 branches missed.">              for (int i=0; i&lt;endOfA; i++) {                   // new equipment</span>
+<span class="nc bnc" id="L1005" title="All 2 branches missed.">                 if ( removeMe[i].equals(&quot;true&quot;) ) {</span>
+<span class="nc" id="L1006">				    m.put(&quot;company_id&quot;, new Integer(0) );</span>
+<span class="nc" id="L1007">				    m.put(&quot;cash_paid&quot;, new Integer(0) );</span>
+<span class="nc" id="L1008">				    m.put(&quot;loan_amount&quot;, new Integer(0) );</span>
+<span class="nc" id="L1009">				    m.put(&quot;is_in_market&quot;, new Boolean(true) );</span>
+<span class="nc" id="L1010">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(false) );</span>
+<span class="nc" id="L1011">				    m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1012">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L1014">				    sqlMap.update(&quot;updateNewFleet&quot;, m);</span>
+                 }
+		      }
+
+<span class="nc bnc" id="L1018" title="All 2 branches missed.">              for (int i=endOfA; i&lt;endOfB; i++) {              // used equipment</span>
+<span class="nc bnc" id="L1019" title="All 2 branches missed.">                 if ( removeMe[i].equals(&quot;true&quot;) ) {</span>
+<span class="nc" id="L1020">				    m.put(&quot;company_id&quot;, new Integer(0) );</span>
+<span class="nc" id="L1021">				    m.put(&quot;cash_paid&quot;, new Integer(0) );</span>
+<span class="nc" id="L1022">				    m.put(&quot;loan_amount&quot;, new Integer(0) );</span>
+<span class="nc" id="L1023">				    m.put(&quot;is_in_market&quot;, new Boolean(true) );</span>
+<span class="nc" id="L1024">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(false) );</span>
+<span class="nc" id="L1025">				    m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1026">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L1028">				    sqlMap.update(&quot;updateUsedFleet&quot;, m);</span>
+                 }
+		      }
+
+<span class="nc bnc" id="L1032" title="All 2 branches missed.">              for (int i=endOfB; i&lt;endOfC; i++) {              // rental equipment</span>
+<span class="nc bnc" id="L1033" title="All 2 branches missed.">                 if ( removeMe[i].equals(&quot;true&quot;) ) {</span>
+<span class="nc" id="L1034">				    m.put(&quot;company_id&quot;, new Integer(0) );</span>
+<span class="nc" id="L1035">				    m.put(&quot;rental_term&quot;, &quot;&quot; );</span>
+<span class="nc" id="L1036">				    m.put(&quot;is_in_market&quot;, new Boolean(true) );</span>
+<span class="nc" id="L1037">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(false) );</span>
+<span class="nc" id="L1038">				    m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1039">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L1041">				    sqlMap.update(&quot;updateRentalFleet&quot;, m);</span>
+                 }
+		      }
+           }  // end of try
+<span class="nc" id="L1045">		   catch(SQLException e)</span>
+		   {
+<span class="nc" id="L1047">			   e.printStackTrace();</span>
+<span class="nc" id="L1048">			   throw new RuntimeException (&quot;Error executing sqlMap update_New_Used_Or_Rental_Fleet. Cause: &quot; + e);</span>
+<span class="nc" id="L1049">		   }</span>
+
+        }  // end of --&gt; if ( valueOfI != 0 )
+
+<span class="nc" id="L1053">		return &quot;success&quot;;</span>
+	}
+
+
+    // Display (view) a Company's Dispatch page
+	public String viewDispatch()
+	{
+<span class="nc" id="L1060">        load3tables();</span>
+
+<span class="nc" id="L1062">        HttpSession session = servletRequest.getSession();</span>
+<span class="nc" id="L1063">        Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+<span class="nc" id="L1064">        int companyID = company.getCompanyID();</span>
+
+<span class="nc" id="L1066">        Game g = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="nc" id="L1068">        BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade( (DataSource) servletContext.getAttribute(Globals.DATA_SOURCE_KEY) );</span>
+
+<span class="nc" id="L1070">        ExpandedGame game = new ExpandedGame(g, dbFacade);</span>
+
+	    // Get a list of all jobs for your company
+	    try
+	    {
+<span class="nc" id="L1075">	       jobs = dbFacade.getJobDBHandler().getJobs(game.getGame(), company);</span>
+<span class="nc" id="L1076">	       dbFacade.close();</span>
+  	    }
+<span class="nc" id="L1078">  	    catch(BIGDatabaseFacadeException bigdbe)</span>
+	    {
+<span class="nc" id="L1080">		   log.fatal(bigdbe);</span>
+<span class="nc" id="L1081">	    }</span>
+
+<span class="nc" id="L1083">        List&lt;Object&gt; jobList = new ArrayList&lt;Object&gt;();</span>
+
+<span class="nc" id="L1085">        iterator = this.jobs.iterator();</span>
+
+<span class="nc bnc" id="L1087" title="All 2 branches missed."> 	    while(iterator.hasNext() )</span>
+	    {
+<span class="nc" id="L1089">		   Job theJobs = (Job) iterator.next();</span>
+<span class="nc" id="L1090">		   int jobNum = theJobs.getJobID();</span>
+<span class="nc" id="L1091">		   jobList.add(jobNum);</span>
+<span class="nc" id="L1092">	    }</span>
+
+<span class="nc" id="L1094">        sessionMap.put(&quot;jobList&quot;, jobList);</span>
+
+        // Get list of all equipment items currently assigned to a job for your company
+
+<span class="nc" id="L1098">        List&lt;Object&gt; newEquipOnJob    = new ArrayList&lt;Object&gt;();</span>
+<span class="nc" id="L1099">        List&lt;Object&gt; usedEquipOnJob   = new ArrayList&lt;Object&gt;();</span>
+<span class="nc" id="L1100">        List&lt;Object&gt; rentalEquipOnJob = new ArrayList&lt;Object&gt;();</span>
+
+		try
+		{
+<span class="nc" id="L1104">			newEquipOnJob    = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getNewEquipOnJob&quot;, companyID );</span>
+<span class="nc" id="L1105">			usedEquipOnJob   = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getUsedEquipOnJob&quot;, companyID );</span>
+<span class="nc" id="L1106">			rentalEquipOnJob = (List&lt;Object&gt;) sqlMap.queryForList(&quot;getRentalEquipOnJob&quot;, companyID );</span>
+		}
+<span class="nc" id="L1108">		catch(SQLException e)</span>
+		{
+<span class="nc" id="L1110">			e.printStackTrace();</span>
+<span class="nc" id="L1111">			throw new RuntimeException (&quot;Error executing sqlMap query getNewEquipOnJob, getUsedEquipOnJob or getRentalEquipOnJob. Cause: &quot; + e);</span>
+<span class="nc" id="L1112">		}</span>
+
+        // combine the three into one
+
+<span class="nc" id="L1116">        List&lt;Object&gt; allEquipOnJob = new ArrayList&lt;Object&gt;();</span>
+
+<span class="nc" id="L1118">        iterator = newEquipOnJob.iterator();</span>
+<span class="nc bnc" id="L1119" title="All 2 branches missed.">        while (iterator.hasNext()) {</span>
+<span class="nc" id="L1120">           EquipmentUsageParameters nextOne = (EquipmentUsageParameters) iterator.next();</span>
+<span class="nc" id="L1121">           allEquipOnJob.add(nextOne);</span>
+<span class="nc" id="L1122">        }</span>
+
+<span class="nc" id="L1124">        iterator = usedEquipOnJob.iterator();</span>
+<span class="nc bnc" id="L1125" title="All 2 branches missed.">        while (iterator.hasNext()) {</span>
+<span class="nc" id="L1126">           EquipmentUsageParameters nextOne = (EquipmentUsageParameters) iterator.next();</span>
+<span class="nc" id="L1127">           allEquipOnJob.add(nextOne);</span>
+<span class="nc" id="L1128">        }</span>
+
+<span class="nc" id="L1130">        iterator = rentalEquipOnJob.iterator();</span>
+<span class="nc bnc" id="L1131" title="All 2 branches missed.">        while (iterator.hasNext()) {</span>
+<span class="nc" id="L1132">           EquipmentUsageParameters nextOne = (EquipmentUsageParameters) iterator.next();</span>
+<span class="nc" id="L1133">           allEquipOnJob.add(nextOne);</span>
+<span class="nc" id="L1134">        }</span>
+
+<span class="nc" id="L1136">        sessionMap.put(&quot;allEquipOnJob&quot;, allEquipOnJob);</span>
+
+<span class="nc" id="L1138">        return &quot;success&quot;;</span>
+    }
+
+
+    // Validation for Changing a Company's Dispatch page
+	public void validateChangeDispatch()
+	{
+<span class="nc" id="L1145">        HttpSession session = servletRequest.getSession();</span>
+
+        // verify that each number typed in by user is equal to an existing JobID
+
+<span class="nc" id="L1149">        List&lt;Object&gt; jobList = (List&lt;Object&gt;) session.getAttribute(&quot;jobList&quot;);  // a list of valid &quot;active&quot; job ID numbers</span>
+<span class="nc" id="L1150">        int numbEquip = (int) session.getAttribute(&quot;endOfC&quot;);   // need to know how many rows are in the 3 tables</span>
+
+<span class="nc bnc" id="L1152" title="All 2 branches missed.">        if (numbEquip != 0) {</span>
+<span class="nc bnc" id="L1153" title="All 2 branches missed.">           for (int i=0; i&lt;numbEquip; i++) {</span>
+<span class="nc bnc" id="L1154" title="All 2 branches missed.">              if ( !projNumb[i].equals(&quot;&quot;) ) {</span>
+<span class="nc" id="L1155">				 boolean test = false;</span>
+<span class="nc" id="L1156">                 iterator = jobList.iterator();</span>
+<span class="nc bnc" id="L1157" title="All 2 branches missed.">                 while (iterator.hasNext()) {</span>
+<span class="nc" id="L1158">                    int jobNum = (int) iterator.next();</span>
+<span class="nc bnc" id="L1159" title="All 2 branches missed.">                    if (jobNum == Integer.parseInt(projNumb[i]) ) test = true;</span>
+<span class="nc" id="L1160">                 }</span>
+<span class="nc bnc" id="L1161" title="All 2 branches missed.">                 if (!test) addActionError(&quot;You must type an existing job number&quot;);</span>
+              }
+           }
+        }
+<span class="nc" id="L1165">    }</span>
+
+
+    // Change a Company's Dispatch page
+	public String changeDispatch()
+	{
+<span class="nc" id="L1171">		doInitial();</span>
+<span class="nc" id="L1172">        HttpSession session = servletRequest.getSession();</span>
+
+        // total of all rows in the table (all 4 categories)
+<span class="nc" id="L1175">        int valueOfI = (int) session.getAttribute(&quot;valueOfI&quot;);</span>
+
+        // need to know how many rows in each category
+<span class="nc" id="L1178">        int endOfA = (int) session.getAttribute(&quot;endOfA&quot;);</span>
+<span class="nc" id="L1179">        int endOfB = (int) session.getAttribute(&quot;endOfB&quot;);</span>
+<span class="nc" id="L1180">        int endOfC = (int) session.getAttribute(&quot;endOfC&quot;);</span>
+<span class="nc" id="L1181">        int endOfD = (int) session.getAttribute(&quot;endOfD&quot;);</span>
+
+<span class="nc" id="L1183">        String failMe = (String) session.getAttribute(&quot;failMe&quot;);</span>
+<span class="nc bnc" id="L1184" title="All 2 branches missed.">        if ( failMe.equals(&quot;yes&quot;) ) return &quot;fail&quot;;</span>
+
+<span class="nc bnc" id="L1186" title="All 2 branches missed.">        if ( valueOfI != 0 ) {  // there are some items on this page</span>
+<span class="nc" id="L1187">           Map m = new HashMap();</span>
+
+           try
+           {
+<span class="nc bnc" id="L1191" title="All 2 branches missed.">              for (int i=0; i&lt;endOfA; i++) {                   // new equipment on a job</span>
+<span class="nc bnc" id="L1192" title="All 2 branches missed.">                 if ( !projNumb[i].equals(&quot;&quot;) ) {</span>
+<span class="nc" id="L1193">				    m.put(&quot;project_numb&quot;, Integer.parseInt(projNumb[i]) );</span>
+<span class="nc" id="L1194">				    m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1195">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(true) );</span>
+<span class="nc" id="L1196">				    m.put(&quot;is_on_project&quot;, new Boolean(true) );</span>
+<span class="nc" id="L1197">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L1199">				    sqlMap.update(&quot;updateNewDispatch&quot;, m);</span>
+                 }
+		      }
+
+<span class="nc bnc" id="L1203" title="All 2 branches missed.">              for (int i=endOfA; i&lt;endOfB; i++) {              // used equipment on a job</span>
+<span class="nc bnc" id="L1204" title="All 2 branches missed.">                 if ( !projNumb[i].equals(&quot;&quot;) ) {</span>
+<span class="nc" id="L1205">				    m.put(&quot;project_numb&quot;, Integer.parseInt(projNumb[i]) );</span>
+<span class="nc" id="L1206">				    m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1207">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(true) );</span>
+<span class="nc" id="L1208">				    m.put(&quot;is_on_project&quot;, new Boolean(true) );</span>
+<span class="nc" id="L1209">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L1211">				    sqlMap.update(&quot;updateUsedDispatch&quot;, m);</span>
+                 }
+		      }
+
+<span class="nc bnc" id="L1215" title="All 2 branches missed.">              for (int i=endOfB; i&lt;endOfC; i++) {              // rental equipment on a job</span>
+<span class="nc bnc" id="L1216" title="All 2 branches missed.">                 if ( !projNumb[i].equals(&quot;&quot;) ) {</span>
+<span class="nc" id="L1217">				    m.put(&quot;project_numb&quot;, Integer.parseInt(projNumb[i]) );</span>
+<span class="nc" id="L1218">				    m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1219">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(true) );</span>
+<span class="nc" id="L1220">				    m.put(&quot;is_on_project&quot;, new Boolean(true) );</span>
+<span class="nc" id="L1221">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L1223">				    sqlMap.update(&quot;updateRentalDispatch&quot;, m);</span>
+                 }
+		      }
+
+<span class="nc bnc" id="L1227" title="All 2 branches missed.">              for (int i=endOfC; i&lt;endOfD; i++) {              // take equipment off job -- back to fleet</span>
+<span class="nc bnc" id="L1228" title="All 2 branches missed.">                 if (&quot;true&quot;.equals( removeMe[i] )) {</span>
+<span class="nc" id="L1229">				    m.put(&quot;project_numb&quot;, 0);</span>
+<span class="nc" id="L1230">				    m.put(&quot;is_in_market&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1231">				    m.put(&quot;is_in_fleet&quot;,  new Boolean(true) );</span>
+<span class="nc" id="L1232">				    m.put(&quot;is_on_project&quot;, new Boolean(false) );</span>
+<span class="nc" id="L1233">				    m.put(&quot;equip_numb&quot;, equip_numb[i]);</span>
+
+<span class="nc" id="L1235">                    String firstLetter = Character.toString(equip_numb[i].charAt(0) );  // extract the first character of string</span>
+
+<span class="nc bnc" id="L1237" title="All 2 branches missed.">                    if (&quot;N&quot;.equals(firstLetter) ) sqlMap.update(&quot;updateNewDispatch&quot;, m);</span>
+<span class="nc bnc" id="L1238" title="All 2 branches missed.">                    if (&quot;U&quot;.equals(firstLetter) ) sqlMap.update(&quot;updateUsedDispatch&quot;, m);</span>
+<span class="nc bnc" id="L1239" title="All 2 branches missed.">                    if (&quot;R&quot;.equals(firstLetter) ) sqlMap.update(&quot;updateRentalDispatch&quot;, m);</span>
+                 }
+		      }
+
+           }  // end of try
+<span class="nc" id="L1244">		   catch(SQLException e)</span>
+		   {
+<span class="nc" id="L1246">			   e.printStackTrace();</span>
+<span class="nc" id="L1247">			   throw new RuntimeException (&quot;Error executing sqlMap update_New_Used_Or_Rental_Dispatch. Cause: &quot; + e);</span>
+<span class="nc" id="L1248">		   }</span>
+
+        }  // end of --&gt; if ( valueOfI != 0 )
+
+<span class="nc" id="L1252">        return &quot;success&quot;;</span>
+    }
+
+
+
+
+    public String[] getCt_code() {
+<span class="nc" id="L1259">		return ct_code;</span>
+	}
+
+    public String[] getCt_rate() {
+<span class="nc" id="L1263">		return ct_rate;</span>
+	}
+
+    public String[] getPercent_ct_hour() {
+<span class="nc" id="L1267">		return percent_ct_hour;</span>
+	}
+
+    public String[] getProductivity_hour() {
+<span class="nc" id="L1271">		return productivity_hour;</span>
+	}
+
+    public String[] getCost_hour() {
+<span class="nc" id="L1275">		return cost_hour;</span>
+	}
+
+    public String[] getDeployment_cost() {
+<span class="nc" id="L1279">		return deployment_cost;</span>
+	}
+
+    public String[] getDecommission_cost() {
+<span class="nc" id="L1283">		return decommission_cost;</span>
+	}
+
+    public String[] getEquip_numb() {
+<span class="nc" id="L1287">		return equip_numb;</span>
+	}
+
+    public String[] getYear() {
+<span class="nc" id="L1291">		return year;</span>
+	}
+
+    public String[] getModel() {
+<span class="nc" id="L1295">		return model;</span>
+	}
+
+    public String[] getPrice_to_buy() {
+<span class="nc" id="L1299">		return price_to_buy;</span>
+	}
+
+    public String[] getCash_paid() {
+<span class="nc" id="L1303">		return cash_paid;</span>
+	}
+
+    public String[] getLoan_amount() {
+<span class="nc" id="L1307">		return loan_amount;</span>
+	}
+
+    public String[] getPrice_to_rent() {
+<span class="nc" id="L1311">		return price_to_rent;</span>
+	}
+
+    public String[] getDescription() {
+<span class="nc" id="L1315">		return description;</span>
+	}
+
+    public String[] getIs_in_market() {
+<span class="nc" id="L1319">		return is_in_market;</span>
+	}
+
+    public String[] getMove_to_market() {
+<span class="nc" id="L1323">		return move_to_market;</span>
+	}
+
+    public String[] getDeleteMe() {
+<span class="nc" id="L1327">		return deleteMe;</span>
+	}
+
+    public String[] getRemoveMe() {
+<span class="nc" id="L1331">		return removeMe;</span>
+	}
+
+    public String[] getRentme() {
+<span class="nc" id="L1335">		return rentme;</span>
+	}
+
+    public String[] getSerial_numb() {
+<span class="nc" id="L1339">		return serial_numb;</span>
+	}
+
+    public String[] getHrs_of_use() {
+<span class="nc" id="L1343">		return hrs_of_use;</span>
+	}
+
+    public String[] getCondition() {
+<span class="nc" id="L1347">		return condition;</span>
+	}
+
+    public String[] getProjNumb() {
+<span class="nc" id="L1351">		return projNumb;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

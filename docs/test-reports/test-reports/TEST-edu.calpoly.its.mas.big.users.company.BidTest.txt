@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.its.mas.big.users.company.BidTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 sec
+
+Testcase: testToString took 0.015 sec
+Testcase: testSetters took 0 sec
+Testcase: testMethodsGetterSetter took 0 sec
+Testcase: testFullConstructor took 0 sec
+Testcase: testJobAndCompanySetters took 0.077 sec
+Testcase: testDeprecatedConstructor took 0 sec
+Testcase: testSetBidAmountUPAndUnitPrices took 0 sec

@@ -1,0 +1,6 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.SetNumberOfJobsParametersActionTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.633 sec
+
+Testcase: testExecuteSetParametersSuccess took 0.621 sec
+Testcase: testExecuteRestoreDefaultsSuccess took 0.005 sec
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0 sec

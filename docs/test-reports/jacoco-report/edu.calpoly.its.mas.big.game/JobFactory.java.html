@@ -1,0 +1,1068 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JobFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.game</a> &gt; <span class="el_source">JobFactory.java</span></div><h1>JobFactory.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.game;
+
+import java.lang.Short;
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.Date;
+import java.util.Random;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.text.SimpleDateFormat;
+import java.text.ParsePosition;
+import java.io.PrintWriter;
+
+import edu.calpoly.its.mas.big.users.company.ExpandedCompany;
+
+/**
+ * Creates new jobs for companies to bid on.
+ *
+ * New jobs are randomly given one of the 5 jobs types.  The job type determines which set of
+ * job size statistics game parameters are used for the job size.  The job size is calculated by taking a random normal
+ * value and modifying it with the job size statistics.  For each of the 9 activities of the job a random method is chosen.  This
+ * set of 9 methods is the 'ideal' set of methods to complete this job.  Using these 9 methods and the network dependencies for this
+ * job type &lt;code&gt;JobFactory&lt;/code&gt; determines how long this job should take to complete.  This information comes in the form of the required
+ * completion date of the job.  &lt;code&gt;JobFactory&lt;/code&gt; also determines the direct cost to finish the job on that completion date using the 'ideal'
+ * methods.  Liquidated damaged are assigned to all jobs which will be a random percentage of the direct
+ * cost of the job, within the range specified by the liquidated damages game parameters, rounded to 1 significant digit.  Maximum liquidated damages are $100,000 a day.
+ * All jobs must have liquidated damages otherwise companies would have no reason to complete the job on time.
+ * &lt;br&gt;&lt;br&gt;
+ * The jobs created by the factory will contain 9 Activity objects for the current period.  These objects must be stored to the database seperately.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.32 $ $Date: 2002/05/02 23:59:24 $
+ */
+public class JobFactory
+{
+
+    protected ExpandedGame game;
+	Hashtable[] jobSizeParams;
+    int[][] percentTakeoffs;
+	Method[][] methods;
+    Hashtable[][] networkDependencies;
+    Hashtable liquidatedDamagesParameters;
+    Date periodDate;
+    int currentPeriod;
+    int stdHours;
+    int overtimeHours;
+    int workdaysPerMonth;
+    int adminJobType;
+	int adminJobSize;
+	int jobFamily;
+
+    Random r;
+
+    //These will change everytime a new job is created
+    Date currentDate;
+    int estimatedWorkdays;
+    long directCost;
+<span class="fc" id="L60">    Date requiredCompletionDate = null;</span>
+    int jobSize;
+    int jobType;
+    int[] activityLUS;
+    ScheduledMonth currentMonth;
+	Activity[] activities;
+
+	/**
+	 * Constructor.
+	 *
+	 *
+	 */
+	public JobFactory(ExpandedGame game,
+		              Hashtable[] jobSizeParams,
+                      int[][] percentTakeoffs,
+     				  Method[][] methods,
+                      Hashtable[][] networkDependencies,
+                      Hashtable liquidatedDamagesParameters,
+					  int currentPeriod,
+					  Date periodDate,
+					  int workdaysPerMonth,
+					  int stdHours,
+					  int overtimeHours,
+					  int adminJobType,
+					  int adminJobSize,
+					  int jobFamily)
+<span class="fc" id="L86">	{</span>
+<span class="fc" id="L87">		this.game = game;</span>
+<span class="fc" id="L88">		this.jobSizeParams = jobSizeParams;</span>
+
+<span class="fc" id="L90">		this.percentTakeoffs = percentTakeoffs;</span>
+
+<span class="fc" id="L92">		this.methods = methods;</span>
+
+<span class="fc" id="L94">        this.networkDependencies = networkDependencies;</span>
+<span class="fc" id="L95">        this.liquidatedDamagesParameters = liquidatedDamagesParameters;</span>
+
+<span class="fc" id="L97">		this.currentPeriod = currentPeriod;</span>
+<span class="fc" id="L98">		this.periodDate = periodDate;</span>
+<span class="fc" id="L99">		this.workdaysPerMonth = workdaysPerMonth;</span>
+<span class="fc" id="L100">		this.stdHours = stdHours;</span>
+<span class="fc" id="L101">		this.overtimeHours = overtimeHours;</span>
+<span class="fc" id="L102">		this.adminJobType = adminJobType;</span>
+<span class="fc" id="L103">		this.adminJobSize = adminJobSize;</span>
+<span class="fc" id="L104">		this.jobFamily = jobFamily;</span>
+
+<span class="fc" id="L106">		r = new Random();</span>
+
+<span class="fc" id="L108">	}</span>
+
+	/**
+	 * Creates a new &lt;code&gt;Job&lt;/code&gt; objects.
+	 */
+	public Job createJob(int jobID)
+	{
+<span class="fc" id="L115">        currentDate = periodDate;</span>
+<span class="fc" id="L116">        estimatedWorkdays = 0;</span>
+<span class="fc" id="L117">        directCost = 0;</span>
+<span class="fc" id="L118">        requiredCompletionDate = null;</span>
+<span class="fc" id="L119">        jobSize = 0;</span>
+<span class="fc" id="L120">        jobType = -1;</span>
+<span class="fc" id="L121">        activityLUS = null;</span>
+<span class="fc" id="L122">        currentMonth = null;</span>
+<span class="fc" id="L123">		activities = null;</span>
+
+        //If Admin specified values when &quot;Automatically Add One Job To Every Company,&quot; use those instead of the normal methods.
+<span class="fc bfc" id="L126" title="All 2 branches covered.">		if (adminJobType == 0)</span>
+		{
+<span class="fc" id="L128">		    jobType = getJobType();</span>
+	    }
+	    else
+	    {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		   if (jobFamily == 1) jobType = adminJobType - 1;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		   if (jobFamily == 2) jobType = adminJobType + 4;</span>
+	    }
+
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		if (adminJobSize == 0)</span>
+		{
+<span class="fc" id="L138">           jobSize = getJobSize(jobType);</span>
+	    }
+	    else
+	    {
+<span class="fc" id="L142">		   jobSize = adminJobSize;</span>
+		}
+
+		//Calculates how many LUS are in each activity based on percent takeoff parameters
+<span class="fc" id="L146">		calculateActivitesLUS();</span>
+
+        //The methods used to make an estimate of the job length and cost are chosen as follows...
+        //A random number between 0 and 3 is chosen.  This is the baseline method number for this job.  Note that
+        //the baseline method can never be 4, the highest possible method number.  If the administrator
+        //makes method 5 (the 4th method using zero based numbering) the quickest and most expensive method, then jobs will
+        //never be created that require the fastest methods in order to be completed on time.
+        //1 is randomly added or substracted from the baseline method number to create some random variation
+        //in job cost and required completetion date.
+<span class="fc" id="L155">        int[] activityMethods = new int[9];</span>
+
+<span class="fc" id="L157">        int methodNum = r.nextInt(3) + 1;  //baseline method number</span>
+<span class="fc" id="L158">        float methodAverage = 0;</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        for(int i = 0; i &lt; 9; i++)</span>
+        {
+<span class="fc" id="L161">			activityMethods[i] = methodNum + r.nextInt(3) - 1; //Add -1, 0, or 1 to the baseline method number</span>
+															   //for each activity to get the method number for that activity
+
+		    //Neither of these should actually ever happen but its simple to check for them:
+		    //The method number can never be less than 0
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">		    if(activityMethods[i] &lt; 0) activityMethods[i] = 0;</span>
+		    //The method number can never be greater than 4
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">			if(activityMethods[i] &gt; 4) activityMethods[i] = 4;</span>
+<span class="fc" id="L169">			methodAverage += activityMethods[i];</span>
+			//System.out.println(activityMethods[i] + 1);
+
+<span class="fc bfc" id="L172" title="All 2 branches covered.">			if (game != null) game.recordJobMethod(jobID, i+1, activityMethods[i]+1);</span>
+		}
+
+<span class="fc" id="L175">        methodAverage = methodAverage / 9;  //methodAverage isn't currently used for anything but could be useful</span>
+        								    //in future modifications to BIG, especially in the area of liquidated damges
+<span class="fc" id="L177">        setupCalendar();</span>
+
+<span class="fc" id="L179">        activities = createActivities(activityMethods);</span>
+
+//OPTIONAL METHOD SCALING FACTOR
+  //The method scaling factor is a number for each job that is multipled by the productivity
+  //of any method that is used on any activity of the job.  The number is set by equation in the line of code
+  //immediately following this comment.  This equation can be set to anything involving
+  //job sizes or to 1 to disable method scaling
+  //factor.  The purpose of the method scaling factor is to increase work done on jobs with large lu sizes
+  //so that they finish in a reasonable amount of time.  Setting method scaling factor will solve
+  //problems where big jobs take too long to complete while small jobs finish too quickly.
+  //The suggested equation (commented out below) works well.
+  //If this is set companies must be informed on the productivity report
+<span class="fc" id="L191">        float methodScalingFactor = 1f; //(float) ( Math.sqrt(jobSize) / Math.sqrt(getLowestJobSize()) );</span>
+	    //System.out.println(&quot;Method Scaling Factor: &quot; + methodScalingFactor);
+
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        for(int i = 0; i &lt;9; i++)</span>
+        {
+<span class="fc" id="L196">			activities[i].setMethodScalingFactor(methodScalingFactor);</span>
+		}
+//END METHOD SCALING FACTOR
+
+        //runs through the 'ideal' activities -- sets the completion date, estimated number of workdays, and direct cost.
+<span class="fc" id="L201">        walkThroughActivities();</span>
+
+        //Now that the direct cost and req completion date has been calculated reset all the activities
+        //so they start off with no work done
+<span class="fc bfc" id="L205" title="All 2 branches covered.">        for(int i = 0; i &lt; 9; i++)</span>
+<span class="fc" id="L206">            activityMethods[i] = 0;</span>
+
+        //create the activities for this job
+<span class="fc" id="L209">        activities = null;</span>
+<span class="fc" id="L210">        activities = createActivities(activityMethods);</span>
+
+<span class="fc" id="L212">        int damagesPerDay = calculateLiquidatedDamages(methodAverage);</span>
+
+        //System.out.println(&quot;Direct Cost: &quot; + directCost);
+        //System.out.println(&quot;Estimated Workdays: &quot; + estimatedWorkdays);
+<span class="fc" id="L216"> 	    SimpleDateFormat formatter = new SimpleDateFormat(&quot;MMMMM dd, yyyy&quot;);</span>
+<span class="fc" id="L217"> 	    String dateString = formatter.format(requiredCompletionDate);</span>
+ 	    //System.out.println(&quot;Required Completion Date: &quot; + dateString);
+ 	    //System.out.println(&quot;Liquidated Damages per Day: &quot; + damagesPerDay);
+
+        //Randomly choose a retention policy
+<span class="fc" id="L222">        int retentionPolicy = r.nextInt(5) + 1;</span>
+
+<span class="fc" id="L224">		short typeModifier = -1;</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		if (jobFamily == 1) typeModifier = Job.PUBLIC;</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">		if (jobFamily == 2) typeModifier = Job.HEAVY;</span>
+
+<span class="fc" id="L228">    	Job job = new Job(jobID,</span>
+						  damagesPerDay,
+						  null,
+						  requiredCompletionDate,
+						  jobSize,
+						  0, //Leave percent retention and percent of job empty.  A retentionID
+						  0, //will be assigned to the job and they will be populated when saved to the database
+						  directCost,
+						  0, //No amount retained yet
+						  jobSize,  //amount remaining on job is equal to job size
+						  0, //Not completed yet
+						  currentPeriod,
+						  true,  //Active
+						  false, //not Auto
+						  jobType + 1,
+						  estimatedWorkdays,
+						  methodScalingFactor,
+						  0,  //No change orders yet
+						  0,  // &quot;
+						  0,  //overhead doesn't factor into job generation
+						  0,  // &quot;
+						  0,
+						  0,
+<span class="fc" id="L251">						  new Short(typeModifier)</span>
+						  );
+
+<span class="fc" id="L254">		job.setRetentionID(retentionPolicy);</span>
+		//System.out.println(&quot;JobID: &quot; + job.getJobID());
+		//System.out.println(&quot;Job Size: &quot; + job.getJobSize());
+		//System.out.println(&quot;Job type: &quot; + job.getJobType());
+<span class="fc" id="L258">		job.setActivities(activities);</span>
+<span class="fc" id="L259">		return job;</span>
+	}
+
+    //Returns the size of this job
+	private int getJobSize(int jobType)
+	{
+		int size;
+
+		//jobSizeParams will contain values for a heavy job if this is a heavy job.  This Hashtable is created
+		//in ExpandedGame.java and sent here as part of JobFactory's constructor.  See Line # 530 in that file.
+<span class="fc bfc" id="L269" title="All 2 branches covered.">		if (jobFamily == 2) jobType = jobType - 5;  // Hashtable contains values 0 through 4</span>
+
+<span class="fc" id="L271">		int mean =   ((Integer) jobSizeParams[jobType].get(&quot;Median&quot;)).intValue();</span>
+<span class="fc" id="L272">		int stddev = ((Integer) jobSizeParams[jobType].get(&quot;StdDev&quot;)).intValue();</span>
+<span class="fc" id="L273">		int min =    ((Integer) jobSizeParams[jobType].get(&quot;Min&quot;)).intValue();</span>
+<span class="fc" id="L274">		int max =    ((Integer) jobSizeParams[jobType].get(&quot;Max&quot;)).intValue();</span>
+
+<span class="fc" id="L276">		float normal = (float) r.nextGaussian();</span>
+<span class="fc" id="L277">		size = Math.round((normal * stddev) + mean);</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">		if (size &gt; max)</span>
+<span class="nc" id="L279">		    size = max;</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">		if (size &lt; min)</span>
+<span class="nc" id="L281">		    size = min;</span>
+
+<span class="fc" id="L283">		return size;</span>
+	}
+
+    //Returns the lowest job size median
+	private int getLowestJobSize()
+    {
+<span class="nc" id="L289">        int lowestJobSize = ((Integer) jobSizeParams[0].get(&quot;Median&quot;)).intValue();</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        for(int i = 1; i &lt; 5; i++)</span>
+        {
+<span class="nc" id="L292">            int temp = ((Integer) jobSizeParams[i].get(&quot;Median&quot;)).intValue();</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">            if (temp &lt; lowestJobSize)</span>
+<span class="nc" id="L294">               lowestJobSize = temp;</span>
+        }
+<span class="nc" id="L296">        return lowestJobSize;</span>
+    }
+
+
+    //  For Building jobs, returns an int between 0 and 4 that will be the code for a type of job.
+    //  The probability of each type being returned is as follows:
+    //     0 - 50%
+    //     1 - 15%
+    //     2 - 15%
+    //     3 - 10%
+    //     4 - 10%
+    //  If this is a Heavy job, it will get values between 5 and 9.
+    //  Similar logic for probability of a certain type being returned.
+
+    private int getJobType()
+    {
+<span class="fc" id="L312">		int spin = r.nextInt(100);</span>
+
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        if (jobFamily == 1)</span>
+        {
+<span class="fc bfc" id="L316" title="All 2 branches covered.">  		   if (spin &lt; 50)  //spin &lt; 50</span>
+		   {
+<span class="fc" id="L318">		   	   return 0;</span>
+		   }
+<span class="fc bfc" id="L320" title="All 2 branches covered.">		   else if(spin &lt; 65)  //spin &lt; 65 &amp;&amp; spin &gt;= 50</span>
+		   {
+<span class="fc" id="L322">			   return 1;</span>
+		   }
+<span class="fc bfc" id="L324" title="All 2 branches covered.">		   else if(spin &lt; 80)  //spin &lt; 80 &amp;&amp; spin &gt;= 65</span>
+		   {
+<span class="fc" id="L326">			   return 2;</span>
+		   }
+<span class="fc bfc" id="L328" title="All 2 branches covered.">		   else if(spin &lt; 90)  //spin &lt; 90 &amp;&amp; spin &gt;= 80</span>
+		   {
+<span class="fc" id="L330">			   return 3;</span>
+		   }
+		   else
+		   {
+<span class="fc" id="L334">			   return 4;</span>
+		   }
+        }
+
+        else  // (jobFamily == 2)
+        {
+<span class="fc bfc" id="L340" title="All 2 branches covered.">  		   if (spin &lt; 30)      //spin &lt; 30  --&gt; 30%</span>
+		   {
+<span class="fc" id="L342">		   	   return 5;</span>
+		   }
+<span class="fc bfc" id="L344" title="All 2 branches covered.">		   else if(spin &lt; 50)  //spin &lt; 50 &amp;&amp; spin &gt;= 30 --&gt; 20%</span>
+		   {
+<span class="fc" id="L346">			   return 6;</span>
+		   }
+<span class="fc bfc" id="L348" title="All 2 branches covered.">		   else if(spin &lt; 65)  //spin &lt; 65 &amp;&amp; spin &gt;= 50 --&gt; 15%</span>
+		   {
+<span class="fc" id="L350">			   return 7;</span>
+		   }
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">		   else if(spin &lt; 85)  //spin &lt; 85 &amp;&amp; spin &gt;= 65 --&gt; 20%</span>
+		   {
+<span class="nc" id="L354">			   return 8;</span>
+		   }
+		   else                // spin &gt;= 85 --&gt; 15%
+		   {
+<span class="fc" id="L358">			   return 9;</span>
+		   }
+        }
+	}
+
+    //Calculates how many lus are in each activity based on percent takeoff parameters
+    //Postcondition: The activityLUS array now contains the number of lus for each activity where the array index+1 equals the activity number
+    //Postcondition: The sum of all values in the activityLUS array is equal to jobSize
+    private void calculateActivitesLUS()
+    {
+        //Get the percent takeoff for each activity
+<span class="fc" id="L369">	    activityLUS = new int[9];</span>
+<span class="fc" id="L370">	    int sumSizes = 0;</span>
+<span class="fc" id="L371">		int thisJobType = jobType;</span>
+
+<span class="fc bfc" id="L373" title="All 2 branches covered.">        if (jobFamily == 2) thisJobType = thisJobType - 5;  // the array contains only values 0 through 4 in the first element</span>
+
+<span class="fc bfc" id="L375" title="All 2 branches covered.">        for(int i = 0; i &lt; 9; i++)</span>
+        {
+<span class="fc" id="L377">	        activityLUS[i] = (int) Math.round(jobSize * percentTakeoffs[thisJobType][i] / 100f);</span>
+<span class="fc" id="L378">	        sumSizes += activityLUS[i];</span>
+		}
+
+		//Replace the job size with the sum of the sizes of the activities to remove the rounding error
+<span class="fc" id="L382">		jobSize = sumSizes;</span>
+<span class="fc" id="L383">	}</span>
+
+    //Creates each activity of this job
+    private Activity[] createActivities(int[] activityMethods)
+    {
+<span class="fc" id="L388">        Activity[] activities = new Activity[9];</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">        for(int i = 0; i&lt;9; i++)</span>
+        {
+<span class="fc" id="L391">			boolean active = false;</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">			if (i == 0) active = true;</span>
+
+            //activity type needs to be 10-18 for Heavy Jobs
+<span class="fc" id="L395">			int tempIndex = i;</span>
+<span class="fc bfc" id="L396" title="All 2 branches covered.">			if (jobFamily == 2) tempIndex = tempIndex + 9;</span>
+
+<span class="fc" id="L398">			activities[i] = new Activity(tempIndex + 1, //Activity type, 1 greater than the index</span>
+			                             activityLUS[i], //Total number of lu's in this activity
+			                             0,   //no lu's completed yet
+			                             0,   //no labor cost incurred yet
+			                             0,   //no materials cost incurred yet
+			                             0,   //no equipment cost incurred yet
+			                             0,   //no sub cost incurred yet
+			                             active,  //set activity active if it is the first activity
+			                             0,   //no lu's completed yet
+			                             0,   //no costs yet
+			                             currentPeriod - 1, //store these as last period so work can begin on them this period
+			                             0,   //Current method used will need to be set before work is done
+			                             0,   //don't work any overtime days
+			                             stdHours, //standard hours in a day
+			                             overtimeHours   //overtime hours in a day
+			                             );
+
+            //Changes the effect of uncertainty each time a method is used
+<span class="fc" id="L416">            methods[i][activityMethods[i]].reRollCosts();</span>
+
+			//assigns methods to this activity
+<span class="fc" id="L419">			activities[i].setMethod(methods[i][activityMethods[i]]);</span>
+
+			int stsActivity, stsPercent, ftfActivity, ftfPercent;
+
+<span class="fc" id="L423">		    int thisJobType = jobType;</span>
+<span class="fc bfc" id="L424" title="All 2 branches covered.">            if (jobFamily == 2) thisJobType = thisJobType - 5;  // the array contains only values 0 through 4 in the first element</span>
+
+<span class="fc" id="L426">			stsActivity = ((Integer) networkDependencies[thisJobType][i].get(&quot;STSActivity&quot;)).intValue();</span>
+<span class="fc" id="L427">			stsPercent = ((Integer) networkDependencies[thisJobType][i].get(&quot;STSPercent&quot;)).intValue();</span>
+<span class="fc" id="L428">			ftfActivity = ((Integer) networkDependencies[thisJobType][i].get(&quot;FTFActivity&quot;)).intValue();</span>
+<span class="fc" id="L429">			ftfPercent = ((Integer) networkDependencies[thisJobType][i].get(&quot;FTFPercent&quot;)).intValue();</span>
+
+<span class="fc" id="L431">			activities[i].setStartToStartActivity(stsActivity);</span>
+<span class="fc" id="L432">			activities[i].setStartToStartPercent(stsPercent);</span>
+<span class="fc" id="L433">			activities[i].setFinishToFinishActivity(ftfActivity);</span>
+<span class="fc" id="L434">			activities[i].setFinishToFinishPercent(ftfPercent);</span>
+
+		}
+<span class="fc" id="L437">		return activities;</span>
+	}
+
+	//Runs through the activities doing work on them as if the job were really being worked on
+	//Sets the completion date, estimated number of workdays, and direct cost.
+	//It is assumed that no days are raindays and that temperature, materials cost index, and labor availability
+	//have no effect.
+	private void walkThroughActivities()
+	{
+<span class="fc" id="L446">		boolean complete = false;</span>
+<span class="fc" id="L447">		Vector activitiesVector = new Vector();</span>
+<span class="fc" id="L448">		NetworkDependencies networkDependencies = new NetworkDependencies();</span>
+
+		//necessary for compatability with Job.java
+<span class="fc" id="L451">		ExpandedCompany dummyCompany = new ExpandedCompany();</span>
+<span class="fc" id="L452">		PrintWriter out = null;</span>
+
+<span class="fc bfc" id="L454" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+<span class="fc" id="L455">		     activitiesVector.add(activities[i]);</span>
+
+<span class="fc bfc" id="L457" title="All 2 branches covered.">	    while(!complete)</span>
+	    {
+<span class="fc bfc" id="L459" title="All 2 branches covered.">			if(!currentMonth.daysLeft())</span>
+			{
+<span class="fc" id="L461">				setupCalendar();</span>
+			}
+
+<span class="fc bfc" id="L464" title="All 4 branches covered.">			while(currentMonth.daysLeft() &amp;&amp; !complete)</span>
+			{
+<span class="fc bfc" id="L466" title="All 2 branches covered.">				if(currentMonth.getWorkday())</span>
+				{
+<span class="fc" id="L468">					estimatedWorkdays++;</span>
+<span class="fc" id="L469">					networkDependencies.update(activitiesVector);</span>
+<span class="fc bfc" id="L470" title="All 2 branches covered.">					for(int i = 0; i &lt; 9; i++)</span>
+					{
+<span class="fc" id="L472">					    activities[i].update(false, 0, 0, dummyCompany, game, out);</span>
+					/*  System.out.println(i+1);
+					    System.out.println(activities[i].getLusTotal());
+					    System.out.println(activities[i].getLusCompleted());  */
+					}
+
+				}
+<span class="fc bfc" id="L479" title="All 2 branches covered.">				if(allActivitiesComplete())</span>
+				{
+<span class="fc" id="L481">				    requiredCompletionDate = currentMonth.getDate();</span>
+<span class="fc" id="L482">				    complete = true;</span>
+				}
+<span class="fc" id="L484">				currentMonth.advanceDay();</span>
+			}
+		}
+
+		//Sum up the activity direct costs into the job direct cost
+<span class="fc bfc" id="L489" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="fc" id="L491">			directCost += activities[i].getCurrentLaborCost();</span>
+			//System.out.println(&quot;lc: &quot; + activities[i].getCurrentLaborCost());
+<span class="fc" id="L493">			directCost += activities[i].getCurrentMaterialCost();</span>
+			//System.out.println(&quot;mc: &quot; + activities[i].getCurrentMaterialCost());
+<span class="fc" id="L495">			directCost += activities[i].getCurrentSubcontractorCost();</span>
+			//System.out.println(&quot;sc: &quot; + activities[i].getCurrentSubcontractorCost());
+<span class="fc" id="L497">			directCost += activities[i].getCurrentEquipmentCost();</span>
+			//System.out.println(&quot;sc: &quot; + activities[i].getCurrentEquipmentCost());
+		}
+
+<span class="fc" id="L501">	}</span>
+
+	//Return true if all the activities are complete
+	private boolean allActivitiesComplete()
+	{
+<span class="fc" id="L506">		boolean allComplete = true;</span>
+<span class="fc bfc" id="L507" title="All 2 branches covered.">		for (int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="fc bfc" id="L509" title="All 2 branches covered.">			if(activities[i].getLusCompleted() &lt; activities[i].getLusTotal())</span>
+<span class="fc" id="L510">			    allComplete = false;</span>
+		}
+<span class="fc" id="L512">		return allComplete;</span>
+	}
+
+    //Set up the calendar
+    private void setupCalendar()
+    {
+<span class="fc" id="L518">	    Calendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L519">	    calendar.setTime(currentDate);</span>
+<span class="fc" id="L520">	    calendar.add(Calendar.MONTH, 1);</span>
+<span class="fc" id="L521">	    calendar.set(Calendar.DAY_OF_MONTH, 1);</span>
+<span class="fc" id="L522">	    currentDate = calendar.getTime();</span>
+<span class="fc" id="L523">	    currentMonth = new ScheduledMonth(currentDate, workdaysPerMonth, 0);</span>
+<span class="fc" id="L524">    }</span>
+
+    //Calculates what the liquidated damages should be on this job.
+    //If the fasterJobsIncrease game parameter is set to true,
+    //the amount of liquidated damages will be multiplied
+    //by the method average.
+    //If the largerJobsIncrease game parameter is set to true,
+    //the amount of liquidated damages will be multiplied
+    //by job size of the job divided by the mean job size for that job type.
+    private int calculateLiquidatedDamages(float methodAverage)
+    {
+		//Get the liquidated damages parameters
+<span class="fc" id="L536">		float median = ((Float) liquidatedDamagesParameters.get(&quot;Median&quot;)).floatValue();</span>
+<span class="fc" id="L537">		float stddev = ((Float) liquidatedDamagesParameters.get(&quot;StdDev&quot;)).floatValue();</span>
+<span class="fc" id="L538">		float min = ((Float) liquidatedDamagesParameters.get(&quot;Min&quot;)).floatValue();</span>
+<span class="fc" id="L539">		float max = ((Float) liquidatedDamagesParameters.get(&quot;Max&quot;)).floatValue();</span>
+<span class="fc" id="L540">		int percentJobs = ((Integer) liquidatedDamagesParameters.get(&quot;PercentJobs&quot;)).intValue();</span>
+<span class="fc" id="L541">		boolean fasterJobsIncrease = ((Boolean) liquidatedDamagesParameters.get(&quot;FasterJobsIncrease&quot;)).booleanValue();</span>
+<span class="fc" id="L542">		boolean largerJobsIncrease = ((Boolean) liquidatedDamagesParameters.get(&quot;LargerJobsIncrease&quot;)).booleanValue();</span>
+
+<span class="fc" id="L544">		int damages = 0;</span>
+
+<span class="fc" id="L546">        int chance = r.nextInt(100);  //number less than 100</span>
+<span class="fc bfc" id="L547" title="All 2 branches covered.">        if( chance &lt; percentJobs ) //if chance is less than percentJobs there will be liquidated damages for this job</span>
+		{
+
+<span class="fc" id="L550">			float normal = (float) r.nextGaussian();</span>
+<span class="fc" id="L551">			float damagePercent = ((normal * stddev) + median);</span>
+
+<span class="fc" id="L553">			damages = Math.round((damagePercent / 100 ) * directCost);</span>
+
+<span class="fc bfc" id="L555" title="All 2 branches covered.">			if(fasterJobsIncrease)</span>
+			{
+<span class="fc" id="L557">				damages = Math.round(((float) damages) * (methodAverage / 3));</span>
+			}
+
+<span class="fc bfc" id="L560" title="All 2 branches covered.">			if(largerJobsIncrease)</span>
+			{
+<span class="fc" id="L562">		        int thisJobType = jobType;</span>
+
+<span class="fc bfc" id="L564" title="All 2 branches covered.">                if (jobFamily == 2) thisJobType = thisJobType - 5;  // the array contains only values 0 through 4</span>
+
+<span class="fc" id="L566">				float sizeAdjustment = ((float) jobSize) /  ((float) ((Integer) jobSizeParams[thisJobType].get(&quot;Median&quot;)).intValue());</span>
+<span class="fc" id="L567">				damages = Math.round(((float) damages) * sizeAdjustment);</span>
+			}
+
+
+<span class="pc bpc" id="L571" title="1 of 2 branches missed.">        	if (damages &lt; 100)</span>
+<span class="nc" id="L572">        	    damages = 0;</span>
+<span class="fc bfc" id="L573" title="All 2 branches covered.">        	else if (damages &lt; 1000)</span>
+<span class="fc" id="L574">				damages = ((int) Math.round(damages / 100f) ) * 100;</span>
+<span class="fc bfc" id="L575" title="All 2 branches covered.">			else if (damages &lt; 10000)</span>
+<span class="fc" id="L576">			    damages = ((int) Math.round(damages / 1000f) ) * 1000;</span>
+<span class="pc bpc" id="L577" title="1 of 2 branches missed.">			else if (damages &lt; 100000)</span>
+<span class="fc" id="L578">			    damages = ((int) Math.round(damages / 10000f) ) * 10000;</span>
+			else
+<span class="nc" id="L580">			    damages = 100000;</span>
+
+		}
+
+<span class="fc" id="L584">		return damages;</span>
+	}
+
+	//Sorts the method parameters by productivity.  This can be called to make the productivities ascend with the method numbers
+	private void sortMethods()
+	{
+<span class="nc bnc" id="L590" title="All 2 branches missed.">		for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="nc bnc" id="L592" title="All 2 branches missed.">			for(int j = 0; j &lt;= 4; j++)</span>
+			{
+<span class="nc bnc" id="L594" title="All 2 branches missed.">				for(int k = 0; k &lt; 4; k++)</span>
+				{
+<span class="nc bnc" id="L596" title="All 2 branches missed.">					if(methods[i][k].getProductivity() &gt; methods[i][k+1].getProductivity())</span>
+					{
+<span class="nc" id="L598">						Method temp = methods[i][k];</span>
+<span class="nc" id="L599">						methods[i][k] = methods[i][k+1];</span>
+<span class="nc" id="L600">						methods[i][k+1] = temp;</span>
+					}
+				}
+			}
+		}
+<span class="nc" id="L605">	}</span>
+
+	//Unit test
+	public static void main(String args[])
+	{
+		//Setup test job size statistics information
+<span class="nc" id="L611">		Hashtable jobType1SizeParams = new Hashtable(4);</span>
+<span class="nc" id="L612">		jobType1SizeParams.put(&quot;Median&quot;, new Integer(22000)); // Small: 16500, Med: 22000, Large: 28000</span>
+<span class="nc" id="L613">		jobType1SizeParams.put(&quot;StdDev&quot;, new Integer(3000));</span>
+<span class="nc" id="L614">		jobType1SizeParams.put(&quot;Min&quot;, new Integer(15000));</span>
+<span class="nc" id="L615">		jobType1SizeParams.put(&quot;Max&quot;, new Integer(35000));</span>
+
+<span class="nc" id="L617">		Hashtable jobType2SizeParams = new Hashtable(4);</span>
+<span class="nc" id="L618">		jobType2SizeParams.put(&quot;Median&quot;, new Integer(37000)); // Small: 30000, Med: 37000, Large: 45000</span>
+<span class="nc" id="L619">		jobType2SizeParams.put(&quot;StdDev&quot;, new Integer(3500));</span>
+<span class="nc" id="L620">		jobType2SizeParams.put(&quot;Min&quot;, new Integer(27000));</span>
+<span class="nc" id="L621">		jobType2SizeParams.put(&quot;Max&quot;, new Integer(50000));</span>
+
+<span class="nc" id="L623">		Hashtable jobType3SizeParams = new Hashtable(4);</span>
+<span class="nc" id="L624">		jobType3SizeParams.put(&quot;Median&quot;, new Integer(35000)); // Small: 28000, Med: 35000, Large: 42000</span>
+<span class="nc" id="L625">		jobType3SizeParams.put(&quot;StdDev&quot;, new Integer(3000));</span>
+<span class="nc" id="L626">		jobType3SizeParams.put(&quot;Min&quot;, new Integer(27000));</span>
+<span class="nc" id="L627">		jobType3SizeParams.put(&quot;Max&quot;, new Integer(50000));</span>
+
+<span class="nc" id="L629">		Hashtable jobType4SizeParams = new Hashtable(4);</span>
+<span class="nc" id="L630">		jobType4SizeParams.put(&quot;Median&quot;, new Integer(43000)); // Small: 35000, Med: 43000, Large: 50000</span>
+<span class="nc" id="L631">		jobType4SizeParams.put(&quot;StdDev&quot;, new Integer(3000));</span>
+<span class="nc" id="L632">		jobType4SizeParams.put(&quot;Min&quot;, new Integer(30000));</span>
+<span class="nc" id="L633">		jobType4SizeParams.put(&quot;Max&quot;, new Integer(60000));</span>
+
+<span class="nc" id="L635">		Hashtable jobType5SizeParams =  new Hashtable(4);</span>
+<span class="nc" id="L636">		jobType5SizeParams.put(&quot;Median&quot;, new Integer(44000)); // Small: 37000, Med: 44000, Large: 52000</span>
+<span class="nc" id="L637">		jobType5SizeParams.put(&quot;StdDev&quot;, new Integer(3500));</span>
+<span class="nc" id="L638">		jobType5SizeParams.put(&quot;Min&quot;, new Integer(33000));</span>
+<span class="nc" id="L639">		jobType5SizeParams.put(&quot;Max&quot;, new Integer(65000));</span>
+
+<span class="nc" id="L641">		Hashtable[] jobSizeParams = new Hashtable[5];</span>
+<span class="nc" id="L642">		jobSizeParams[0] = jobType1SizeParams;</span>
+<span class="nc" id="L643">		jobSizeParams[1] = jobType2SizeParams;</span>
+<span class="nc" id="L644">		jobSizeParams[2] = jobType3SizeParams;</span>
+<span class="nc" id="L645">		jobSizeParams[3] = jobType4SizeParams;</span>
+<span class="nc" id="L646">		jobSizeParams[4] = jobType5SizeParams;</span>
+
+<span class="nc" id="L648">		int[] jobType1PercentTakeoffs = {11, 11, 11, 12, 11, 11, 11, 11, 11};</span>
+<span class="nc" id="L649">		int[] jobType2PercentTakeoffs = {11, 11, 9, 11, 11, 12, 11, 12, 12};</span>
+<span class="nc" id="L650">		int[] jobType3PercentTakeoffs = {11, 11, 7, 11, 11, 11, 12, 14, 12};</span>
+<span class="nc" id="L651">		int[] jobType4PercentTakeoffs = {10, 10, 11, 10, 11, 11, 11, 13, 13};</span>
+<span class="nc" id="L652">		int[] jobType5PercentTakeoffs = {10, 12, 0, 12, 12, 12, 12, 12, 18};</span>
+
+<span class="nc" id="L654">		int[][] percentTakeoffs = new int[5][9];</span>
+<span class="nc" id="L655">		percentTakeoffs[0] = jobType1PercentTakeoffs;</span>
+<span class="nc" id="L656">		percentTakeoffs[1] = jobType2PercentTakeoffs;</span>
+<span class="nc" id="L657">		percentTakeoffs[2] = jobType3PercentTakeoffs;</span>
+<span class="nc" id="L658">		percentTakeoffs[3] = jobType4PercentTakeoffs;</span>
+<span class="nc" id="L659">		percentTakeoffs[4] = jobType5PercentTakeoffs;</span>
+
+
+<span class="nc" id="L662">		Method[] activity1Methods = new Method[5];</span>
+<span class="nc" id="L663">		activity1Methods[0] = new Method(1, &quot;Excavation1&quot;, 1, 8, 11, 10, 0, 5, 3, false);</span>
+<span class="nc" id="L664">        activity1Methods[1] = new Method(2, &quot;Excavation2&quot;, 1, 12, 18, 12, 0, 15, 3, false);</span>
+<span class="nc" id="L665">		activity1Methods[2] = new Method(3, &quot;Excavation3&quot;, 1, 15, 18, 22, 0, 10, 0, false);</span>
+<span class="nc" id="L666">        activity1Methods[3] = new Method(4, &quot;Excavation4&quot;, 1, 22, 30, 29, 0, 15, 2, false);</span>
+<span class="nc" id="L667">		activity1Methods[4] = new Method(5, &quot;Excavation5&quot;, 1, 30, 83, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L669">		Method[] activity2Methods = new Method[5];</span>
+<span class="nc" id="L670">		activity2Methods[0] = new Method(1, &quot;Foundation1&quot;, 1, 7, 15, 12, 0, 15, 2, false);</span>
+<span class="nc" id="L671">		activity2Methods[1] = new Method(2, &quot;Foundation2&quot;, 1, 11, 27, 15, 0, 5, 1, false);</span>
+<span class="nc" id="L672">		activity2Methods[2] = new Method(3, &quot;Foundation3&quot;, 1, 13, 25, 25, 0, 10, 3, false);</span>
+<span class="nc" id="L673">		activity2Methods[3] = new Method(4, &quot;Foundation4&quot;, 1, 20, 47, 30, 0, 15, 3, false);</span>
+<span class="nc" id="L674">		activity2Methods[4] = new Method(5, &quot;Foundation5&quot;, 1, 26, 101, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L676">		Method[] activity3Methods = new Method[5];</span>
+<span class="nc" id="L677">		activity3Methods[0] = new Method(1, &quot;Basement1&quot;, 1, 6, 9, 11, 0, 10, 3, false);</span>
+<span class="nc" id="L678">		activity3Methods[1] = new Method(2, &quot;Basement2&quot;, 1, 8, 30, 16, 0, 5, 0, false);</span>
+<span class="nc" id="L679">		activity3Methods[2] = new Method(3, &quot;Basement3&quot;, 1, 12, 35, 35, 0, 10, 1, false);</span>
+<span class="nc" id="L680">		activity3Methods[3] = new Method(4, &quot;Basement4&quot;, 1, 17, 59, 40, 0, 5, 2, false);</span>
+<span class="nc" id="L681">		activity3Methods[4] = new Method(5, &quot;Basement5&quot;, 1, 25, 147, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L683">		Method[] activity4Methods = new Method[5];</span>
+<span class="nc" id="L684">		activity4Methods[0] = new Method(1, &quot;Framing1&quot;, 1, 5, 20, 16, 0, 15, 3, false);</span>
+<span class="nc" id="L685">		activity4Methods[1] = new Method(2, &quot;Framing2&quot;, 1, 8, 37, 21, 0, 12, 3, false);</span>
+<span class="nc" id="L686">        activity4Methods[2] = new Method(3, &quot;Framing3&quot;, 1, 11, 45, 35, 0, 3, 0, false);</span>
+<span class="nc" id="L687">		activity4Methods[3] = new Method(4, &quot;Framing4&quot;, 1, 15, 67, 42, 0, 5, 2, false);</span>
+<span class="nc" id="L688">		activity4Methods[4] = new Method(5, &quot;Framing5&quot;, 1, 21, 153, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L690">		Method[] activity5Methods = new Method[5];</span>
+<span class="nc" id="L691">		activity5Methods[0] = new Method(1, &quot;Closure1&quot;, 1, 5, 35, 10, 0, 10, 0, false);</span>
+<span class="nc" id="L692">		activity5Methods[1] = new Method(2, &quot;Closure2&quot;, 1, 8, 37, 35, 0, 25, 2, false);</span>
+<span class="nc" id="L693">		activity5Methods[2] = new Method(3, &quot;Closure3&quot;, 1, 10, 48, 42, 0, 15, 3, false);</span>
+<span class="nc" id="L694">		activity5Methods[3] = new Method(4, &quot;Closure4&quot;, 1, 17, 90, 63, 0, 12, 3, false);</span>
+<span class="nc" id="L695">		activity5Methods[4] = new Method(5, &quot;Closure5&quot;, 1, 20, 183, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L697">		Method[] activity6Methods = new Method[5];</span>
+<span class="nc" id="L698">		activity6Methods[0] = new Method(1, &quot;Roof1&quot;, 1, 4, 22, 22, 0, 25, 3, false);</span>
+<span class="nc" id="L699">		activity6Methods[1] = new Method(2, &quot;Roof2&quot;, 1, 6, 36, 30, 0, 10, 1, false);</span>
+<span class="nc" id="L700">		activity6Methods[2] = new Method(3, &quot;Roof3&quot;, 1, 9, 45, 55, 0, 3, 0, false);</span>
+<span class="nc" id="L701">		activity6Methods[3] = new Method(4, &quot;Roof4&quot;, 1, 14, 80, 75, 0, 5, 1, false);</span>
+<span class="nc" id="L702">		activity6Methods[4] = new Method(5, &quot;Roof5&quot;, 1, 17, 190, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L704">		Method[] activity7Methods = new Method[5];</span>
+<span class="nc" id="L705">		activity7Methods[0] = new Method(1, &quot;Siding1&quot;, 1, 4, 30, 25, 0, 10, 3, false);</span>
+<span class="nc" id="L706">		activity7Methods[1] = new Method(2, &quot;Siding2&quot;, 1, 7, 63, 33, 0, 15, 2, false);</span>
+<span class="nc" id="L707">		activity7Methods[2] = new Method(3, &quot;Siding3&quot;, 1, 8, 90, 20, 0, 25, 1, false);</span>
+<span class="nc" id="L708">		activity7Methods[3] = new Method(4, &quot;Siding4&quot;, 1, 13, 100, 78, 0, 10, 0, false);</span>
+<span class="nc" id="L709">		activity7Methods[4] = new Method(5, &quot;Siding5&quot;, 1, 15, 206, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L711">		Method[] activity8Methods = new Method[5];</span>
+<span class="nc" id="L712">		activity8Methods[0] = new Method(1, &quot;Finishing1&quot;, 1, 3, 35, 40, 0, 10, 3, false);</span>
+<span class="nc" id="L713">		activity8Methods[1] = new Method(2, &quot;Finishing2&quot;, 1, 5, 50, 80, 0, 15, 2, false);</span>
+<span class="nc" id="L714">		activity8Methods[2] = new Method(3, &quot;Finishing3&quot;, 1, 7, 90, 40, 0, 13, 1, false);</span>
+<span class="nc" id="L715">		activity8Methods[3] = new Method(4, &quot;Finishing4&quot;, 1, 11, 80, 125, 0, 15, 0, false);</span>
+<span class="nc" id="L716">		activity8Methods[4] = new Method(5, &quot;Finishing5&quot;, 1, 14, 263, 0, 0, 0, 0, false);</span>
+
+<span class="nc" id="L718">		Method[] activity9Methods = new Method[5];</span>
+<span class="nc" id="L719">		activity9Methods[0] = new Method(1, &quot;Mech/Elec1&quot;, 1, 2, 65, 0, 0, 0, 0, false);</span>
+<span class="nc" id="L720">		activity9Methods[1] = new Method(2, &quot;Mech/Elec2&quot;, 1, 3, 90, 0, 0, 0, 0, false);</span>
+<span class="nc" id="L721">		activity9Methods[2] = new Method(3, &quot;Mech/Elec3&quot;, 1, 5, 150, 0, 0, 0, 0, false);</span>
+<span class="nc" id="L722">		activity9Methods[3] = new Method(4, &quot;Mech/Elec4&quot;, 1, 7, 220, 0, 0, 0, 0, false);</span>
+<span class="nc" id="L723">		activity9Methods[4] = new Method(5, &quot;Mech/Elec5&quot;, 1, 9, 300, 0, 0, 0, 0, false);</span>
+
+
+<span class="nc" id="L726">		Method[][] methods = new Method[9][5];</span>
+<span class="nc" id="L727">		methods[0] = activity1Methods;</span>
+<span class="nc" id="L728">		methods[1] = activity2Methods;</span>
+<span class="nc" id="L729">		methods[2] = activity3Methods;</span>
+<span class="nc" id="L730">		methods[3] = activity4Methods;</span>
+<span class="nc" id="L731">		methods[4] = activity5Methods;</span>
+<span class="nc" id="L732">		methods[5] = activity6Methods;</span>
+<span class="nc" id="L733">		methods[6] = activity7Methods;</span>
+<span class="nc" id="L734">		methods[7] = activity8Methods;</span>
+<span class="nc" id="L735">		methods[8] = activity9Methods;</span>
+
+
+<span class="nc" id="L738">		Hashtable[] jobType1NetworkDependencies = new Hashtable[9];</span>
+<span class="nc" id="L739">		Hashtable[] jobType2NetworkDependencies = new Hashtable[9];</span>
+<span class="nc" id="L740">		Hashtable[] jobType3NetworkDependencies = new Hashtable[9];</span>
+<span class="nc" id="L741">		Hashtable[] jobType4NetworkDependencies = new Hashtable[9];</span>
+<span class="nc" id="L742">		Hashtable[] jobType5NetworkDependencies = new Hashtable[9];</span>
+
+        //Sample network dependencies for job type 1
+<span class="nc" id="L745">		jobType1NetworkDependencies[0] = new Hashtable(4);</span>
+<span class="nc" id="L746">		jobType1NetworkDependencies[0].put(&quot;STSActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L747">		jobType1NetworkDependencies[0].put(&quot;STSPercent&quot;, new Integer(0));</span>
+<span class="nc" id="L748">		jobType1NetworkDependencies[0].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L749">		jobType1NetworkDependencies[0].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L751">		jobType1NetworkDependencies[1] = new Hashtable(4);</span>
+<span class="nc" id="L752">		jobType1NetworkDependencies[1].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L753">		jobType1NetworkDependencies[1].put(&quot;STSPercent&quot;, new Integer(80));</span>
+<span class="nc" id="L754">		jobType1NetworkDependencies[1].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L755">		jobType1NetworkDependencies[1].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L757">		jobType1NetworkDependencies[2] = new Hashtable(4);</span>
+<span class="nc" id="L758">		jobType1NetworkDependencies[2].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L759">		jobType1NetworkDependencies[2].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L760">		jobType1NetworkDependencies[2].put(&quot;FTFActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L761">		jobType1NetworkDependencies[2].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L763">		jobType1NetworkDependencies[3] = new Hashtable(4);</span>
+<span class="nc" id="L764">		jobType1NetworkDependencies[3].put(&quot;STSActivity&quot;, new Integer(3));</span>
+<span class="nc" id="L765">		jobType1NetworkDependencies[3].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L766">		jobType1NetworkDependencies[3].put(&quot;FTFActivity&quot;, new Integer(3));</span>
+<span class="nc" id="L767">		jobType1NetworkDependencies[3].put(&quot;FTFPercent&quot;, new Integer(30));</span>
+
+<span class="nc" id="L769">		jobType1NetworkDependencies[4] = new Hashtable(4);</span>
+<span class="nc" id="L770">		jobType1NetworkDependencies[4].put(&quot;STSActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L771">		jobType1NetworkDependencies[4].put(&quot;STSPercent&quot;, new Integer(60));</span>
+<span class="nc" id="L772">		jobType1NetworkDependencies[4].put(&quot;FTFActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L773">		jobType1NetworkDependencies[4].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+<span class="nc" id="L775">		jobType1NetworkDependencies[5] = new Hashtable(4);</span>
+<span class="nc" id="L776">		jobType1NetworkDependencies[5].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L777">		jobType1NetworkDependencies[5].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L778">		jobType1NetworkDependencies[5].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L779">		jobType1NetworkDependencies[5].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+<span class="nc" id="L781">		jobType1NetworkDependencies[6] = new Hashtable(4);</span>
+<span class="nc" id="L782">		jobType1NetworkDependencies[6].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L783">		jobType1NetworkDependencies[6].put(&quot;STSPercent&quot;, new Integer(60));</span>
+<span class="nc" id="L784">		jobType1NetworkDependencies[6].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L785">		jobType1NetworkDependencies[6].put(&quot;FTFPercent&quot;, new Integer(30));</span>
+
+<span class="nc" id="L787">		jobType1NetworkDependencies[7] = new Hashtable(4);</span>
+<span class="nc" id="L788">		jobType1NetworkDependencies[7].put(&quot;STSActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L789">		jobType1NetworkDependencies[7].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L790">		jobType1NetworkDependencies[7].put(&quot;FTFActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L791">		jobType1NetworkDependencies[7].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+<span class="nc" id="L793">		jobType1NetworkDependencies[8] = new Hashtable(4);</span>
+<span class="nc" id="L794">		jobType1NetworkDependencies[8].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L795">		jobType1NetworkDependencies[8].put(&quot;STSPercent&quot;, new Integer(70));</span>
+<span class="nc" id="L796">		jobType1NetworkDependencies[8].put(&quot;FTFActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L797">		jobType1NetworkDependencies[8].put(&quot;FTFPercent&quot;, new Integer(35));</span>
+
+
+        //Sample network dependencies for job type 2
+<span class="nc" id="L801">		jobType2NetworkDependencies[0] = new Hashtable(4);</span>
+<span class="nc" id="L802">		jobType2NetworkDependencies[0].put(&quot;STSActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L803">		jobType2NetworkDependencies[0].put(&quot;STSPercent&quot;, new Integer(0));</span>
+<span class="nc" id="L804">		jobType2NetworkDependencies[0].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L805">		jobType2NetworkDependencies[0].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L807">		jobType2NetworkDependencies[1] = new Hashtable(4);</span>
+<span class="nc" id="L808">		jobType2NetworkDependencies[1].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L809">		jobType2NetworkDependencies[1].put(&quot;STSPercent&quot;, new Integer(70));</span>
+<span class="nc" id="L810">		jobType2NetworkDependencies[1].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L811">		jobType2NetworkDependencies[1].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L813">		jobType2NetworkDependencies[2] = new Hashtable(4);</span>
+<span class="nc" id="L814">		jobType2NetworkDependencies[2].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L815">		jobType2NetworkDependencies[2].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L816">		jobType2NetworkDependencies[2].put(&quot;FTFActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L817">		jobType2NetworkDependencies[2].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L819">		jobType2NetworkDependencies[3] = new Hashtable(4);</span>
+<span class="nc" id="L820">		jobType2NetworkDependencies[3].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L821">		jobType2NetworkDependencies[3].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L822">		jobType2NetworkDependencies[3].put(&quot;FTFActivity&quot;, new Integer(3));</span>
+<span class="nc" id="L823">		jobType2NetworkDependencies[3].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+<span class="nc" id="L825">		jobType2NetworkDependencies[4] = new Hashtable(4);</span>
+<span class="nc" id="L826">		jobType2NetworkDependencies[4].put(&quot;STSActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L827">		jobType2NetworkDependencies[4].put(&quot;STSPercent&quot;, new Integer(30));</span>
+<span class="nc" id="L828">		jobType2NetworkDependencies[4].put(&quot;FTFActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L829">		jobType2NetworkDependencies[4].put(&quot;FTFPercent&quot;, new Integer(60));</span>
+
+<span class="nc" id="L831">		jobType2NetworkDependencies[5] = new Hashtable(4);</span>
+<span class="nc" id="L832">		jobType2NetworkDependencies[5].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L833">		jobType2NetworkDependencies[5].put(&quot;STSPercent&quot;, new Integer(60));</span>
+<span class="nc" id="L834">		jobType2NetworkDependencies[5].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L835">		jobType2NetworkDependencies[5].put(&quot;FTFPercent&quot;, new Integer(80));</span>
+
+<span class="nc" id="L837">		jobType2NetworkDependencies[6] = new Hashtable(4);</span>
+<span class="nc" id="L838">		jobType2NetworkDependencies[6].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L839">		jobType2NetworkDependencies[6].put(&quot;STSPercent&quot;, new Integer(60));</span>
+<span class="nc" id="L840">		jobType2NetworkDependencies[6].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L841">		jobType2NetworkDependencies[6].put(&quot;FTFPercent&quot;, new Integer(70));</span>
+
+<span class="nc" id="L843">		jobType2NetworkDependencies[7] = new Hashtable(4);</span>
+<span class="nc" id="L844">		jobType2NetworkDependencies[7].put(&quot;STSActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L845">		jobType2NetworkDependencies[7].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L846">		jobType2NetworkDependencies[7].put(&quot;FTFActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L847">		jobType2NetworkDependencies[7].put(&quot;FTFPercent&quot;, new Integer(60));</span>
+
+<span class="nc" id="L849">		jobType2NetworkDependencies[8] = new Hashtable(4);</span>
+<span class="nc" id="L850">		jobType2NetworkDependencies[8].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L851">		jobType2NetworkDependencies[8].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L852">		jobType2NetworkDependencies[8].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L853">		jobType2NetworkDependencies[8].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+
+        //Sample network dependencies for job type 3
+<span class="nc" id="L857">		jobType3NetworkDependencies[0] = new Hashtable(4);</span>
+<span class="nc" id="L858">		jobType3NetworkDependencies[0].put(&quot;STSActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L859">		jobType3NetworkDependencies[0].put(&quot;STSPercent&quot;, new Integer(0));</span>
+<span class="nc" id="L860">		jobType3NetworkDependencies[0].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L861">		jobType3NetworkDependencies[0].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L863">		jobType3NetworkDependencies[1] = new Hashtable(4);</span>
+<span class="nc" id="L864">		jobType3NetworkDependencies[1].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L865">		jobType3NetworkDependencies[1].put(&quot;STSPercent&quot;, new Integer(70));</span>
+<span class="nc" id="L866">		jobType3NetworkDependencies[1].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L867">		jobType3NetworkDependencies[1].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L869">		jobType3NetworkDependencies[2] = new Hashtable(4);</span>
+<span class="nc" id="L870">		jobType3NetworkDependencies[2].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L871">		jobType3NetworkDependencies[2].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L872">		jobType3NetworkDependencies[2].put(&quot;FTFActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L873">		jobType3NetworkDependencies[2].put(&quot;FTFPercent&quot;, new Integer(70));</span>
+
+<span class="nc" id="L875">		jobType3NetworkDependencies[3] = new Hashtable(4);</span>
+<span class="nc" id="L876">		jobType3NetworkDependencies[3].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L877">		jobType3NetworkDependencies[3].put(&quot;STSPercent&quot;, new Integer(30));</span>
+<span class="nc" id="L878">		jobType3NetworkDependencies[3].put(&quot;FTFActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L879">		jobType3NetworkDependencies[3].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+<span class="nc" id="L881">		jobType3NetworkDependencies[4] = new Hashtable(4);</span>
+<span class="nc" id="L882">		jobType3NetworkDependencies[4].put(&quot;STSActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L883">		jobType3NetworkDependencies[4].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L884">		jobType3NetworkDependencies[4].put(&quot;FTFActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L885">		jobType3NetworkDependencies[4].put(&quot;FTFPercent&quot;, new Integer(30));</span>
+
+<span class="nc" id="L887">		jobType3NetworkDependencies[5] = new Hashtable(4);</span>
+<span class="nc" id="L888">		jobType3NetworkDependencies[5].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L889">		jobType3NetworkDependencies[5].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L890">		jobType3NetworkDependencies[5].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L891">		jobType3NetworkDependencies[5].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L893">		jobType3NetworkDependencies[6] = new Hashtable(4);</span>
+<span class="nc" id="L894">		jobType3NetworkDependencies[6].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L895">		jobType3NetworkDependencies[6].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L896">		jobType3NetworkDependencies[6].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L897">		jobType3NetworkDependencies[6].put(&quot;FTFPercent&quot;, new Integer(60));</span>
+
+<span class="nc" id="L899">		jobType3NetworkDependencies[7] = new Hashtable(4);</span>
+<span class="nc" id="L900">		jobType3NetworkDependencies[7].put(&quot;STSActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L901">		jobType3NetworkDependencies[7].put(&quot;STSPercent&quot;, new Integer(30));</span>
+<span class="nc" id="L902">		jobType3NetworkDependencies[7].put(&quot;FTFActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L903">		jobType3NetworkDependencies[7].put(&quot;FTFPercent&quot;, new Integer(60));</span>
+
+<span class="nc" id="L905">		jobType3NetworkDependencies[8] = new Hashtable(4);</span>
+<span class="nc" id="L906">		jobType3NetworkDependencies[8].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L907">		jobType3NetworkDependencies[8].put(&quot;STSPercent&quot;, new Integer(70));</span>
+<span class="nc" id="L908">		jobType3NetworkDependencies[8].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L909">		jobType3NetworkDependencies[8].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+
+        //Sample network dependencies for job type 4
+<span class="nc" id="L913">		jobType4NetworkDependencies[0] = new Hashtable(4);</span>
+<span class="nc" id="L914">		jobType4NetworkDependencies[0].put(&quot;STSActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L915">		jobType4NetworkDependencies[0].put(&quot;STSPercent&quot;, new Integer(0));</span>
+<span class="nc" id="L916">		jobType4NetworkDependencies[0].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L917">		jobType4NetworkDependencies[0].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L919">		jobType4NetworkDependencies[1] = new Hashtable(4);</span>
+<span class="nc" id="L920">		jobType4NetworkDependencies[1].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L921">		jobType4NetworkDependencies[1].put(&quot;STSPercent&quot;, new Integer(70));</span>
+<span class="nc" id="L922">		jobType4NetworkDependencies[1].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L923">		jobType4NetworkDependencies[1].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L925">		jobType4NetworkDependencies[2] = new Hashtable(4);</span>
+<span class="nc" id="L926">		jobType4NetworkDependencies[2].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L927">		jobType4NetworkDependencies[2].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L928">		jobType4NetworkDependencies[2].put(&quot;FTFActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L929">		jobType4NetworkDependencies[2].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L931">		jobType4NetworkDependencies[3] = new Hashtable(4);</span>
+<span class="nc" id="L932">		jobType4NetworkDependencies[3].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L933">		jobType4NetworkDependencies[3].put(&quot;STSPercent&quot;, new Integer(30));</span>
+<span class="nc" id="L934">		jobType4NetworkDependencies[3].put(&quot;FTFActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L935">		jobType4NetworkDependencies[3].put(&quot;FTFPercent&quot;, new Integer(40));</span>
+
+<span class="nc" id="L937">		jobType4NetworkDependencies[4] = new Hashtable(4);</span>
+<span class="nc" id="L938">		jobType4NetworkDependencies[4].put(&quot;STSActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L939">		jobType4NetworkDependencies[4].put(&quot;STSPercent&quot;, new Integer(30));</span>
+<span class="nc" id="L940">		jobType4NetworkDependencies[4].put(&quot;FTFActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L941">		jobType4NetworkDependencies[4].put(&quot;FTFPercent&quot;, new Integer(60));</span>
+
+<span class="nc" id="L943">		jobType4NetworkDependencies[5] = new Hashtable(4);</span>
+<span class="nc" id="L944">		jobType4NetworkDependencies[5].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L945">		jobType4NetworkDependencies[5].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L946">		jobType4NetworkDependencies[5].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L947">		jobType4NetworkDependencies[5].put(&quot;FTFPercent&quot;, new Integer(90));</span>
+
+<span class="nc" id="L949">		jobType4NetworkDependencies[6] = new Hashtable(4);</span>
+<span class="nc" id="L950">		jobType4NetworkDependencies[6].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L951">		jobType4NetworkDependencies[6].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L952">		jobType4NetworkDependencies[6].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L953">		jobType4NetworkDependencies[6].put(&quot;FTFPercent&quot;, new Integer(90));</span>
+
+<span class="nc" id="L955">		jobType4NetworkDependencies[7] = new Hashtable(4);</span>
+<span class="nc" id="L956">		jobType4NetworkDependencies[7].put(&quot;STSActivity&quot;, new Integer(6));</span>
+<span class="nc" id="L957">		jobType4NetworkDependencies[7].put(&quot;STSPercent&quot;, new Integer(30));</span>
+<span class="nc" id="L958">		jobType4NetworkDependencies[7].put(&quot;FTFActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L959">		jobType4NetworkDependencies[7].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L961">		jobType4NetworkDependencies[8] = new Hashtable(4);</span>
+<span class="nc" id="L962">		jobType4NetworkDependencies[8].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L963">		jobType4NetworkDependencies[8].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L964">		jobType4NetworkDependencies[8].put(&quot;FTFActivity&quot;, new Integer(6));</span>
+<span class="nc" id="L965">		jobType4NetworkDependencies[8].put(&quot;FTFPercent&quot;, new Integer(30));</span>
+
+
+
+        //Sample network dependencies for job type 5
+<span class="nc" id="L970">		jobType5NetworkDependencies[0] = new Hashtable(4);</span>
+<span class="nc" id="L971">		jobType5NetworkDependencies[0].put(&quot;STSActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L972">		jobType5NetworkDependencies[0].put(&quot;STSPercent&quot;, new Integer(0));</span>
+<span class="nc" id="L973">		jobType5NetworkDependencies[0].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L974">		jobType5NetworkDependencies[0].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L976">		jobType5NetworkDependencies[1] = new Hashtable(4);</span>
+<span class="nc" id="L977">		jobType5NetworkDependencies[1].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L978">		jobType5NetworkDependencies[1].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L979">		jobType5NetworkDependencies[1].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L980">		jobType5NetworkDependencies[1].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L982">		jobType5NetworkDependencies[2] = new Hashtable(4);</span>
+<span class="nc" id="L983">		jobType5NetworkDependencies[2].put(&quot;STSActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L984">		jobType5NetworkDependencies[2].put(&quot;STSPercent&quot;, new Integer(0));</span>
+<span class="nc" id="L985">		jobType5NetworkDependencies[2].put(&quot;FTFActivity&quot;, new Integer(0));</span>
+<span class="nc" id="L986">		jobType5NetworkDependencies[2].put(&quot;FTFPercent&quot;, new Integer(0));</span>
+
+<span class="nc" id="L988">		jobType5NetworkDependencies[3] = new Hashtable(4);</span>
+<span class="nc" id="L989">		jobType5NetworkDependencies[3].put(&quot;STSActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L990">		jobType5NetworkDependencies[3].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L991">		jobType5NetworkDependencies[3].put(&quot;FTFActivity&quot;, new Integer(2));</span>
+<span class="nc" id="L992">		jobType5NetworkDependencies[3].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L994">		jobType5NetworkDependencies[4] = new Hashtable(4);</span>
+<span class="nc" id="L995">		jobType5NetworkDependencies[4].put(&quot;STSActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L996">		jobType5NetworkDependencies[4].put(&quot;STSPercent&quot;, new Integer(50));</span>
+<span class="nc" id="L997">		jobType5NetworkDependencies[4].put(&quot;FTFActivity&quot;, new Integer(4));</span>
+<span class="nc" id="L998">		jobType5NetworkDependencies[4].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L1000">		jobType5NetworkDependencies[5] = new Hashtable(4);</span>
+<span class="nc" id="L1001">		jobType5NetworkDependencies[5].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L1002">		jobType5NetworkDependencies[5].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L1003">		jobType5NetworkDependencies[5].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L1004">		jobType5NetworkDependencies[5].put(&quot;FTFPercent&quot;, new Integer(80));</span>
+
+<span class="nc" id="L1006">		jobType5NetworkDependencies[6] = new Hashtable(4);</span>
+<span class="nc" id="L1007">		jobType5NetworkDependencies[6].put(&quot;STSActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L1008">		jobType5NetworkDependencies[6].put(&quot;STSPercent&quot;, new Integer(40));</span>
+<span class="nc" id="L1009">		jobType5NetworkDependencies[6].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L1010">		jobType5NetworkDependencies[6].put(&quot;FTFPercent&quot;, new Integer(90));</span>
+
+<span class="nc" id="L1012">		jobType5NetworkDependencies[7] = new Hashtable(4);</span>
+<span class="nc" id="L1013">		jobType5NetworkDependencies[7].put(&quot;STSActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L1014">		jobType5NetworkDependencies[7].put(&quot;STSPercent&quot;, new Integer(20));</span>
+<span class="nc" id="L1015">		jobType5NetworkDependencies[7].put(&quot;FTFActivity&quot;, new Integer(7));</span>
+<span class="nc" id="L1016">		jobType5NetworkDependencies[7].put(&quot;FTFPercent&quot;, new Integer(60));</span>
+
+<span class="nc" id="L1018">		jobType5NetworkDependencies[8] = new Hashtable(4);</span>
+<span class="nc" id="L1019">		jobType5NetworkDependencies[8].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L1020">		jobType5NetworkDependencies[8].put(&quot;STSPercent&quot;, new Integer(70));</span>
+<span class="nc" id="L1021">		jobType5NetworkDependencies[8].put(&quot;FTFActivity&quot;, new Integer(5));</span>
+<span class="nc" id="L1022">		jobType5NetworkDependencies[8].put(&quot;FTFPercent&quot;, new Integer(50));</span>
+
+<span class="nc" id="L1024">		Hashtable[][] networkDependencies = new Hashtable[5][9];</span>
+<span class="nc" id="L1025">		networkDependencies[0] = jobType1NetworkDependencies;</span>
+<span class="nc" id="L1026">		networkDependencies[1] = jobType2NetworkDependencies;</span>
+<span class="nc" id="L1027">		networkDependencies[2] = jobType3NetworkDependencies;</span>
+<span class="nc" id="L1028">		networkDependencies[3] = jobType4NetworkDependencies;</span>
+<span class="nc" id="L1029">		networkDependencies[4] = jobType5NetworkDependencies;</span>
+
+<span class="nc" id="L1031">		Hashtable liquidatedDamages = new Hashtable(7);</span>
+<span class="nc" id="L1032">		liquidatedDamages.put(&quot;Median&quot;, new Float(.3));</span>
+<span class="nc" id="L1033">		liquidatedDamages.put(&quot;StdDev&quot;, new Float(.1));</span>
+<span class="nc" id="L1034">		liquidatedDamages.put(&quot;Min&quot;, new Float(0));</span>
+<span class="nc" id="L1035">		liquidatedDamages.put(&quot;Max&quot;, new Float(.5));</span>
+<span class="nc" id="L1036">		liquidatedDamages.put(&quot;PercentJobs&quot;, new Integer(90));</span>
+<span class="nc" id="L1037">		liquidatedDamages.put(&quot;FasterJobsIncrease&quot;, new Boolean(true));</span>
+<span class="nc" id="L1038">		liquidatedDamages.put(&quot;LargerJobsIncrease&quot;, new Boolean(true));</span>
+
+
+<span class="nc" id="L1041">        Calendar calendar = new GregorianCalendar();</span>
+<span class="nc" id="L1042">	    calendar.set(Calendar.DAY_OF_MONTH, 1); //set to first day of month</span>
+<span class="nc" id="L1043">        Date month = (new SimpleDateFormat(&quot;MM/dd/yyyy&quot;)).parse(&quot;1/1/2001&quot;, new ParsePosition(0));</span>
+
+<span class="nc" id="L1045">		JobFactory jf = new JobFactory(null,  //fix this</span>
+			 						   jobSizeParams,
+									   percentTakeoffs,
+									   methods,
+									   networkDependencies,
+									   liquidatedDamages,
+									   1,
+									   month,
+									   20,
+									   8,
+									   5,
+									   0,
+									   0,
+									   1);
+<span class="nc" id="L1059">		Job j  = jf.createJob(1);</span>
+<span class="nc" id="L1060">	}</span>
+}
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

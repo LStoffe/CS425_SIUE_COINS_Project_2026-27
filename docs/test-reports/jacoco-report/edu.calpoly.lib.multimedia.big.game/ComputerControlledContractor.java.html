@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComputerControlledContractor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">ComputerControlledContractor.java</span></div><h1>ComputerControlledContractor.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.lib.multimedia.big.game;
+
+import java.util.StringTokenizer;
+
+/**
+ * Represents a non-player contractor in BIG.
+ * Non-player contractors, or Computer Controlled Contractors (CCCs)
+ * add fairness and increase the realism of BIG.
+ * Their most important purpose is to keep companies honest
+ * by putting a ceiling on the amount a single job can go for.
+ * At least one CCC will bid on every job, with a fair bid that has a
+ * greedy profit margin.  This ensures both that companies have a chance
+ * to beat the CCCs and get jobs, and that a company can never get
+ * too much money on a single job, because the CCCs' bid(s) would be lower.
+ * Without a CCC bid on each job, a company could make an exaggerated bid
+ * and still be awarded the job because theirs was the only bid.
+ * &lt;br&gt;&lt;br&gt;
+ * CCCs also add realism because it means there are companies out there
+ * who the player companies have no knowledge of.
+ * &lt;br&gt;&lt;br&gt;
+ *
+ * A CCC's bid is calculated by adding the field/office overhead
+ * (fixed and variable) and bid expense (a percentage of the direct cost
+ * set as a game parameter) to the Job's direct cost.  This value is then
+ * increased by a random profit percentage (the boundaries of which
+ * are set as game parameters) to arrive at the final bid price.
+ * &lt;br&gt;&lt;br&gt;
+ * Note: companyID for a CCC is its cccId negated.  All player companyIDs
+ * are positive values.
+ *
+ *
+ * @author Kevin Craig
+ *
+ */
+public class ComputerControlledContractor implements Contractor
+{
+<span class="fc" id="L38">	private int cccID = 0;</span>
+	private int fitness;
+	private int[] jobTypePreferences;  //Index + 1 is job type, value is % chance this CCC would bid on a job of that type
+	private String name;
+
+	public ComputerControlledContractor(String name, int fitness, int[] jobTypePreferences)
+<span class="fc" id="L44">	{</span>
+<span class="fc" id="L45">		this.name = name;</span>
+<span class="fc" id="L46">		this.fitness = fitness;</span>
+<span class="fc" id="L47">		this.jobTypePreferences = jobTypePreferences;</span>
+<span class="fc" id="L48">	}</span>
+
+	public ComputerControlledContractor(int cccID, String name, int fitness, int[] jobTypePreferences)
+<span class="fc" id="L51">	{</span>
+<span class="fc" id="L52">		this.cccID = cccID;</span>
+<span class="fc" id="L53">		this.name = name;</span>
+<span class="fc" id="L54">		this.fitness = fitness;</span>
+<span class="fc" id="L55">		this.jobTypePreferences = jobTypePreferences;</span>
+<span class="fc" id="L56">	}</span>
+
+	public int getCCCID()
+	{
+<span class="fc" id="L60">		return cccID;</span>
+	}
+
+	public int getFitness()
+	{
+<span class="fc" id="L65">		return fitness;</span>
+	}
+
+	public int[] getJobTypePreferences()
+	{
+<span class="fc" id="L70">		return jobTypePreferences;</span>
+	}
+
+	public String getName()
+	{
+<span class="fc" id="L75">		return name;</span>
+	}
+
+    /**
+     *  Only an instance of &lt;code&gt;CCCDBHandler&lt;/code&gt; should modify the the cccID.
+     *  If this method is called by some other class the database could become confused
+     *  and throw exception for this or other CCCs.
+     *
+     */
+	public void setCCCID(int cccID)
+	{
+<span class="fc" id="L86">		this.cccID = cccID;</span>
+<span class="fc" id="L87">	}</span>
+
+	public void setFitness(int fitness)
+	{
+<span class="fc" id="L91">		this.fitness = fitness;</span>
+<span class="fc" id="L92">	}</span>
+
+	public void setJobTypePreferences(int[] jobTypePreferences)
+	{
+<span class="fc" id="L96">		this.jobTypePreferences = jobTypePreferences;</span>
+<span class="fc" id="L97">	}</span>
+
+	public void setName(String name)
+	{
+<span class="fc" id="L101">		this.name = name;</span>
+<span class="fc" id="L102">	}</span>
+
+	public String getTitle()
+	{
+<span class="fc" id="L106">		return name;</span>
+	}
+
+	public int getContractorID()
+	{
+<span class="fc" id="L111">		return - cccID;</span>
+	}
+
+    /**
+     * Used to sort &lt;code&gt;ComputerControlledContractor&lt;/code&gt; by title
+     */
+    public int compareTo(Object o)
+    {
+<span class="fc" id="L119">  	    Contractor c = (Contractor) o;</span>
+
+<span class="fc" id="L121">		String string1 = &quot;&quot;;</span>
+<span class="fc" id="L122">		String string2 = &quot;&quot;;</span>
+
+<span class="fc" id="L124">		StringTokenizer st1Tok = new StringTokenizer(c.getTitle(), &quot; &quot;);</span>
+
+<span class="fc bfc" id="L126" title="All 2 branches covered.">		while (st1Tok.hasMoreTokens())</span>
+		{
+<span class="fc" id="L128">			string1 += st1Tok.nextToken();</span>
+		}
+
+<span class="fc" id="L131">		StringTokenizer st2Tok = new StringTokenizer(name, &quot; &quot;);</span>
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		while (st2Tok.hasMoreTokens())</span>
+		{
+<span class="fc" id="L135">			string2 += st2Tok.nextToken();</span>
+		}
+
+<span class="fc" id="L138">	    return string2.compareToIgnoreCase(string1);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

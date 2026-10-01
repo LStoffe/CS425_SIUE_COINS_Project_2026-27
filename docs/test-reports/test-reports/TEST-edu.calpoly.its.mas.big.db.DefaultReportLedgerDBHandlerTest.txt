@@ -1,0 +1,10 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultReportLedgerDBHandlerTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.119 sec
+
+Testcase: testCheckIfPurchasedReturnsFalseWhenNoRow took 0.067 sec
+Testcase: testGetPurchasesForPeriodReturnsCounts took 0.023 sec
+Testcase: testCheckIfPurchasedReturnsTrueWhenRowExists took 0 sec
+Testcase: testRecordPaymentWrapsSQLExceptionAndClosesConnection took 0.008 sec
+Testcase: testCheckIfPurchasedWrapsSQLExceptionAndClosesConnection took 0 sec
+Testcase: testRecordPaymentSucceeds took 0.014 sec
+Testcase: testGetPurchasesForPeriodWrapsSQLExceptionAndClosesConnection took 0 sec

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetCCCParametersAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.admin</a> &gt; <span class="el_source">SetCCCParametersAction.java</span></div><h1>SetCCCParametersAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.admin;
+
+//JDK imports
+import java.util.Hashtable;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIGv2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.admin.Admin;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ParametersNotFoundException;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Determines whether the administrator wishes to set parameters or restore defaults for number of jobs parameters then performs the appropriate action.
+ * If the administrator wishes to store his current parameters settings to the database s/he would have pushed the set parameters button
+ * (which must have the name &quot;submit&quot;).  In this case the values currently in the CCCParametersForm in the session will be
+ * stored to the database.  These parameters will also be made the admin's defaults if the getMakeDefaults method of the form returns true.
+ * &lt;br&gt;&lt;br&gt;
+ * If the administrator pressed some other submit button (any name other than &quot;submit&quot; or &quot;cancel&quot;) the parameters in the CCCParametersForm
+ * will be overwritten with a copy of the admin's defaults for the current parameters.  The defaults will also be re-copied into the database overwriting the current
+ * game parameters.
+ *
+ * @author Kevin Craig
+ *
+ *
+ */
+<span class="fc" id="L54">public class SetCCCParametersAction extends Action</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+				       			 ActionForm form,
+				       			 HttpServletRequest request,
+			           			 HttpServletResponse response)
+	{
+<span class="fc" id="L62">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L65">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+
+		//Process request if it was not cancelled
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if(!isCancelled(request))</span>
+        {
+<span class="fc" id="L72">			ActionMessages errors = new ActionMessages();</span>
+
+<span class="fc" id="L74">			HttpSession session = request.getSession();</span>
+
+			//Retrieve the current game and admin from the session
+<span class="nc" id="L77">			Admin admin = (Admin) session.getAttribute(&quot;user&quot;);</span>
+<span class="nc" id="L78">			Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+			//Get the game parameters from the action form
+<span class="nc" id="L81">			CCCParametersForm cccParametersForm = (CCCParametersForm) form;</span>
+
+            //Determine which submit button was pressed by the Administrator. If the SetParameters button is null the other RestoreDefaults button had to be pushed
+<span class="nc" id="L84">            String testSetParametersSubmitButton = (String) request.getParameter(&quot;submit&quot;);</span>
+
+			//Create a database facade that will hold the connection since it will be used repeatedly
+<span class="nc" id="L87">			BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request));</span>
+
+			//Hashtable used to transfer the parameters to the database facade
+<span class="nc" id="L90">			Hashtable parameters = null;</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			if (testSetParametersSubmitButton != null)  //&quot;Set Parameters&quot; submit button was pushed.</span>
+			{
+				//Store the current parameters values from the form into the database
+				try
+				{
+<span class="nc" id="L97">					parameters = new Hashtable(5);</span>
+<span class="nc" id="L98">					parameters.put(&quot;minNumberOfCCCs&quot;, new Integer(cccParametersForm.getMinNumberCCCs()));</span>
+<span class="nc" id="L99">					parameters.put(&quot;maxNumberOfCCCs&quot;, new Integer(cccParametersForm.getMaxNumberCCCs()));</span>
+<span class="nc" id="L100">					parameters.put(&quot;minNumberOfCCCBidsPerJob&quot;, new Integer(cccParametersForm.getMinCCCBidsPerJob()));</span>
+<span class="nc" id="L101">					parameters.put(&quot;maxNumberOfCCCBidsPerJob&quot;, new Integer(cccParametersForm.getMaxCCCBidsPerJob()));</span>
+<span class="nc" id="L102">					parameters.put(&quot;CCCTurnover&quot;, new Integer(cccParametersForm.getCCCTurnover()));</span>
+<span class="nc" id="L103">					parameters.put(&quot;lowerPercentJobMarkup&quot;, new Integer(cccParametersForm.getLowerPercentJobMarkup()));</span>
+<span class="nc" id="L104">					parameters.put(&quot;upperPercentJobMarkup&quot;, new Integer(cccParametersForm.getUpperPercentJobMarkup()));</span>
+
+<span class="nc" id="L106">					dbFacade.getGameParametersDBHandler().updateComputerControlledContractorParameters(game, parameters);</span>
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">					if(cccParametersForm.getMakeDefaults())</span>
+					{
+<span class="nc" id="L110">						dbFacade.getGameParametersDBHandler().updateDefaultComputerControlledContractorParameters(admin, parameters);</span>
+					}
+
+<span class="nc" id="L113">					dbFacade.close();</span>
+				}
+<span class="nc" id="L115">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					 //Problem with the database
+<span class="nc" id="L118">				    log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L119">				    errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L121">				catch(ParametersNotFoundException pnfe)</span>
+				{
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L124">					log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L125">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L126">				}</span>
+			}
+			else //&quot;Restore defaults&quot; submit button was pushed
+			{
+				try
+				{
+					//Retrieve this admins default parameters from the database and re-store them for the current game
+<span class="nc" id="L133">					parameters = dbFacade.getGameParametersDBHandler().getDefaultComputerControlledContractorParameters(admin);</span>
+<span class="nc" id="L134">					dbFacade.getGameParametersDBHandler().updateComputerControlledContractorParameters(game, parameters);</span>
+<span class="nc" id="L135">					dbFacade.close();</span>
+
+					//The parameter vaules also need to be put in the Action Form so the user can see them
+<span class="nc" id="L138">					cccParametersForm.setMinNumberCCCs(((Integer) parameters.get(&quot;minNumberOfCCCs&quot;)).intValue());</span>
+<span class="nc" id="L139">					cccParametersForm.setMaxNumberCCCs(((Integer) parameters.get(&quot;maxNumberOfCCCs&quot;)).intValue());</span>
+<span class="nc" id="L140">					cccParametersForm.setMinCCCBidsPerJob(((Integer) parameters.get(&quot;minNumberOfCCCBidsPerJob&quot;)).intValue());</span>
+<span class="nc" id="L141">					cccParametersForm.setMaxCCCBidsPerJob(((Integer) parameters.get(&quot;maxNumberOfCCCBidsPerJob&quot;)).intValue());</span>
+<span class="nc" id="L142">					cccParametersForm.setCCCTurnover(((Integer) parameters.get(&quot;CCCTurnover&quot;)).intValue());</span>
+<span class="nc" id="L143">					cccParametersForm.setLowerPercentJobMarkup(((Integer) parameters.get(&quot;lowerPercentJobMarkup&quot;)).intValue());</span>
+<span class="nc" id="L144">					cccParametersForm.setUpperPercentJobMarkup(((Integer) parameters.get(&quot;upperPercentJobMarkup&quot;)).intValue());</span>
+
+				}
+<span class="nc" id="L147">				catch(BIGDatabaseFacadeException bigdbe)</span>
+				{
+					//Problem with the database
+<span class="nc" id="L150">				   log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L151">				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+				}
+<span class="nc" id="L153">				catch(ParametersNotFoundException pnfe)</span>
+				{
+					//The parameters for this game weren't there.  There should never be a game without parameters
+<span class="nc" id="L156">					log.fatal(&quot;&quot;, pnfe);</span>
+<span class="nc" id="L157">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+<span class="nc" id="L158">				}</span>
+
+			}
+
+<span class="nc bnc" id="L162" title="All 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L164" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L166">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L169">				saveErrors(request, errors);</span>
+<span class="nc" id="L170">	 	    	saveToken(request);</span>
+<span class="nc" id="L171">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			else if (testSetParametersSubmitButton != null)</span>
+			{
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L177">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;params_set\&quot;&quot;);</span>
+				}
+<span class="nc" id="L179">				return (mapping.findForward(&quot;params_set&quot;));</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L183" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L185">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;defaults_restored\&quot;&quot;);</span>
+				}
+<span class="nc" id="L187">				return (mapping.findForward(&quot;defaults_restored&quot;));</span>
+			}
+
+	    }
+	    else  //Request was cancelled
+	    {
+<span class="nc bnc" id="L193" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L195">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="nc" id="L197">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

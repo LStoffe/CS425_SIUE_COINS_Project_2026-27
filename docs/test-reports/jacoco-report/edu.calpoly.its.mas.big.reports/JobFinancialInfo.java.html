@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JobFinancialInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.reports</a> &gt; <span class="el_source">JobFinancialInfo.java</span></div><h1>JobFinancialInfo.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.reports;
+
+import edu.calpoly.its.mas.big.game.Job;
+
+/**
+ * Holds financial info for one period of a job
+ *
+ * @author Kevin Craig
+ * @version $Revision: 1.3 $ $Date: 2002/02/12 00:13:58 $
+ */
+public class JobFinancialInfo
+{
+	private int jobid;
+
+    private int jobTypeID;
+	private String jobType;
+
+	private short typeModifier;
+
+	private long paymentsReceived;
+	private long retainageReceived;
+	private long directLaborCost;
+	private long directMaterialsCost;
+	private long directEquipmentCost;
+	private long subcontractorCost;
+	private long fieldOverhead;
+	private long liquidatedDamages;
+	private int daysLate;
+	private long liquidatedDamagesPerDay;
+
+	public JobFinancialInfo(Job job)
+<span class="fc" id="L32">	{</span>
+<span class="fc" id="L33">		this.jobid = job.getJobID();</span>
+<span class="fc" id="L34">		jobType = null;</span>
+<span class="fc" id="L35">		this.jobTypeID = jobTypeID;</span>
+<span class="fc" id="L36">		this.typeModifier = job.getTypeModifier();</span>
+<span class="fc" id="L37">		this.paymentsReceived = 0;</span>
+<span class="fc" id="L38">		this.retainageReceived = 0;</span>
+<span class="fc" id="L39">		this.directLaborCost = 0;</span>
+<span class="fc" id="L40">		this.directMaterialsCost = 0;</span>
+<span class="fc" id="L41">		this.directEquipmentCost = 0;</span>
+<span class="fc" id="L42">		this.fieldOverhead = 0;</span>
+<span class="fc" id="L43">		this.liquidatedDamages = 0;</span>
+<span class="fc" id="L44">		this.subcontractorCost = 0;</span>
+<span class="fc" id="L45">		this.daysLate = 0;</span>
+<span class="fc" id="L46">		this.liquidatedDamagesPerDay = 0;</span>
+
+<span class="fc" id="L48">	}</span>
+
+	public JobFinancialInfo(int jobid,
+	                        int jobTypeID,
+	                        short typeModifier,
+						    long paymentsReceived,
+						    long retainageReceived,
+						    long directLaborCost,
+						    long directMaterialsCost,
+						    long directEquipmentCost,
+						    long subcontractorCost,
+						    long fieldOverhead,
+						    int  daysLate,
+						    long liquidatedDamagesPerDay
+						    )
+<span class="fc" id="L63">	{</span>
+<span class="fc" id="L64">		this.jobid = jobid;</span>
+<span class="fc" id="L65">		jobType = null;</span>
+<span class="fc" id="L66">		this.jobTypeID = jobTypeID;</span>
+<span class="fc" id="L67">		this.typeModifier = typeModifier;</span>
+<span class="fc" id="L68">		this.paymentsReceived = paymentsReceived;</span>
+<span class="fc" id="L69">		this.retainageReceived = retainageReceived;</span>
+<span class="fc" id="L70">		this.directLaborCost = directLaborCost;</span>
+<span class="fc" id="L71">		this.directMaterialsCost = directMaterialsCost;</span>
+<span class="fc" id="L72">		this.directEquipmentCost = directEquipmentCost;</span>
+<span class="fc" id="L73">		this.subcontractorCost = subcontractorCost;</span>
+<span class="fc" id="L74">		this.fieldOverhead = fieldOverhead;</span>
+<span class="fc" id="L75">		this.liquidatedDamages = liquidatedDamagesPerDay * daysLate;</span>
+<span class="fc" id="L76">		this.daysLate = daysLate;</span>
+<span class="fc" id="L77">		this.liquidatedDamagesPerDay = liquidatedDamagesPerDay;</span>
+<span class="fc" id="L78">	}</span>
+
+
+//************ PUBLIC METHODS ***************
+
+	public int getJobID()
+	{
+<span class="fc" id="L85">		return jobid;</span>
+	}
+
+	public void setJobID(int jobid)
+	{
+<span class="fc" id="L90">		this.jobid = jobid;</span>
+<span class="fc" id="L91">	}</span>
+
+	public String getJobType()
+	{
+<span class="fc" id="L95">		return jobType;</span>
+	}
+
+	public void setJobType(String jobType)
+	{
+<span class="fc" id="L100">		this.jobType = jobType;</span>
+<span class="fc" id="L101">	}</span>
+
+	public int getJobTypeID()
+	{
+<span class="fc" id="L105">		return jobTypeID;</span>
+	}
+
+	public void setJobTypeID(int jobTypeID)
+	{
+<span class="nc" id="L110">		this.jobTypeID = jobTypeID;</span>
+<span class="nc" id="L111">	}</span>
+
+    public short getTypeModifier()
+    {
+<span class="fc" id="L115">		return typeModifier;</span>
+	}
+
+    public void setTypeModifier(short typeModifier)
+    {
+<span class="nc" id="L120">		this.typeModifier = typeModifier;</span>
+<span class="nc" id="L121">	}</span>
+
+	public long getPaymentsReceived()
+	{
+<span class="fc" id="L125">		return paymentsReceived;</span>
+	}
+
+	public void setPaymentsReceived(long paymentsReceived)
+	{
+<span class="fc" id="L130">		this.paymentsReceived = paymentsReceived;</span>
+<span class="fc" id="L131">	}</span>
+
+	public void increasePaymentsReceived(long amount)
+	{
+<span class="fc" id="L135">		this.paymentsReceived += amount;</span>
+<span class="fc" id="L136">	}</span>
+
+	public long getRetainageReceived()
+	{
+<span class="fc" id="L140">		return retainageReceived;</span>
+	}
+
+	public void setRetainageReceived(long retainageReceived)
+	{
+<span class="fc" id="L145">		this.retainageReceived = retainageReceived;</span>
+<span class="fc" id="L146">	}</span>
+
+	public void increaseRetainageReceived(long amount)
+	{
+<span class="fc" id="L150">		this.retainageReceived += amount;</span>
+<span class="fc" id="L151">	}</span>
+
+	public long getDirectLaborCost()
+	{
+<span class="fc" id="L155">		return directLaborCost;</span>
+	}
+
+	public void setDirectLaborCost(long directLaborCost)
+	{
+<span class="fc" id="L160">		this.directLaborCost = directLaborCost;</span>
+<span class="fc" id="L161">	}</span>
+
+	public void increaseDirectLaborCost(long amount)
+	{
+<span class="fc" id="L165">		this.directLaborCost += amount;</span>
+<span class="fc" id="L166">	}</span>
+
+	public long getDirectMaterialsCost()
+	{
+<span class="fc" id="L170">		return directMaterialsCost;</span>
+	}
+
+	public void setDirectMaterialsCost(long directMaterialsCost)
+	{
+<span class="fc" id="L175">		this.directMaterialsCost = directMaterialsCost;</span>
+<span class="fc" id="L176">	}</span>
+
+	public void increaseDirectMaterialsCost(long amount)
+	{
+<span class="fc" id="L180">		this.directMaterialsCost += amount;</span>
+<span class="fc" id="L181">	}</span>
+
+	public long getDirectEquipmentCost()
+	{
+<span class="fc" id="L185">		return directEquipmentCost;</span>
+	}
+
+	public void setDirectEquipmentCost(long directEquipmentCost)
+	{
+<span class="fc" id="L190">		this.directEquipmentCost = directEquipmentCost;</span>
+<span class="fc" id="L191">	}</span>
+
+	public void increaseDirectEquipmentCost(long amount)
+	{
+<span class="fc" id="L195">		this.directEquipmentCost += amount;</span>
+<span class="fc" id="L196">	}</span>
+
+	public long getSubcontractorCost()
+	{
+<span class="fc" id="L200">		return subcontractorCost;</span>
+	}
+
+	public void setSubcontractorCost(long subcontractorCost)
+	{
+<span class="fc" id="L205">		this.subcontractorCost = subcontractorCost;</span>
+<span class="fc" id="L206">	}</span>
+
+	public void increaseSubcontractorCost(long amount)
+	{
+<span class="fc" id="L210">		this.subcontractorCost += amount;</span>
+<span class="fc" id="L211">	}</span>
+
+	public long getFieldOverhead()
+	{
+<span class="fc" id="L215">		return fieldOverhead;</span>
+	}
+
+	public void setFieldOverhead(long fieldOverhead)
+	{
+<span class="fc" id="L220">		this.fieldOverhead = fieldOverhead;</span>
+<span class="fc" id="L221">	}</span>
+
+	public void increaseFieldOverhead(long amount)
+	{
+<span class="fc" id="L225">		this.fieldOverhead += amount;</span>
+<span class="fc" id="L226">	}</span>
+
+	public long getLiquidatedDamages()
+	{
+<span class="fc" id="L230">		return liquidatedDamages;</span>
+	}
+
+	public void setLiquidatedDamages(long liquidatedDamages)
+	{
+<span class="nc" id="L235">		this.liquidatedDamages = liquidatedDamages;</span>
+<span class="nc" id="L236">	}</span>
+
+	public void increaseLiquidatedDamages(long amount)
+	{
+<span class="nc" id="L240">		this.liquidatedDamages += amount;</span>
+<span class="nc" id="L241">	}</span>
+
+	public int getDaysLate()
+	{
+<span class="fc" id="L245">		return daysLate;</span>
+	}
+
+	public void setDaysLate(int daysLate)
+	{
+<span class="nc" id="L250">		this.daysLate = daysLate;</span>
+<span class="nc" id="L251">	}</span>
+
+	public void incrementDaysLate()
+	{
+<span class="fc" id="L255">		this.daysLate++;</span>
+<span class="fc" id="L256">	}</span>
+
+	public long getLiquidatedDamagesPerDay()
+	{
+<span class="fc" id="L260">		return liquidatedDamagesPerDay;</span>
+	}
+
+	public void setLiquidatedDamagesPerDay(long liquidatedDamagesPerDay)
+	{
+<span class="fc" id="L265">		this.liquidatedDamagesPerDay = liquidatedDamagesPerDay;</span>
+<span class="fc" id="L266">	}</span>
+
+    public long getJobNetIncome()
+    {
+<span class="fc" id="L270">		return paymentsReceived + retainageReceived - directLaborCost - directMaterialsCost - directEquipmentCost - subcontractorCost - fieldOverhead - liquidatedDamages;</span>
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

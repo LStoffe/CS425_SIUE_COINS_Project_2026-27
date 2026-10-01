@@ -1,0 +1,119 @@
+<!--
+  getting-started.html
+  The first section of the COINS manual.
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 1">
+    <title>Section 1: Getting Started</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-6">
+        <h1 class="text-3xl font-bold text-black mb-2">
+            Section 1: Getting Started
+        </h1>
+        <p class="text-lg text-black leading-relaxed">
+            This first section introduces you to BIG (Building Industry Game), sometimes also referred to as COINS,
+            and explains the core concepts needed to begin using the system.
+        </p>
+    </header>
+
+    <!-- Topics List -->
+    <section>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+            Topics in this section:
+        </h2>
+    
+        <ol class="pl-4 space-y-2 text-lg text-black">
+            <li>
+                <a th:href="@{/manual/introduction}" class="hover:underline">
+                    <span class="font-bold">1.1</span> Introduction
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/login-logout}" class="hover:underline">
+                    <span class="font-bold">1.2</span> Login / Logout
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/company-information}" class="hover:underline">
+                    <span class="font-bold">1.3</span> Company Information
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/big-basics}" class="hover:underline">
+                    <span class="font-bold">1.4</span> Basics
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/interacting-with-big}" class="hover:underline">
+                    <span class="font-bold">1.5</span> Interacting with BIG
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/company-inbox}" class="hover:underline">
+                    <span class="font-bold">1.6</span> Company Inbox
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/job-information}" class="hover:underline">
+                    <span class="font-bold">1.7</span> Job Information
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/productivity-report}" class="hover:underline">
+                    <span class="font-bold">1.8</span> Productivity Report
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/available-jobs}" class="hover:underline">
+                    <span class="font-bold">1.9</span> Available Jobs
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/estimated-time-and-cost-report}" class="hover:underline">
+                    <span class="font-bold">1.10</span> Estimated Time and Cost Report
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/manual/network-dependencies-reports}" class="hover:underline">
+                    <span class="font-bold">1.11</span> Network Dependencies Reports
+                </a>
+            </li>
+        </ol>
+    </section>    
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/manual-toc}" class="font-semibold hover:underline">
+        ← Return to Table of Contents
+    </a>
+    <a th:href="@{/manual/introduction}" class="font-semibold hover:underline">
+        Next → 1.1 Introduction
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

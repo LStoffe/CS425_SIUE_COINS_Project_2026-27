@@ -1,0 +1,73 @@
+<!--
+  overtime.html
+  Section 5.6 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.6 Overtime</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.6 Overtime
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The simplest way to make up for schedule slippage is to add overtime to the job. Rescheduling methods allows you to correct large schedule problems, but can be very costly. 
+            Overtime is a way to fine tune the difference between your schedule and the actual amount of work complete. 
+            Overtime is not as expensive as a method change and may give your job the extra boost it needs to complete on time.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            To add overtime, select the "Add Overtime to a Job" link from the main page and select the job to which you wish to add overtime. 
+            You can choose to add overtime to any of the 9 job activities for any number of workdays in the period. 
+            You assign overtime to an activity by entering in the number of workdays that should be worked overtime. If you enter a number greater than the number of workdays in the period, everyday will be worked overtime. 
+            Overtime is reset each period so if there are more overtime days assigned than workdays in a period, workdays in the next period will not be worked overtime unless you explicitly assign overtime that period.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Each overtime day contains (x+d)* hours of work rather than the normal (x)* . Labor laws and union contracts require that laborers receive extra compensation for hours worked overtime. 
+            For each of the extra (d)* hours in an overtime day, the labor and/or subcontractor cost for the methods worked overtime will be increased by a factor of (f)* (the normal costs still apply to the original (x)* hours in the day).
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/method-rescheduling}" class="font-semibold hover:underline">
+        ← 5.5 Method Rescheduling
+    </a>
+    <a th:href="@{/manual/loans}" class="font-semibold hover:underline">
+        Next → 5.7 Loans
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

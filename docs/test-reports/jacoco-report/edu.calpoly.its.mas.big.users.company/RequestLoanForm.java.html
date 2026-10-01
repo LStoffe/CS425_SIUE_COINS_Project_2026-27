@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RequestLoanForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.company</a> &gt; <span class="el_source">RequestLoanForm.java</span></div><h1>RequestLoanForm.java</h1><pre class="source lang-java linenums">
+
+package edu.calpoly.its.mas.big.users.company;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+import edu.calpoly.its.mas.big.game.NumberConverter;
+
+/**
+ * ActionForm used to hold the dollar amount of a loan request.
+ *
+ * @author Kevin Craig
+ * @version $Revision: 1.10 $ $Date: 2002/04/26 18:03:36 $
+ */
+<span class="fc" id="L20">public class RequestLoanForm extends ActionForm</span>
+{
+  private String loanAmount;
+  private int APR;
+  private int numberOfLoans;
+  private int maxLoans;
+  private long maxLoanAmount;
+  private int repaymentPeriods;
+
+	/**
+     * Insures that this loan request is allowed and that the amount requested is a positive number
+     * less than or equal to the maximum amount
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L35">		ActionErrors errors = new ActionErrors();</span>
+
+		//First make sure the company doens't already have the maximum number of loans allowed
+<span class="fc bfc" id="L38" title="All 2 branches covered.">		if(numberOfLoans &gt;= maxLoans) //it should never be greater than, but just in case</span>
+		{
+<span class="fc" id="L40">			errors.add(&quot;maxLoansExceeded&quot;, new ActionMessage(&quot;error.loan.maxLoansExceeded&quot;));</span>
+		}
+		else
+		{
+			//Make sure the amount is not null
+<span class="pc bpc" id="L45" title="1 of 6 branches missed.">			if((loanAmount == null) || (loanAmount.length() &lt; 1) || loanAmount.equals(&quot;$&quot;))</span>
+			{
+<span class="fc" id="L47">				errors.add(&quot;required&quot;, new ActionMessage(&quot;error.loan.required&quot;));</span>
+			}
+			else
+			{
+				//Make sure the String is a valid number
+<span class="fc bfc" id="L52" title="All 2 branches covered.">				if(!NumberConverter.isValidMoneyString(loanAmount))</span>
+				{
+<span class="fc" id="L54">					errors.add(&quot;mismatch&quot;, new ActionMessage(&quot;error.loan.mismatch&quot;));</span>
+				}
+				else
+				{
+<span class="fc" id="L58">					long amount = NumberConverter.longValue(loanAmount);</span>
+
+					//Test if loan is within allowed boundaries ( 0 &lt; amount &lt;= maxLoanAmount)
+<span class="fc bfc" id="L61" title="All 2 branches covered.">					if (amount &lt;= 0)</span>
+<span class="fc" id="L62">						errors.add(&quot;negative&quot;, new ActionMessage(&quot;error.loan.negative&quot;));</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">					else if (amount &gt; maxLoanAmount)</span>
+<span class="fc" id="L64">					    errors.add(&quot;maxLoanAmountExceeded&quot;, new ActionMessage(&quot;error.loan.maxLoanAmountExceeded&quot;));</span>
+
+				}
+			}
+		}
+<span class="fc" id="L69">		return errors;</span>
+	}
+
+
+	/**
+	 * Returns the amount of this loan as an long
+	 */
+	public long getAmount()
+	{
+<span class="fc" id="L78"> 	   return NumberConverter.longValue(loanAmount);</span>
+	}
+
+	/**
+	 * Returns the dollar amount of this loan request
+	 */
+	public String getLoanAmount()
+	{
+<span class="fc" id="L86">	    return loanAmount;</span>
+	}
+
+ 	/**
+  	 * Sets the dollar amount of this loan request
+  	 */
+  	public void setLoanAmount(String loanAmount)
+  	{
+<span class="fc" id="L94">  	    this.loanAmount = loanAmount;</span>
+<span class="fc" id="L95">  	}</span>
+
+  	/**
+  	 * Returns the annual percentage interest rate that will be applied to this loan request
+  	 */
+  	public int getAPR()
+  	{
+<span class="fc" id="L102">		  return APR;</span>
+  	}
+
+  	/**
+  	 * Sets the annual percentage interest rate that will be applied to this loan request
+  	 */
+  	public void setAPR(int APR)
+  	{
+<span class="fc" id="L110">		  this.APR = APR;</span>
+<span class="fc" id="L111">  	}</span>
+
+  	/**
+  	 * Sets the number of active loans held by the company making this request
+  	 */
+  	public void setNumberOfLoans(int numberOfLoans)
+  	{
+<span class="fc" id="L118">		  this.numberOfLoans = numberOfLoans;</span>
+<span class="fc" id="L119">  	}</span>
+
+  	/**
+  	 * Sets the maximum number of active loans a company can have at any one time
+  	 */
+  	public void setMaxLoans(int maxLoans)
+  	{
+<span class="fc" id="L126">		  this.maxLoans = maxLoans;</span>
+<span class="fc" id="L127">  	}</span>
+
+  	/**
+  	 * Sets the maximum dollar amount for any single loan
+  	 */
+  	public void setMaxLoanAmount(long maxLoanAmount)
+  	{
+<span class="fc" id="L134">		  this.maxLoanAmount = maxLoanAmount;</span>
+<span class="fc" id="L135">  	}</span>
+
+  	/**
+  	 * Sets the number of periods in loan repayment
+  	 */
+	public void setRepaymentPeriods(int repaymentPeriods)
+	{
+<span class="fc" id="L142">		this.repaymentPeriods = repaymentPeriods;</span>
+<span class="fc" id="L143">	}</span>
+
+	/**
+	 * Returns the number of periods in loan repayment
+	 */
+	public int getRepaymentPeriods()
+	{
+<span class="fc" id="L150">		return repaymentPeriods;</span>
+	}
+
+}
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

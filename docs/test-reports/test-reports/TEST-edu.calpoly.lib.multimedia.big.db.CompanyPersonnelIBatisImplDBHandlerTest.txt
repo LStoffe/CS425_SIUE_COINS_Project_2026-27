@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.lib.multimedia.big.db.CompanyPersonnelIBatisImplDBHandlerTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 sec
+
+Testcase: testGetCompanyEmploymentUsesCorrectParametersAndReturnsList took 0.092 sec
+Testcase: testAddEmployeeTypeRecordInsertsMap took 0.001 sec
+Testcase: testGetCompanyEmploymentWrapsSQLException took 0.001 sec
+Testcase: testAddUnfilledMospEntryInsertsMap took 0 sec
+Testcase: testGetUnfilledMospBuildsSkillMap took 0.001 sec
+Testcase: testUpdateEmployeeTypeRecordDelegatesToDeleteAndAdd took 0 sec
+Testcase: testGetCompanyEmployeeTypeQueriesSingleRecord took 0 sec
+Testcase: testIsValidEmployeeTypeReturnsFalseWhenNull took 0.001 sec
+Testcase: testIsValidEmployeeTypeReturnsTrueWhenTypeExists took 0.001 sec
+Testcase: testDeleteEmployeeTypeRecordDeletesWithCorrectMap took 0 sec

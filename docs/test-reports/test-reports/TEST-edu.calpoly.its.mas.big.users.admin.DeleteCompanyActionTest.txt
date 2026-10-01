@@ -1,0 +1,9 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.DeleteCompanyActionTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.616 sec
+------------- Standard Output ---------------
+23:50:26,705 WARN  admin.DeleteCompanyAction - class edu.calpoly.its.mas.big.users.admin.DeleteCompanyAction cannot delete a company once the game has started
+------------- ---------------- ---------------
+
+Testcase: testExecuteSuccessDeletesCompanyWhenPeriod0 took 0.607 sec
+Testcase: testExecuteReturnsInputWithErrorsWhenGameStarted took 0.003 sec
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.001 sec

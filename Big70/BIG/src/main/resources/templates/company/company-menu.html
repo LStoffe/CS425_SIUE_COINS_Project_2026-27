@@ -1,0 +1,157 @@
+<!--
+  company-menu.html
+  This page is the landing page where users logged in as companies will end up.
+-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COINS - Company Menu</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold text-black mb-4">COINS</h1>
+    <h2 class="text-3xl text-black mb-2">Company Menu</h2>
+    <p class="text-black" th:if="${username != null}">
+      Welcome, <span class="font-semibold" th:text="${username}">company</span>
+    </p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="w-full max-w-7xl">
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Sidebar - Company Info -->
+        <div class="lg:col-span-1">
+          <div class="bg-gray-100 p-6 rounded-2xl shadow-lg">
+            <div class="text-center mb-6">
+              <h3 class="text-2xl font-bold mb-2" th:text="${company.title}">Company Name</h3>
+              <p class="text-gray-700 font-semibold" th:text="'Period ' + ${currentPeriod} + ' - ' + ${periodDate}">Period</p>
+            </div>
+
+            <div class="space-y-2 text-center">
+              <p class="font-bold text-lg" 
+                 th:text="'Cash-on-hand: $' + ${#numbers.formatDecimal(company['cash_on_hand'], 1, 'COMMA', 2, 'POINT')}">Cash-on-hand</p>
+              <p class="font-bold text-lg">Equity: $0</p>
+              <p class="font-bold text-lg" 
+                 th:text="'Current WIP: $' + ${#numbers.formatDecimal(company.wip, 1, 'COMMA', 2, 'POINT')}">Current WIP</p>
+            
+              <div class="pt-4 border-t border-gray-300 mt-4 space-y-1">
+                <p class="text-sm text-gray-700" 
+                   th:text="'Work-in-progress Bond Limit: $' + ${#numbers.formatDecimal(company['wip_limit'], 1, 'COMMA', 2, 'POINT')}">WIP Limit</p>
+                <p class="text-sm text-gray-700" 
+                   th:text="'Per Job Bond Limit: $' + ${#numbers.formatDecimal(company['per_job_limit'], 1, 'COMMA', 2, 'POINT')}">Per Job Limit</p>
+                <p class="text-sm text-gray-700" 
+                   th:text="'Contractor\'s License = ' + ${company.license}">License</p>
+              </div>
+            </div>
+
+            <!-- Edit Button -->
+            <div class="mt-6">
+              <a th:href="@{/company/change-company-info}"
+                 class="block w-full text-center px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+                Edit Company Info
+              </a>
+            </div>
+
+            <div class="mt-6">
+              <a th:href="@{/company/rank-and-score}"
+                 class="block w-full text-center px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+                View Company Score
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Area - Inbox -->
+        <div class="lg:col-span-2">
+          <div class="bg-white p-8 rounded-2xl shadow-lg">
+
+            <div class="mb-6">
+              <h3 class="text-2xl font-bold mb-4">Inbox</h3>
+              <h3 class="text-1xl font-bold mb-4">You have 0 new messages</h3>
+            </div>
+
+            <!-- Messages Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="border-b-2 border-gray-300">
+                  <tr>
+                    <th class="text-left py-3 px-4 font-semibold">From</th>
+                    <th class="text-left py-3 px-4 font-semibold">Subject</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- TODO: Replace with th:each loop when messages are wired to DB -->
+                  <tr>
+                    <td colspan="2" class="py-3 px-4 text-gray-400">
+                      No new messages
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-6">
+              <a href="#" class="text-black hover:text-amber-600 hover:underline font-semibold">
+                View all messages
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Company Web URL -->
+          <div class="bg-white p-8 rounded-2xl shadow-lg mt-6">
+            <h4 class="text-xl font-bold mb-4">Company's Web URL</h4>
+            <p class="text-gray-700" th:text="${company.companyurl != null ? company.companyurl : 'No URL provided'}">
+              http://
+            </p>
+          </div>
+
+          <!-- Mission Statement & Core Values -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+            <!-- Mission Statement -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+              <h4 class="text-xl font-bold mb-4">Company's Mission Statement</h4>
+              <div class="bg-gray-50 p-4 rounded-lg min-h-32">
+                <p class="text-gray-700" th:text="${company.missionstatement}">
+                  Mission Statement
+                </p>
+              </div>
+            </div>
+
+            <!-- Core Values -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+              <h4 class="text-xl font-bold mb-4">Company's Core Values</h4>
+              <div class="bg-gray-50 p-4 rounded-lg min-h-32">
+                <p class="text-gray-700" th:text="${company.corevalues}">
+                  Core Values
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

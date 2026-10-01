@@ -1,0 +1,68 @@
+<!--
+  advance-period.html
+  Allows Admins to advance the period of the game.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Confirmation Required</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Confirmation Required</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-2xl">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Administrator Warning
+      </h3>
+
+      <!-- Status Info -->
+      <div class="mb-6">
+        <p class="text-lg mb-2">
+          Number of companies currently logged in: <span class="font-bold">0</span>
+        </p>
+        <p class="text-lg mb-2">
+          <span class="font-bold">Caution:</span> You are about to advance the period for this Game.
+        </p>
+        <p class="text-lg font-semibold">
+          Are you sure you want to do this?
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-3 mt-8">
+        <a th:href="@{/admin/recall-menu}"
+           class="block w-full text-center px-6 py-3 rounded-lg border border-gray-400 hover:bg-gray-100 font-semibold transition">
+          No, Return to the Game Menu
+        </a>
+
+        <form th:action="@{/admin/advance-period}" method="post">
+          <button type="submit"
+          class="block w-full text-center px-6 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+            Yes, Advance the Period!
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

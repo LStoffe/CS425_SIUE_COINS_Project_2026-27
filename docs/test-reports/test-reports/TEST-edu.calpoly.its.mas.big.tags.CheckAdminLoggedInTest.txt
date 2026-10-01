@@ -1,0 +1,8 @@
+Testsuite: edu.calpoly.its.mas.big.tags.CheckAdminLoggedInTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 sec
+
+Testcase: testDoStartTagReturnsSkipBody took 0.003 sec
+Testcase: testDoEndTagForwardsWhenNotAdminOrNotLoggedIn took 0.017 sec
+Testcase: testDoEndTagForwardsWhenAdminNotLoggedIn took 0 sec
+Testcase: testDoEndTagForwardsWhenNoUserInSession took 0 sec
+Testcase: testDoEndTagEvaluatesPageWhenAdminLoggedIn took 0 sec

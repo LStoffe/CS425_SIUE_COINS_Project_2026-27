@@ -1,0 +1,79 @@
+<!--
+    report-from-bid-opening.html
+    This page displays the bid openings for company biddings.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Report from Bid Opening</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Report from Bid Opening</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-5xl">
+
+      <!-- Report Header -->
+      <div class="mb-8">
+        <h3 class="text-2xl font-bold mb-2" th:text="${username}">Company Name</h3>
+        <p class="text-lg font-semibold text-gray-700" 
+           th:text="'Report Date: ' + ${periodDate}">Report Date</p>
+      </div>
+
+      <!-- Bid Results Table -->
+      <div class="overflow-x-auto border border-gray-300 rounded-lg">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b border-gray-300">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Job</th>
+              <th class="px-4 py-3 text-right font-semibold">Winning Bid Amount</th>
+              <th class="px-4 py-3 text-left font-semibold">Winning Contractor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="bid : ${bids}" class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold"
+                  th:text="'Job ' + ${bid.jobid} + ': ' + ${bid.job_type_name}">Job</td>
+              <td class="px-4 py-3 text-right"
+                  th:text="'$' + ${#numbers.formatDecimal(bid['bid_amount'], 1, 'COMMA', 2, 'POINT')}">$0</td>
+              <td class="px-4 py-3" th:text="${bid.company_title}">Company</td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(bids)}">
+              <td colspan="3" class="px-4 py-8 text-center text-gray-500">
+                No bids were awarded last period.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/bidding-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Bidding Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

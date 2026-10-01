@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AutoUpdateThread.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.game</a> &gt; <span class="el_source">AutoUpdateThread.java</span></div><h1>AutoUpdateThread.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.game;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+
+//JDK imports
+import java.util.List;
+import java.util.Map;
+import java.util.Date;
+import java.util.Calendar;
+
+//Servlet imports
+import javax.servlet.ServletContext;
+
+//Commons logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.ExpandedGame;
+import edu.calpoly.its.mas.big.users.LoginBroker;
+
+//BIG v4 imports
+import static edu.calpoly.lib.multimedia.big.game.AutomaticPeriodUpdatePolicies.*;
+import edu.calpoly.lib.multimedia.big.users.admin.update.policies.interval.IntervalUpdatePolicySettings;
+import edu.calpoly.lib.multimedia.big.users.admin.update.policies.days.DaysUpdatePolicySettings;
+import edu.calpoly.lib.multimedia.big.users.admin.update.policies.dates.ScheduledDate;
+
+/**
+ * Periodically monitors the database and performs period updates,
+ * on those games that have updates scheduled, as according to the schedule.
+ * &lt;br&gt;&lt;br&gt;
+ * Exactly how the updates are performed, depends on the update policy for the game.
+ * All games are monitored for changes to their policy and changes to their update
+ * schedule within the policy.  This is a state-based process and everytime the
+ * database is examined, the current state is determined based of the data it contains.
+ * &lt;br&gt;&lt;br&gt;
+ *
+ * Each of the 4 update policies is handled in the following manner:
+ * &lt;ul&gt;
+ *   &lt;li&gt;
+ *     Manual - Games with the manual period update policy are ignored by this class.
+ *   &lt;/li&gt;
+ *   &lt;li&gt;
+ *     Interval - The next scheduled update time of the game is checked.  If that time has
+ *                occurred between the last time the database was checked and now,
+ *				  the game is updated and the next scheduled update is set
+ *				  according to the interval.  If for whatever reason
+ *				  no next scheduled update is found, or the next schuled update is in the past,
+ 				  the next scheduled update
+ *                is set according the interval, as if an update had just occurred.
+ *   &lt;/li&gt;
+ *   &lt;li&gt;
+ *     Days - If today is a day with an update scheduled, and the update time has occurred between
+ *            the last time the database was checked and now, the game is updated.
+ *   &lt;/li&gt;
+ *   &lt;li&gt;
+ *     Dates - The next non-complete scheduled update in time is examined. Update scheduled
+ *   		   to be prior to the last time the database was checked are not considered.
+ *			   If the scheduled date/time
+ *			   has occurred between the last time the database was checked and now,
+ * 		       the game is updated, and that scheduled update is marked as complete.
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ */
+public class AutoUpdateThread extends Thread
+{
+<span class="nc" id="L73">	public static int SECOND = 1000;      //1000 milliseconds = 1 sec</span>
+<span class="nc" id="L74">	public static int MINUTE = 60*SECOND; //60 seconds in a minute</span>
+<span class="nc" id="L75">	public static int HOUR = 60*MINUTE;   //60 minutes in an hour</span>
+
+	private Log log;
+	private BIGDatabaseFacadeInterface dbFacade;
+<span class="nc" id="L79">	private int waitTime = 10*MINUTE;  //Default to checking for every 10 minutes</span>
+
+	//Reference to the ServletContext for the BIG application
+	private ServletContext bigAppContext;
+
+	//Flag to indicate whether or not this is the first run since this
+	//thread has been started.  No day policy updates are done during the first run
+	//because it is possible this thread was previously running
+	//and already did an update for a given day, then was stopped, then restarted
+	//within the waitTime of this thread.  This would cause the update to be done
+	//twice.  Not doing day updates on the first run might mean an update will be missed
+	//but this is preferable to doing two back to back updates.
+	//Date and interval policy have additional safeguards against double updates.
+<span class="nc" id="L92">	private boolean firstRun = true;</span>
+
+	public AutoUpdateThread()
+<span class="nc" id="L95">	{</span>
+<span class="nc" id="L96">		log = LogFactory.getLog(this.getClass());</span>
+<span class="nc" id="L97">		dbFacade = new BIGDatabaseFacade();</span>
+<span class="nc" id="L98">	}</span>
+
+    /**
+     * Creates a new &lt;code&gt;AutoUpdateThread&lt;/code&gt;
+     * with a specified amount of time to wait between updates.
+     * The wait time can be specified in milliseconds or
+     * using the time constants defined in this class for convenience.
+     */
+	public AutoUpdateThread(int waitTime)
+<span class="nc" id="L107">	{</span>
+<span class="nc" id="L108">		log = LogFactory.getLog(this.getClass());</span>
+<span class="nc" id="L109">		dbFacade = new BIGDatabaseFacade();</span>
+<span class="nc" id="L110">		this.waitTime = waitTime;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		if(log.isInfoEnabled())</span>
+		{
+<span class="nc" id="L113">			log.info(&quot;Created thread with wait time of &quot; + waitTime + &quot; milliseconds&quot;);</span>
+		}
+<span class="nc" id="L115">	}</span>
+
+    /**
+     * Creates a new &lt;code&gt;AutoUpdateThread&lt;/code&gt;
+     * with a specified amount of time to wait between updates and a ServletContext.
+     * The wait time can be specified in milliseconds or
+     * using the time constants defined in this class for convenience.
+     * When an update is to occur, the
+     * &lt;code&gt;ServletContext&lt;/code&gt; will be checked for a
+     * a &lt;code&gt;LoginBroker&lt;/code&gt; under the key &lt;code&gt;loginBroker&lt;/code&gt;.
+     * If this &lt;code.LoginBroker&lt;/code&gt; is found, it will be used to
+     * logout companies/disable company login during the update
+     * and reenable company login after the update completes.
+     */
+	public AutoUpdateThread(int waitTime, ServletContext bigAppContext)
+<span class="nc" id="L130">	{</span>
+<span class="nc" id="L131">		log = LogFactory.getLog(this.getClass());</span>
+<span class="nc" id="L132">		dbFacade = new BIGDatabaseFacade();</span>
+<span class="nc" id="L133">		this.waitTime = waitTime;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		if(log.isInfoEnabled())</span>
+		{
+<span class="nc" id="L136">			log.info(&quot;Created thread with wait time of &quot; + waitTime + &quot; milliseconds&quot;);</span>
+		}
+<span class="nc" id="L138">		this.bigAppContext = bigAppContext;</span>
+<span class="nc" id="L139">	}</span>
+
+
+	public void run()
+	{
+		try
+		{
+			//Keep running updates as scheduled as long as this thread exists
+			while(true)
+			{
+/*  Took this out because the log file was filled with hundreds of lines for this entry
+				if(log.isDebugEnabled())
+				{
+					log.debug(&quot;Checking for games with scheduled updates&quot;);
+				}
+*/
+<span class="nc" id="L155">				List&lt;Map&gt; autoUpdateGames = dbFacade.getAutomaticUpdatePolicyDBHandler().getGamesWithAutomaticUpdatePolicy();</span>
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">				for(Map map : autoUpdateGames)</span>
+				{
+<span class="nc" id="L159">					int gameid = ((Integer) map.get(&quot;gameid&quot;)).intValue();</span>
+<span class="nc" id="L160">					int policy = ((Integer) map.get(&quot;policy&quot;)).shortValue();</span>
+
+<span class="nc bnc" id="L162" title="All 4 branches missed.">					switch(policy)</span>
+					{
+						case INTERVAL     : {
+<span class="nc" id="L165">												doIntervalUpdateCheck(gameid);</span>
+<span class="nc" id="L166">							                    break;</span>
+										    }
+						case DAYS_OF_WEEK : {
+<span class="nc bnc" id="L169" title="All 2 branches missed.">							  					if(!firstRun)</span>
+							  					{
+<span class="nc" id="L171">													doDaysUpdateCheck(gameid);</span>
+												}
+							                    break;
+										    }
+						case DATES		  : {
+<span class="nc" id="L176">												doDatesUpdateCheck(gameid);</span>
+<span class="nc" id="L177">							                    break;</span>
+										    }
+						default		      : {
+<span class="nc" id="L180">											    log.warn(&quot;Game &quot; + gameid + &quot; has unknown policy code &quot; + policy);</span>
+											    break;
+										    }
+					}
+<span class="nc" id="L184">				}</span>
+
+<span class="nc" id="L186">				firstRun = false;</span>
+<span class="nc" id="L187">				this.sleep(waitTime);</span>
+<span class="nc" id="L188">			}</span>
+		}
+<span class="nc" id="L190">		catch(Exception e)</span>
+		{
+<span class="nc" id="L192">			log.fatal(&quot;&quot; , e);</span>
+		}
+<span class="nc" id="L194">	}</span>
+
+	private void doIntervalUpdateCheck(int gameid)
+	{
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L200">			log.debug(&quot;Game &quot; + gameid + &quot; is using interval policy.  Checking for scheduled updates&quot;);</span>
+		}
+
+		try
+		{
+
+<span class="nc" id="L206">			IntervalUpdatePolicySettings settings = dbFacade.getAutomaticUpdatePolicyDBHandler().getIntervalPolicySettings(Game.mockGame(gameid));</span>
+
+<span class="nc" id="L208">			Date nextUpdate = settings.getNextScheduledUpdate();</span>
+<span class="nc" id="L209">			Date updateTime = settings.getUpdateTime();</span>
+
+			//This will store the update date with the time portions being irrelevant
+<span class="nc" id="L212">			Calendar cal = Calendar.getInstance();</span>
+
+			//This will store the update time with the date portions being irrelevant
+<span class="nc" id="L215">			Calendar timeCal = Calendar.getInstance();</span>
+
+<span class="nc" id="L217">			cal.setTime(nextUpdate);</span>
+<span class="nc" id="L218">			timeCal.setTime(updateTime);</span>
+
+			//One set the correct time into the date calendar so we have a calendar
+			//with the correct date and time
+<span class="nc" id="L222">			cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));</span>
+<span class="nc" id="L223">			cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));</span>
+<span class="nc" id="L224">			cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));</span>
+
+			//If the next scheduled date/time has passed since the last update check
+			//do an update.  Otherwise do nothing.
+<span class="nc bnc" id="L228" title="All 2 branches missed.">			if(hasOccurred(cal.getTime()))</span>
+			{
+				//Update the game
+<span class="nc" id="L231">				updateGame(gameid);</span>
+
+				//Determine when the next update should occur
+<span class="nc" id="L234">				cal.add(Calendar.DAY_OF_MONTH, settings.getInterval());</span>
+<span class="nc" id="L235">				Date nextScheduled = cal.getTime();</span>
+<span class="nc" id="L236">				dbFacade.getAutomaticUpdatePolicyDBHandler().deleteIntervalPolicySettings(Game.mockGame(gameid));</span>
+<span class="nc" id="L237">				dbFacade.getAutomaticUpdatePolicyDBHandler().addIntervalPolicySettings(Game.mockGame(gameid), settings.getInterval(), settings.getUpdateTime(), nextScheduled);</span>
+<span class="nc" id="L238">			}</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">			else if(cal.getTime().getTime() &lt; (new Date()).getTime()) //Check if the next update time is in the past</span>
+			{
+				//Set when the next update should occur.  Use right now as the starting point
+				//and update after the interval has passed.
+<span class="nc" id="L243">				Calendar now = Calendar.getInstance();</span>
+<span class="nc" id="L244">				now.setTime(new Date());</span>
+<span class="nc" id="L245">				now.add(Calendar.DAY_OF_MONTH, settings.getInterval());</span>
+<span class="nc" id="L246">				now.setTime(updateTime);</span>
+<span class="nc" id="L247">				Date nextScheduled = now.getTime();</span>
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L251">					log.debug(&quot;Update time was in past, resetting next update time to &quot; + nextScheduled);</span>
+				}
+
+<span class="nc" id="L254">				dbFacade.getAutomaticUpdatePolicyDBHandler().deleteIntervalPolicySettings(Game.mockGame(gameid));</span>
+<span class="nc" id="L255">				dbFacade.getAutomaticUpdatePolicyDBHandler().addIntervalPolicySettings(Game.mockGame(gameid), settings.getInterval(), settings.getUpdateTime(), nextScheduled);</span>
+<span class="nc" id="L256">			}</span>
+			else
+			{
+<span class="nc bnc" id="L259" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L261">					log.debug(&quot;Not time for update based on interval policy settings.&quot;);</span>
+				}
+			}
+		}
+<span class="nc" id="L265">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L267">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L268">		}</span>
+<span class="nc" id="L269">	}</span>
+
+	private void doDaysUpdateCheck(int gameid)
+	{
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L275">			log.debug(&quot;Game &quot; + gameid + &quot; is using days policy.  Checking for scheduled updates&quot;);</span>
+		}
+
+		try
+		{
+
+<span class="nc" id="L281">			DaysUpdatePolicySettings settings = dbFacade.getAutomaticUpdatePolicyDBHandler().getDaysPolicySettings(Game.mockGame(gameid));</span>
+
+<span class="nc" id="L283">			Date updateTime = settings.getUpdateTime();</span>
+
+			//This will be the current time
+<span class="nc" id="L286">			Calendar cal = Calendar.getInstance();</span>
+
+			//This will store the update time with the date portions being irrelevant
+<span class="nc" id="L289">			Calendar timeCal = Calendar.getInstance();</span>
+<span class="nc" id="L290">			timeCal.setTime(updateTime);</span>
+
+<span class="nc" id="L292">			cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));</span>
+<span class="nc" id="L293">			cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));</span>
+<span class="nc" id="L294">			cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));</span>
+
+			//cal now has the today's date, with the time set from the stored settings for the DAYS update policy
+			//If an update is scheduled for this day of the week, we'll pass cal on to the
+			//hasOccurred method to check if the update time has passed
+			//There are 7 possible cases, one for each day of the week
+
+			//Flag to be set by the switch statement
+<span class="nc" id="L302">			boolean updateToday = false;</span>
+
+<span class="nc bnc" id="L304" title="All 8 branches missed.">			switch(cal.get(Calendar.DAY_OF_WEEK))</span>
+			{
+				case Calendar.SUNDAY    : {
+<span class="nc bnc" id="L307" title="All 2 branches missed.">										      if(log.isDebugEnabled())</span>
+										      {
+<span class="nc" id="L309">												  log.debug(&quot;Today is SUNDAY&quot;);</span>
+											  }
+<span class="nc bnc" id="L311" title="All 2 branches missed.">											  if(settings.getSunday())</span>
+											  {
+<span class="nc" id="L313">												  updateToday = true;</span>
+											  }
+							                  break;
+								          }
+
+				case Calendar.MONDAY    : {
+<span class="nc bnc" id="L319" title="All 2 branches missed.">										      if(log.isDebugEnabled())</span>
+										      {
+<span class="nc" id="L321">												  log.debug(&quot;Today is MONDAY&quot;);</span>
+											  }
+<span class="nc bnc" id="L323" title="All 2 branches missed.">											  if(settings.getMonday())</span>
+											  {
+<span class="nc" id="L325">												  updateToday = true;</span>
+											  }
+							                  break;
+								          }
+
+				case Calendar.TUESDAY   : {
+<span class="nc bnc" id="L331" title="All 2 branches missed.">										      if(log.isDebugEnabled())</span>
+										      {
+<span class="nc" id="L333">												  log.debug(&quot;Today is TUESDAY&quot;);</span>
+											  }
+<span class="nc bnc" id="L335" title="All 2 branches missed.">											  if(settings.getTuesday())</span>
+											  {
+<span class="nc" id="L337">												  updateToday = true;</span>
+											  }
+							                  break;
+								          }
+
+				case Calendar.WEDNESDAY : {
+<span class="nc bnc" id="L343" title="All 2 branches missed.">										      if(log.isDebugEnabled())</span>
+										      {
+<span class="nc" id="L345">												  log.debug(&quot;Today is WEDNESDAY&quot;);</span>
+											  }
+<span class="nc bnc" id="L347" title="All 2 branches missed.">											  if(settings.getWednesday())</span>
+											  {
+<span class="nc" id="L349">												  updateToday = true;</span>
+											  }
+							                  break;
+								          }
+
+				case Calendar.THURSDAY  : {
+<span class="nc bnc" id="L355" title="All 2 branches missed.">										      if(log.isDebugEnabled())</span>
+										      {
+<span class="nc" id="L357">												  log.debug(&quot;Today is THURSDAY&quot;);</span>
+											  }
+<span class="nc bnc" id="L359" title="All 2 branches missed.">											  if(settings.getThursday())</span>
+											  {
+<span class="nc" id="L361">												  updateToday = true;</span>
+											  }
+							                  break;
+								          }
+
+				case Calendar.FRIDAY    : {
+<span class="nc bnc" id="L367" title="All 2 branches missed.">										      if(log.isDebugEnabled())</span>
+										      {
+<span class="nc" id="L369">												  log.debug(&quot;Today is FRIDAY&quot;);</span>
+											  }
+<span class="nc bnc" id="L371" title="All 2 branches missed.">											  if(settings.getFriday())</span>
+											  {
+<span class="nc" id="L373">												  updateToday = true;</span>
+											  }
+							                  break;
+								          }
+
+				case Calendar.SATURDAY  : {
+<span class="nc bnc" id="L379" title="All 2 branches missed.">										      if(log.isDebugEnabled())</span>
+										      {
+<span class="nc" id="L381">												  log.debug(&quot;Today is SATURDAY&quot;);</span>
+											  }
+<span class="nc bnc" id="L383" title="All 2 branches missed.">											  if(settings.getSaturday())</span>
+											  {
+<span class="nc" id="L385">												  updateToday = true;</span>
+											  }
+							                  break;
+								          }
+
+				default		            : {
+<span class="nc" id="L391">										      log.warn(this.getClass() + &quot;: Unexpected default case&quot;);</span>
+										      break;
+									      }
+			}
+
+			//If today is a day to do an update, and the update time has passed
+			//since the last check, do an update.  Otherwise do nothing
+<span class="nc bnc" id="L398" title="All 4 branches missed.">			if(updateToday &amp;&amp; hasOccurred(cal.getTime()))</span>
+			{
+<span class="nc" id="L400">				updateGame(gameid);</span>
+			}
+			else
+			{
+<span class="nc bnc" id="L404" title="All 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L406">					log.debug(&quot;Not time for update based on days policy settings.&quot;);</span>
+				}
+			}
+		}
+<span class="nc" id="L410">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L412">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L413">		}</span>
+<span class="nc" id="L414">	}</span>
+
+	private void doDatesUpdateCheck(int gameid)
+	{
+<span class="nc bnc" id="L418" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L420">			log.debug(&quot;Game &quot; + gameid + &quot; is using dates policy.  Checking for scheduled updates&quot;);</span>
+		}
+
+		try
+		{
+<span class="nc" id="L425">			List&lt;ScheduledDate&gt; scheduledDates =  dbFacade.getAutomaticUpdatePolicyDBHandler().getDatePolicyScheduledUpdates(Game.mockGame(gameid));</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">			for(ScheduledDate sd : scheduledDates)</span>
+			{
+<span class="nc bnc" id="L428" title="All 2 branches missed.">				if(!sd.getComplete())</span>
+				{
+<span class="nc bnc" id="L430" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L432">						log.debug(&quot;Scheduled date &quot; + sd.toString() + &quot; has not yet completed.  Checking to see if update should occur now.&quot;);</span>
+					}
+
+					//This will store the update date with the time portions being irrelevant
+<span class="nc" id="L436">					Calendar cal = Calendar.getInstance();</span>
+
+					//This will store the update time with the date portions being irrelevant
+<span class="nc" id="L439">					Calendar timeCal = Calendar.getInstance();</span>
+
+<span class="nc" id="L441">					cal.setTime(sd.getDate());</span>
+<span class="nc" id="L442">					timeCal.setTime(sd.getTime());</span>
+
+					//One set the correct time into the date calendar so we have a calendar
+					//with the correct date and time
+<span class="nc" id="L446">					cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));</span>
+<span class="nc" id="L447">					cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));</span>
+<span class="nc" id="L448">					cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));</span>
+
+					//Check if the update date/time has passed since the last run
+<span class="nc bnc" id="L451" title="All 2 branches missed.">					if(hasOccurred(cal.getTime()))</span>
+					{
+<span class="nc" id="L453">						updateGame(gameid);</span>
+
+<span class="nc" id="L455">						dbFacade.getAutomaticUpdatePolicyDBHandler().markDatePolicyUpdateComplete(Game.mockGame(gameid), sd.getDateHashCode());</span>
+					}
+					else
+					{
+<span class="nc bnc" id="L459" title="All 2 branches missed.">						if(log.isDebugEnabled())</span>
+						{
+<span class="nc" id="L461">							log.debug(&quot;Not time for update based on dates policy settings.&quot;);</span>
+						}
+					}
+<span class="nc" id="L464">				}</span>
+				else
+				{
+<span class="nc bnc" id="L467" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+					{
+<span class="nc" id="L469">						log.debug(&quot;Scheduled date &quot; + sd.toString() + &quot; has already completed.&quot;);</span>
+					}
+				}
+<span class="nc" id="L472">			}</span>
+		}
+<span class="nc" id="L474">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L476">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L477">		}</span>
+<span class="nc" id="L478">	}</span>
+
+	//Return true if the time nextUpdate
+	//has occurred between right now, and right now minus the wait time between runs.
+	private boolean hasOccurred(Date nextUpdate)
+	{
+<span class="nc" id="L484">		boolean occurred = false;</span>
+
+<span class="nc" id="L486">		long now = (new Date()).getTime();</span>
+<span class="nc" id="L487">		long then = now - waitTime;</span>
+
+<span class="nc" id="L489">		long update = nextUpdate.getTime();</span>
+
+<span class="nc bnc" id="L491" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L493">			log.debug(&quot;Then : &quot; + then);</span>
+<span class="nc" id="L494">			log.debug(&quot;Now : &quot; + now);</span>
+<span class="nc" id="L495">			log.debug(&quot;Update : &quot; + update);</span>
+		}
+
+<span class="nc bnc" id="L498" title="All 4 branches missed.">		if((then &lt; update) &amp;&amp; (update &lt;= now))</span>
+		{
+<span class="nc" id="L500">			occurred = true;</span>
+		}
+
+<span class="nc" id="L503">		return occurred;</span>
+	}
+
+	//Creates an ExpandedGame of the game
+	//and updates the period
+	private void updateGame(int gameid)
+	{
+<span class="nc bnc" id="L510" title="All 2 branches missed.">		if(log.isInfoEnabled())</span>
+		{
+<span class="nc" id="L512">			log.info(&quot;Updating game &quot; + gameid);</span>
+		}
+
+		try
+		{
+			//We need the actual game now, not just an id
+<span class="nc" id="L518">			Game game = dbFacade.getGameDBHandler().getGame(gameid);</span>
+
+			//DO NOT ATTEMPT TO UPDATE A GAME THAT HAS NOT STARTED
+<span class="nc bnc" id="L521" title="All 2 branches missed.">			if(game.getCurrentPeriodNumber() &gt; 0)</span>
+			{
+<span class="nc" id="L523">				LoginBroker loginBroker = null;</span>
+
+				//If the ServletContext was set, check it for a LoginBroker
+<span class="nc bnc" id="L526" title="All 2 branches missed.">				if(bigAppContext != null)</span>
+				{
+<span class="nc" id="L528">					loginBroker = (LoginBroker) bigAppContext.getAttribute(&quot;loginBroker&quot;);</span>
+				}
+
+				//If a LoginBroker was found, disable logins to this game
+<span class="nc bnc" id="L532" title="All 2 branches missed.">				if(loginBroker != null)</span>
+				{
+<span class="nc" id="L534">				    loginBroker.disableGameLogins(game, bigAppContext);</span>
+				}
+
+				//Create an ExpandedGame from the game and use it to update the period
+<span class="nc" id="L538">				ExpandedGame xGame = new ExpandedGame(game, dbFacade);</span>
+<span class="nc" id="L539">                xGame.setEmailValues(&quot;localhost&quot;,</span>
+									 &quot;25&quot;,
+									 &quot;bigupdates@conindedu.org&quot;,
+									 &quot;BIG Period Update Notification&quot;,
+									 &quot;This message is to inform you that the period in your game of BIG50 has been updated.\n\nDo not reply to this e-mail because it was automatically generated. To contact your instructors, please e-mail them directly.&quot;
+									);
+<span class="nc" id="L545">				xGame.updatePeriod();</span>
+
+				//Reallow company login
+				//If a LoginBroker was found, disable logins to this game
+<span class="nc bnc" id="L549" title="All 2 branches missed.">				if(loginBroker != null)</span>
+				{
+<span class="nc bnc" id="L551" title="All 2 branches missed.">					if(log.isInfoEnabled())</span>
+					{
+<span class="nc" id="L553">						log.info(&quot;game logins have been reenabled, period has been updated&quot;);</span>
+					}
+<span class="nc" id="L555">        	    	loginBroker.initializePeriod(game, bigAppContext);</span>
+				}
+			}
+		}
+<span class="nc" id="L559">		catch(ObjectNotFoundException onfe)</span>
+		{
+<span class="nc" id="L561">			log.fatal(&quot;&quot;, onfe);</span>
+		}
+<span class="nc" id="L563">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L565">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L566">		}</span>
+<span class="nc" id="L567">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

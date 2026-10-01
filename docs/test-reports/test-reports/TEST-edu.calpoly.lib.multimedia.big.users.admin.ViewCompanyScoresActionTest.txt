@@ -1,0 +1,11 @@
+Testsuite: edu.calpoly.lib.multimedia.big.users.admin.ViewCompanyScoresActionTest
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.574 sec
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.569 sec
+	Caused an ERROR
+Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpSession.getAttribute(String)" because "session" is null
+	at edu.calpoly.lib.multimedia.big.users.admin.ViewCompanyScoresAction.execute(ViewCompanyScoresAction.java:69)
+	at edu.calpoly.lib.multimedia.big.users.admin.ViewCompanyScoresActionTest.testExecuteReturnsCancelledWhenRequestCancelled(ViewCompanyScoresActionTest.java:28)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+

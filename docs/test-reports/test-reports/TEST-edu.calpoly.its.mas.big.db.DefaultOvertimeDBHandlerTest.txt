@@ -1,0 +1,13 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultOvertimeDBHandlerTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.128 sec
+
+Testcase: testGetOvertimeThrowsObjectNotFoundWhenNoRow took 0.063 sec
+Testcase: testGetOvertimeReturnsValueForPublicJob took 0.019 sec
+Testcase: testGetOvertimesReturnsArrayForPublicJob took 0.019 sec
+Testcase: testGetOvertimeReturnsValueForHeavyJob took 0 sec
+Testcase: testZeroOvertimeRequestsSucceeds took 0.012 sec
+Testcase: testRemoveOvertimeRequestsSucceeds took 0 sec
+Testcase: testAddOvertimeSucceeds took 0 sec
+Testcase: testUpdateOvertimeSucceeds took 0.002 sec
+Testcase: testUpdateOvertimeThrowsObjectNotFoundWhenNoRowsChanged took 0 sec
+Testcase: testGetOvertimeWrapsSQLExceptionAndClosesConnection took 0.008 sec

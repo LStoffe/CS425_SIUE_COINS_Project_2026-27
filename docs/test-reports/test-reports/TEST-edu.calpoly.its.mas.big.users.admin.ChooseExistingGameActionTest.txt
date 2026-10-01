@@ -1,0 +1,28 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.ChooseExistingGameActionTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.624 sec
+------------- Standard Output ---------------
+23:50:21,407 WARN  admin.ChooseExistingGameAction - class edu.calpoly.its.mas.big.users.admin.ChooseExistingGameAction user permission error
+23:50:21,428 FATAL admin.ChooseExistingGameAction - 
+edu.calpoly.its.mas.big.game.BIGDatabaseFacadeException
+db error
+	at edu.calpoly.its.mas.big.users.admin.ChooseExistingGameAction.execute(ChooseExistingGameAction.java:73)
+	at edu.calpoly.its.mas.big.users.admin.ChooseExistingGameActionTest.testExecuteDatabaseErrorReturnsInput(ChooseExistingGameActionTest.java:100)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:535)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1197)
+	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1042)
+------------- ---------------- ---------------
+
+Testcase: testExecutePermissionErrorWhenAdminIDZero took 0.597 sec
+Testcase: testExecuteSessionTimedOutWhenAdminNull took 0.001 sec
+Testcase: testExecuteDatabaseErrorReturnsInput took 0.017 sec
+Testcase: testExecuteSuccess took 0.003 sec

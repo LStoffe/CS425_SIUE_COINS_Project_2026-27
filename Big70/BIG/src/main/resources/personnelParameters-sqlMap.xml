@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="PersonnelParameters">
+
+  <insert id="addPersonnelParameters" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO available_personnel (adminid, gameid, employee_title, employee_cost_per_period, employee_hiring_cost, employee_firing_cost, employee_description, employee_prcnt_raise, employee_base_points, category)
+    VALUES (#adminid#, #gameid#, #employeeTitle#, #employeeCost#, #employeeHiringCost#, #employeeFiringCost#, '', #employeePercentRaise#, #employeeBasePoints#, #category#)
+    
+    ]]>		               
+  </insert>
+
+  <update id="updatePersonnelParameters" parameterClass="map">
+    <![CDATA[
+
+    UPDATE available_personnel set employee_cost_per_period = #employeeCost#
+    WHERE gameid = #gameid#
+    AND adminid = #adminid#
+    AND employee_title = #employeeType#
+    
+    ]]>	  
+  </update>
+
+  <delete id="deletePersonnelParameters" parameterClass="map">
+    <![CDATA[
+
+    DELETE FROM available_personnel 
+    WHERE gameid= #gameid#
+    AND adminid = #adminid#
+    
+    ]]>		               
+  </delete>  
+    
+  <resultMap id="getPersonnelParametersResults" class="java.util.HashMap">
+    <result property="employeeTitle" column="employee_title" />
+    <result property="employeeCost" column="employee_cost_per_period" />
+    <result property="employeeHiringCost" column="employee_hiring_cost" />
+    <result property="employeeFiringCost" column="employee_firing_cost" />    
+    <result property="employeePercentRaise" column="employee_prcnt_raise" /> 
+    <result property="employeeBasePoints" column="employee_base_points" />
+    <result property="category" column="category" />  
+  </resultMap>      
+  
+  <select id="getPersonnelParameters" resultMap="getPersonnelParametersResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT employee_title, employee_cost_per_period, employee_hiring_cost, employee_firing_cost,
+    	   employee_prcnt_raise, employee_base_points, category
+    FROM available_personnel
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>       
+  
+  <select id="getPersonnelTypes" resultClass="string" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT employee_title
+    FROM available_personnel
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>   
+  
+  
+  <resultMap id="getMainOfficeSkillParametersResults" class="java.util.HashMap">
+    <result property="skillName" column="skill_name" />
+    <result property="skillCode" column="skill_code" />  
+  </resultMap>      
+  
+  <select id="getMainOfficeSkillParameters" resultMap="getMainOfficeSkillParametersResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT skill_name, skill_code
+    FROM main_office_skills
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>   
+
+  <insert id="addMainOfficeSkillsParameters" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO main_office_skills (adminid, gameid, skill_name, skill_code)
+    VALUES (#adminid#, #gameid#, #skillName#, #skillCode#)
+    
+    ]]>		               
+  </insert>  
+  
+  <resultMap id="getMosPointConversionParametersResults" class="java.util.HashMap">
+    <result property="employeeTitle" column="employee_title" />
+    <result property="skillCode" column="skill_code" />  
+    <result property="baseToMospRatio" column="base_to_mosp_ratio" />      
+  </resultMap>      
+  
+  <select id="getMosPointConversionParameters" resultMap="getMosPointConversionParametersResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT employee_title, skill_code, base_to_mosp_ratio
+    FROM mos_point_conversion
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>    
+  
+  <select id="getMosPointConversionParametersForGame" resultMap="getMosPointConversionParametersResults" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT employee_title, skill_code, base_to_mosp_ratio
+    FROM mos_point_conversion
+    WHERE gameid=#value# 
+    
+    ]]>		               
+  </select>      
+  
+  <insert id="addMosPointConversionParameters" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO mos_point_conversion (adminid, gameid, employee_title, skill_code, base_to_mosp_ratio)
+    VALUES (#adminid#, #gameid#, #employeeTitle#, #skillCode#, #baseToMospRatio#)
+    
+    ]]>		               
+  </insert>    
+  
+  <resultMap id="getJobTypeReqMosParametersResults" class="java.util.HashMap">
+    <result property="jobType" column="job_type_id" />
+    <result property="skillCode" column="skill_code" />  
+    <result property="cuAmount" column="cu_amount" /> 
+    <result property="mosAmount" column="mos_amount" />      
+  </resultMap>      
+  
+  <select id="getJobTypeReqMosParameters" resultMap="getJobTypeReqMosParametersResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT job_type_id, skill_code, cu_amount, mos_amount
+    FROM job_type_req_mos
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>    
+  
+  <select id="getJobTypeReqMosParametersForGame" resultMap="getJobTypeReqMosParametersResults" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT job_type_id, skill_code, cu_amount, mos_amount
+    FROM job_type_req_mos
+    WHERE gameid=#value# 
+    
+    ]]>		               
+  </select>      
+  
+  <insert id="addJobTypeReqMosParameters" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO job_type_req_mos (adminid, gameid, job_type_id, skill_code, cu_amount, mos_amount)
+    VALUES (#adminid#, #gameid#, #jobType#, #skillCode#, #cuAmount#, #mosAmount#)
+    
+    ]]>		               
+  </insert>   
+ 
+  <resultMap id="getMospCostParametersResults" class="java.util.HashMap">
+    <result property="skillCode" column="skill_code" />   
+    <result property="price" column="price" />
+  </resultMap>      
+  
+  <select id="getMospCostParameters" resultMap="getMospCostParametersResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT skill_code, price
+    FROM mosp_cost
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>   
+  
+  <select id="getMospCostParametersForGame" resultMap="getMospCostParametersResults" parameterClass="int">
+    <![CDATA[
+ 
+    SELECT skill_code, price
+    FROM mosp_cost
+    WHERE gameid=#value# 
+    
+    ]]>		               
+  </select>     
+  
+  <insert id="addMospCostParameters" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO mosp_cost (adminid, gameid, skill_code, price)
+    VALUES (#adminid#, #gameid#, #skillCode#, #price#)
+    
+    ]]>		               
+  </insert>     
+
+
+<!--  *=====*  Stuff for EQUIPMENT table  *=====*  -->
+
+
+  <resultMap id="getEquipmentParametersResults" class="java.util.HashMap">
+    <result property="equipmentTitle"  		column="equipment_title" />
+    <result property="equipmentCost" 		column="equipment_cost_per_period" />
+    <result property="equipmentDeployCost"	column="equipment_deploy_cost" />
+    <result property="equipmentDecommissionCost"  column="equipment_decommission_cost" />
+    <result property="equipmentPercentRaise" 	column="equipment_prcnt_raise" /> 
+    <result property="equipmentBasePoints" 	column="equipment_base_points" />  
+    <result property="equipmentId" 	        column="equipment_id" />  
+  </resultMap>      
+  
+  <select id="getEquipmentParameters" resultMap="getEquipmentParametersResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT equipment_title, equipment_cost_per_period, equipment_deploy_cost, equipment_decommission_cost,
+        equipment_prcnt_raise, equipment_base_points, equipment_id
+    FROM available_equipment
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>       
+
+  <select id="getListOfEquipment" resultClass="edu.calpoly.its.mas.big.users.admin.EquipmentList" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT equipment_id     as equipmentId,
+           equipment_title  as equipmentTitle
+    FROM available_equipment
+    WHERE gameid=#gameid# 
+    AND adminid=#adminid#
+    
+    ]]>		               
+  </select>       
+
+  <insert id="addEquipmentParameters" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO available_equipment (adminid, gameid, equipment_title, equipment_cost_per_period, equipment_deploy_cost,
+         equipment_decommission_cost, equipment_description, equipment_prcnt_raise, equipment_base_points, equipment_id)
+
+    VALUES (#adminid#, #gameid#, #equipmentTitle#, #equipmentCost#, #equipmentDeployCost#, #equipmentDecommissionCost#, '', #equipmentPercentRaise#, #equipmentBasePoints#, #equipmentId#)
+    
+    ]]>		               
+  </insert>
+
+  <delete id="deleteEquipmentParameters" parameterClass="map">
+    <![CDATA[
+
+    DELETE FROM available_equipment
+    WHERE gameid= #gameid#
+    AND adminid = #adminid#
+    
+    ]]>		               
+  </delete>  
+
+  <update id="updateEquipmentParameters" parameterClass="map">
+    <![CDATA[
+
+    UPDATE available_equipment set equipment_cost_per_period = #equipmentCost#,
+    				   equipment_deploy_cost = #equipmentDeployCost#,
+    				   equipment_decommission_cost = #equipmentDecommissionCost#,
+    				   equipment_prcnt_raise = #equipmentPercentRaise#,
+    				   equipment_base_points = #equipmentBasePoints#
+    WHERE gameid = #gameid#
+    AND adminid = #adminid#
+    AND equipment_title = #equipmentTitle#
+    
+    ]]>	  
+  </update>
+
+
+  <resultMap id="getEquipNetworkDepResults"  class="java.util.HashMap">
+    <result property="gameId"	                column="gameid" />
+    <result property="adminId"                  column="adminid" />
+    <result property="activityTypeId"  		column="activity_type_id" />
+    <result property="jobTypeId" 		column="job_type_id" />
+    <result property="equipType" 	        column="equip_type" /> 
+    <result property="quantityOfEquip" 	        column="quantity_of_equip" />  
+    <result property="percentTime" 	        column="percent_time" />  
+  </resultMap>      
+
+  <select id="getEquipNetworkDep" resultMap="getEquipNetworkDepResults" parameterClass="map">
+    <![CDATA[
+ 
+    SELECT activity_type_id, job_type_id, equip_type, quantity_of_equip, percent_time
+    FROM equip_network_dep
+    WHERE gameid = #gameId# 
+    AND adminid = #adminId#
+    
+    ]]>		               
+  </select>       
+    
+   <insert id="addEquipNetworkDep" parameterClass="map">
+    <![CDATA[
+
+    INSERT INTO equip_network_dep (gameid, adminid, activity_type_id, job_type_id, equip_type, quantity_of_equip, percent_time)
+
+    VALUES (#gameId#, #adminId#, #activityTypeId#, #jobTypeId#, #equipType#, #quantityOfEquip#, #percentTime#)
+    
+    ]]>		               
+  </insert>
+
+  <delete id="deleteEquipNetworkDep" parameterClass="map">
+    <![CDATA[
+
+    DELETE FROM equip_network_dep
+    WHERE gameid = #gameId#
+    AND adminid = #adminId#
+    
+    ]]>		               
+  </delete>  
+
+  <update id="updateEquipNetworkDep" parameterClass="map">
+    <![CDATA[
+
+    UPDATE equip_network_dep set activity_type_id = #activityTypeId#,
+                                 job_type_id = #jobTypeId#,
+                                 equip_type = #equipType#,
+                                 quantity_of_equip = #quantityOfEquip#,
+                                 percent_time = #percentTime#
+    WHERE gameid = #gameId#
+    AND adminid = #adminId#
+    
+    ]]>	  
+  </update>
+
+</sqlMap>

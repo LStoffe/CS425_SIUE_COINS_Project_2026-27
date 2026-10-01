@@ -1,0 +1,33 @@
+<!--
+  unused.html
+  Secret easter egg page for COINS project
+  Displays an image briefly before redirecting to YouTube.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>...</title>
+
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-black min-h-screen flex items-center justify-center">
+
+  <!-- Easter egg image — replace the src path with your image location,
+       e.g. th:src="@{/images/easter-egg.png}" -->
+  <img th:src="@{/images/unused.png}" 
+       alt=""
+       class="max-w-[90vw] max-h-[90vh] object-contain">
+
+  <script>
+    setTimeout(() => {
+      window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    }, 1500);
+  </script>
+
+</body>
+</html>

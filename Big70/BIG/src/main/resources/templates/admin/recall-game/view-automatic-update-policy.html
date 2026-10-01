@@ -1,0 +1,147 @@
+<!--
+  view-automatic-update-policy.html
+  Allows Admins to change the setting that configures how the simulation will proceed to the next period, either manually or automatically.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Configure Automatic Period Updates</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Configure Automatic Period Updates</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-3xl">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Update Policy Settings
+      </h3>
+
+      <!-- Implementation Note -->
+      <div class="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+        <p class="text-amber-800 font-semibold mb-1">Implementation Note</p>
+        <p class="text-amber-700 text-sm">
+          Only <span class="font-semibold">Manual</span> period advancement is available in this version.
+          Automatic scheduling options are preserved for reference and future implementation.
+        </p>
+      </div>
+
+      <form name="automaticPeriodUpdatesForm" method="post" action="#" class="space-y-6">
+
+        <!-- Manual Option — Active -->
+        <div class="p-4 border border-gray-300 rounded-lg bg-white">
+          <label class="flex items-start cursor-pointer">
+            <input
+              type="radio"
+              name="policy"
+              value="1001"
+              checked
+              class="mt-1 h-4 w-4 text-amber-500 focus:ring-amber-500"
+            >
+            <div class="ml-3">
+              <span class="font-bold text-lg">Manual</span>
+              <p class="text-gray-700 mt-1">
+                You must manually click on the "Advance Period" link to update the period.
+              </p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Interval Option — Disabled -->
+        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <label class="flex items-start cursor-not-allowed">
+            <input
+              type="radio"
+              name="policy"
+              value="1002"
+              disabled
+              class="mt-1 h-4 w-4 text-gray-300 cursor-not-allowed"
+            >
+            <div class="ml-3">
+              <span class="font-bold text-lg text-gray-400">Interval</span>
+              <p class="text-gray-400 mt-1">
+                Set how many days occur between period updates.
+              </p>
+              <p class="text-xs text-gray-400 mt-1 italic">Not available in this version</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Days of the Week Option — Disabled -->
+        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <label class="flex items-start cursor-not-allowed">
+            <input
+              type="radio"
+              name="policy"
+              value="1003"
+              disabled
+              class="mt-1 h-4 w-4 text-gray-300 cursor-not-allowed"
+            >
+            <div class="ml-3">
+              <span class="font-bold text-lg text-gray-400">Days of the Week</span>
+              <p class="text-gray-400 mt-1">
+                Period updates will occur on specified days of the week.
+              </p>
+              <p class="text-xs text-gray-400 mt-1 italic">Not available in this version</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Dates Option — Disabled -->
+        <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <label class="flex items-start cursor-not-allowed">
+            <input
+              type="radio"
+              name="policy"
+              value="1004"
+              disabled
+              class="mt-1 h-4 w-4 text-gray-300 cursor-not-allowed"
+            >
+            <div class="ml-3">
+              <span class="font-bold text-lg text-gray-400">Dates</span>
+              <p class="text-gray-400 mt-1">
+                Period updates will occur on specified dates.
+              </p>
+              <p class="text-xs text-gray-400 mt-1 italic">Not available in this version</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-between pt-6 border-t border-gray-200">
+          <a th:href="@{/admin/recall-menu}"
+             class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+            Back to Game Menu
+          </a>
+
+          <button
+            type="submit"
+            disabled
+            class="px-6 py-2 rounded-lg bg-gray-300 text-gray-500 font-semibold cursor-not-allowed"
+            title="Only manual advancement is available in this version">
+            Save Changes (Not Available)
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+Testsuite: edu.calpoly.its.mas.big.game.AutoAwardJobsFormTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.121 sec
+
+Testcase: testValidateRejectsNumbOfJobsAboveTen took 0.093 sec
+Testcase: testValidateRejectsPercentMarkupAbove100 took 0.002 sec
+Testcase: testValidateRejectsJobTypeOutOfRange took 0.001 sec
+Testcase: testValidateAcceptsJobSizeAtBoundaries took 0.002 sec
+Testcase: testValidateRejectsNumbOfJobsBelowOne took 0 sec
+Testcase: testValidateAcceptsNumbOfJobsAtBoundaries took 0.001 sec
+Testcase: testValidateRejectsJobSizeAbove99000 took 0.001 sec
+Testcase: testValidateAcceptsJobTypeZeroThroughFive took 0.007 sec
+Testcase: testValidateRejectsJobSizeWhenNonZeroAndOutOfRange took 0.002 sec
+Testcase: testValidateAcceptsPercentMarkupNegativeOne took 0.001 sec
+Testcase: testValidateAcceptsPercentMarkupAtBoundaries took 0.001 sec
+Testcase: testValidateRejectsJobSizeBelow10000WhenNonZero took 0.001 sec
+Testcase: testValidateRejectsPercentMarkupBelowNegativeOne took 0.001 sec
+Testcase: testGettersAndSetters took 0 sec
+Testcase: testResetForm took 0 sec
+Testcase: testDefaultValues took 0 sec
+Testcase: testValidateAcceptsJobSizeInRange took 0.001 sec
+Testcase: testValidatePassesWithValidInput took 0 sec

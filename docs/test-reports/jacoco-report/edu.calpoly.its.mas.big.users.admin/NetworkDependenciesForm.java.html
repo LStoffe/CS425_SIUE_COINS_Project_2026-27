@@ -1,0 +1,1145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NetworkDependenciesForm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">NetworkDependenciesForm.java</span></div><h1>NetworkDependenciesForm.java</h1><pre class="source lang-java linenums">
+package edu.calpoly.its.mas.big.users.admin;
+
+import java.util.Hashtable;
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+/**
+ * ActionForm used to hold the game parameters for the network dependencies of a job type.
+ * &lt;br&gt;
+ * The network dependencies for an activity can be expressed as 4 integers:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&quot;STSActivity&quot; - The activity id (activity number) of the activity that the current activity depends on to start&lt;/li&gt;
+ *   &lt;li&gt;&quot;STSPercent&quot; - The percentage the start-to-start activity that must be complete before work can begin on the current activity&lt;/li&gt;
+ *   &lt;li&gt;&quot;FTFActivity&quot; - The activity id (activity number) of the activity that the current activity depends on to finish&lt;/li&gt;
+ *   &lt;li&gt;&quot;FTFPercent&quot; - The percentage the current activity cannot complete past until the finish-to-finish activity has completed&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;br&gt;&lt;br&gt;
+ * &lt;code&gt;NetworkDependenciesForm&lt;/code&gt; will store dependencies in this format with the integers being accessible in two different ways:
+ * Individual parameters (ie &quot;activity1StartToStartPercent&quot; or &quot;activity4FinishToFinishActivity&quot;) are available as a Strings via get and set methods.
+ * The parameters are also available as Integers in an array of hashtables, with one hashtable for each activity.  The keys in the hashtables are
+ * &quot;&lt;code&gt;STSActivity&lt;/code&gt;,&quot; &quot;&lt;code&gt;STSPercent&lt;/code&gt;,&quot; &quot;&lt;code&gt;FTFActivity&lt;/code&gt;,&quot; and &quot;&lt;code&gt;FTFPercent&lt;/code&gt;&quot; and match the values described in
+ * the list above.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.6 $ $Date: 2001/10/15 23:24:46 $
+ */
+<span class="fc" id="L35">public class NetworkDependenciesForm extends ActionForm</span>
+{
+<span class="fc" id="L37">	private boolean makeDefaults = false;</span>
+
+<span class="fc" id="L39">	private String jobTypeName = null; //The name of the job type these parameters are for</span>
+	private int jobTypeID;
+	private int equipIdSelected;
+
+ 	//Arrays are hardcoded to length 9 because there are 9 activities and this number is unchangable
+
+ 	//Arrays to hold String values of parameters
+<span class="fc" id="L46">    private String stsActivities[] = new String[9];</span>
+<span class="fc" id="L47">    private String stsPercents[] = new String[9];</span>
+<span class="fc" id="L48">    private String ftfActivities[] = new String[9];</span>
+<span class="fc" id="L49">    private String ftfPercents[] = new String[9];</span>
+
+	//Holds the Hashtables of Integers, one for each activity
+<span class="fc" id="L52">	private Hashtable activities[] = new Hashtable[9];</span>
+
+<span class="fc" id="L54">	private ArrayList activity1TypeArray  = new ArrayList();</span>
+<span class="fc" id="L55">	private ArrayList activity2TypeArray  = new ArrayList();</span>
+<span class="fc" id="L56">	private ArrayList activity3TypeArray  = new ArrayList();</span>
+<span class="fc" id="L57">	private ArrayList activity4TypeArray  = new ArrayList();</span>
+<span class="fc" id="L58">	private ArrayList activity5TypeArray  = new ArrayList();</span>
+<span class="fc" id="L59">	private ArrayList activity6TypeArray  = new ArrayList();</span>
+<span class="fc" id="L60">	private ArrayList activity7TypeArray  = new ArrayList();</span>
+<span class="fc" id="L61">	private ArrayList activity8TypeArray  = new ArrayList();</span>
+<span class="fc" id="L62">	private ArrayList activity9TypeArray  = new ArrayList();</span>
+<span class="fc" id="L63">	private ArrayList activity10TypeArray = new ArrayList();</span>
+<span class="fc" id="L64">	private ArrayList activity11TypeArray = new ArrayList();</span>
+<span class="fc" id="L65">	private ArrayList activity12TypeArray = new ArrayList();</span>
+<span class="fc" id="L66">	private ArrayList activity13TypeArray = new ArrayList();</span>
+<span class="fc" id="L67">	private ArrayList activity14TypeArray = new ArrayList();</span>
+<span class="fc" id="L68">	private ArrayList activity15TypeArray = new ArrayList();</span>
+<span class="fc" id="L69">	private ArrayList activity16TypeArray = new ArrayList();</span>
+<span class="fc" id="L70">	private ArrayList activity17TypeArray = new ArrayList();</span>
+<span class="fc" id="L71">	private ArrayList activity18TypeArray = new ArrayList();</span>
+
+//****************************** Public Methods *************************
+
+    /**
+     * Returns the array of Hashtables.  The activity type id for each array is its array index plus one.
+     * (ie the Hashtable in index 0 is the network dependency parameters for activity type 1)
+     */
+	public Hashtable[] getNetworkDependencies()
+	{
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="fc" id="L83">			activities[i] = new Hashtable(4);</span>
+<span class="fc" id="L84">			activities[i].put(&quot;STSActivity&quot;, new Integer(stsActivities[i]));</span>
+<span class="fc" id="L85">			activities[i].put(&quot;STSPercent&quot;, new Integer(stsPercents[i]));</span>
+<span class="fc" id="L86">			activities[i].put(&quot;FTFActivity&quot;, new Integer(ftfActivities[i]));</span>
+<span class="fc" id="L87">			activities[i].put(&quot;FTFPercent&quot;, new Integer(ftfPercents[i]));</span>
+		}
+
+<span class="fc" id="L90">		return activities;</span>
+	}
+
+	public void setNetworkDependencies(Hashtable[] activities)
+	{
+<span class="fc" id="L95">		this.activities = activities;</span>
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		for(int i = 0; i &lt; 9; i++)</span>
+		{
+<span class="fc" id="L99">			stsActivities[i] = ((Integer) activities[i].get(&quot;STSActivity&quot;)).toString();</span>
+<span class="fc" id="L100">			stsPercents[i] = ((Integer) activities[i].get(&quot;STSPercent&quot;)).toString();</span>
+<span class="fc" id="L101">			ftfActivities[i] = ((Integer) activities[i].get(&quot;FTFActivity&quot;)).toString();</span>
+<span class="fc" id="L102">			ftfPercents[i] = ((Integer) activities[i].get(&quot;FTFPercent&quot;)).toString();</span>
+		}
+<span class="fc" id="L104">	}</span>
+
+    /**
+     *  Resets fields to their initial values
+     */
+    public void reset()
+    {
+<span class="fc" id="L111">		makeDefaults = false;</span>
+<span class="fc" id="L112">	}</span>
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity1TypeArray()
+    {
+<span class="fc" id="L119">		return this.activity1TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity1TypeArray(ArrayList activity1TypeArray)
+    {
+<span class="fc" id="L127">		this.activity1TypeArray = activity1TypeArray;</span>
+<span class="fc" id="L128">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity1TypeArrayIsEmpty()
+    {
+<span class="fc" id="L135">		return this.activity1TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity2TypeArray()
+    {
+<span class="fc" id="L143">		return this.activity2TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity2TypeArray(ArrayList activity2TypeArray)
+    {
+<span class="fc" id="L151">		this.activity2TypeArray = activity2TypeArray;</span>
+<span class="fc" id="L152">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity2TypeArrayIsEmpty()
+    {
+<span class="fc" id="L159">		return this.activity2TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity3TypeArray()
+    {
+<span class="fc" id="L167">		return this.activity3TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity3TypeArray(ArrayList activity3TypeArray)
+    {
+<span class="fc" id="L175">		this.activity3TypeArray = activity3TypeArray;</span>
+<span class="fc" id="L176">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity3TypeArrayIsEmpty()
+    {
+<span class="fc" id="L183">		return this.activity3TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity4TypeArray()
+    {
+<span class="fc" id="L191">		return this.activity4TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity4TypeArray(ArrayList activity4TypeArray)
+    {
+<span class="fc" id="L199">		this.activity4TypeArray = activity4TypeArray;</span>
+<span class="fc" id="L200">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity4TypeArrayIsEmpty()
+    {
+<span class="fc" id="L207">		return this.activity4TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity5TypeArray()
+    {
+<span class="fc" id="L215">		return this.activity5TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity5TypeArray(ArrayList activity5TypeArray)
+    {
+<span class="fc" id="L223">		this.activity5TypeArray = activity5TypeArray;</span>
+<span class="fc" id="L224">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity5TypeArrayIsEmpty()
+    {
+<span class="fc" id="L231">		return this.activity5TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity6TypeArray()
+    {
+<span class="fc" id="L239">		return this.activity6TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity6TypeArray(ArrayList activity6TypeArray)
+    {
+<span class="fc" id="L247">		this.activity6TypeArray = activity6TypeArray;</span>
+<span class="fc" id="L248">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity6TypeArrayIsEmpty()
+    {
+<span class="fc" id="L255">		return this.activity6TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity7TypeArray()
+    {
+<span class="fc" id="L263">		return this.activity7TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity7TypeArray(ArrayList activity7TypeArray)
+    {
+<span class="fc" id="L271">		this.activity7TypeArray = activity7TypeArray;</span>
+<span class="fc" id="L272">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity7TypeArrayIsEmpty()
+    {
+<span class="fc" id="L279">		return this.activity7TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity8TypeArray()
+    {
+<span class="fc" id="L287">		return this.activity8TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity8TypeArray(ArrayList activity8TypeArray)
+    {
+<span class="fc" id="L295">		this.activity8TypeArray = activity8TypeArray;</span>
+<span class="fc" id="L296">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity8TypeArrayIsEmpty()
+    {
+<span class="fc" id="L303">		return this.activity8TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity9TypeArray()
+    {
+<span class="fc" id="L311">		return this.activity9TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity9TypeArray(ArrayList activity9TypeArray)
+    {
+<span class="fc" id="L319">		this.activity9TypeArray = activity9TypeArray;</span>
+<span class="fc" id="L320">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity9TypeArrayIsEmpty()
+    {
+<span class="fc" id="L327">		return this.activity9TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity10TypeArray()
+    {
+<span class="fc" id="L335">		return this.activity10TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity10TypeArray(ArrayList activity10TypeArray)
+    {
+<span class="fc" id="L343">		this.activity10TypeArray = activity10TypeArray;</span>
+<span class="fc" id="L344">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity10TypeArrayIsEmpty()
+    {
+<span class="fc" id="L351">		return this.activity10TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity11TypeArray()
+    {
+<span class="fc" id="L359">		return this.activity11TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity11TypeArray(ArrayList activity11TypeArray)
+    {
+<span class="fc" id="L367">		this.activity11TypeArray = activity11TypeArray;</span>
+<span class="fc" id="L368">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity11TypeArrayIsEmpty()
+    {
+<span class="fc" id="L375">		return this.activity11TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity12TypeArray()
+    {
+<span class="fc" id="L383">		return this.activity12TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity12TypeArray(ArrayList activity12TypeArray)
+    {
+<span class="fc" id="L391">		this.activity12TypeArray = activity12TypeArray;</span>
+<span class="fc" id="L392">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity12TypeArrayIsEmpty()
+    {
+<span class="fc" id="L399">		return this.activity12TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity13TypeArray()
+    {
+<span class="fc" id="L407">		return this.activity13TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity13TypeArray(ArrayList activity13TypeArray)
+    {
+<span class="fc" id="L415">		this.activity13TypeArray = activity13TypeArray;</span>
+<span class="fc" id="L416">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity13TypeArrayIsEmpty()
+    {
+<span class="fc" id="L423">		return this.activity13TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity14TypeArray()
+    {
+<span class="fc" id="L431">		return this.activity14TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity14TypeArray(ArrayList activity14TypeArray)
+    {
+<span class="fc" id="L439">		this.activity14TypeArray = activity14TypeArray;</span>
+<span class="fc" id="L440">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity14TypeArrayIsEmpty()
+    {
+<span class="fc" id="L447">		return this.activity14TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity15TypeArray()
+    {
+<span class="fc" id="L455">		return this.activity15TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity15TypeArray(ArrayList activity15TypeArray)
+    {
+<span class="fc" id="L463">		this.activity15TypeArray = activity15TypeArray;</span>
+<span class="fc" id="L464">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity15TypeArrayIsEmpty()
+    {
+<span class="fc" id="L471">		return this.activity15TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity16TypeArray()
+    {
+<span class="fc" id="L479">		return this.activity16TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity16TypeArray(ArrayList activity16TypeArray)
+    {
+<span class="fc" id="L487">		this.activity16TypeArray = activity16TypeArray;</span>
+<span class="fc" id="L488">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity16TypeArrayIsEmpty()
+    {
+<span class="fc" id="L495">		return this.activity16TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity17TypeArray()
+    {
+<span class="fc" id="L503">		return this.activity17TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity17TypeArray(ArrayList activity17TypeArray)
+    {
+<span class="fc" id="L511">		this.activity17TypeArray = activity17TypeArray;</span>
+<span class="fc" id="L512">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity17TypeArrayIsEmpty()
+    {
+<span class="fc" id="L519">		return this.activity17TypeArray.isEmpty();</span>
+	}
+
+    /**
+     * Return an array of activity type names and numbers
+     */
+    public ArrayList getActivity18TypeArray()
+    {
+<span class="fc" id="L527">		return this.activity18TypeArray;</span>
+	}
+
+    /**
+     * Add to array of activity type names and numbers
+     */
+    public void setActivity18TypeArray(ArrayList activity18TypeArray)
+    {
+<span class="fc" id="L535">		this.activity18TypeArray = activity18TypeArray;</span>
+<span class="fc" id="L536">	}</span>
+
+    /**
+     * Return a value indicating whether or not this array is empty
+     */
+    public boolean getActivity18TypeArrayIsEmpty()
+    {
+<span class="fc" id="L543">		return this.activity18TypeArray.isEmpty();</span>
+	}
+
+	/**
+	 * Ensures that all values are non-null, that all number strings contain only numeric characters,
+     * that all percentages are between 0 and 100 (inclusive) and that all activity ids are between
+     * 1 and 9 (inclusive)
+	 */
+	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request)
+	{
+<span class="fc" id="L553">		ActionErrors errors = new ActionErrors();</span>
+
+<span class="fc" id="L555">        boolean nullParams = false;</span>
+<span class="fc" id="L556">        boolean validNumbers = true;</span>
+<span class="fc" id="L557">        boolean percentsOutOfRange = false;</span>
+<span class="fc" id="L558">        boolean idsOutOfRange = false;</span>
+
+<span class="fc" id="L560">        int[] stsActivitiesTemp = new int[9];</span>
+<span class="fc" id="L561">        int[] stsPercentsTemp = new int[9];</span>
+<span class="fc" id="L562">        int[] ftfActivitiesTemp = new int[9];</span>
+<span class="fc" id="L563">        int[] ftfPercentsTemp = new int[9];</span>
+
+        //First make sure none of the Strings are null
+<span class="fc bfc" id="L566" title="All 2 branches covered.">        for(int i = 0; i &lt; 9; i++)</span>
+        {
+<span class="pc bpc" id="L568" title="1 of 4 branches missed.">			if((stsActivities[i].trim() == null) || (stsActivities[i].trim().length() &lt; 1))</span>
+<span class="fc" id="L569">				nullParams = true;</span>
+<span class="pc bpc" id="L570" title="2 of 4 branches missed.">		    if((stsPercents[i].trim() == null) || (stsPercents[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L571">		    	nullParams = true;</span>
+<span class="pc bpc" id="L572" title="2 of 4 branches missed.">			if((ftfActivities[i].trim() == null) || (ftfActivities[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L573">				nullParams = true;</span>
+<span class="pc bpc" id="L574" title="2 of 4 branches missed.">			if((ftfPercents[i].trim() == null) || (ftfPercents[i].trim().length() &lt; 1))</span>
+<span class="nc" id="L575">				nullParams = true;</span>
+		}
+
+<span class="fc bfc" id="L578" title="All 2 branches covered.">		if (nullParams) //nullParams == true</span>
+		{
+<span class="fc" id="L580">			errors.add(&quot;nullParameters&quot;, new ActionMessage(&quot;error.parameters.null&quot;));</span>
+		}
+		else           //nullParams == false
+		{
+			//Next make sure all of the number Strings contain only numeric characters.
+<span class="fc bfc" id="L585" title="All 2 branches covered.">			for(int i = 0; i &lt; 9; i++)</span>
+			{
+				//Check that the strings that should represent numbers only contain numberic characters by trying to convert them to ints and checking for a NumberFormatException
+				try
+			    {
+<span class="fc" id="L590">					stsActivitiesTemp[i] = Integer.parseInt(stsActivities[i]);</span>
+<span class="fc" id="L591">					stsPercentsTemp[i] = Integer.parseInt(stsPercents[i]);</span>
+<span class="fc" id="L592">					ftfActivitiesTemp[i] = Integer.parseInt(ftfActivities[i]);</span>
+<span class="fc" id="L593">					ftfPercentsTemp[i] = Integer.parseInt(ftfPercents[i]);</span>
+				}
+<span class="fc" id="L595">				catch(NumberFormatException nfe)</span>
+				{
+<span class="fc" id="L597">					validNumbers = false;</span>
+<span class="fc" id="L598">				}</span>
+			}
+		}
+
+<span class="pc bpc" id="L602" title="1 of 4 branches missed.">		if(!validNumbers &amp;&amp; !nullParams) //validNumbers == false AND nullParams == false</span>
+		{
+<span class="fc" id="L604">			errors.add(&quot;numberFormat&quot;, new ActionMessage(&quot;error.parameters.number.format&quot;));</span>
+		}
+<span class="fc bfc" id="L606" title="All 2 branches covered.">		else if(!nullParams)				//validNumbers == true AND nullParams == false</span>
+		{
+			//Check that all the percent and ids are within their respective correct ranges
+<span class="fc bfc" id="L609" title="All 2 branches covered.">			for(int i = 0; i &lt; 9; i++)</span>
+			{
+<span class="pc bpc" id="L611" title="1 of 4 branches missed.">				if ((stsActivitiesTemp[i] &gt; 9) || (stsActivitiesTemp[i] &lt; 0))</span>
+<span class="fc" id="L612">					idsOutOfRange = true;</span>
+<span class="pc bpc" id="L613" title="2 of 4 branches missed.">				if ((ftfActivitiesTemp[i] &gt; 9) || (ftfActivitiesTemp[i] &lt; 0))</span>
+<span class="nc" id="L614">				    idsOutOfRange = true;</span>
+<span class="pc bpc" id="L615" title="1 of 4 branches missed.">				if ((stsPercentsTemp[i] &gt; 100) || (stsPercentsTemp[i] &lt; 0))</span>
+<span class="fc" id="L616">				    percentsOutOfRange = true;</span>
+<span class="pc bpc" id="L617" title="2 of 4 branches missed.">				if ((ftfPercentsTemp[i] &gt; 100) || (ftfPercentsTemp[i] &lt; 0))</span>
+<span class="nc" id="L618">				    percentsOutOfRange = true;</span>
+
+                                //If an activity dependency is set to none then it's associated percentage
+                                //should be zero.  No reason to make this a validation error, since this can be fixed here
+<span class="pc bpc" id="L622" title="1 of 2 branches missed.">                                if (stsActivitiesTemp[i] == 0)</span>
+<span class="nc" id="L623">                                	stsPercents[i] = &quot;0&quot;;</span>
+<span class="pc bpc" id="L624" title="1 of 2 branches missed.">                                if (ftfActivitiesTemp[i] == 0)</span>
+<span class="fc" id="L625">					ftfPercents[i] = &quot;0&quot;;</span>
+			}
+		}
+
+<span class="fc bfc" id="L629" title="All 2 branches covered.">		if(percentsOutOfRange)</span>
+<span class="fc" id="L630">			errors.add(&quot;percentsOutOfRange&quot;, new ActionMessage(&quot;error.parameters.percentage.outOfRange&quot;));</span>
+
+		//ID values should never be out of range because they aren't directly input by the user.  If they are out of range something weird has happened
+<span class="fc bfc" id="L633" title="All 2 branches covered.">		if(idsOutOfRange)</span>
+<span class="fc" id="L634">			errors.add(&quot;idsOutOfRange&quot;, new ActionMessage(&quot;error.unknown&quot;));</span>
+
+<span class="fc" id="L636">		return errors;</span>
+	}
+
+
+//****************************** Get and Set Methods ********************
+
+    public boolean getMakeDefaults()
+    {
+<span class="fc" id="L644">		return makeDefaults;</span>
+	}
+
+	public void setMakeDefaults(boolean makeDefaults)
+	{
+<span class="fc" id="L649">		this.makeDefaults = makeDefaults;</span>
+<span class="fc" id="L650">	}</span>
+
+    public String getJobTypeName()
+    {
+<span class="fc" id="L654">		return jobTypeName;</span>
+	}
+
+	public void setJobTypeName(String jobTypeName)
+	{
+<span class="fc" id="L659">		this.jobTypeName = jobTypeName;</span>
+<span class="fc" id="L660">	}</span>
+
+	public int getJobTypeID()
+	{
+<span class="fc" id="L664">		return jobTypeID;</span>
+	}
+
+	public void setJobTypeID(int jobTypeID)
+	{
+<span class="fc" id="L669">		this.jobTypeID = jobTypeID;</span>
+<span class="fc" id="L670">	}</span>
+
+	public String getActivity1StartToStartActivity()
+	{
+<span class="fc" id="L674">		return stsActivities[0];</span>
+	}
+
+	public void setActivity1StartToStartActivity(String activity1StartToStartActivity)
+	{
+<span class="fc" id="L679">		stsActivities[0] = activity1StartToStartActivity;</span>
+<span class="fc" id="L680">	}</span>
+
+	public String getActivity2StartToStartActivity()
+	{
+<span class="nc" id="L684">		return stsActivities[1];</span>
+	}
+
+	public void setActivity2StartToStartActivity(String activity2StartToStartActivity)
+	{
+<span class="fc" id="L689">		stsActivities[1] = activity2StartToStartActivity;</span>
+<span class="fc" id="L690">	}</span>
+
+	public String getActivity3StartToStartActivity()
+	{
+<span class="nc" id="L694">		return stsActivities[2];</span>
+	}
+
+	public void setActivity3StartToStartActivity(String activity3StartToStartActivity)
+	{
+<span class="fc" id="L699">		stsActivities[2] = activity3StartToStartActivity;</span>
+<span class="fc" id="L700">	}</span>
+
+	public String getActivity4StartToStartActivity()
+	{
+<span class="nc" id="L704">		return stsActivities[3];</span>
+	}
+
+	public void setActivity4StartToStartActivity(String activity4StartToStartActivity)
+	{
+<span class="fc" id="L709">		stsActivities[3] = activity4StartToStartActivity;</span>
+<span class="fc" id="L710">	}</span>
+
+	public String getActivity5StartToStartActivity()
+	{
+<span class="fc" id="L714">		return stsActivities[4];</span>
+	}
+
+	public void setActivity5StartToStartActivity(String activity5StartToStartActivity)
+	{
+<span class="fc" id="L719">		stsActivities[4] = activity5StartToStartActivity;</span>
+<span class="fc" id="L720">	}</span>
+
+	public String getActivity6StartToStartActivity()
+	{
+<span class="nc" id="L724">		return stsActivities[5];</span>
+	}
+
+	public void setActivity6StartToStartActivity(String activity6StartToStartActivity)
+	{
+<span class="fc" id="L729">		stsActivities[5] = activity6StartToStartActivity;</span>
+<span class="fc" id="L730">	}</span>
+
+	public String getActivity7StartToStartActivity()
+	{
+<span class="nc" id="L734">		return stsActivities[6];</span>
+	}
+
+	public void setActivity7StartToStartActivity(String activity7StartToStartActivity)
+	{
+<span class="fc" id="L739">		stsActivities[6] = activity7StartToStartActivity;</span>
+<span class="fc" id="L740">	}</span>
+
+	public String getActivity8StartToStartActivity()
+	{
+<span class="nc" id="L744">		return stsActivities[7];</span>
+	}
+
+	public void setActivity8StartToStartActivity(String activity8StartToStartActivity)
+	{
+<span class="fc" id="L749">		stsActivities[7] = activity8StartToStartActivity;</span>
+<span class="fc" id="L750">	}</span>
+
+	public String getActivity9StartToStartActivity()
+	{
+<span class="nc" id="L754">		return stsActivities[8];</span>
+	}
+
+	public void setActivity9StartToStartActivity(String activity9StartToStartActivity)
+	{
+<span class="fc" id="L759">		stsActivities[8] = activity9StartToStartActivity;</span>
+<span class="fc" id="L760">	}</span>
+
+	public String getActivity1StartToStartPercent()
+	{
+<span class="fc" id="L764">		return stsPercents[0];</span>
+	}
+
+	public void setActivity1StartToStartPercent(String activity1StartToStartPercent)
+	{
+<span class="fc" id="L769">		stsPercents[0] = activity1StartToStartPercent;</span>
+<span class="fc" id="L770">	}</span>
+
+	public String getActivity2StartToStartPercent()
+	{
+<span class="nc" id="L774">		return stsPercents[1];</span>
+	}
+
+	public void setActivity2StartToStartPercent(String activity2StartToStartPercent)
+	{
+<span class="fc" id="L779">		stsPercents[1] = activity2StartToStartPercent;</span>
+<span class="fc" id="L780">	}</span>
+
+	public String getActivity3StartToStartPercent()
+	{
+<span class="nc" id="L784">		return stsPercents[2];</span>
+	}
+
+	public void setActivity3StartToStartPercent(String activity3StartToStartPercent)
+	{
+<span class="fc" id="L789">		stsPercents[2] = activity3StartToStartPercent;</span>
+<span class="fc" id="L790">	}</span>
+
+	public String getActivity4StartToStartPercent()
+	{
+<span class="nc" id="L794">		return stsPercents[3];</span>
+	}
+
+	public void setActivity4StartToStartPercent(String activity4StartToStartPercent)
+	{
+<span class="fc" id="L799">		stsPercents[3] = activity4StartToStartPercent;</span>
+<span class="fc" id="L800">	}</span>
+
+	public String getActivity5StartToStartPercent()
+	{
+<span class="fc" id="L804">		return stsPercents[4];</span>
+	}
+
+	public void setActivity5StartToStartPercent(String activity5StartToStartPercent)
+	{
+<span class="fc" id="L809">		stsPercents[4] = activity5StartToStartPercent;</span>
+<span class="fc" id="L810">	}</span>
+
+	public String getActivity6StartToStartPercent()
+	{
+<span class="nc" id="L814">		return stsPercents[5];</span>
+	}
+
+	public void setActivity6StartToStartPercent(String activity6StartToStartPercent)
+	{
+<span class="fc" id="L819">		stsPercents[5] = activity6StartToStartPercent;</span>
+<span class="fc" id="L820">	}</span>
+
+	public String getActivity7StartToStartPercent()
+	{
+<span class="nc" id="L824">		return stsPercents[6];</span>
+	}
+
+	public void setActivity7StartToStartPercent(String activity7StartToStartPercent)
+	{
+<span class="fc" id="L829">		stsPercents[6] = activity7StartToStartPercent;</span>
+<span class="fc" id="L830">	}</span>
+
+	public String getActivity8StartToStartPercent()
+	{
+<span class="nc" id="L834">		return stsPercents[7];</span>
+	}
+
+	public void setActivity8StartToStartPercent(String activity8StartToStartPercent)
+	{
+<span class="fc" id="L839">		stsPercents[7] = activity8StartToStartPercent;</span>
+<span class="fc" id="L840">	}</span>
+
+	public String getActivity9StartToStartPercent()
+	{
+<span class="nc" id="L844">		return stsPercents[8];</span>
+	}
+
+	public void setActivity9StartToStartPercent(String activity9StartToStartPercent)
+	{
+<span class="fc" id="L849">		stsPercents[8] = activity9StartToStartPercent;</span>
+<span class="fc" id="L850">	}</span>
+
+	public String getActivity1FinishToFinishActivity()
+	{
+<span class="fc" id="L854">		return ftfActivities[0];</span>
+	}
+
+	public void setActivity1FinishToFinishActivity(String activity1FinishToFinishActivity)
+	{
+<span class="fc" id="L859">		ftfActivities[0] = activity1FinishToFinishActivity;</span>
+<span class="fc" id="L860">	}</span>
+
+	public String getActivity2FinishToFinishActivity()
+	{
+<span class="nc" id="L864">		return ftfActivities[1];</span>
+	}
+
+	public void setActivity2FinishToFinishActivity(String activity2FinishToFinishActivity)
+	{
+<span class="fc" id="L869">		ftfActivities[1] = activity2FinishToFinishActivity;</span>
+<span class="fc" id="L870">	}</span>
+
+	public String getActivity3FinishToFinishActivity()
+	{
+<span class="nc" id="L874">		return ftfActivities[2];</span>
+	}
+
+	public void setActivity3FinishToFinishActivity(String activity3FinishToFinishActivity)
+	{
+<span class="fc" id="L879">		ftfActivities[2] = activity3FinishToFinishActivity;</span>
+<span class="fc" id="L880">	}</span>
+
+	public String getActivity4FinishToFinishActivity()
+	{
+<span class="nc" id="L884">		return ftfActivities[3];</span>
+	}
+
+	public void setActivity4FinishToFinishActivity(String activity4FinishToFinishActivity)
+	{
+<span class="fc" id="L889">		ftfActivities[3] = activity4FinishToFinishActivity;</span>
+<span class="fc" id="L890">	}</span>
+
+	public String getActivity5FinishToFinishActivity()
+	{
+<span class="nc" id="L894">		return ftfActivities[4];</span>
+	}
+
+	public void setActivity5FinishToFinishActivity(String activity5FinishToFinishActivity)
+	{
+<span class="fc" id="L899">		ftfActivities[4] = activity5FinishToFinishActivity;</span>
+<span class="fc" id="L900">	}</span>
+
+	public String getActivity6FinishToFinishActivity()
+	{
+<span class="nc" id="L904">		return ftfActivities[5];</span>
+	}
+
+	public void setActivity6FinishToFinishActivity(String activity6FinishToFinishActivity)
+	{
+<span class="fc" id="L909">		ftfActivities[5] = activity6FinishToFinishActivity;</span>
+<span class="fc" id="L910">	}</span>
+
+	public String getActivity7FinishToFinishActivity()
+	{
+<span class="nc" id="L914">		return ftfActivities[6];</span>
+	}
+
+	public void setActivity7FinishToFinishActivity(String activity7FinishToFinishActivity)
+	{
+<span class="fc" id="L919">		ftfActivities[6] = activity7FinishToFinishActivity;</span>
+<span class="fc" id="L920">	}</span>
+
+	public String getActivity8FinishToFinishActivity()
+	{
+<span class="nc" id="L924">		return ftfActivities[7];</span>
+	}
+
+	public void setActivity8FinishToFinishActivity(String activity8FinishToFinishActivity)
+	{
+<span class="fc" id="L929">		ftfActivities[7] = activity8FinishToFinishActivity;</span>
+<span class="fc" id="L930">	}</span>
+
+	public String getActivity9FinishToFinishActivity()
+	{
+<span class="fc" id="L934">		return ftfActivities[8];</span>
+	}
+
+	public void setActivity9FinishToFinishActivity(String activity9FinishToFinishActivity)
+	{
+<span class="fc" id="L939">		ftfActivities[8] = activity9FinishToFinishActivity;</span>
+<span class="fc" id="L940">	}</span>
+
+	public String getActivity1FinishToFinishPercent()
+	{
+<span class="fc" id="L944">		return ftfPercents[0];</span>
+	}
+
+	public void setActivity1FinishToFinishPercent(String activity1FinishToFinishPercent)
+	{
+<span class="fc" id="L949">		ftfPercents[0] = activity1FinishToFinishPercent;</span>
+<span class="fc" id="L950">	}</span>
+
+	public String getActivity2FinishToFinishPercent()
+	{
+<span class="nc" id="L954">		return ftfPercents[1];</span>
+	}
+
+	public void setActivity2FinishToFinishPercent(String activity2FinishToFinishPercent)
+	{
+<span class="fc" id="L959">		ftfPercents[1] = activity2FinishToFinishPercent;</span>
+<span class="fc" id="L960">	}</span>
+
+	public String getActivity3FinishToFinishPercent()
+	{
+<span class="nc" id="L964">		return ftfPercents[2];</span>
+	}
+
+	public void setActivity3FinishToFinishPercent(String activity3FinishToFinishPercent)
+	{
+<span class="fc" id="L969">		ftfPercents[2] = activity3FinishToFinishPercent;</span>
+<span class="fc" id="L970">	}</span>
+
+	public String getActivity4FinishToFinishPercent()
+	{
+<span class="nc" id="L974">		return ftfPercents[3];</span>
+	}
+
+	public void setActivity4FinishToFinishPercent(String activity4FinishToFinishPercent)
+	{
+<span class="fc" id="L979">		ftfPercents[3] = activity4FinishToFinishPercent;</span>
+<span class="fc" id="L980">	}</span>
+
+	public String getActivity5FinishToFinishPercent()
+	{
+<span class="nc" id="L984">		return ftfPercents[4];</span>
+	}
+
+	public void setActivity5FinishToFinishPercent(String activity5FinishToFinishPercent)
+	{
+<span class="fc" id="L989">		ftfPercents[4] = activity5FinishToFinishPercent;</span>
+<span class="fc" id="L990">	}</span>
+
+	public String getActivity6FinishToFinishPercent()
+	{
+<span class="nc" id="L994">		return ftfPercents[5];</span>
+	}
+
+	public void setActivity6FinishToFinishPercent(String activity6FinishToFinishPercent)
+	{
+<span class="fc" id="L999">		ftfPercents[5] = activity6FinishToFinishPercent;</span>
+<span class="fc" id="L1000">	}</span>
+
+	public String getActivity7FinishToFinishPercent()
+	{
+<span class="nc" id="L1004">		return ftfPercents[6];</span>
+	}
+
+	public void setActivity7FinishToFinishPercent(String activity7FinishToFinishPercent)
+	{
+<span class="fc" id="L1009">		ftfPercents[6] = activity7FinishToFinishPercent;</span>
+<span class="fc" id="L1010">	}</span>
+
+	public String getActivity8FinishToFinishPercent()
+	{
+<span class="nc" id="L1014">		return ftfPercents[7];</span>
+	}
+
+	public void setActivity8FinishToFinishPercent(String activity8FinishToFinishPercent)
+	{
+<span class="fc" id="L1019">		ftfPercents[7] = activity8FinishToFinishPercent;</span>
+<span class="fc" id="L1020">	}</span>
+
+	public String getActivity9FinishToFinishPercent()
+	{
+<span class="fc" id="L1024">		return ftfPercents[8];</span>
+	}
+
+	public void setActivity9FinishToFinishPercent(String activity9FinishToFinishPercent)
+	{
+<span class="fc" id="L1029">		ftfPercents[8] = activity9FinishToFinishPercent;</span>
+<span class="fc" id="L1030">	}</span>
+
+	public int getEquipIdSelected()
+	{
+<span class="fc" id="L1034">		return equipIdSelected;</span>
+	}
+
+	public void setEquipIdSelected(int equipIdSelected)
+	{
+<span class="fc" id="L1039">		this.equipIdSelected = equipIdSelected;</span>
+<span class="fc" id="L1040">	}</span>
+
+
+
+	//********************************  Unit Test *****************************
+
+	public static void main(String args[])
+	{
+
+<span class="nc" id="L1049">		NetworkDependenciesForm ndForm = new NetworkDependenciesForm();</span>
+
+        //Create an array of 9 Hashtables and pass it to the setNetworkDependency method.  This will trigger the int to string conversions.
+        //Retrieve the array triggering the String to int conversion.  Compare the values in the Hashtables retrieved to those originally entered.
+        //If they are the same then the unit test passed.
+
+<span class="nc" id="L1055">        Hashtable[] ndInitial = new Hashtable[9];</span>
+<span class="nc" id="L1056">        Hashtable[] ndFinal = new Hashtable[9];</span>
+
+<span class="nc" id="L1058">        System.out.println(&quot;Starting unit test&quot;);</span>
+
+<span class="nc bnc" id="L1060" title="All 2 branches missed.">		for (int i=0; i &lt; 9; i++)</span>
+		{
+<span class="nc" id="L1062">			ndInitial[i] = new Hashtable(4);</span>
+<span class="nc" id="L1063">			ndFinal[i] = new Hashtable(4);</span>
+
+<span class="nc" id="L1065">			ndInitial[i].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L1066">			ndFinal[i].put(&quot;STSActivity&quot;, new Integer(1));</span>
+<span class="nc" id="L1067">			ndInitial[i].put(&quot;STSPercent&quot;, new Integer(2));</span>
+<span class="nc" id="L1068">			ndFinal[i].put(&quot;STSPercent&quot;, new Integer(2));</span>
+<span class="nc" id="L1069">			ndInitial[i].put(&quot;FTFActivity&quot;, new Integer(3));</span>
+<span class="nc" id="L1070">			ndFinal[i].put(&quot;FTFActivity&quot;, new Integer(3));</span>
+<span class="nc" id="L1071">			ndInitial[i].put(&quot;FTFPercent&quot;, new Integer(4));</span>
+<span class="nc" id="L1072">			ndFinal[i].put(&quot;FTFPercent&quot;, new Integer(4));</span>
+		}
+
+
+<span class="nc" id="L1076">        System.out.println(&quot;Arrays initialized&quot;);</span>
+
+<span class="nc" id="L1078">        ndForm.setNetworkDependencies(ndFinal);</span>
+
+<span class="nc" id="L1080">        ndFinal = ndForm.getNetworkDependencies();</span>
+
+<span class="nc" id="L1082">		System.out.println(&quot;Methods called&quot;);</span>
+
+<span class="nc" id="L1084">		boolean unitTestPassed = true;</span>
+
+		int init;
+		int fin;
+<span class="nc bnc" id="L1088" title="All 2 branches missed.">  		for(int i = 0; i &lt; 9; i++)</span>
+  		{
+<span class="nc" id="L1090">			init = ((Integer) ndInitial[i].get(&quot;STSActivity&quot;)).intValue();</span>
+<span class="nc" id="L1091">			fin = ((Integer) ndFinal[i].get(&quot;STSActivity&quot;)).intValue();</span>
+<span class="nc" id="L1092">			System.out.println(&quot;\nSTSActivity - Initial: &quot; + init + &quot; Final: &quot; + fin);</span>
+<span class="nc bnc" id="L1093" title="All 2 branches missed.">			if (init == fin)</span>
+<span class="nc" id="L1094">				System.out.println(&quot;Passed\n&quot;);</span>
+			else
+			{
+<span class="nc" id="L1097">				System.out.println(&quot;Failed\n&quot;);</span>
+<span class="nc" id="L1098">				unitTestPassed = false;</span>
+			}
+
+<span class="nc" id="L1101">			init = ((Integer) ndInitial[i].get(&quot;STSPercent&quot;)).intValue();</span>
+<span class="nc" id="L1102">			fin = ((Integer) ndFinal[i].get(&quot;STSPercent&quot;)).intValue();</span>
+<span class="nc" id="L1103">			System.out.println(&quot;\nSTSPercent - Initial: &quot; + init + &quot; Final: &quot; + fin);</span>
+<span class="nc bnc" id="L1104" title="All 2 branches missed.">			if (init == fin)</span>
+<span class="nc" id="L1105">				System.out.println(&quot;Passed\n&quot;);</span>
+			else
+			{
+<span class="nc" id="L1108">				System.out.println(&quot;Failed\n&quot;);</span>
+<span class="nc" id="L1109">				unitTestPassed = false;</span>
+			}
+
+<span class="nc" id="L1112">			init = ((Integer) ndInitial[i].get(&quot;FTFActivity&quot;)).intValue();</span>
+<span class="nc" id="L1113">			fin = ((Integer) ndFinal[i].get(&quot;FTFActivity&quot;)).intValue();</span>
+<span class="nc" id="L1114">			System.out.println(&quot;\nFTFActivity - Initial: &quot; + init + &quot; Final: &quot; + fin);</span>
+<span class="nc bnc" id="L1115" title="All 2 branches missed.">			if (init == fin)</span>
+<span class="nc" id="L1116">				System.out.println(&quot;Passed\n&quot;);</span>
+			else
+			{
+<span class="nc" id="L1119">				System.out.println(&quot;Failed\n&quot;);</span>
+<span class="nc" id="L1120">				unitTestPassed = false;</span>
+			}
+
+<span class="nc" id="L1123">			init = ((Integer) ndInitial[i].get(&quot;FTFPercent&quot;)).intValue();</span>
+<span class="nc" id="L1124">			fin = ((Integer) ndFinal[i].get(&quot;FTFPercent&quot;)).intValue();</span>
+<span class="nc" id="L1125">			System.out.println(&quot;\nFTFPercent - Initial: &quot; + init + &quot; Final: &quot; + fin);</span>
+<span class="nc bnc" id="L1126" title="All 2 branches missed.">			if (init == fin)</span>
+<span class="nc" id="L1127">				System.out.println(&quot;Passed\n&quot;);</span>
+			else
+			{
+<span class="nc" id="L1130">				System.out.println(&quot;Failed\n&quot;);</span>
+<span class="nc" id="L1131">				unitTestPassed = false;</span>
+			}
+		}
+
+
+<span class="nc bnc" id="L1136" title="All 2 branches missed."> 		if (unitTestPassed)</span>
+<span class="nc" id="L1137"> 			System.out.println(&quot;\nUnit Test Passed\n&quot;);</span>
+ 		else
+
+<span class="nc" id="L1140"> 			System.out.println(&quot;\nUnit Test Failed\n&quot;);</span>
+<span class="nc" id="L1141">		}</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

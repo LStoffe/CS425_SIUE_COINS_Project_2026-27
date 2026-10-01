@@ -1,0 +1,73 @@
+<!--
+  rank-and-score.html
+  Allows companies to see their score in the game configured by grading-template.html
+-->
+
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Rank and Score</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Rank and Score</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-4xl">
+
+      <h3 class="text-2xl font-bold mb-8 text-center">
+        Rank and Score in Four Categories
+      </h3>
+
+      <div class="space-y-8">
+
+          <!-- Score Cards -->
+          <div th:each="score : ${scores}" class="p-6 border border-gray-300 rounded-lg">
+            <h4 class="text-xl font-bold mb-3" th:text="${score.label}"></h4>
+            <div class="space-y-2">
+              <p class="text-lg">
+                <span class="font-semibold">Score:</span>
+                <span th:text="${#numbers.formatDecimal(score.score, 1, 'COMMA', 2, 'POINT')}"></span>
+              </p>
+              <p class="text-gray-700">
+                <span class="font-semibold">Category:</span>
+                <span th:text="${score.formula}"></span>
+              </p>
+              <p class="text-lg">
+                <span class="font-semibold">Rank:</span>
+                <span th:text="${score.rank + ' of ' + score.totalCompanies}"></span>
+              </p>
+            </div>
+          </div>
+        
+        </div>
+
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/company/company-menu}" 
+        class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Main Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

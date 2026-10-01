@@ -1,0 +1,102 @@
+<!--
+  view-companies.html
+  Allows admins to view current companies (users) registered into this specific instance of the game.
+-->
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Companies</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Companies in this Game</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-7xl">
+
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold">Company List</h3>
+        <a th:href="@{/admin/add-new-company}"
+           class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+          Add New Company
+        </a>
+      </div>
+
+      <!-- Scrollable Table Container -->
+      <div class="overflow-x-auto border border-gray-300 rounded-lg">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b border-gray-300">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Company Title</th>
+              <th class="px-4 py-3 text-left font-semibold">Username</th>
+              <th class="px-4 py-3 text-center font-semibold">Actions</th>
+              <th class="px-4 py-3 text-left font-semibold">Score 1<br>(Rank)</th>
+              <th class="px-4 py-3 text-left font-semibold">Score 2<br>(Rank)</th>
+              <th class="px-4 py-3 text-left font-semibold">Score 3<br>(Rank)</th>
+              <th class="px-4 py-3 text-left font-semibold">Score 4<br>(Rank)</th>
+              <th class="px-4 py-3 text-left font-semibold">License</th>
+              <th class="px-4 py-3 text-left font-semibold">Cash-on-hand</th>
+              <th class="px-4 py-3 text-left font-semibold">Retained Earnings</th>
+              <th class="px-4 py-3 text-left font-semibold">WIP</th>
+              <th class="px-4 py-3 text-left font-semibold">WIP Bond Limit</th>
+              <th class="px-4 py-3 text-left font-semibold">Per Job Bond Limit</th>
+              <th class="px-4 py-3 text-left font-semibold">Financial Liquidity</th>
+              <th class="px-4 py-3 text-left font-semibold">Financial Success</th>
+              <th class="px-4 py-3 text-left font-semibold">Responsibility</th>
+              <th class="px-4 py-3 text-left font-semibold">Pace</th>
+              <th class="px-4 py-3 text-left font-semibold">Ethics</th>
+              <th class="px-4 py-3 text-left font-semibold">Name Recognition</th>
+              <th class="px-4 py-3 text-left font-semibold">Morale</th>
+              <th class="px-4 py-3 text-left font-semibold">Leadership</th>
+              <th class="px-4 py-3 text-left font-semibold">Apartments</th>
+              <th class="px-4 py-3 text-left font-semibold">Schools</th>
+              <th class="px-4 py-3 text-left font-semibold">Offices</th>
+              <th class="px-4 py-3 text-left font-semibold">Hospitals</th>
+              <th class="px-4 py-3 text-left font-semibold">Industrial</th>
+              <th class="px-4 py-3 text-left font-semibold">Highways</th>
+              <th class="px-4 py-3 text-left font-semibold">Bridges</th>
+              <th class="px-4 py-3 text-left font-semibold">Site Development</th>
+              <th class="px-4 py-3 text-left font-semibold">Mass Excavation</th>
+              <th class="px-4 py-3 text-left font-semibold">Underground Utilities</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Empty table body - data will be populated dynamically -->
+            <tr>
+              <td colspan="31" class="px-4 py-8 text-center text-gray-500">
+                No companies added yet. Click "Add New Company" to get started.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a th:href="@{/admin/recall-menu}" 
+           class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition inline-block">
+          Back to Game Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

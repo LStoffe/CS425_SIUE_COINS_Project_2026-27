@@ -1,0 +1,907 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultJobDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.db</a> &gt; <span class="el_source">DefaultJobDBHandler.java</span></div><h1>DefaultJobDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.db;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.HashMap;
+
+//BIGv2 imports
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+
+//BIGv3 imports
+import edu.calpoly.lib.multimedia.big.game.NegotiatedJob;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+
+
+//java.sql imports
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Default implementation of &lt;code&gt;JobDBHandler&lt;/code&gt;.
+ *
+ * @author Andrew Von Dollen
+ *
+ * @version $Revision: 1.36 $ $Date: 2002/05/07 21:30:30 $
+ */
+public class DefaultJobDBHandler extends DefaultDBHandler implements JobDBHandler
+{
+	private SqlMapClient sqlMap;
+
+    public DefaultJobDBHandler(Connection connection, SqlMapClient sqlMap)
+    {
+<span class="fc" id="L42">		super(connection);</span>
+<span class="fc" id="L43">		this.sqlMap = sqlMap;</span>
+<span class="fc" id="L44">	}</span>
+
+	public Job getJob(Game game, int jobID) throws ObjectNotFoundException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L48">		Job job = null;</span>
+
+		try {
+<span class="fc" id="L51">			String query = &quot;SELECT j.jobid, percent_retention, percent_of_job, liquidation_damages, &quot; +</span>
+				&quot;completion_date, job_lu_size, lus_remaining, &quot; +
+				&quot;direct_cost, completion_deadline, period_created, &quot; +
+				&quot;period_completed, job_type_id, estimated_workdays, &quot; +
+				&quot;retained_amount, is_active, is_auto, method_scaling_factor, change_order_lus, change_order_pay, &quot; +
+				&quot;field_overhead_fixed, field_overhead_variable, amount_retained_from_subs, billed_to_date, type_modifier, &quot; +
+				&quot;j.retentionid, j.customerid &quot; +
+				&quot;FROM job j, retention r, game_params_overhead gpo &quot; +
+				&quot;WHERE j.gameid = ? AND jobid = ? AND j.retentionid = r.retentionid AND j.gameid = gpo.gameid &quot; +
+				&quot;ORDER BY jobid &quot;;
+
+<span class="fc" id="L62">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L63">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L64">			pstmt.setInt(2, jobID);</span>
+
+<span class="fc" id="L66">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L68" title="All 2 branches covered.">			while(rset.next()) {</span>
+				//Create a new job and store it in the Vector
+<span class="fc" id="L70">				job = createJob(rset, game);</span>
+			}
+<span class="fc" id="L72">			rset.close();</span>
+<span class="fc" id="L73">			pstmt.close();</span>
+<span class="nc" id="L74">		} catch(SQLException sqle) {</span>
+			//close the connection if an exception occurs
+<span class="nc" id="L76">			close();</span>
+<span class="nc" id="L77">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L78">		}</span>
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		if (job == null)</span>
+<span class="fc" id="L81">			throw new ObjectNotFoundException();</span>
+
+<span class="fc" id="L83">		return job;</span>
+	}
+
+	public Vector getJobs(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L88">		Vector jobs = new Vector();</span>
+
+		try {
+<span class="fc" id="L91">			String query = &quot;SELECT j.jobid, percent_retention, percent_of_job, liquidation_damages, &quot; +</span>
+				&quot;completion_date, job_lu_size, lus_remaining, &quot; +
+				&quot;direct_cost, completion_deadline, period_created, &quot; +
+				&quot;period_completed, job_type_id, estimated_workdays, &quot; +
+				&quot;retained_amount, is_active, is_auto, method_scaling_factor, change_order_lus, change_order_pay, &quot; +
+				&quot;field_overhead_fixed, field_overhead_variable, amount_retained_from_subs, billed_to_date, type_modifier, &quot; +
+				&quot;j.retentionid, j.customerid &quot; +
+				&quot;FROM job j, retention r, game_params_overhead gpo &quot; +
+				&quot;WHERE j.gameid = ? AND j.retentionid = r.retentionid AND j.gameid = gpo.gameid &quot; +
+				&quot;ORDER BY jobid &quot;;
+
+<span class="fc" id="L102">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L103">			pstmt.setInt(1, game.getGameID());</span>
+
+<span class="fc" id="L105">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L107" title="All 2 branches covered.">			while(rset.next()) {</span>
+				//Create a new job and store it in the Vector
+<span class="fc" id="L109">				jobs.add(createJob(rset, game));</span>
+			}
+<span class="fc" id="L111">			rset.close();</span>
+<span class="fc" id="L112">			pstmt.close();</span>
+<span class="nc" id="L113">		} catch(SQLException sqle) {</span>
+			//close the connection if an exception occurs
+<span class="nc" id="L115">			close();</span>
+<span class="nc" id="L116">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L117">		}</span>
+
+<span class="fc" id="L119">		return jobs;</span>
+	}
+
+	public Vector getJobs(Game game, Company company) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L124">		Vector jobs = new Vector();</span>
+
+		try {
+			// All jobs for a company
+<span class="fc" id="L128">			String query = &quot;SELECT j.jobid, percent_retention, percent_of_job, liquidation_damages, &quot; +</span>
+				&quot;completion_date, job_lu_size, lus_remaining, &quot; +
+				&quot;direct_cost, completion_deadline, period_created, &quot; +
+				&quot;period_completed, job_type_id, estimated_workdays, &quot; +
+				&quot;retained_amount, is_active, is_auto, method_scaling_factor, bid_amount, change_order_lus, change_order_pay, &quot; +
+				&quot;field_overhead_fixed, field_overhead_variable, amount_retained_from_subs, j.billed_to_date, type_modifier, &quot; +
+				&quot;j.retentionid, j.customerid &quot; +
+				&quot;FROM job j, bid b, retention r, game_params_overhead gpo &quot; +
+				&quot;WHERE j.companyid = ? AND j.companyid = b.companyid AND b.jobid = j.jobid AND j.retentionid = r.retentionid &quot; +
+				&quot;AND j.gameid = gpo.gameid ORDER BY jobid&quot;;
+
+<span class="fc" id="L139">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L140">			pstmt.setInt(1, company.getCompanyID());</span>
+
+<span class="fc" id="L142">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L144" title="All 2 branches covered.">			while(rset.next()) {</span>
+				//Create a new job and store it in the Vector
+<span class="fc" id="L146">				Job job = createJob(rset, game);</span>
+<span class="fc" id="L147">				jobs.add(job);</span>
+<span class="fc" id="L148">			}</span>
+<span class="fc" id="L149">			rset.close();</span>
+<span class="fc" id="L150">			pstmt.close();</span>
+<span class="nc" id="L151">		} catch(SQLException sqle) {</span>
+			//close the connection if an exception occurs
+<span class="nc" id="L153">			close();</span>
+<span class="nc" id="L154">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L155">		}</span>
+
+<span class="fc" id="L157">		return jobs;</span>
+	}
+
+	public Vector getJobs(Game game, int periodNum) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L162">		Vector jobs = new Vector();</span>
+
+		try {
+			// All jobs created within a certain period
+<span class="fc" id="L166">			String query = &quot;SELECT jobid, percent_retention, percent_of_job, liquidation_damages, &quot; +</span>
+				&quot;completion_date, job_lu_size, lus_remaining, &quot; +
+				&quot;direct_cost, completion_deadline, period_created, &quot; +
+				&quot;period_completed, job_type_id, estimated_workdays, &quot; +
+				&quot;retained_amount, is_active, is_auto, method_scaling_factor, change_order_lus, change_order_pay, &quot; +
+				&quot;field_overhead_fixed, field_overhead_variable, amount_retained_from_subs, billed_to_date, type_modifier, &quot; +
+				&quot;job.retentionid, job.customerid &quot; +
+				&quot;FROM job, retention, game_params_overhead &quot; +
+				&quot;WHERE job.gameid = ? AND period_created = ? AND job.retentionid = retention.retentionid AND job.gameid = game_params_overhead.gameid &quot; +
+				&quot;ORDER BY jobid &quot;;
+
+<span class="fc" id="L177">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L178">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L179">			pstmt.setInt(2, periodNum);</span>
+
+<span class="fc" id="L181">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="fc bfc" id="L183" title="All 2 branches covered.">			while(rset.next()) {</span>
+				//Create a new job and store it in the Vector
+<span class="fc" id="L185">				jobs.add(createJob(rset, game));</span>
+			}
+<span class="fc" id="L187">			rset.close();</span>
+<span class="fc" id="L188">			pstmt.close();</span>
+<span class="nc" id="L189">		} catch(SQLException sqle) {</span>
+			//close the connection if an exception occurs
+<span class="nc" id="L191">			close();</span>
+<span class="nc" id="L192">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L193">		}</span>
+
+<span class="fc" id="L195">		return jobs;</span>
+
+	}
+
+	public Vector getActiveJobs(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L201">		return null;</span>
+	}
+
+	public Vector getActiveJobs(Game game, Company company) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L206">		Vector jobs = new Vector();</span>
+
+		try {
+			// All active jobs
+<span class="fc" id="L210">			String query = &quot;SELECT j.jobid, percent_retention, percent_of_job, liquidation_damages, &quot; +</span>
+				&quot;completion_date, job_lu_size, lus_remaining, &quot; +
+				&quot;direct_cost, completion_deadline, period_created, &quot; +
+				&quot;period_completed, job_type_id, estimated_workdays, &quot; +
+				&quot;retained_amount, is_active, is_auto, method_scaling_factor, bid_amount, change_order_lus, change_order_pay, &quot; +
+				&quot;field_overhead_fixed, field_overhead_variable, amount_retained_from_subs, j.billed_to_date, type_modifier, &quot; +
+				&quot;j.retentionid, j.customerid &quot; +
+				&quot;FROM job j, bid b, retention r, game_params_overhead gpo &quot; +
+				&quot;WHERE j.companyid = ? AND is_active = TRUE AND j.companyid = b.companyid AND b.jobid = j.jobid AND j.retentionid = r.retentionid &quot; +
+				&quot;AND j.gameid = gpo.gameid ORDER BY jobid&quot;;
+
+<span class="fc" id="L221">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L222">			pstmt.setInt(1, company.getCompanyID());</span>
+
+<span class="fc" id="L224">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">			while(rset.next()) {</span>
+				//Create a new job and store it in the Vector
+<span class="nc" id="L228">				Job job = createJob(rset, game);</span>
+
+				//The bid amount must be entered seperatly because it only is in the database for jobs that are assigned to companies
+<span class="nc" id="L231">				job.setBidAmount(rset.getLong(&quot;bid_amount&quot;));</span>
+<span class="nc" id="L232">				jobs.add(job);</span>
+<span class="nc" id="L233">			}</span>
+<span class="fc" id="L234">			rset.close();</span>
+<span class="fc" id="L235">			pstmt.close();</span>
+<span class="nc" id="L236">		} catch(SQLException sqle) {</span>
+			//close the connection if an exception occurs
+<span class="nc" id="L238">			close();</span>
+<span class="nc" id="L239">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L240">		}</span>
+
+<span class="fc" id="L242">		return jobs;</span>
+	}
+
+	public Vector getNewJobs(Game game) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L247">		return null;</span>
+	}
+
+	public Vector getWorkedJobs(Game game, Company company, int periodNum) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L252">		Vector jobs = new Vector();</span>
+
+		try
+		{
+			//Each activity of a job is saved for a given period if work is done on any activity of that job in that period.
+			//Check if there is a saved state of activity1 or activity10 for periodNum, if so work was done so the job is returned
+<span class="fc" id="L258">			String query = &quot;SELECT j.jobid, percent_retention, percent_of_job, liquidation_damages, &quot; +</span>
+				&quot;completion_date, job_lu_size, lus_remaining, &quot; +
+				&quot;direct_cost, completion_deadline, period_created, &quot; +
+				&quot;period_completed, job_type_id, estimated_workdays, &quot; +
+				&quot;retained_amount, j.is_active, j.is_auto, method_scaling_factor, change_order_lus, change_order_pay, &quot; +
+				&quot;field_overhead_fixed, field_overhead_variable, amount_retained_from_subs, j.billed_to_date, type_modifier, &quot; +
+				&quot;bid_amount, j.retentionid, j.customerid &quot; +
+				&quot;FROM job j, retention r, game_params_overhead gpo, activity a, bid b &quot; +
+				&quot;WHERE j.companyid = ? AND j.retentionid = r.retentionid AND j.gameid = gpo.gameid &quot; +
+				&quot;AND a.jobid = j.jobid AND (a.activity_type_id = 1 OR a.activity_type_id = 10) AND a.periodid = ? AND a.gameid = j.gameid AND j.period_created-1 != a.periodid &quot; +
+				&quot;AND j.companyid = b.companyid AND b.jobid = j.jobid ORDER BY j.jobid &quot;;
+<span class="fc" id="L269">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L270">			pstmt.setInt(1, company.getCompanyID());</span>
+<span class="fc" id="L271">			pstmt.setInt(2, periodNum);</span>
+
+<span class="fc" id="L273">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">			while(rset.next()) {</span>
+				//Create a new job and store it in the Vector
+
+<span class="nc" id="L278">				Job job = createJob(rset, game);</span>
+<span class="nc" id="L279">				job.setBidAmount(rset.getLong(&quot;bid_amount&quot;));</span>
+<span class="nc" id="L280">				jobs.add(job);</span>
+<span class="nc" id="L281">			}</span>
+<span class="fc" id="L282">			rset.close();</span>
+<span class="fc" id="L283">			pstmt.close();</span>
+		}
+<span class="nc" id="L285">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L288">			close();</span>
+<span class="nc" id="L289">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L290">		}</span>
+<span class="fc" id="L291">		return jobs;</span>
+	}
+
+	public Vector getUnbilledJobs(Game game, Company company) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L296">		Vector jobs = new Vector();</span>
+
+		try
+		{
+
+<span class="fc" id="L301">			String query = &quot;SELECT j.jobid, percent_retention, percent_of_job, liquidation_damages, &quot; +</span>
+				&quot;completion_date, job_lu_size, lus_remaining, &quot; +
+				&quot;direct_cost, completion_deadline, period_created, &quot; +
+				&quot;period_completed, job_type_id, estimated_workdays, &quot; +
+				&quot;retained_amount, j.is_active, j.is_auto, method_scaling_factor, change_order_lus, change_order_pay, &quot; +
+				&quot;field_overhead_fixed, field_overhead_variable, amount_retained_from_subs, j.billed_to_date, type_modifier, &quot; +
+				&quot;bid_amount, j.retentionid, j.customerid &quot; +
+				&quot;FROM job j, retention r, game_params_overhead gpo, bid b &quot; +
+				&quot;WHERE j.companyid = ? AND j.retentionid = r.retentionid AND j.gameid = gpo.gameid &quot; +
+				&quot;AND j.companyid = b.companyid AND b.jobid = j.jobid AND (b.bid_amount + j.change_order_pay) &gt; j.billed_to_date &quot; +
+				&quot;ORDER BY j.jobid &quot;;
+<span class="fc" id="L312">			PreparedStatement pstmt = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);</span>
+<span class="fc" id="L313">			pstmt.setInt(1, company.getCompanyID());</span>
+
+<span class="fc" id="L315">			ResultSet rset = pstmt.executeQuery();</span>
+
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">			while(rset.next()) {</span>
+				//Create a new job and store it in the Vector
+
+<span class="nc" id="L320">				Job job = createJob(rset, game);</span>
+<span class="nc" id="L321">				job.setBidAmount(rset.getLong(&quot;bid_amount&quot;));</span>
+<span class="nc" id="L322">				jobs.add(job);</span>
+<span class="nc" id="L323">			}</span>
+<span class="fc" id="L324">			rset.close();</span>
+<span class="fc" id="L325">			pstmt.close();</span>
+		}
+<span class="nc" id="L327">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L330">			close();</span>
+<span class="nc" id="L331">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L332">		}</span>
+<span class="fc" id="L333">		return jobs;</span>
+	}
+
+
+	/**
+	 * Given a &lt;code&gt;ResultSet&lt;/code&gt; containing all the columns from the jobs table,
+	 * builds a &lt;code&gt;Job&lt;/code&gt; object.
+	 */
+	private Job createJob(ResultSet rset, Game game) throws SQLException, BIGDatabaseFacadeException
+	{
+<span class="fc" id="L343">		Job job =  new Job(rset.getInt(&quot;jobid&quot;), rset.getInt(&quot;liquidation_damages&quot;),</span>
+<span class="fc" id="L344">						   rset.getDate(&quot;completion_date&quot;), rset.getDate(&quot;completion_deadline&quot;),</span>
+<span class="fc" id="L345">						   rset.getInt(&quot;job_lu_size&quot;), rset.getInt(&quot;percent_retention&quot;),</span>
+<span class="fc" id="L346">						   rset.getInt(&quot;percent_of_job&quot;),</span>
+<span class="fc" id="L347">						   rset.getLong(&quot;direct_cost&quot;), rset.getInt(&quot;retained_amount&quot;),</span>
+<span class="fc" id="L348">						   rset.getInt(&quot;lus_remaining&quot;), rset.getInt(&quot;period_completed&quot;),</span>
+<span class="fc" id="L349">						   rset.getInt(&quot;period_created&quot;), rset.getBoolean(&quot;is_active&quot;),</span>
+<span class="fc" id="L350">                           rset.getBoolean(&quot;is_auto&quot;),</span>
+<span class="fc" id="L351">						   rset.getInt(&quot;job_type_id&quot;), rset.getInt(&quot;estimated_workdays&quot;),</span>
+<span class="fc" id="L352">						   rset.getFloat(&quot;method_scaling_factor&quot;),</span>
+<span class="fc" id="L353">						   rset.getLong(&quot;change_order_pay&quot;),</span>
+<span class="fc" id="L354">						   rset.getInt(&quot;change_order_lus&quot;),</span>
+<span class="fc" id="L355">						   rset.getInt(&quot;field_overhead_fixed&quot;),</span>
+<span class="fc" id="L356">						   rset.getInt(&quot;field_overhead_variable&quot;),</span>
+<span class="fc" id="L357">						   rset.getInt(&quot;amount_retained_from_subs&quot;),</span>
+<span class="fc" id="L358">						   rset.getInt(&quot;billed_to_date&quot;),</span>
+<span class="fc" id="L359">						   rset.getShort(&quot;type_modifier&quot;)</span>
+						   );
+
+		// FIXME: Temporary hack to obviate constructor modification
+<span class="fc" id="L363">		job.setRetentionID(rset.getInt(&quot;retentionid&quot;));</span>
+
+<span class="pc bpc" id="L365" title="1 of 2 branches missed.">		if(job.getTypeModifier() == Job.PRIVATE)</span>
+		{
+<span class="nc" id="L367">			job.setCompaniesAllowedToBid(getAllowedCompanies(game, job.getJobID()));</span>
+<span class="nc" id="L368">			job.setCustomer((new edu.calpoly.lib.multimedia.big.db.DefaultCustomerDBHandler(connection)).getCustomer(rset.getInt(&quot;customerid&quot;)));</span>
+<span class="nc" id="L369">			job = getNegotiatedJob(game, job);</span>
+		}
+
+<span class="fc" id="L372">		return job;</span>
+	}
+
+	private Vector getAllowedCompanies(Game game, int jobid) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L377">		Vector companyIDs = new Vector();</span>
+<span class="nc" id="L378">		String select = &quot;SELECT companyid FROM job_allowed_companies WHERE jobid = ? AND gameid = ? &quot;;</span>
+
+		try
+		{
+<span class="nc" id="L382">			PreparedStatement pstmt = connection.prepareStatement(select);</span>
+<span class="nc" id="L383">			pstmt.setInt(1, jobid);</span>
+<span class="nc" id="L384">			pstmt.setInt(2, game.getGameID());</span>
+
+<span class="nc" id="L386">			ResultSet rset = pstmt.executeQuery();</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">			while(rset.next())</span>
+			{
+<span class="nc" id="L389">				companyIDs.add(new Integer(rset.getInt(&quot;companyid&quot;)));</span>
+			}
+
+<span class="nc" id="L392">			rset.close();</span>
+<span class="nc" id="L393">			pstmt.close();</span>
+
+		}
+<span class="nc" id="L396">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L399">			close();</span>
+<span class="nc" id="L400">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L401">		}</span>
+<span class="nc" id="L402">		return companyIDs;</span>
+	}
+
+	private Job getNegotiatedJob(Game game, Job job) throws BIGDatabaseFacadeException
+	{
+<span class="nc" id="L407">		Job j = job;</span>
+		try
+		{
+<span class="nc" id="L410">			Hashtable negotiationValues = (new edu.calpoly.lib.multimedia.big.db.DefaultNegotiationDBHandler(connection)).getNegotiationValues(game, job.getJobID());</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">			if(negotiationValues != null)</span>
+			{
+<span class="nc" id="L413">				Integer agreedProfit = (Integer) negotiationValues.get(&quot;agreedProfit&quot;);</span>
+<span class="nc" id="L414">				Long agreedCost = (Long) negotiationValues.get(&quot;agreedCost&quot;);</span>
+<span class="nc" id="L415">				Integer state = (Integer) negotiationValues.get(&quot;state&quot;);</span>
+<span class="nc" id="L416">				j = new NegotiatedJob(job, agreedProfit.intValue(), agreedCost.longValue(), state.intValue());</span>
+			}
+		}
+<span class="nc" id="L419">		catch(ObjectNotFoundException onfe)</span>
+		{
+			//do nothing, job is not negotiated
+<span class="nc" id="L422">		}</span>
+<span class="nc" id="L423">		return j;</span>
+	}
+
+
+    public void updateJob(Game game, Job job) throws BIGDatabaseFacadeException, ObjectNotFoundException
+    {
+		//SQL statement to a job
+<span class="fc" id="L430">		String update = &quot;UPDATE job SET companyid = ?, job_type_id = ?, liquidation_damages = ?, &quot; +</span>
+		                &quot;completion_date = ?, job_lu_size = ?, lus_remaining = ?, is_active = ?, is_auto = ?, &quot; +
+		                &quot;direct_cost = ?, completion_deadline = ?, period_created = ?, period_completed = ?, &quot; +
+		                &quot;retained_amount = ?, estimated_workdays = ?, method_scaling_factor = ?, change_order_pay = ?, &quot; +
+		                &quot;change_order_lus = ?, amount_retained_from_subs = ?, billed_to_date = ? WHERE gameid = ? AND jobid = ?&quot;;
+
+		try
+		{
+<span class="fc" id="L438">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+
+<span class="fc" id="L440">			int companyID = 0;</span>
+<span class="pc bpc" id="L441" title="1 of 2 branches missed.">			if(job.getCompany() != null)</span>
+			{
+<span class="nc" id="L443">				companyID = job.getCompany().getCompany().getCompanyID();</span>
+			}
+
+	   		java.sql.Date completionDate;
+<span class="pc bpc" id="L447" title="1 of 2 branches missed.">            if(job.getCompletionDate() != null)</span>
+<span class="fc" id="L448">                   completionDate  = new java.sql.Date(job.getCompletionDate().getTime());</span>
+            else
+<span class="nc" id="L450">                   completionDate = new java.sql.Date(0);</span>
+<span class="fc" id="L451">            java.sql.Date completionDeadline = new java.sql.Date(job.getCompletionDeadline().getTime());</span>
+
+<span class="fc" id="L453">			pstmt.setInt(1, companyID);</span>
+<span class="fc" id="L454">			pstmt.setInt(2, job.getJobType());</span>
+<span class="fc" id="L455">			pstmt.setInt(3, job.getLiquidatedDamages());</span>
+<span class="fc" id="L456">			pstmt.setDate(4, completionDate);</span>
+<span class="fc" id="L457">			pstmt.setInt(5, job.getJobSize());</span>
+<span class="fc" id="L458">			pstmt.setInt(6, job.getLusRemaining());</span>
+<span class="fc" id="L459">			pstmt.setBoolean(7, job.getIsActive());</span>
+<span class="fc" id="L460">			pstmt.setBoolean(8, job.getIsAuto());</span>
+<span class="fc" id="L461">			pstmt.setLong(9, job.getDirectCost());</span>
+<span class="fc" id="L462">			pstmt.setDate(10, completionDeadline);</span>
+<span class="fc" id="L463">			pstmt.setInt(11, job.getPeriodCreated());</span>
+<span class="fc" id="L464">			pstmt.setInt(12, job.getPeriodCompleted());</span>
+<span class="fc" id="L465">			pstmt.setLong(13, job.getRetainedAmount());</span>
+<span class="fc" id="L466">			pstmt.setInt(14, job.getEstimatedWorkdays());</span>
+<span class="fc" id="L467">			pstmt.setFloat(15, job.getMethodScalingFactor());</span>
+<span class="fc" id="L468">			pstmt.setLong(16, job.getChangeOrderPrice());</span>
+<span class="fc" id="L469">			pstmt.setInt(17, job.getChangeOrderLus());</span>
+<span class="fc" id="L470">			pstmt.setInt(18, job.getAmountRetainedFromSubcontractors());</span>
+<span class="fc" id="L471">			pstmt.setInt(19, job.getBilledToDate());</span>
+<span class="fc" id="L472">			pstmt.setInt(20, game.getGameID());</span>
+<span class="fc" id="L473">			pstmt.setInt(21, job.getJobID());</span>
+
+
+<span class="fc" id="L476">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L478">			pstmt.close();</span>
+
+<span class="pc bpc" id="L480" title="1 of 2 branches missed.">			if (rowsChanged &lt; 1)</span>
+<span class="nc" id="L481">				throw new ObjectNotFoundException();</span>
+		}
+<span class="nc" id="L483">		catch(SQLException sqle)</span>
+		{
+			//Close connection if an exception occurs
+<span class="nc" id="L486">			close();</span>
+<span class="nc" id="L487">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L488">		}</span>
+
+<span class="fc" id="L490">	}</span>
+
+    public void addJob(Game game, Job job) throws BIGDatabaseFacadeException
+    {
+		try
+		{
+			//Create the SQL statement used to insert the new job into the database.
+<span class="fc" id="L497">			String insert = &quot;INSERT INTO job (gameid, jobid, companyid, job_type_id, retentionid, liquidation_damages, &quot; +</span>
+		                &quot;completion_date, job_lu_size, lus_remaining, is_active, is_auto, &quot; +
+		                &quot;direct_cost, completion_deadline, period_created, period_completed, &quot; +
+		                &quot;retained_amount, estimated_workdays, method_scaling_factor, change_order_pay, change_order_lus, &quot; +
+		                &quot; amount_retained_from_subs, billed_to_date, type_modifier, customerid) &quot; +
+		                &quot; VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) &quot;;
+
+<span class="fc" id="L504">			int companyID = 0;</span>
+<span class="pc bpc" id="L505" title="1 of 2 branches missed.">			if(job.getCompany() != null)</span>
+			{
+<span class="nc" id="L507">				companyID = job.getCompany().getCompany().getCompanyID();</span>
+			}
+
+			java.sql.Date completionDate;
+<span class="pc bpc" id="L511" title="1 of 2 branches missed.">            if (job.getCompletionDate() != null)</span>
+<span class="fc" id="L512">	            completionDate = new java.sql.Date(job.getCompletionDate().getTime());</span>
+	        else
+	        {
+<span class="nc" id="L515">				completionDate = new java.sql.Date(0);</span>
+			}
+<span class="fc" id="L517">            java.sql.Date completionDeadline = new java.sql.Date(job.getCompletionDeadline().getTime());</span>
+
+			//Perform the insert
+<span class="fc" id="L520">			PreparedStatement pstmt = connection.prepareStatement(insert);</span>
+<span class="fc" id="L521">			pstmt.setInt(1, game.getGameID());</span>
+<span class="fc" id="L522">			pstmt.setInt(2, job.getJobID());</span>
+<span class="fc" id="L523">			pstmt.setInt(3, companyID);</span>
+<span class="fc" id="L524">			pstmt.setInt(4, job.getJobType());</span>
+<span class="fc" id="L525">			pstmt.setInt(5, job.getRetentionID());</span>
+<span class="fc" id="L526">			pstmt.setInt(6, job.getLiquidatedDamages());</span>
+<span class="fc" id="L527">			pstmt.setDate(7, completionDate);</span>
+<span class="fc" id="L528">			pstmt.setInt(8, job.getJobSize());</span>
+<span class="fc" id="L529">			pstmt.setInt(9, job.getLusRemaining());</span>
+<span class="fc" id="L530">			pstmt.setBoolean(10, job.getIsActive());</span>
+<span class="fc" id="L531">			pstmt.setBoolean(11, job.getIsAuto());</span>
+<span class="fc" id="L532">			pstmt.setLong(12, job.getDirectCost());</span>
+<span class="fc" id="L533">			pstmt.setDate(13, completionDeadline);</span>
+<span class="fc" id="L534">			pstmt.setInt(14, job.getPeriodCreated());</span>
+<span class="fc" id="L535">			pstmt.setInt(15, job.getPeriodCompleted());</span>
+<span class="fc" id="L536">			pstmt.setLong(16, job.getRetainedAmount());</span>
+<span class="fc" id="L537">			pstmt.setInt(17, job.getEstimatedWorkdays());</span>
+<span class="fc" id="L538">			pstmt.setFloat(18, job.getMethodScalingFactor());</span>
+<span class="fc" id="L539">			pstmt.setLong(19, job.getChangeOrderPrice());</span>
+<span class="fc" id="L540">			pstmt.setInt(20, job.getChangeOrderLus());</span>
+<span class="fc" id="L541">			pstmt.setInt(21, job.getAmountRetainedFromSubcontractors());</span>
+<span class="fc" id="L542">			pstmt.setInt(22, job.getBilledToDate());</span>
+<span class="fc" id="L543">			pstmt.setShort(23, job.getTypeModifier());</span>
+<span class="fc" id="L544">			pstmt.setInt(24, job.getCustomerID());</span>
+
+<span class="fc" id="L546">			int rowsAdded = pstmt.executeUpdate();</span>
+<span class="fc" id="L547">			connection.commit();</span>
+<span class="fc" id="L548">			pstmt.close();</span>
+
+			//If this is a Negotiated Job, also store the negotiated
+			//job parameters to the database in the NEGOTIATED_JOB table
+<span class="pc bpc" id="L552" title="1 of 2 branches missed.">			if (job instanceof NegotiatedJob)</span>
+			{
+
+<span class="nc" id="L555">				NegotiatedJob nj = (NegotiatedJob) job;</span>
+
+<span class="nc" id="L557">				int negotiatedCompanyID = 0;</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">				if(nj.getCompaniesAllowedToBid().size() != 1)</span>
+				{
+<span class="nc" id="L560">					System.out.println(&quot;DefaultJobDBHandler.addJob: incorrect number of allowed companies for negotiated job&quot;);</span>
+				}
+				else
+				{
+<span class="nc" id="L564">					negotiatedCompanyID = ((Integer) nj.getCompaniesAllowedToBid().elementAt(0)).intValue();</span>
+				}
+
+
+
+				//Create the SQL statement used to insert the new job into the database.
+<span class="nc" id="L570">				String insertNegotiated = &quot;INSERT INTO negotiated_job (gameid, jobid, companyid, customerid, agreed_cost, agreed_percent_profit, state, customer_target_profit, customer_haggling) &quot; +</span>
+		    	            &quot; VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) &quot;;
+
+				//Perform the insert
+<span class="nc" id="L574">				pstmt = connection.prepareStatement(insertNegotiated);</span>
+<span class="nc" id="L575">				pstmt.setInt(1, game.getGameID());</span>
+<span class="nc" id="L576">				pstmt.setInt(2, nj.getJobID());</span>
+<span class="nc" id="L577">				pstmt.setInt(3, negotiatedCompanyID);</span>
+<span class="nc" id="L578">				pstmt.setInt(4, nj.getCustomerID());</span>
+<span class="nc" id="L579">				pstmt.setLong(5, nj.getAgreedCost());</span>
+<span class="nc" id="L580">				pstmt.setInt(6, nj.getAgreedProfit());</span>
+<span class="nc" id="L581">				pstmt.setInt(7, nj.getState());</span>
+<span class="nc" id="L582">				pstmt.setInt(8, -1);</span>
+<span class="nc" id="L583">				pstmt.setInt(9, -1);</span>
+
+<span class="nc" id="L585">				pstmt.executeUpdate();</span>
+<span class="nc" id="L586">				connection.commit();</span>
+<span class="nc" id="L587">				pstmt.close();</span>
+			}
+
+		}
+<span class="nc" id="L591">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L594">			close();</span>
+<span class="nc" id="L595">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L596">		}</span>
+
+<span class="pc bpc" id="L598" title="1 of 4 branches missed.">		if((job.getTypeModifier() == Job.PRIVATE) &amp;&amp; (job.getCompaniesAllowedToBid() != null))</span>
+		{
+<span class="fc" id="L600">			addAllowedCompanies(game, job.getJobID(), job.getCompaniesAllowedToBid());</span>
+		}
+<span class="fc" id="L602">	}</span>
+
+	private void addAllowedCompanies(Game game, int jobid, Vector companyIDs) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L606">		String insert = &quot;INSERT INTO job_allowed_companies VALUES (?, ?, ?)&quot;;</span>
+
+		try
+		{
+<span class="fc" id="L610">			PreparedStatement pstmt = null;</span>
+
+<span class="pc bpc" id="L612" title="1 of 2 branches missed.">			for(int i = 0; i &lt; companyIDs.size(); i++)</span>
+			{
+<span class="nc" id="L614">				pstmt = connection.prepareStatement(insert);</span>
+<span class="nc" id="L615">				pstmt.setInt(1, game.getGameID());</span>
+<span class="nc" id="L616">				pstmt.setInt(2, jobid);</span>
+<span class="nc" id="L617">				pstmt.setInt(3, ((Integer) companyIDs.elementAt(i)).intValue());</span>
+
+
+<span class="nc" id="L620">				pstmt.executeUpdate();</span>
+<span class="nc" id="L621">				pstmt.close();</span>
+			}
+		}
+<span class="nc" id="L624">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L627">			close();</span>
+<span class="nc" id="L628">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L629">		}</span>
+<span class="fc" id="L630">	}</span>
+
+    public void removeJob(int gameid, int jobid) throws BIGDatabaseFacadeException
+    {
+		//Remove all activities belonging to this activities
+<span class="fc" id="L635">		(new DefaultActivityDBHandler(connection)).removeActivities(gameid, jobid);</span>
+
+		//String to remove the admin matching the ID number passed in
+<span class="fc" id="L638">		String update = &quot;DELETE FROM job WHERE gameID = ? AND jobid = ?&quot;;</span>
+<span class="fc" id="L639">		String delete2 = &quot;DELETE FROM negotiated_job WHERE gameid = ? AND jobid = ?&quot;;</span>
+
+<span class="fc" id="L641">		removeAllowedCompanies(jobid);</span>
+
+		try
+		{
+<span class="fc" id="L645">			PreparedStatement pstmt = connection.prepareStatement(update);</span>
+<span class="fc" id="L646">			pstmt.setInt(1, gameid);</span>
+<span class="fc" id="L647">			pstmt.setInt(2, jobid);</span>
+
+<span class="fc" id="L649">			int rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L651">			pstmt.close();</span>
+
+<span class="fc" id="L653"> 			pstmt = connection.prepareStatement(delete2);</span>
+<span class="fc" id="L654">			pstmt.setInt(1, gameid);</span>
+<span class="fc" id="L655">			pstmt.setInt(2, jobid);</span>
+
+<span class="fc" id="L657">			rowsChanged = pstmt.executeUpdate();</span>
+
+<span class="fc" id="L659">			pstmt.close();</span>
+
+		}
+<span class="nc" id="L662">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L665">			close();</span>
+<span class="nc" id="L666">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L667">		}</span>
+<span class="fc" id="L668">	}</span>
+
+	public void removeJobs(int gameid) throws BIGDatabaseFacadeException
+	{
+           //NOTE: The SQL statement &quot;DELETE FROM job WHERE gameid = ?&quot; does not work in this case becase deleting a job needs to
+           //trigger the deletion of all the values in other tables associated with that job.  Multiple calls to the removeJob method must be made
+
+           //Construct a fake game with the given gameid
+<span class="fc" id="L676">           Game game = new Game(gameid, 0, null, null, 0, false, 0, 0);</span>
+
+           //Get all jobs in this game
+<span class="fc" id="L679">           Vector jobs = getJobs(game);</span>
+
+<span class="fc" id="L681">           Iterator jobIterator = jobs.iterator();</span>
+
+           //Iterate over the list of jobs, removing each one
+<span class="fc bfc" id="L684" title="All 2 branches covered.">           while(jobIterator.hasNext())</span>
+           {
+<span class="fc" id="L686">           	Job nextJob = (Job) jobIterator.next();</span>
+<span class="fc" id="L687">                removeJob(gameid, nextJob.getJobID());</span>
+<span class="fc" id="L688">           }</span>
+<span class="fc" id="L689">	}</span>
+
+	private void removeAllowedCompanies(int jobid) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L693">		String remove = &quot;DELETE FROM job_allowed_companies WHERE jobid = ? &quot;;</span>
+		try
+		{
+<span class="fc" id="L696">			PreparedStatement pstmt = null;</span>
+<span class="fc" id="L697">			pstmt = connection.prepareStatement(remove);</span>
+<span class="fc" id="L698">			pstmt.setInt(1, jobid);</span>
+
+<span class="fc" id="L700">			pstmt.executeUpdate();</span>
+<span class="fc" id="L701">			pstmt.close();</span>
+		}
+<span class="nc" id="L703">		catch(SQLException sqle)</span>
+		{
+			//close the connection if an exception occurs
+<span class="nc" id="L706">			close();</span>
+<span class="nc" id="L707">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L708">		}</span>
+<span class="fc" id="L709">	}</span>
+
+
+
+    public int getJobCountForGame(int gameid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L715">		int count = 0;</span>
+		try
+		{
+<span class="fc" id="L718">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalJobCount&quot;, gameid)).intValue();</span>
+		}
+<span class="nc" id="L720">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L722">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L723">		}</span>
+
+<span class="fc" id="L725">		return count;</span>
+	}
+
+    public int getJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L730">		int count = 0;</span>
+<span class="fc" id="L731">		Map map = new HashMap(2);</span>
+<span class="fc" id="L732">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L733">		map.put(&quot;companyid&quot;, companyid);</span>
+
+		try
+		{
+<span class="fc" id="L737">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalJobCountForCompany&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L739">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L741">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L742">		}</span>
+
+<span class="fc" id="L744">		return count;</span>
+	}
+
+    public int getInProgressJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L749">		int count = 0;</span>
+<span class="fc" id="L750">		Map map = new HashMap(2);</span>
+<span class="fc" id="L751">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L752">		map.put(&quot;companyid&quot;, companyid);</span>
+
+		try
+		{
+<span class="fc" id="L756">			count = ((Integer) sqlMap.queryForObject(&quot;getInProgressJobCountForCompany&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L758">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L760">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L761">		}</span>
+
+<span class="fc" id="L763">		return count;</span>
+	}
+
+    public int getCompletedJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L768">		int count = 0;</span>
+<span class="fc" id="L769">		Map map = new HashMap(2);</span>
+<span class="fc" id="L770">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L771">		map.put(&quot;companyid&quot;, companyid);</span>
+
+		try
+		{
+<span class="fc" id="L775">			count = ((Integer) sqlMap.queryForObject(&quot;getCompletedJobCountForCompany&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L777">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L779">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L780">		}</span>
+
+<span class="fc" id="L782">		return count;</span>
+	}
+
+    public int getAutoJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L787">		int count = 0;</span>
+<span class="fc" id="L788">		Map map = new HashMap(2);</span>
+<span class="fc" id="L789">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L790">		map.put(&quot;companyid&quot;, companyid);</span>
+
+		try
+		{
+<span class="fc" id="L794">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalAutoJobCountForCompany&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L796">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L798">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L799">		}</span>
+
+<span class="fc" id="L801">		return count;</span>
+	}
+
+    public int getPublicJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L806">		int count = 0;</span>
+<span class="fc" id="L807">		Map map = new HashMap(3);</span>
+<span class="fc" id="L808">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L809">		map.put(&quot;companyid&quot;, companyid);</span>
+<span class="fc" id="L810">		map.put(&quot;type_modifier&quot;, Job.PUBLIC);</span>
+
+		try
+		{
+<span class="fc" id="L814">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalJobCountForCompanyByType&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L816">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L818">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L819">		}</span>
+
+<span class="fc" id="L821">		return count;</span>
+	}
+
+    public int getPrivateJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L826">		int count = 0;</span>
+<span class="fc" id="L827">		Map map = new HashMap(3);</span>
+<span class="fc" id="L828">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L829">		map.put(&quot;companyid&quot;, companyid);</span>
+<span class="fc" id="L830">		map.put(&quot;type_modifier&quot;, Job.PRIVATE);</span>
+
+		try
+		{
+<span class="fc" id="L834">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalJobCountForCompanyByType&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L836">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L838">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L839">		}</span>
+
+<span class="fc" id="L841">		return count;</span>
+	}
+
+    public int getHeavyJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L846">		int count = 0;</span>
+<span class="fc" id="L847">		Map map = new HashMap(3);</span>
+<span class="fc" id="L848">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L849">		map.put(&quot;companyid&quot;, companyid);</span>
+<span class="fc" id="L850">		map.put(&quot;type_modifier&quot;, Job.HEAVY);</span>
+
+		try
+		{
+<span class="fc" id="L854">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalJobCountForCompanyByType&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L856">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L858">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L859">		}</span>
+
+<span class="fc" id="L861">		return count;</span>
+	}
+
+    public int getNegotiatedJobCountForCompany(int gameid, int companyid) throws BIGDatabaseFacadeException
+    {
+<span class="fc" id="L866">		int count = 0;</span>
+<span class="fc" id="L867">		Map map = new HashMap(2);</span>
+<span class="fc" id="L868">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="fc" id="L869">		map.put(&quot;companyid&quot;, companyid);</span>
+
+		try
+		{
+<span class="fc" id="L873">			count = ((Integer) sqlMap.queryForObject(&quot;getTotalNegotiatedJobCountForCompany&quot;, map)).intValue();</span>
+		}
+<span class="nc" id="L875">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L877">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L878">		}</span>
+
+<span class="fc" id="L880">		return count;</span>
+	}
+
+    public int getJobDaysLate(int gameid, int jobid) throws BIGDatabaseFacadeException
+    {
+<span class="nc" id="L885">		int count = 0;</span>
+<span class="nc" id="L886">		Map map = new HashMap(2);</span>
+<span class="nc" id="L887">		map.put(&quot;gameid&quot;, gameid);</span>
+<span class="nc" id="L888">		map.put(&quot;jobid&quot;, jobid);</span>
+
+		try
+		{
+<span class="nc" id="L892">			Integer countInteger = (Integer) sqlMap.queryForObject(&quot;getTotalDaysOverdueForJob&quot;, map);</span>
+
+<span class="nc bnc" id="L894" title="All 2 branches missed.">			if(countInteger != null)</span>
+			{
+<span class="nc" id="L896">				count = countInteger.intValue();</span>
+			}
+		}
+<span class="nc" id="L899">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L901">			throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L902">		}</span>
+
+<span class="nc" id="L904">		return count;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

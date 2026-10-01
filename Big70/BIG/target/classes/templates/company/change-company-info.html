@@ -1,0 +1,128 @@
+<!--
+  change-company-info.html
+  Allows companies (users) to change username, password, and title of their company
+-->
+  
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Change Company Information</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Change Company Information</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex items-center justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-lg">
+
+      <h3 class="text-2xl font-bold mb-6 text-center">
+        Update Your Information
+      </h3>
+
+      <form name="companyForm" method="post" th:action="@{/company/change-company-info}" class="space-y-6">
+
+        <!-- Username (Read-only) -->
+        <div>
+          <label for="username" class="block font-semibold mb-1">
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            disabled
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 cursor-not-allowed"
+          >
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block font-semibold mb-1">
+            Password
+          </label>
+          <!-- Password -->
+          <input
+          type="password"
+          id="password"
+          name="password"
+          maxlength="10"
+          placeholder="Enter new password"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label for="confirmPassword" class="block font-semibold mb-1">
+            Re-type Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            maxlength="10"
+            placeholder="Re-enter new password"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Company Title -->
+        <div>
+          <label for="title" class="block font-semibold mb-1">
+            Company Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            maxlength="80"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-between pt-4">
+
+          <button
+            type="button"
+            th:onclick="'window.location.href=\'' + @{/company/company-menu} + '\';'"
+            class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+            Cancel
+          </button>
+
+          <div class="space-x-2">
+            <button
+              type="reset"
+              class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+              Reset
+            </button>
+
+            <button
+              type="submit"
+              class="px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+              Save Changes
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

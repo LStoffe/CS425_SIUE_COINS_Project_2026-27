@@ -1,0 +1,8 @@
+Testsuite: edu.calpoly.lib.multimedia.big.reports.CAMReportFormTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 sec
+
+Testcase: testGetFinancialLiquidityReturnsOneWhenValueBelowOne took 0.004 sec
+Testcase: testDefaultConstructor took 0 sec
+Testcase: testConstructorWithHashtable took 0 sec
+Testcase: testConstants took 0 sec
+Testcase: testSetCompanyName took 0 sec

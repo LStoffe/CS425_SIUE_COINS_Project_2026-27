@@ -1,0 +1,159 @@
+<!--
+    bid-on-a-job.html
+    This page will allow the user to select a project and place a bid on a job as a contractor.
+-->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Choose Job for Bid</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-company :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Choose Job for Bid</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-7xl">
+
+      <!-- Report Date -->
+      <div class="mb-6">
+        <p class="text-gray-700 font-semibold">Report Date: March & April 1999</p>
+      </div>
+
+      <!-- Jobs Table -->
+      <div class="overflow-x-auto border border-gray-300 rounded-lg">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100 border-b border-gray-300">
+            <tr>
+              <th class="px-4 py-3 text-center font-semibold">Job<br>Number</th>
+              <th class="px-4 py-3 text-left font-semibold">Job Type</th>
+              <th class="px-4 py-3 text-right font-semibold">Job Size (CUs)</th>
+              <th class="px-4 py-3 text-right font-semibold">Liquidated<br>Damages ($/day)</th>
+              <th class="px-4 py-3 text-left font-semibold">Completion Deadline</th>
+              <th class="px-4 py-3 text-left font-semibold">Your Current Bid</th>
+              <th class="px-4 py-3 text-center font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <!-- Job 12 -->
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 text-center font-semibold">12</td>
+              <td class="px-4 py-3">Public - Office</td>
+              <td class="px-4 py-3 text-right">36,601</td>
+              <td class="px-4 py-3 text-right">$7,000</td>
+              <td class="px-4 py-3">December 30, 1999</td>
+              <td class="px-4 py-3 text-gray-500">None</td>
+              <td class="px-4 py-3 text-center">
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">More Info</a>
+                <span class="text-gray-400 mx-1">|</span>
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">Add/Modify Bid</a>
+              </td>
+            </tr>
+
+            <!-- Job 13 -->
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 text-center font-semibold">13</td>
+              <td class="px-4 py-3">Public - Apartments</td>
+              <td class="px-4 py-3 text-right">20,845</td>
+              <td class="px-4 py-3 text-right">$2,000</td>
+              <td class="px-4 py-3">December 16, 1999</td>
+              <td class="px-4 py-3 text-gray-500">None</td>
+              <td class="px-4 py-3 text-center">
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">More Info</a>
+                <span class="text-gray-400 mx-1">|</span>
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">Add/Modify Bid</a>
+              </td>
+            </tr>
+
+            <!-- Job 14 -->
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 text-center font-semibold">14</td>
+              <td class="px-4 py-3">Public - School</td>
+              <td class="px-4 py-3 text-right">40,473</td>
+              <td class="px-4 py-3 text-right">$3,000</td>
+              <td class="px-4 py-3">February 25, 2000</td>
+              <td class="px-4 py-3 text-gray-500">None</td>
+              <td class="px-4 py-3 text-center">
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">More Info</a>
+                <span class="text-gray-400 mx-1">|</span>
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">Add/Modify Bid</a>
+              </td>
+            </tr>
+
+            <!-- Job 15 -->
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 text-center font-semibold">15</td>
+              <td class="px-4 py-3">Public - Apartments</td>
+              <td class="px-4 py-3 text-right">23,764</td>
+              <td class="px-4 py-3 text-right">$5,000</td>
+              <td class="px-4 py-3">November 5, 1999</td>
+              <td class="px-4 py-3 text-gray-500">None</td>
+              <td class="px-4 py-3 text-center">
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">More Info</a>
+                <span class="text-gray-400 mx-1">|</span>
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">Add/Modify Bid</a>
+              </td>
+            </tr>
+
+            <!-- Job 16 -->
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 text-center font-semibold">16</td>
+              <td class="px-4 py-3">Public - Apartments</td>
+              <td class="px-4 py-3 text-right">23,372</td>
+              <td class="px-4 py-3 text-right">$4,000</td>
+              <td class="px-4 py-3">October 20, 1999</td>
+              <td class="px-4 py-3 text-gray-500">None</td>
+              <td class="px-4 py-3 text-center">
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">More Info</a>
+                <span class="text-gray-400 mx-1">|</span>
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">Add/Modify Bid</a>
+              </td>
+            </tr>
+
+            <!-- Job 17 -->
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3 text-center font-semibold">17</td>
+              <td class="px-4 py-3">Public - Apartments</td>
+              <td class="px-4 py-3 text-right">22,754</td>
+              <td class="px-4 py-3 text-right">$200</td>
+              <td class="px-4 py-3">June 15, 2000</td>
+              <td class="px-4 py-3 text-gray-500">None</td>
+              <td class="px-4 py-3 text-center">
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">More Info</a>
+                <span class="text-gray-400 mx-1">|</span>
+                <a href="#" class="text-black hover:text-amber-600 hover:underline">Add/Modify Bid</a>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-10 text-center">
+        <a th:href="@{/company/bidding-menu}"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2 px-6 rounded-lg transition-colors">
+          Back to Bidding Menu
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

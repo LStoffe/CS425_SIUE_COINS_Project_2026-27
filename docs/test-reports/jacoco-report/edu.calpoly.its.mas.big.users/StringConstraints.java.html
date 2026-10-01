@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StringConstraints.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users</a> &gt; <span class="el_source">StringConstraints.java</span></div><h1>StringConstraints.java</h1><pre class="source lang-java linenums">
+
+package edu.calpoly.its.mas.big.users;
+
+
+
+/**
+ * Contains constants describing upper and lower limit for string lengths.
+ * Any changes that need to be made to string length boundaries can be made here.  &lt;br&gt;&lt;br&gt;
+ * &lt;b&gt;Note:&lt;/b&gt;Error messages which display bounds on string lengths (such as in response to a
+ * user submitting a string that is too long) do not use constants from this class and their values must also
+ * be updated if values here are changed.  String lengths in database and jsp may also need to be changed.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.2 $ $Date: 2001/10/03 20:23:50 $
+ */
+<span class="nc" id="L18">public class StringConstraints</span>
+{
+
+  /**
+   * Minimum length of a username.
+   */
+  public static final int USERNAME_LOWER_LIMIT = 6;
+
+  /**
+   * Maximum length of a username.
+   */
+  public static final int USERNAME_UPPER_LIMIT = 10;
+
+  /**
+   * Minimum length of a password.
+   */
+  public static final int PASSWORD_LOWER_LIMIT = 6;
+
+  /**
+   * Maximum length of a password.
+   */
+  public static final int PASSWORD_UPPER_LIMIT = 10;
+
+  /**
+   * Minimum length of a game name.
+   */
+  public static final int GAMENAME_LOWER_LIMIT = 1;
+
+  /**
+   * Maximum length of a game name.
+   */
+  public static final int GAMENAME_UPPER_LIMIT = 20;
+
+  /**
+   * Minimum length of a company title.
+   */
+  public static final int COMPANY_TITLE_LOWER_LIMIT = 1;
+
+  /**
+   * Maximum length of a company title.
+   */
+  public static final int COMPANY_TITLE_UPPER_LIMIT = 80;
+
+
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,25 @@
+Testsuite: edu.calpoly.its.mas.big.game.JobFactoryIntegrationTest
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.175 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testCreateHeavyJobWithRealDatabaseParams took 0.924 sec
+Testcase: testCreateMultipleJobsWithSameFactory took 0.016 sec
+Testcase: testCreateJobWithAdminSpecifiedType6Heavy took 0.016 sec
+Testcase: testCreateJobWithRealDatabaseParams took 0.015 sec
+Testcase: testCreateJobWithAdminSpecifiedType10Heavy took 0.023 sec
+Testcase: testCreateJobWithAdminSpecifiedSize took 0.016 sec
+Testcase: testCreateMultipleHeavyJobsWithSameFactory took 0.02 sec
+Testcase: testCreateJobAllHeavyTypes took 0.038 sec
+Testcase: testCreateJobHasRetentionPolicy took 0.008 sec
+Testcase: testCreateJobWithAdminSizeAndType took 0.007 sec
+Testcase: testCreateJobType2And3Building took 0.016 sec
+Testcase: testCreateJobType7And8Heavy took 0.015 sec
+Testcase: testCreateJobAllBuildingTypes took 0.03 sec
+Testcase: testCreateJobWithAdminSpecifiedType1Building took 0.007 sec
+Testcase: testCreateJobWithAdminSpecifiedType5Building took 0.008 sec
+Testcase: testCreateJobHasMethodScalingFactor took 0.006 sec

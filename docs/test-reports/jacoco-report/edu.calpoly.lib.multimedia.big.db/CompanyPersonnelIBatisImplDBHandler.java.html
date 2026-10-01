@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompanyPersonnelIBatisImplDBHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.db</a> &gt; <span class="el_source">CompanyPersonnelIBatisImplDBHandler.java</span></div><h1>CompanyPersonnelIBatisImplDBHandler.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.db;
+
+//BIG v2 imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+
+//BIG v4 imports
+import edu.calpoly.lib.multimedia.big.personnel.EmployeeTypeRecord;
+
+//JDK imports
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+
+//JDBC imports
+import java.sql.SQLException;
+
+//BIG Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+
+//iBATIS imports
+import com.ibatis.sqlmap.client.SqlMapClient;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/**
+ * Implementation of &lt;code&gt;CompanyPersonnelDBHandler&lt;/code&gt; using iBatis to access the database.
+ *
+ * @author Kevin Craig
+ *
+ */
+public class CompanyPersonnelIBatisImplDBHandler implements CompanyPersonnelDBHandler
+{
+	private Log log;
+	private SqlMapClient sqlMap;
+
+
+    public CompanyPersonnelIBatisImplDBHandler(SqlMapClient sqlMap)
+<span class="fc" id="L43">    {</span>
+<span class="fc" id="L44">		this.sqlMap = sqlMap;</span>
+<span class="fc" id="L45">		this.log = LogFactory.getLog(this.getClass());</span>
+<span class="fc" id="L46">	}</span>
+
+	public List&lt;EmployeeTypeRecord&gt; getCompanyEmployment(Game game, Company company, int periodNumber) throws BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L52">			log.debug(this.getClass() + &quot;: Starting method getCompanyEmployment&quot;);</span>
+		}
+
+<span class="fc" id="L55">		List&lt;EmployeeTypeRecord&gt; list = new ArrayList&lt;EmployeeTypeRecord&gt;();</span>
+
+		try
+		{
+<span class="fc" id="L59">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L61">			Map m = new HashMap();</span>
+<span class="fc" id="L62">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L63">			m.put(&quot;companyid&quot; , company.getCompanyID());</span>
+<span class="fc" id="L64">			m.put(&quot;periodid&quot;, periodNumber);</span>
+<span class="fc" id="L65">			list = (List&lt;EmployeeTypeRecord&gt;) sqlMap.queryForList(&quot;getCompanyEmployment&quot;, m);</span>
+
+<span class="fc" id="L67">			sqlMap.commitTransaction();</span>
+
+<span class="fc" id="L69">			log.debug(list.size() + &quot;LIST SIZE&quot;);</span>
+		}
+<span class="fc" id="L71">		catch(SQLException sqle)</span>
+		{
+<span class="fc" id="L73">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L79">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L81">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L83">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L84">			}</span>
+		}
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L89">			log.debug(this.getClass() + &quot;: Returning from method getCompanyEmployment&quot;);</span>
+		}
+
+<span class="fc" id="L92">		return list;</span>
+	}
+
+	public EmployeeTypeRecord getCompanyEmployeeType(Game game, Company company, int periodNumber, String employeeType) throws BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L99">			log.debug(this.getClass() + &quot;: Starting method getCompanyEmployeeType&quot;);</span>
+		}
+
+<span class="fc" id="L102">		EmployeeTypeRecord etr = null;</span>
+
+		try
+		{
+<span class="fc" id="L106">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L108">			Map m = new HashMap();</span>
+<span class="fc" id="L109">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L110">			m.put(&quot;companyid&quot; , company.getCompanyID());</span>
+<span class="fc" id="L111">			m.put(&quot;periodid&quot;, periodNumber);</span>
+<span class="fc" id="L112">			m.put(&quot;employeeType&quot;, employeeType);</span>
+<span class="fc" id="L113">			etr = (EmployeeTypeRecord) sqlMap.queryForObject(&quot;getCompanyEmployeeType&quot;, m);</span>
+
+<span class="fc" id="L115">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L117">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L119">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L125">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L127">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L129">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L130">			}</span>
+		}
+
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L135">			log.debug(this.getClass() + &quot;: Returning from method getCompanyEmployeeType&quot;);</span>
+		}
+
+<span class="fc" id="L138">		return etr;</span>
+	}
+
+	public EmployeeTypeRecord getEmployeeTypeRecord(Game game, Company company, int periodNumber, String employeeType) throws BIGDatabaseFacadeException
+	{
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L145">			log.debug(this.getClass() + &quot;: Starting method getEmployeeTypeRecord&quot;);</span>
+		}
+
+<span class="nc" id="L148">		EmployeeTypeRecord etr = null;</span>
+
+		try
+		{
+<span class="nc" id="L152">			sqlMap.startTransaction();</span>
+
+<span class="nc" id="L154">			Map m = new HashMap();</span>
+<span class="nc" id="L155">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="nc" id="L156">			m.put(&quot;companyid&quot; , company.getCompanyID());</span>
+<span class="nc" id="L157">			m.put(&quot;periodid&quot;, periodNumber);</span>
+<span class="nc" id="L158">			m.put(&quot;employeeType&quot;, employeeType);</span>
+<span class="nc" id="L159">			etr = (EmployeeTypeRecord) sqlMap.queryForObject(&quot;getCompanyEmployeeTypeStatus&quot;, m);</span>
+
+<span class="nc" id="L161">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L163">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L165">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L171">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L173">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L175">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="nc" id="L176">			}</span>
+		}
+
+<span class="nc bnc" id="L179" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L181">			log.debug(this.getClass() + &quot;: Returning from method getEmployeeTypeRecord&quot;);</span>
+		}
+
+<span class="nc" id="L184">		return etr;</span>
+	}
+
+	public void deleteEmployeeTypeRecord(Game game, Company company, int periodNumber, String employeeType) throws BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L191">			log.debug(this.getClass() + &quot;: Starting method deleteEmployeeTypeRecord&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L196">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L198">			Map m = new HashMap();</span>
+<span class="fc" id="L199">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L200">			m.put(&quot;companyid&quot; , company.getCompanyID());</span>
+<span class="fc" id="L201">			m.put(&quot;periodid&quot;, periodNumber);</span>
+<span class="fc" id="L202">			m.put(&quot;employeeType&quot;, employeeType);</span>
+<span class="fc" id="L203">			sqlMap.delete(&quot;deleteCompanyPersonnel&quot;, m);</span>
+
+<span class="fc" id="L205">			sqlMap.commitTransaction();</span>
+
+		}
+<span class="nc" id="L208">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L210">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L216">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L218">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L220">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L221">			}</span>
+		}
+
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L226">			log.debug(this.getClass() + &quot;: Returning from method deleteEmployeeTypeRecord&quot;);</span>
+		}
+
+<span class="fc" id="L229">	}</span>
+
+	public void addEmployeeTypeRecord(Game game, Company company, int periodNumber, String employeeType, int employeeTypeCount, int employeeTypeHires, int employeeTypeFires) throws BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L235">			log.debug(this.getClass() + &quot;: Starting method addEmployeeTypeRecord&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L240">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L242">			Map m = new HashMap();</span>
+<span class="fc" id="L243">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L244">			m.put(&quot;companyid&quot; , company.getCompanyID());</span>
+<span class="fc" id="L245">			m.put(&quot;periodid&quot;, periodNumber);</span>
+<span class="fc" id="L246">			m.put(&quot;employeeType&quot;, employeeType);</span>
+<span class="fc" id="L247">			m.put(&quot;employeeTypeCount&quot;, employeeTypeCount);</span>
+<span class="fc" id="L248">			m.put(&quot;employeeTypeHires&quot;, employeeTypeHires);</span>
+<span class="fc" id="L249">			m.put(&quot;employeeTypeFires&quot;, employeeTypeFires);</span>
+<span class="fc" id="L250">			sqlMap.insert(&quot;addCompanyEmployeeMap&quot;, m);</span>
+
+<span class="fc" id="L252">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L254">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L256">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L262">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L264">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L266">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L267">			}</span>
+		}
+
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L272">			log.debug(this.getClass() + &quot;: Returning from method addEmployeeTypeRecord&quot;);</span>
+		}
+<span class="fc" id="L274">	}</span>
+
+	public void updateEmployeeTypeRecord(Game game, Company company, int periodNumber, String employeeType, int employeeTypeCount, int employeeTypeHires, int employeeTypeFires) throws BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L280">			log.debug(this.getClass() + &quot;: Starting method updateEmployeeTypeRecord&quot;);</span>
+		}
+
+<span class="fc" id="L283">		deleteEmployeeTypeRecord(game, company, periodNumber, employeeType);</span>
+<span class="fc" id="L284">		addEmployeeTypeRecord(game, company, periodNumber, employeeType, employeeTypeCount, employeeTypeHires, employeeTypeFires);</span>
+
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L288">			log.debug(this.getClass() + &quot;: Returning from method updateEmployeeTypeRecord&quot;);</span>
+		}
+<span class="fc" id="L290">	}</span>
+
+	public boolean isValidEmployeeType(Game game, String employeeType) throws BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L296">			log.debug(this.getClass() + &quot;: Starting method isValidEmployeeType&quot;);</span>
+		}
+
+<span class="fc" id="L299">		String eType = null;</span>
+
+		try
+		{
+<span class="fc" id="L303">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L305">			Map m = new HashMap();</span>
+<span class="fc" id="L306">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L307">			m.put(&quot;employeeType&quot;, employeeType);</span>
+<span class="fc" id="L308">			eType = (String) sqlMap.queryForObject(&quot;checkAvailableEmployeeType&quot;, m);</span>
+
+<span class="fc" id="L310">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L312">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L314">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L320">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L322">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L324">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L325">			}</span>
+		}
+
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L330">			log.debug(this.getClass() + &quot;: Returning from method isValidEmployeeType&quot;);</span>
+		}
+
+<span class="fc bfc" id="L333" title="All 2 branches covered.">		return (eType != null);</span>
+	}
+
+	public Map&lt;String, Integer&gt; getUnfilledMosp(Game game, Company company, int periodNumber) throws BIGDatabaseFacadeException
+	{
+<span class="fc" id="L338">		Map&lt;String, Integer&gt; skillsMap = new HashMap&lt;String, Integer&gt;();</span>
+
+<span class="pc bpc" id="L340" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L342">			log.debug(this.getClass() + &quot;: Starting method getUnfilledMosp&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L347">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L349">			Map&lt;String, Object&gt; params = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L350">			params.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L351">			params.put(&quot;companyid&quot; , company.getCompanyID());</span>
+<span class="fc" id="L352">			params.put(&quot;periodid&quot;, periodNumber);</span>
+
+<span class="fc" id="L354">			List maps = (List) sqlMap.queryForList(&quot;getUnfilledMospEntries&quot;, params);</span>
+
+<span class="fc" id="L356">			sqlMap.commitTransaction();</span>
+
+<span class="fc bfc" id="L358" title="All 2 branches covered.">			for(Object o : maps)</span>
+			{
+<span class="fc" id="L360">				Map m = (Map) o;</span>
+<span class="fc" id="L361">				skillsMap.put( (String) m.get(&quot;skill_code&quot;), (Integer) m.get(&quot;points&quot;));</span>
+<span class="fc" id="L362">			}</span>
+		}
+<span class="nc" id="L364">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L366">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L372">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L374">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L376">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L377">			}</span>
+		}
+
+<span class="pc bpc" id="L380" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L382">			log.debug(this.getClass() + &quot;: Returning from method getUnfilledMosp&quot;);</span>
+		}
+
+<span class="fc" id="L385">		return skillsMap;</span>
+	}
+
+	public void addUnfilledMospEntry(Game game, Company company, int periodNumber, String skill, int points) throws BIGDatabaseFacadeException
+	{
+<span class="pc bpc" id="L390" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L392">			log.debug(this.getClass() + &quot;: Starting method addUnfilledMospEntry&quot;);</span>
+		}
+
+		try
+		{
+<span class="fc" id="L397">			sqlMap.startTransaction();</span>
+
+<span class="fc" id="L399">			Map m = new HashMap();</span>
+<span class="fc" id="L400">			m.put(&quot;gameid&quot; , game.getGameID());</span>
+<span class="fc" id="L401">			m.put(&quot;companyid&quot; , company.getCompanyID());</span>
+<span class="fc" id="L402">			m.put(&quot;periodid&quot;, periodNumber);</span>
+<span class="fc" id="L403">			m.put(&quot;skill&quot;, skill);</span>
+<span class="fc" id="L404">			m.put(&quot;points&quot;, points);</span>
+<span class="fc" id="L405">			sqlMap.insert(&quot;addUnfilledMospEntry&quot;, m);</span>
+
+<span class="fc" id="L407">			sqlMap.commitTransaction();</span>
+		}
+<span class="nc" id="L409">		catch(SQLException sqle)</span>
+		{
+<span class="nc" id="L411">			throw new BIGDatabaseFacadeException(sqle);</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="fc" id="L417">				sqlMap.endTransaction();</span>
+			}
+<span class="nc" id="L419">			catch(SQLException sqle)</span>
+			{
+<span class="nc" id="L421">				throw new BIGDatabaseFacadeException(sqle);</span>
+<span class="fc" id="L422">			}</span>
+		}
+
+<span class="pc bpc" id="L425" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L427">			log.debug(this.getClass() + &quot;: Returning from method addUnfilledMospEntry&quot;);</span>
+		}
+<span class="fc" id="L429">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

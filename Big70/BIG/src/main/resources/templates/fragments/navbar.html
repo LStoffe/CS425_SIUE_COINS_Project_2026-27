@@ -1,0 +1,43 @@
+<!-- 
+    Navbar Fragment
+    Use this in pages needing the Main Menu navigation bar with:
+    <div th:replace="fragments/navbar :: navbar"></div>
+-->
+
+
+<div th:fragment="navbar">
+  <nav class="main-navbar flex items-center justify-between p-4 shadow fixed top-0 left-0 w-full z-50">
+    <div class="flex items-center space-x-4">
+      <span class="text-2xl font-bold text-black">COINS</span>
+
+      <!-- Show company nav if logged in as company -->
+      <th:block th:if="${session.companyId != null}">
+        <a th:href="@{/company/company-menu}" class="text-black hover:text-amber-600 transition-colors font-bold">Company Menu</a>
+        <a th:href="@{/manual/manual-toc}" class="text-black hover:text-amber-600 transition-colors font-bold">User Manual</a>
+      </th:block>
+
+      <!-- Show admin nav if logged in as admin -->
+      <th:block th:if="${session.adminId != null}">
+        <a th:href="@{/admin/admin-menu}" class="text-black hover:text-amber-600 transition-colors font-bold">Admin Menu</a>
+        <a th:href="@{/manual/manual-toc}" class="text-black hover:text-amber-600 transition-colors font-bold">Manual</a>
+      </th:block>
+
+       <!-- Show default nav if not logged in -->
+      <th:block th:if="${session.companyId == null and session.adminId == null}">
+        <a th:href="@{/main-menu}" class="text-black hover:text-amber-600 transition-colors font-bold">Main Menu</a>
+        <a th:href="@{/overview}" class="text-black hover:text-amber-600 transition-colors font-bold">Overview</a>
+        <a th:href="@{/manual/manual-toc}" class="text-black hover:text-amber-600 transition-colors font-bold">Manual</a>
+        <a th:href="@{/login}" class="text-black hover:text-amber-600 transition-colors font-bold">Login</a>
+      </th:block>
+      
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <span th:if="${session.username != null}" class="flex items-center gap-2">
+        <span class="text-black font-bold" th:if="${session.username != null}" th:text="${'Logged in as: ' + session.username}">Logged in as</span>
+        <a th:href="@{/logout}" class="text-black hover:text-amber-600 transition-colors font-bold">Logout</a>
+      </span>
+    </div>
+
+  </nav>
+</div>

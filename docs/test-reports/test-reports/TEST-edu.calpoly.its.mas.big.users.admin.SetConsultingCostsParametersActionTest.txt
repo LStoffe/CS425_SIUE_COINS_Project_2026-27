@@ -1,0 +1,21 @@
+Testsuite: edu.calpoly.its.mas.big.users.admin.SetConsultingCostsParametersActionTest
+Tests run: 3, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.633 sec
+
+Testcase: testExecuteReturnsCancelledWhenRequestCancelled took 0.591 sec
+Testcase: testExecuteSetParametersSuccess took 0.021 sec
+	Caused an ERROR
+Cannot invoke "java.lang.Integer.toString()" because the return value of "java.util.Hashtable.get(Object)" is null
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.toString()" because the return value of "java.util.Hashtable.get(Object)" is null
+	at edu.calpoly.its.mas.big.users.admin.ConsultingCostsParametersForm.setConsultingCosts(ConsultingCostsParametersForm.java:55)
+	at edu.calpoly.its.mas.big.users.admin.SetConsultingCostsParametersActionTest.testExecuteSetParametersSuccess(SetConsultingCostsParametersActionTest.java:65)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+
+Testcase: testExecuteRestoreDefaultsSuccess took 0.015 sec
+	Caused an ERROR
+Cannot invoke "java.lang.Integer.toString()" because the return value of "java.util.Hashtable.get(Object)" is null
+java.lang.NullPointerException: Cannot invoke "java.lang.Integer.toString()" because the return value of "java.util.Hashtable.get(Object)" is null
+	at edu.calpoly.its.mas.big.users.admin.ConsultingCostsParametersForm.setConsultingCosts(ConsultingCostsParametersForm.java:55)
+	at edu.calpoly.its.mas.big.users.admin.SetConsultingCostsParametersAction.execute(SetConsultingCostsParametersAction.java:125)
+	at edu.calpoly.its.mas.big.users.admin.SetConsultingCostsParametersActionTest.testExecuteRestoreDefaultsSuccess(SetConsultingCostsParametersActionTest.java:116)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+

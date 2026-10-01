@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReviewClosedBidJobAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.lib.multimedia.big.users.company</a> &gt; <span class="el_source">ReviewClosedBidJobAction.java</span></div><h1>ReviewClosedBidJobAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.lib.multimedia.big.users.company;
+
+//JDK imports
+import java.util.Vector;
+import java.util.Iterator;
+import javax.sql.DataSource;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Struts imports
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.users.LoginBroker;
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.game.Job;
+import edu.calpoly.its.mas.big.game.Method;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.company.BidOnJobForm;
+import edu.calpoly.its.mas.big.users.company.Bid;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.JobDBHandler;
+import edu.calpoly.its.mas.big.db.CurrentMethodDBHandler;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ */
+<span class="nc" id="L50">public class ReviewClosedBidJobAction extends Action</span>
+{
+	public ActionForward execute(ActionMapping mapping,
+				     			 ActionForm form,
+				     			 HttpServletRequest request,
+			         			 HttpServletResponse response)
+	{
+<span class="nc" id="L57">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L60">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+<span class="nc" id="L63">	    ActionMessages errors = new ActionMessages();</span>
+
+<span class="nc" id="L65">        ServletContext context = servlet.getServletContext();</span>
+<span class="nc" id="L66">        HttpSession session = request.getSession();</span>
+<span class="nc" id="L67">	    Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+
+<span class="nc" id="L69">        LoginBroker loginBroker = (LoginBroker) context.getAttribute(&quot;loginBroker&quot;);</span>
+
+        // If for any reason the company should not be allowed to login, route the
+        // company to an error message page.
+<span class="nc bnc" id="L73" title="All 2 branches missed.">	    if(!loginBroker.verifyGameLoginAllowed(game, context, request))</span>
+<span class="nc" id="L74">		   return (mapping.findForward(&quot;loginFailure&quot;));</span>
+
+<span class="nc" id="L76">		Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+		// Grab jobID parameter, which was sent by chooseJobForBid.jsp
+<span class="nc" id="L79">		String jobIDString = request.getParameter(&quot;jobID&quot;);</span>
+<span class="nc" id="L80">		int jobID = 0;</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">		if (jobIDString != null &amp;&amp; !jobIDString.equals(&quot;&quot;))</span>
+		{
+<span class="nc" id="L83">			jobID = Integer.parseInt(jobIDString);</span>
+		}
+		else
+		{
+<span class="nc" id="L87">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.unknown&quot;));</span>
+		}
+
+<span class="nc" id="L90">		Method[] methods = null;</span>
+<span class="nc" id="L91">		Bid bid = null;</span>
+
+<span class="nc" id="L93">		BidOnJobForm bidOnJobForm = new BidOnJobForm();</span>
+<span class="nc" id="L94">		bidOnJobForm.setJobID(jobID);</span>
+
+<span class="nc" id="L96">		BIGDatabaseFacadeInterface dbFacade = new BIGDatabaseFacade(getDataSource(request), true);</span>
+
+<span class="nc" id="L98">		Job job = null;</span>
+
+		try
+		{
+			// Ensure that the jobId passed in as a request parameter corresponds to a current job.
+			// getJobs --&gt; Retrieves all jobs created during the *current* period
+<span class="nc" id="L104">			Vector jobs = dbFacade.getJobDBHandler().getJobs(game, game.getCurrentPeriodNumber());</span>
+<span class="nc" id="L105">			Iterator jobsIter = jobs.iterator();</span>
+<span class="nc" id="L106">			boolean jobFound = false;</span>
+<span class="nc bnc" id="L107" title="All 4 branches missed.">			while(jobsIter.hasNext() &amp;&amp; !jobFound)</span>
+			{
+<span class="nc" id="L109">				job = (Job) jobsIter.next();</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">				if (job.getJobID() == jobID)</span>
+				{
+<span class="nc" id="L112">					bidOnJobForm.setJob(job);</span>
+<span class="nc" id="L113">					jobFound = true;</span>
+				}
+			}
+            // need to close connection in case exception is thrown
+<span class="nc" id="L117">            dbFacade.close();</span>
+
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			if (!jobFound)</span>
+<span class="nc" id="L120">				throw new ObjectNotFoundException();</span>
+
+
+<span class="nc bnc" id="L123" title="All 2 branches missed.">			for (int activityNum = 1; activityNum &lt;= 9; activityNum++)</span>
+			{
+<span class="nc" id="L125">				methods = dbFacade.getCurrentMethodDBHandler().getAllMethods(game, activityNum);</span>
+
+<span class="nc" id="L127">				String[] methodNames = new String[5];</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">				for (int methodNum = 0; methodNum &lt; 5; methodNum++)</span>
+				{
+<span class="nc" id="L130">					methodNames[methodNum] = methods[methodNum].getMethodName();</span>
+				}
+
+<span class="nc" id="L133">				bidOnJobForm.setMethodNames(activityNum, methodNames);</span>
+			}
+
+			// If the user has previously placed a bid on this job,
+			// populate the action form accordingly.
+			try
+			{
+<span class="nc" id="L140">				bid = dbFacade.getBidDBHandler().getBid(game, job, company);</span>
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">				if (bid != null)</span>
+				{
+<span class="nc" id="L144">					bidOnJobForm.setMethods(bid.getMethods());</span>
+<span class="nc" id="L145">				    bidOnJobForm.setBidAmount(Long.toString(bid.getBidAmount()));</span>
+				}
+			}
+<span class="nc" id="L148">			catch (ObjectNotFoundException onfe)</span>
+			{
+				// This isn't a problem, it just means the user hasn't previously bid on this job
+<span class="nc" id="L151">			}</span>
+
+<span class="nc" id="L153">			dbFacade.close();</span>
+		}
+<span class="nc" id="L155">		catch(ObjectNotFoundException onfe)</span>
+		{
+			// job was created in an earlier period (player viewed message from a prior period)
+<span class="nc bnc" id="L158" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L160">				log.debug(this.getClass() + &quot; request completed.  ERROR - Player tried to accept an invitation from a prior period.&quot;);</span>
+			}
+<span class="nc" id="L162">			return (mapping.findForward(&quot;jobNotExist&quot;));</span>
+		}
+<span class="nc" id="L164">		catch(BIGDatabaseFacadeException bigdbe)</span>
+		{
+<span class="nc" id="L166">			log.fatal(&quot;&quot;, bigdbe);</span>
+<span class="nc" id="L167">			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+		}
+		finally
+		{
+			try
+			{
+<span class="nc" id="L173">         		dbFacade.close();</span>
+			}
+<span class="nc" id="L175">			catch (BIGDatabaseFacadeException e)</span>
+			{
+<span class="nc" id="L177">				log.fatal(getClass().getName(), e);</span>
+<span class="nc" id="L178"> 				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="nc" id="L179">			}</span>
+		}
+
+<span class="nc" id="L182">		session.setAttribute(&quot;bidOnJobForm&quot;, bidOnJobForm);</span>
+<span class="nc" id="L183">		session.setAttribute(&quot;job&quot;, job);</span>
+
+<span class="nc bnc" id="L185" title="All 2 branches missed.">		if (!errors.isEmpty())</span>
+		{
+<span class="nc bnc" id="L187" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L189">				log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+			}
+
+			// Report any errors we have discovered back to the original form
+<span class="nc" id="L193">			saveErrors(request, errors);</span>
+<span class="nc" id="L194">	 	   	saveToken(request);</span>
+<span class="nc" id="L195">			return (new ActionForward(mapping.getInput()));</span>
+		}
+		else
+		{
+<span class="nc bnc" id="L199" title="All 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L201">				log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+			}
+<span class="nc" id="L203">			return (mapping.findForward(&quot;success&quot;));</span>
+		}
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

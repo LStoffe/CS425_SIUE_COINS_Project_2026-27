@@ -1,0 +1,127 @@
+<!--
+  overbilling.html
+  Section 5.8 of the COINS Manual
+-->
+  
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="COINS - Section 5">
+    <title>5.9 Overbilling</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+
+    <!-- Section Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-black mb-4">
+            5.9 Overbilling and Underbilling
+        </h1>
+    </header>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Overbilling on a job means submitting a bill for an amount that would make the total amount billed on the job larger than the amount of revenue earned on the job. 
+            While somewhat dishonest and unethical, this practice can have financial benefits for your company. If you are able to get a little more cash earlier it may allow you to hold more liquid assets without giving up work. 
+            Thus, you might be able to increase your bond limits without the need to pass up on a job. 
+            Overbilling applies only to bid jobs, you cannot overbill on negotiated jobs because your customer can view your costs.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Underbilling is the reverse of overbilling. 
+            If you bill for less than the amount of revenue you earned then you are underbilling. 
+            While overbilling can be good for your company, underbilling never is. In fact, the only time you might underbill is if you make a mistake or forget to submit a bill.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            At the start of each period the Contracts in Progress Report and Balance Sheet will show large amounts as underbilled. 
+            his just means you have not submitted a bill yet that period. If after billing these reports still show amounts as underbilled, 
+            you will want to rework your bills so that you have billed for all revenue earned.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            The threshold between overbilling and underbilling is the accountant's estimate for total revenue earned, not the architect's. 
+            If you bill for the exact amount the accountant states as unbilled revenue then you are neither overbilling or underbilling.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            In BIG, and typically in real life, before you send a bill to a customer for work completed, 
+            you will have the architect look over the values on the bill and sign it to verify that the amount you say is complete (based on the the amount you are billing for) is fair. 
+            The architect will always sign for amounts less than or equal to his or her own estimate, so in reality you can always bill for amounts up to the architect's estimate even though the account's estimate is usually lower. 
+            Keep in mind if you bill for more than the accountant's estimate you are overbilling, even if the amount you bill for is less than the architect's estimate. 
+            This is because your bill will cause your cash income from the job to exceed the revenue earned on the job where revenue is calculated using the accountant's generally accepted contruction management accounting principles.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            When you bill you are still not limited to the architect's estimate. You can submit a bill for any positive amount in BIG and sometimes 
+            the architect is willing to approve amounts even higher than his or her estimate, as long as they are not outrageously high. 
+            Architects are aware of the practice of overbilling and customarily will help your company by signing bills that are a little too high. 
+            However, the architect does have a reputation and an obligation to the job customer as well, and if the amount of work done obviously does not justify the bill, he or she will reject it. 
+            There is a small penalty in BIG for submitting a bill to the architect that is obviously too high. In reality this would waste people's time and tarnish the reputation of your company. 
+            In BIG the architect does not look at bills until period updates, meaning if the bill is refused you will not know about it until the next period. If your bill gets rejected by the architect, 
+            then the customer never gets it and you don't get any cash for the job in the next period. If this happens when you sumbit the next period's bill, 
+            you may bill for the amount from the previous period too so you will get paid, but there will be a one period delay.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Another thing to be aware of about overbilling is that it will appear on the balance sheet as a liability. 
+            When you overbill you increase your cash, which is an asset. This means you must either decrease another asset or increase a liability or equity to keep the balance sheet in balance. 
+            An overbilled amount clearly is not another asset and the amount cannot be added to equity because you have not earned it yet, therefore it is a liability. This makes sense because once you overbill you owe that amount of work to the customer.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            Also, keep in mind that you cannot overbill for the entire job. 
+            If you overbill at the beginning of the job you will need to start underbilling towards the end. In this case underbilling means you bill for less than the amount of revenue earned in a single period. 
+            This makes sense because your total billed amount cannot be more than the total contract price. 
+            If you bill for more than you earned each period at the beginning of the job, then you will need to bill for less than you earned each period at the end so that the total amount billed is always less than or equal to the contract price.
+        </p>
+    </section>
+
+    <section class="mb-6">
+        <p class="text-lg text-black leading-relaxed mb-2">
+            <strong>Warning:</strong> If you ever submit a bill that will make your total amount billed greater than the adjusted contract price of the job, it will be rejected. Also, you can never overbill on negotiated jobs.
+        </p>
+    </section>
+</main>
+
+
+<!-- Manual Navigation Controls -->
+<nav class="manual-nav border-t flex justify-between w-full text-lg py-6 max-w-4xl mx-auto px-6 mt-6">
+    <a th:href="@{/manual/billing}" class="font-semibold hover:underline">
+        ← 5.8 Billing
+    </a>
+    <a th:href="@{/manual/income-tax}" class="font-semibold hover:underline">
+        Next → 5.10 Income Tax
+    </a>
+</nav>
+
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

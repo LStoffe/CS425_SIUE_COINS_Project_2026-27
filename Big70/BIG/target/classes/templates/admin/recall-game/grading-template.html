@@ -1,0 +1,174 @@
+<!--
+  grading-template.html
+  Allows admins to change formulas to compute scores for each company. These grades are shown in view-companies.
+-->
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>COINS - Grading Template</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar-admin :: navbar}"></div>
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-6xl font-bold mb-4">COINS</h1>
+    <h2 class="text-3xl mb-2">Grading Template</h2>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex justify-center px-6 pb-20">
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-6xl">
+
+      <div class="mb-8">
+        <p class="text-gray-700 mb-4">
+          The following formulas will be used to compute a grading score for each company in this game.
+          Go to "List all companies in this game" to see the results of these formulas as applied to each of your companies.
+        </p>
+      </div>
+
+      <form name="gradingTemplateForm" method="post" action="#" class="space-y-8">
+
+        <!-- Formulas Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Formula 1 -->
+          <div>
+            <label for="templateString" class="block font-semibold mb-2">
+              Formula #1
+            </label>
+            <textarea
+              id="templateString"
+              name="templateString"
+              rows="12"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            >COMPANY_EQUITY</textarea>
+          </div>
+
+          <!-- Formula 2 -->
+          <div>
+            <label for="templateString1" class="block font-semibold mb-2">
+              Formula #2
+            </label>
+            <textarea
+              id="templateString1"
+              name="templateString1"
+              rows="12"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            >COMPANY_BIDS</textarea>
+          </div>
+
+          <!-- Formula 3 -->
+          <div>
+            <label for="templateString2" class="block font-semibold mb-2">
+              Formula #3
+            </label>
+            <textarea
+              id="templateString2"
+              name="templateString2"
+              rows="12"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            >COMPANY_DISMISSED_BIDS</textarea>
+          </div>
+
+          <!-- Formula 4 -->
+          <div>
+            <label for="templateString3" class="block font-semibold mb-2">
+              Formula #4
+            </label>
+            <textarea
+              id="templateString3"
+              name="templateString3"
+              rows="12"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            >COMPANY_JOBS</textarea>
+          </div>
+
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+            <a th:href="@{/admin/recall-menu}"
+            class="px-4 py-2 rounded-lg border border-gray-400 hover:bg-gray-100 transition">
+            Cancel
+            </a>
+          
+          <button
+            type="submit"
+            class="px-6 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-semibold transition">
+            Save Changes
+          </button>
+        </div>
+
+        <!-- Available Codes Documentation -->
+        <div class="mt-8 pt-8 border-t border-gray-200">
+          <h4 class="text-xl font-bold mb-4">Available Formula Codes</h4>
+          
+          <p class="text-sm text-gray-700 mb-4">
+            The following <code class="bg-gray-100 px-2 py-1 rounded text-amber-700">codes</code> may be used to construct a formula:
+          </p>
+
+          <ul class="space-y-2 text-sm text-gray-700 ml-6">
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">TOTAL_JOBS</code> - The total number of jobs that have been created so far in this game.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_BIDS</code> - The total number of bids that the company has made so far.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_DISMISSED_BIDS</code> - The total number of bids that the company has made that have been rejected for a technical reason.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_JOBS</code> - The total number of jobs that the company has been awarded (includes both bid and negotiated jobs).</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_AUTO_JOBS</code> - The total number of jobs that the company has been automatically awarded by the admin.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_PUBLIC_JOBS</code> - The total number of public jobs that the company has been awarded.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_PRIVATE_JOBS</code> - The total number of private jobs that the company has been awarded.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_HEAVY_JOBS</code> - The total number of heavy jobs that the company has been awarded.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_CLOSED_BID_JOBS</code> - The total number of private jobs awarded through closed bidding.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_NEGOTIATED_JOBS</code> - The total number of private jobs awarded through negotiation.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_EQUITY</code> - Company's current value for equity.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">SUM_SIX_CAM_VALUES</code> - Sum of a Company's six CAM scores.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_JOBS_IN_PROGRESS</code> - The total number of jobs a company has "in progress" at this time.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">COMPANY_JOBS_COMPLETED</code> - The total number of jobs a company has completed so far.</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">TOTAL_GROSS_MARGIN_JOBS_IN_PROGRESS</code> - The estimated total gross margin for all jobs "in progress."</li>
+            <li><code class="bg-gray-100 px-2 py-1 rounded text-amber-700">TOTAL_GROSS_MARGIN_JOBS_COMPLETED</code> - The total gross margin for all completed jobs.</li>
+          </ul>
+
+          <!-- Examples Section -->
+          <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h5 class="font-bold mb-3">Examples:</h5>
+            
+            <div class="space-y-4 text-sm">
+              <div>
+                <code class="block bg-white px-3 py-2 rounded border border-gray-200 text-amber-700 mb-1">COMPANY_EQUITY</code>
+                <p class="text-gray-700">Grade is equal to company's equity value</p>
+              </div>
+
+              <div>
+                <code class="block bg-white px-3 py-2 rounded border border-gray-200 text-amber-700 mb-1">COMPANY_JOBS * 2 + COMPANY_BIDS</code>
+                <p class="text-gray-700">Grade is equal to twice the number of jobs the company has been awarded, plus the number of bids the company has made.</p>
+              </div>
+
+              <div>
+                <code class="block bg-white px-3 py-2 rounded border border-gray-200 text-amber-700 mb-1">(COMPANY_EQUITY / 100000) * (COMPANY_BIDS - COMPANY_DISMISSED_BIDS) * COMPANY_JOBS</code>
+                <p class="text-gray-700">Grade is equal to equity divided by 100,000, times the number of bids the company made that weren't dismissed, times the number of jobs won.</p>
+              </div>
+
+              <div>
+                <code class="block bg-white px-3 py-2 rounded border border-gray-200 text-amber-700 mb-1">(COMPANY_EQUITY / 100000) * (COMPANY_BIDS - COMPANY_DISMISSED_BIDS) * COMPANY_JOBS * SUM_SIX_CAM_VALUES</code>
+                <p class="text-gray-700">Same as above, multiplied by the sum of a company's six CAM scores.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

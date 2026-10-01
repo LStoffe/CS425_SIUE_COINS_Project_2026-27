@@ -1,0 +1,14 @@
+Testsuite: edu.calpoly.its.mas.big.db.DefaultCompanyDBHandlerIntegrationTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.811 sec
+------------- Standard Output ---------------
+AbandonedObjectPool is used (org.apache.commons.dbcp.AbandonedObjectPool@2667f029)
+   LogAbandoned: true
+   RemoveAbandoned: true
+   RemoveAbandonedTimeout: 1
+------------- ---------------- ---------------
+
+Testcase: testGetCompanyByUsername took 0.782 sec
+Testcase: testAddCompanyAndGetCompany took 0.003 sec
+Testcase: testGetCompanies took 0.004 sec
+Testcase: testUpdateCompany took 0.007 sec
+Testcase: testRemoveCompany took 0.009 sec

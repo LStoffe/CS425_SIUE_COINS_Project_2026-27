@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EditCompanyInformationAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">big60</a> &gt; <a href="index.source.html" class="el_package">edu.calpoly.its.mas.big.users.admin</a> &gt; <span class="el_source">EditCompanyInformationAction.java</span></div><h1>EditCompanyInformationAction.java</h1><pre class="source lang-java linenums">package edu.calpoly.its.mas.big.users.admin;
+
+//Servlet imports
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+//Servlet imports
+import edu.calpoly.its.mas.big.users.BIGAction;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.util.MessageResources;
+
+//BIG imports
+import edu.calpoly.its.mas.big.game.Game;
+import edu.calpoly.its.mas.big.users.company.Company;
+import edu.calpoly.its.mas.big.users.company.CompanyForm;
+
+//Database imports
+import edu.calpoly.its.mas.big.db.ObjectNotFoundException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacade;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeException;
+import edu.calpoly.its.mas.big.db.BIGDatabaseFacadeInterface;
+
+//BIG v3 imports
+import edu.calpoly.lib.multimedia.big.reports.BalanceSheetForm;
+import edu.calpoly.lib.multimedia.big.users.company.BondLimitConstraints;
+
+//Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ * Stores to the database changes made to a company's information by the administrator.
+ *
+ * @author Kevin Craig
+ *
+ * @version $Revision: 1.11 $ $Date: 2002/03/14 18:53:06 $
+ */
+<span class="fc" id="L47">public class EditCompanyInformationAction extends BIGAction</span>
+{
+
+	public ActionForward execute(ActionMapping mapping,
+					     	     ActionForm form,
+					       		 HttpServletRequest request,
+				           		 HttpServletResponse response)
+	{
+<span class="fc" id="L55">		Log log = LogFactory.getLog(this.getClass());</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">		if(log.isDebugEnabled())</span>
+		{
+<span class="nc" id="L58">			log.debug(this.getClass() + &quot; beginning execute method&quot;);</span>
+		}
+
+		//Process request if it was not cancelled
+<span class="fc bfc" id="L62" title="All 2 branches covered.">	    if(!isCancelled(request))</span>
+	    {
+<span class="fc" id="L64">			ActionMessages errors = new ActionMessages();</span>
+
+			//Get datafields for company from form
+                //Username will be stored as lower case for case insensitivty.  Passwords are case sensitive
+<span class="fc" id="L68">			String username = ((CompanyForm) form).getUsername().toLowerCase();</span>
+<span class="fc" id="L69">			String password = ((CompanyForm) form).getPassword();</span>
+<span class="fc" id="L70">            String title = ((CompanyForm) form).getTitle();</span>
+<span class="fc" id="L71">            long cashOnHand = ((CompanyForm) form).getCashOnHand();</span>
+<span class="fc" id="L72">            long WIPLimit = ((CompanyForm) form).getWIPLimit();</span>
+<span class="fc" id="L73">            int perJobLimitAsWIPPercent = ((CompanyForm) form).getPerJobLimitAsWIPPercent();</span>
+<span class="fc" id="L74">			int WIPLimitPercent = Math.round((((float) cashOnHand) / ((float) WIPLimit)) * 100f); //The percent of WIPLimit that cash-on-hand is equal to;</span>
+<span class="fc" id="L75">			long perJobLimit = Math.round((((float) perJobLimitAsWIPPercent) / 100f) * WIPLimit);  //perJobLimitAsWIPPercent = perJobLimit / WIPLimit;</span>
+
+            //Enforce min. bond limits
+<span class="fc" id="L78">            perJobLimit = BondLimitConstraints.applyPerJobLimitMinimum(perJobLimit);</span>
+<span class="fc" id="L79">            WIPLimit = BondLimitConstraints.applyWIPLimitMinimum(WIPLimit);</span>
+
+<span class="fc" id="L81">            HttpSession session = request.getSession();</span>
+
+<span class="fc" id="L83">            Game game = (Game) session.getAttribute(&quot;game&quot;);</span>
+<span class="fc" id="L84">            Company company = (Company) session.getAttribute(&quot;company&quot;);</span>
+
+            //Compute equity difference
+<span class="fc" id="L87">            int equityDiff = (int) (cashOnHand - company.getCashOnHand());</span>
+
+            //These will be used to test if an administrator or company with the username given already exists in the database
+<span class="fc" id="L90">			Admin testAdmin = null;</span>
+<span class="fc" id="L91">			Company testCompany = null;</span>
+
+			try
+			{
+				//Create a new BIGDatabaseFacade that hold connections - it will be used more than once
+<span class="fc" id="L96">				BIGDatabaseFacadeInterface dbFacade = getDbFacade(request);</span>
+
+				//Check if there is already an admin with this username
+<span class="fc" id="L99">				testAdmin = dbFacade.getAdminDBHandler().getAdmin(username);</span>
+
+				//Check if there is already a company with this username
+<span class="fc" id="L102">				testCompany = dbFacade.getCompanyDBHandler().getCompany(username);</span>
+
+
+<span class="pc bpc" id="L105" title="2 of 4 branches missed.">				if(((testAdmin == null) &amp;&amp; (testCompany == null)) //Username not in use</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">				   || (testCompany.getCompanyID() == company.getCompanyID()))</span>
+				{
+
+<span class="fc" id="L109">					company.setUsername(username);</span>
+<span class="fc" id="L110">					company.setPassword(password);</span>
+<span class="fc" id="L111">					company.setTitle(title);</span>
+<span class="fc" id="L112">					company.setCashOnHand(cashOnHand);</span>
+<span class="fc" id="L113">					company.setWIPLimit(WIPLimit);</span>
+<span class="fc" id="L114">					company.setWIPLimitPercent(WIPLimitPercent);</span>
+<span class="fc" id="L115">					company.setPerJobLimit(perJobLimit);</span>
+<span class="fc" id="L116">					company.setPerJobLimitAsWIPPercent(perJobLimitAsWIPPercent);</span>
+
+
+<span class="fc" id="L119">					dbFacade.getCompanyDBHandler().updateCompany(game, company);</span>
+
+<span class="fc" id="L121">					int balanceSheetPeriod = game.getCurrentPeriodNumber() - 1;</span>
+
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">					if(balanceSheetPeriod &lt; 0)</span>
+					{
+						//This will happen if the game hasn't started yet
+<span class="nc" id="L126">						balanceSheetPeriod = 0;</span>
+					}
+
+<span class="fc" id="L129">					BalanceSheetForm balanceSheet = dbFacade.getBalanceSheetDBHandler().getBalanceSheet(game, balanceSheetPeriod, company);</span>
+<span class="fc" id="L130">					balanceSheet.setEquity(balanceSheet.getEquity() + equityDiff);</span>
+<span class="fc" id="L131">					balanceSheet.setPeriod(balanceSheetPeriod);</span>
+<span class="fc" id="L132">					balanceSheet.setCashOnHand(cashOnHand);</span>
+<span class="fc" id="L133">					dbFacade.getBalanceSheetDBHandler().updateBalanceSheet(game, company, balanceSheet);</span>
+
+					//Put the updated company back into the session
+<span class="fc" id="L136">					session.setAttribute(&quot;company&quot;, company);</span>
+<span class="fc" id="L137">				}</span>
+				else
+				{
+					//The username was already in use
+<span class="nc" id="L141">					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.username.duplicate&quot;));</span>
+				}
+
+				//Close connection
+<span class="fc" id="L145">				dbFacade.close();</span>
+
+			}
+<span class="nc" id="L148">			catch(BIGDatabaseFacadeException BIGDbe)</span>
+			{
+<span class="nc" id="L150">				log.fatal(&quot;&quot;, BIGDbe);</span>
+<span class="nc" id="L151">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+			}
+<span class="nc" id="L153">			catch(ObjectNotFoundException onfe)</span>
+			{
+<span class="nc" id="L155">				log.fatal(&quot;&quot;, onfe);</span>
+<span class="nc" id="L156">				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(&quot;error.database&quot;));</span>
+<span class="pc" id="L157">			}</span>
+
+
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">			if (!errors.isEmpty())</span>
+			{
+<span class="nc bnc" id="L162" title="All 2 branches missed.">					if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L164">					log.debug(this.getClass() + &quot; request returned with errors&quot;);</span>
+				}
+
+				// Report any errors we have discovered back to the original form
+<span class="nc" id="L168">				saveErrors(request, errors);</span>
+<span class="nc" id="L169">	 	    	saveToken(request);</span>
+<span class="nc" id="L170">	 	    	return (new ActionForward(mapping.getInput()));</span>
+			}
+			else
+			{
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">				if(log.isDebugEnabled())</span>
+				{
+<span class="nc" id="L176">					log.debug(this.getClass() + &quot; request completed.  Forwarding to \&quot;success\&quot;&quot;);</span>
+				}
+<span class="fc" id="L178">				return (mapping.findForward(&quot;success&quot;));</span>
+			}
+
+	    }
+	    else
+	    {
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">			if(log.isDebugEnabled())</span>
+			{
+<span class="nc" id="L186">				log.debug(this.getClass() + &quot; request was cancelled&quot;);</span>
+			}
+<span class="fc" id="L188">			return (mapping.findForward(&quot;cancelled&quot;));</span>
+		}
+
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
